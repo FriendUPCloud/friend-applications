@@ -1,0 +1,46 @@
+<style>
+ul.a {
+  list-style-position: outside;
+}
+</style>
+
+<div class="VContentTop Padding ScrollArea" id="vt">
+    <p>
+        <strong>Google Docs</strong>
+    </p>
+
+    <p>
+        A web application to access the <i>external</i> Google Doc word processor in a Friend Window
+	<ul class="a">
+		<li> A valid Google account is required to access the Google word processor. Click <a href="https://accounts.google.com/signup?hl=en-GB" target="_blank" >here</a> to go to Google and create a new account.</li>
+		<li> Files are automatically stored to your Google Drive, not your Friend drive.</li>
+		<li> To enable Google Drive support in Friend 1.2, Navigate to the <b><i><u>System</b></i></u> menu and select <b><i><u>My account</b></i></u>. On the <b><i><u>Storage</b></i></u> tab, add a Google drive and authorize it in Friend<br></li>
+	</ul>
+	</p>
+    
+    <p>
+    	<strong>Limitations</strong>
+<ul class="a">
+	<li>This app will only create NEW documents. It will not open existing documents via the File->Open method. To open an existing document, 
+    	double click the file directly from your Drive folder in the file manager.</li>
+	<li>This app will open new documents or template (both from the File menu) in a new tab.</li>
+    <li>This app will not access any Google service such as Photos, Drive files, etc. To insert any images or other items into a document, the file must reside on the local machine.</li>
+    </p>
+</ul>
+
+</div>
+<div class="VContentBottom BorderTop BackgroundDefault Padding" id="vb">
+    <p class="Layout">
+        <button type="button" class="Button IconSmall fa-close" onclick="Application.sendMessage( { type: 'view', method: 'close' } )">&nbsp;Close</button>
+    </p>
+</div>
+<style>
+    #vt
+    {
+        bottom: 50px;
+    }
+    #vb
+    {
+        height: 50px;
+    }
+</style>
