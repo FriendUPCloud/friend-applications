@@ -40,8 +40,8 @@ Application.loadSettings = function()
 Application.openView = function()
 {
 	var v = new View( {
-		title: 'Friend Platform Roadmap',
-		width: 900,
+		title: 'Friend OS Roadmap',
+		width: 1280,
 		height: 780
 	} );
 	
