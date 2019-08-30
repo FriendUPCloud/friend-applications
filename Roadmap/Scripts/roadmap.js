@@ -3,7 +3,7 @@ Application.settings = false;
 
 Application.run = function( msg )
 {
-	this.setApplicationName( 'Wekan v1.06' );
+	this.setApplicationName( 'Roadmap' );
 	this.loadSettings();
 }
 
@@ -40,7 +40,7 @@ Application.loadSettings = function()
 Application.openView = function()
 {
 	var v = new View( {
-		title: 'Wekan',
+		title: 'Friend Platform Roadmap',
 		width: 900,
 		height: 780
 	} );

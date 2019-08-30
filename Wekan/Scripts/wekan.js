@@ -3,7 +3,7 @@ Application.settings = false;
 
 Application.run = function( msg )
 {
-	this.setApplicationName( 'Roadmap' );
+	this.setApplicationName( 'Wekan' );
 	this.loadSettings();
 }
 
