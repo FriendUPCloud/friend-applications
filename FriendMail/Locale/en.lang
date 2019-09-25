@@ -1,0 +1,22 @@
+menu_File                          : File
+menu_quit                          : Quit
+menu_accounts                      : Manage accounts
+
+menu_Navigation                    : Navigation
+i18n_menu_email_overview           : Combined inbox
+i18n_menu_email_flagged            : Flagged e-mails
+i18n_menu_email_unread             : Unread e-mails
+i18n_menu_email_history            : History
+i18n_menu_calendar                 : Calendar
+
+menu_Contacts                      : Contacts
+i18n_menu_show_contacts            : Show contacts
+i18n_menu_new_contact              : New contact
+
+
+menu_Settings                      : Settings
+i18n_menu_application_settings     : Application settings
+i18n_menu_email_accounts           : E-mail accounts
+
+
+title_accounts					   : Accounts

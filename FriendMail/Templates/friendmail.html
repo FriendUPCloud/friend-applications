@@ -1,0 +1,11 @@
+
+
+	<iframe id="MailFrame" name="MailFrame" src="{friendmailhost}" sandbox="allow-forms allow-pointer-lock allow-same-origin allow-scripts allow-top-navigation"></iframe>
+	<link rel="stylesheet" href="Progdir:Css/friendmail.css"/>
+	<script src="Progdir:Scripts/launch.js"></script>
+	<form id="Launcher" target="MailFrame" action="{friendmailhost}" method="POST">
+		<input type="hidden" id="username" name="username" value="{friendmailuser}" />
+		<input type="hidden" id="password" name="password" value="{friendmailpass}" />
+	</form>
+	
+

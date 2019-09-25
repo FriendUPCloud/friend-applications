@@ -1,0 +1,176 @@
+html * 
+{ 
+	font-family: assistant, sans serif;
+	color: #333333 !important; 
+	border-color: rgba(0,0,0,0.05) !important; 
+	background-color: transparent; 
+	font-size: 14px;
+}
+
+html body
+{
+	font-size: 0.9em;
+}
+
+main, div 
+{
+	border-radius: 0; 
+}
+
+body, .folder_cell 
+{ 
+	background: none !important; 
+	background-color: transparent !important; 
+}
+
+html
+{
+	background: #f9f9f9; 
+}
+
+img
+{
+	opacity: .5 !important; 
+}
+
+.msg_text_inner img, .apod_image img
+{
+	opacity: 1 !important; 
+}
+
+a
+{
+	color: #222 !important; 
+}
+
+.list_meta, a:hover
+{
+	color: #777 !important;
+}
+
+input[type=text], input[type=range], input[type=number], input[type=date], input[type=email], input[type=username], input[type=datetime-local], input[type=password], html body textarea, html select, html select:hover
+{
+    border-radius: 2px;
+    border: 1px solid #e3e7e8;
+    background: #e8e8e8;
+}
+
+.toggle_link
+{
+	color: #aaa; background-color: #bbb !important;
+}
+
+.loading_icon, .server_section
+{
+	border-radius: 0px !important; 
+}
+
+.folder_list
+{
+	background-color: #E0E0E0 !important;
+}
+
+body .content_title, 
+body .src_name
+{
+	background: #e0e0e0;
+}
+
+body .msg_controls a, 
+body .toggle_link
+{
+	border-radius: 0;
+}
+
+.confirm_logout, .content_cell, .message_list, .configured_server, .add_server, .server_content, .server_section
+{
+	background-color: #e0e0e0 !important;
+}
+
+body .folder_list
+{
+	border-right-width: 1px;
+    margin-right: 0;
+    border-right-style: solid;
+}
+
+body .message_table
+{
+	background: #f9f9f9;
+}
+
+.msg_controls, .src_name, .content_title
+{
+	color: #333333 !important;
+}
+
+.debug, .subtitle
+{
+	color: #333333 !important;
+}
+
+.settings_subtitle
+{
+	color: #333333 !important; 
+
+}
+.empty_list, .subject a
+{
+	color: #333333 !important;
+}
+
+.selected_menu, .selected_menu a
+{
+	color: #333333 !important;
+}
+
+.icon
+{
+	color: #333333 !important;
+}
+
+.online
+{
+	color: #27AE60 !important;
+}
+
+.down
+{
+	color: #E95A4C !important;	
+}
+
+.sys_messages
+{
+	background-color: #000000 !important; color: #ffffff !important;
+}
+
+.message_list tr td
+{
+	border: none;
+}
+
+::-webkit-input-placeholder
+{
+	color: #888888; 
+}
+
+.empty_list
+{
+	color: #999999 !important;
+}
+
+.checkbox_cell input[type="checkbox"]:checked + label
+{
+	background-color: #777777 !important;
+}
+
+.save_reminder
+{
+	margin-top: 10px;
+}
+
+.list_controls
+{
+	background: none !important;
+}
+
