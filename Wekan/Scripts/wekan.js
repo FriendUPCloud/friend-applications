@@ -26,6 +26,7 @@ Application.loadSettings = function()
 			}
 			Application.settings = tmp;
 			if( tmp && tmp.wekanhost ) Application.wekanURL = tmp.wekanhost;
+			else Notify({'title':'No Wekan URL set','text':'No system/wekan wekanURL setting found. Defaulting to development server.'});
 		}
 		else
 		{
@@ -40,7 +41,7 @@ Application.loadSettings = function()
 Application.openView = function()
 {
 	var v = new View( {
-		title: 'Friend Platform Roadmap',
+		title: 'Wekan',
 		width: 900,
 		height: 780
 	} );
