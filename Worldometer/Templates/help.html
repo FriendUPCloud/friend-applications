@@ -1,0 +1,41 @@
+<style>
+ul.a {
+  list-style-position: outside;
+}
+</style>
+
+<div class="VContentTop Padding ScrollArea" id="vt">
+    <p>
+        <strong>Worldometer</strong>
+    </p>
+
+    <p>
+        A web application to access the <i>external</i> Worldometer website in a Friend Window
+	<ul class="a">
+		<li> Click <a href="https://www.worldometers.info/" target="_blank" >here</a> to go to Worldometer.</li>
+	</ul>
+	</p>
+    
+    <p>
+    	<strong>Limitations</strong>
+<ul class="a">
+	<li></li>
+    </p>
+</ul>
+
+</div>
+<div class="VContentBottom BorderTop BackgroundDefault Padding" id="vb">
+    <p class="Layout">
+        <button type="button" class="Button IconSmall fa-close" onclick="Application.sendMessage( { type: 'view', method: 'close' } )">&nbsp;Close</button>
+    </p>
+</div>
+<style>
+    #vt
+    {
+        bottom: 50px;
+    }
+    #vb
+    {
+        height: 50px;
+    }
+</style>
