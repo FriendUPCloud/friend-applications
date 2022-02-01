@@ -1,0 +1,84 @@
+{
+    "template": {
+        "name": "testTemplate",
+        "elements": [
+            {
+                "id": 594,
+                "order": 0,
+                "elementType": "text",
+                "domElements": {
+                    "text": {
+                        "id": "text",
+                        "content": "Section 1.0"
+                    }
+                }
+            },
+            {
+                "id": 969,
+                "order": 1,
+                "elementType": "markup",
+                "domElements": {
+                    "markup": {
+                        "id": "markup",
+                        "content": "<h2>1.01 Intro</h2><p><br data-cke-filler=\"true\"></p><p>I denne leksjonen skal vi fokusere på vekterens betydning og rolle i selskapets forhold til kunden:&nbsp;</p><ul><li>Kommunikasjonmodellen og aktiv lytting</li><li>Enveis – toveiskommunikasjon</li><li>Balanse mellom service og sikkerhet</li><li>Konflikthåndtering</li><li>Stresskurver og stressreaksjoner</li></ul><p><i>En effektiv og åpen kommunikasjon er en forutsetning for et</i></p><p><i>godt arbeidsklima og dermed også for effektiv løsning av</i> <i>pålagte oppgaver.</i></p><p><br data-cke-filler=\"true\"></p><p><i><strong>Det er ikke mulig å ikke kommunisere!</strong></i></p><p><br data-cke-filler=\"true\"></p>"
+                    }
+                }
+            },
+            {
+                "id": 378,
+                "order": 2,
+                "elementType": "image",
+                "domElements": {
+                    "image": {
+                        "title": "",
+                        "friendSource": "Thinkpad:dev/friend-internal/apps/CourseCreator/Assets/Bilde1.png"
+                    }
+                }
+            },
+            {
+                "id": 828,
+                "order": 3,
+                "elementType": "markup",
+                "domElements": {
+                    "markup": {
+                        "id": "markup",
+                        "content": "<p>Quiz:</p>"
+                    }
+                }
+            },
+            {
+                "id": 47,
+                "order": 4,
+                "elementType": "checkBoxQuestion",
+                "domElements": {
+                    "question": {
+                        "id": "question_",
+                        "label": "Hva er stressmestring?"
+                    },
+                    "checkBoxes": [
+                        {
+                            "label": "Å finne og iverksette tiltak for å sørge for at stress ikke har en negativ innvirkning på kroppen og sinnet",
+                            "id": "checkBox1_",
+                            "answer": false
+                        },
+                        {
+                            "label": "Å kunne ignorere alt som virker stressende.",
+                            "id": "checkBox2_",
+                            "answer": false
+                        },
+                        {
+                            "label": "Å unngå alle situasjoner som kan virke stressende.",
+                            "id": "checkBox633_47",
+                            "answer": false
+                        },
+                        {
+                            "label": "Å kjenne etter når kroppen sier stopp og ta seg fri.",
+                            "id": "checkBox437_47",
+                            "answer": false
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}

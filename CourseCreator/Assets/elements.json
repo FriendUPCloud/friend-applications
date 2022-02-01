@@ -1,0 +1,40 @@
+{
+    "elementTypes": [
+        {
+            "id": null,
+            "order": null,
+            "elementType": "checkBoxQuestion",
+            "domElements": {
+                "question": {
+                    "id": "question",
+                    "label": "<question>"
+                },
+                "checkBoxes": [
+                    {
+                        "label": "<alternative 1>",
+                        "id": "checkBox"
+                    },
+                    {
+                        "label": "<alternative 2",
+                        "id": "checkBox"
+                    }
+                ],
+                "answer": {
+                    "id": "answer",
+                    "label": "<answer>"
+                }
+            }
+        },
+        {
+            "id": null,
+            "order": null,
+            "elementType": "page",
+            "domElements": {
+                "page": {
+                    "id": "button",
+                    "label": "Page Next"
+                }
+            }
+        }
+    ]
+} 

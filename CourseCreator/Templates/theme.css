@@ -1,0 +1,242 @@
+:root
+{
+    --background: #ECF0F1;
+    --color: #333333;
+    --background-foreground: white;
+    --border-foreground: #DDDDDD;
+    
+    --list-button-background: #cfcfcf;
+    --list-button-background-hover: #909090;
+    --list-button-color: #000000;
+    --list-buitton-color-hover: #f0f0f0;
+
+    --menu-background: #20374D;
+    --menu-color: white;
+    --padding-normal: 10px;
+    --padding-row: 5px;
+    
+    --list-hover-background: #efefef;
+    --module-background: #20374D;
+    --module-background-hover: #344A5E;
+    --module-background-active: #ECF0F1; 
+    --module-color: white;
+    --module-color-active: #1a344c;
+    
+    --gui-checkbox-checked: #22b060;
+    --gui-checkbox: #b0b0b0;
+    --gui-checkbox-button: #ffffff;
+    
+    --gui-border-color-negative: #ffffff;
+    --gui-border-color: #3b3b3b;
+    
+    --gui-alert-border-color : red;
+}
+
+/* Modules ------------------------------------------------------------------ */
+.Module
+{
+    display: block;
+    padding: var(--padding-normal);
+    margin: 0;
+    background-color: var(--module-background);
+    color: var(--module-color);
+    cursor: pointer;
+}
+
+.Module:after
+{
+    content: " ";
+    display: block;
+    clear: both;
+}
+
+.Module .Image
+{
+    float: left;
+    display: block;
+    margin: 0 10px 10px 0;
+    font-size: 24px;
+    width: 24px;
+    text-align: center;
+}
+
+.Module p
+{
+    margin: 0 0 2px 0;
+}
+
+.Module p strong
+{
+    font-size: 1.1em;
+}
+
+.Module:hover
+{
+    background-color: var(--module-background-hover);
+}
+
+.Module.Active
+{
+    background-color: var(--module-background-active);
+    color: var(--module-color-active);
+}
+
+/* Content blocks ----------------------------------------------------------- */
+
+.ContentHeader
+{
+    border-radius: 4px 4px 0 0;
+    background-color: var(--menu-background);
+    color: var(--menu-color);
+}
+
+.ContentHeaderExtended
+{
+    background-color: var(--menu-background);
+    color: var(--menu-color);
+    padding: var(--padding-normal);
+}
+
+.ContentHeaderExtended:after
+{
+    display: block;
+    content: " ";
+    clear: both;
+}
+
+.ContentHeader.ContentMaxHeight
+{
+    top: var(--padding-normal);
+    left:  0;
+    height: 47px;
+}
+
+.ContentHeader:after
+{
+    content: " ";
+    display: block;
+    clear: both;
+}
+
+.ContentBlock
+{
+    border-radius: 0 0 4px 4px;
+    padding: var(--padding-normal);
+    color: var(--color);
+    background-color: var(--background-foreground);
+}
+
+.ContentBlock.ContentMaxHeight
+{
+    height: calc(100% - var(--padding-normal) * 2);
+    width: calc(100% - var(--padding-normal) * 2);
+}
+
+.ContentMaxHeight
+{
+    position: absolute;
+}
+
+.ContentHeader h2,
+.ContentHeader h3,
+.ContentHeader .Left
+{
+    float: left;
+    display: block;
+    width: 50%;
+    box-sizing: border-box;
+    padding-right: var(--padding-normal);
+    padding-top: var(--padding-row);
+    padding-left: var(--padding-normal);
+    padding-bottom: var(--padding-row);
+}
+
+.ContentHeader .Left
+{
+    margin-top: 7px;
+}
+
+.ContentHeader .Left div, 
+.ContentHeader .Left input
+{
+    float: right;
+}
+
+.ContentHeader .Right
+{
+    float: right;
+    position: relative;
+    top: 10px;
+    right: 50px;
+}
+
+.ContentHeader .Right > input
+{
+    height: 20px;
+    width: 54px;
+}
+
+.ContentHeader .HeaderButton
+{
+    text-align: center;
+    width: 18px;
+    height: 24px;
+    float: left;
+    display: block;
+    margin: 0 0 0 5px;
+}
+
+.ContentListHeaders
+{
+    background-color: var(--menu-background);
+    color: var(--menu-color);
+    padding-left: var(--padding-normal);
+    padding-right: var(--padding-normal);
+    padding-top: 0;
+    box-sizing: border-box;
+}
+
+.ContentListHeaders .HRow
+{
+    color: var(--menu-color);
+}
+
+/* Hrows -------------------------------------------------------------------- */
+
+.EditRow
+{
+    background-color: transparent;
+    color: var(--color);
+    padding: var(--padding-row);
+}
+
+.EditRow.Yourself
+{
+    font-weight: bold;
+}
+
+.ContentBlock .EditRow:hover
+{
+    background-color: var(--list-hover-background);
+}
+
+/* CC Specific 
+--------------------------------------------------------------------- */
+
+.BoxContainer
+{
+    box-sizing: border-box;
+    padding-right: var(--padding-normal);
+    padding-top: var(--padding-row);
+    padding-left: var(--padding-normal);
+    padding-bottom: var(--padding-row);
+    background: white;
+    border-radius: 2px;
+}
+
+/* GUI
+--------------------------------------------------------------------- */
+
+.Alert-Border {
+    border : 1px solid var(--gui-alert-border-color) !important;
+}

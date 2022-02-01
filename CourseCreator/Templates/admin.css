@@ -1,0 +1,220 @@
+
+.Panel.Menu
+{
+    background-color: var(--menu-background);
+    color: var(--menu-color);
+}
+
+#Panels
+{
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+#Panels, #PanelSide, #PanelMain
+{
+    position: absolute;
+}
+
+
+#PanelSide
+{
+    width: 250px;
+    height: 100%;
+    z-index: 5;
+}
+
+#PanelMain
+{
+    width: calc(100% - 250px);
+    height: 100%;
+    left: 250px;
+    background-color: var(--background);
+    color: var(--color);
+    overflow-x: hidden;
+}
+
+#PanelMain .SubModule
+{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transition: opacity,left 0.15s,0.25s;
+    opacity: 1;
+    padding: var(--padding-normal);
+    box-sizing: border-box;
+}
+
+#PanelMain.SectionLoading > .SubModule
+{
+    opacity: 0;
+}
+
+.Editmode #PanelMain > .SubModule
+{
+    left: -100%;
+}
+
+#PanelMain > .EditPane
+{
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    left: 100%;
+    transition: left 0.25s;
+    padding: var(--padding-normal);
+    box-sizing: border-box;
+}
+
+.Editmode #PanelMain > .EditPane
+{
+    left: 0%;
+}
+
+.BlockSpacer
+{
+    display: block;
+    height: 20px;
+}
+
+body .Module p > span
+{
+    display: none;
+}
+
+body .Module.Active p > span
+{
+    display: block;
+    float: right;
+    width: 13px;
+    height: 13px;
+    opacity: 0;
+    transition: opacity 0.25s;
+}
+
+body.Editing .Module.Active p > span,
+body.Saving .Module.Active p > span,
+body.Saved .Module.Active p > span
+{
+    opacity: 1;
+}
+
+body .Module.Active p > span:before
+{
+    content: " ";
+    display: block;
+    border-radius: 100%;
+    border: 1px solid var(--menu-background);
+    background-color: white;
+    color: var(--menu-background);
+    padding: 2px;
+    width: 13px;
+    height: 13px;
+    font-size: 12px;
+    text-align: center;
+}
+
+body.Editing .Module.Active p > span:before
+{
+    content: "\f141";
+    animation-duration: 0.5s;
+    animation-iteration-count: 1;
+    animation-name: fadeinfadeout;
+}
+body.Saving .Module.Active p > span:before
+{
+    content: "\f021";
+    animation-duration: 0.5s;
+    animation-name: fadeinfadeoutspin;
+    animation-iteration-count: infinite;
+}
+body.Saved .Module.Active p > span:before
+{
+    content: "\f00c";
+    animation-duration: 0.5s;
+    animation-name: fadeinfadeout;
+    animation-iteration-count: 0;
+}
+
+@keyframes fadeinfadeout
+{
+    from {
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    to  {
+        opacity: 0;
+    }
+}
+
+@keyframes fadeinfadeoutspin
+{
+    from {
+        opacity: 0;
+        transform: rotateZ(0deg);
+    }
+    50% {
+        opacity: 1;
+        transform: rotateZ(180deg);
+    }
+    to {
+        opacity: 0;
+        transform: rotateZ(360deg);
+    }
+}
+
+/* Submodule users */
+
+.UserContainer
+{
+    display: inline-block;
+    position: relative;
+    border-radius: 100%;
+    background-color: black;
+}
+
+.UserContainer button
+{
+    position: absolute;
+    top: 130px;
+    left: 170px;
+}
+
+.HiddenBlock
+{
+    position: absolute;
+    pointer-events: none;
+    overflow: hidden;
+    width: 1px;
+    height: 1px;
+}
+
+#UserAvatar
+{
+    opacity: 1;
+    transition: opacity 0.25s;
+}
+
+.UserContainer.Loading #UserAvatar
+{
+    opacity: 0;
+}
+
+#UserAvatar.hasImage:before
+{
+    display: none;
+}
+
+#UserAvatar.hasImage
+{
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+}

@@ -1,0 +1,169 @@
+
+    <div class="SubModule">
+        <div class="ContentHeader">
+            <h2>
+                Courses
+            </h2>
+            <div class="Left">
+                <div class="Buttons">
+                    <div class="HeaderButton IconSmall fa-plus-circle"></div>
+                    <div class="HeaderButton IconSmall fa-navicon"></div>
+                </div>
+                <input type="text" placeholder="Search"/>
+            </div>
+        </div>
+        <div class="ContentBlock">
+            <div id="CourseContent"></div>
+        </div>
+    </div>
+    
+    <script>
+        Application.submodules.courses = {
+            init()
+            {
+                // add new course button event handler 
+                let b = document.querySelector(
+                        '.SubModule .ContentHeader .Buttons .fa-plus-circle'
+                    );
+                b.addEventListener(
+                    'click',
+                    function ( event )    
+                    {
+                        let v = new View({
+                           title: "Edit course",
+                           width: 800,
+                           height: 900
+                        });
+
+                        // Create a menu
+                        let myMenu = [
+                        {
+                            name: 'File',
+                            items: [
+                                {
+                                    name: 'Save',
+                                    command: 'save',
+                                    scope: 'local'
+                                },
+                                {
+                                    name: 'Quit',
+                                    command: 'quit'
+                                }
+                            ]
+                        }
+                        ];
+
+                        // Number of courses
+                        let dId = document.querySelectorAll(
+                            '.SubModule .HRow'
+                        ).length
+
+                        console.log('this is dId', dId);
+
+                        // Add the menu to the view window
+                        v.setMenuItems( myMenu );
+                        
+                        let f = new File('Progdir:Templates/main.html');
+                        f.onLoad = function( data ){
+                            v.setContent( data, function(){         
+                                v.sendMessage(
+                                    { 
+                                        command: 'loadNewCourse',
+                                        displayId: dId
+                                    } 
+                                );
+                            });
+                        }
+                        f.load();
+                    }
+                );
+
+
+                let m = new Module( 'system' );
+                m.onExecuted = function( e, d )
+                {
+                    if( e != 'ok' )
+                    {
+                        ge( 'CourseContent' ).innerHTML = '<p>No classrooms currently found.</p>';
+                        ge( 'PanelMain' ).classList.remove( 'SectionLoading' );
+                        return;
+                    }
+                    let ls = JSON.parse( d );
+                    let str = '';
+                    for( let a = 0; a < ls.length; a++ )
+                    {
+                        str += '<div class="HRow EditRow" row-id="' + ls[a].ID + '">\
+                            <div class="HContent50 FloatLeft">' + ls[a].Name + '</div>\
+                            <!--<div class="HContent10"></div>\
+                            <div class="HContent10"></div>\
+                            <div class="HContent10"></div>\
+                            <div class="HContent10"></div>-->\
+                            <div class="HContent50 FloatLeft">' + ls[a].DateCreated + '</div>\
+                        </div>';
+                    }
+                    ge( 'CourseContent' ).innerHTML = str;
+                    
+                    let rows = ge( 'CourseContent' ).getElementsByClassName( 'HRow' );
+                    for( let a = 0; a < rows.length; a++ )
+                    {
+                        ( function( r )
+                        {
+                            r.onclick = function()
+                            {
+                                   let v = new View({
+                                       title: "Edit course",
+                                       width: 800,
+                                       height: 900
+                                    });
+
+                                    // Create a menu
+                                    let myMenu = [
+                                    {
+                                        name: 'File',
+                                        items: [
+                                            {
+                                                name: 'Save',
+                                                command: 'save',
+                                                scope: 'local'
+                                            },
+                                            {
+                                                name: 'Quit',
+                                                command: 'quit'
+                                            }
+                                        ]
+                                    }
+                                    ];
+                                    // Add the menu to the view window
+                                    v.setMenuItems( myMenu );
+                                    
+                                    let f = new File('Progdir:Templates/main.html');
+                                    f.onLoad = function( data ){
+                                        v.setContent( data, function(){         
+                                            v.sendMessage(
+                                                { 
+                                                    command: 'loadCourse',
+                                                    courseId: r.getAttribute('row-id')
+                                                }
+                                            );
+                                        });
+                                    }
+                                    f.load();
+                            }
+                        } )( rows[a] );
+                    }
+                    ge( 'PanelMain' ).classList.remove( 'SectionLoading' );
+                }
+                m.execute( 'appmodule', {
+                    appName: 'CourseCreator',
+                    command: 'submodule',
+                    vars: {
+                        method: 'courses',
+                        submodule: 'courses'
+                    }
+                } );
+            }
+        };
+        Application.submodules.courses.init();
+    </script>
+
+

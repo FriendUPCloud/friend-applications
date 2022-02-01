@@ -1,0 +1,531 @@
+    <div class="SubModule" id="usersContainer">
+        <div class="ContentHeader" id="usersContentHeader">
+            <h2>
+                Users
+            </h2>
+            <div class="Left">
+                <div class="Buttons">
+                    <div class="HeaderButton IconSmall fa-plus-circle MousePointer" onclick="Application.submodules.users.create()"></div>
+                    <!--<div class="HeaderButton IconSmall fa-navicon MousePointer"></div>-->
+                </div>
+                <input type="text" placeholder="Search"/>
+            </div>
+        </div>
+        <div class="ContentListHeaders" id="usersListHeaders">
+            <div class="HRow EditRow">
+                <div class="HContent25 Ellipsis FloatLeft">Name</div>
+                <div class="HContent25 Ellipsis FloatLeft">Username</div>
+                <div class="HContent25 Ellipsis FloatLeft">Status</div>
+                <div class="HContent25 Ellipsis FloatLeft">Last login</div>
+            </div>
+        </div>
+        <div class="ContentBlock">
+            <div id="UsersContent"></div>
+        </div>
+    </div>
+
+    <script>
+        Application.submodules.users = {
+            init()
+            {
+                if( this.initialized )
+                    return;
+                    
+                this.initialized = true;
+                
+                this.refreshUsers( function()
+                {
+                    ge( 'PanelMain' ).classList.remove( 'SectionLoading' );
+                } );
+            },
+            refreshUsers( cbk )
+            {
+                let self = this;
+                let searchParams;
+                let m = new Module( 'system' );
+                m.onExecuted = function( e, d )
+                {
+                    if( e == 'ok' )
+                    {
+                        let str = '';
+                        let lst = JSON.parse( d );
+                        console.log( 'users.refreshUsers( actually listusers )', lst );
+                        for( let a in lst )
+                        {
+                            if( !lst[ a ].ID ) continue;
+                            let cl = '';
+                            let exNam = '';
+                            if( Application.userId == lst[a].ID )
+                            {
+                                cl = ' Yourself';
+                                exNam = ' (you)';
+                            }
+                            let stat = '';
+                            switch( lst[a].Status )
+                            {
+                                case 0:
+                                default:
+                                    stat = 'Active';
+                                    break;
+                            }
+                            
+                            console.log( 'Logintime: ' + lst[a].FullName + ' -> ' + lst[a].LoginTime + ' ' + typeof( lst[a].LoginTime ) + ' ' + parseInt( lst[a].LoginTime ) );
+                            
+                            let logt = lst[a].LoginTime != '0' ? ( new Date( parseInt( ( lst[a].LoginTime + '000' ) ) ) ) : 'Never';
+                            if( typeof( logt ) == 'object' )
+                            {
+                                logt = logt.getFullYear() + '-' + StrPad( ( logt.getMonth() + 1 ), 2, '0' ) + '-' + StrPad( logt.getDate(), 2, '0' );
+                            }
+                            
+                            str += '<div class="HRow EditRow' + cl + '" userId="' + lst[ a ].ID + '">\
+                                <div class="HContent25 FloatLeft Ellipsis"><span class="IconMedium fa-user FloatLeft MarginRight"></span>' + ( lst[a].FullName ? lst[a].FullName : 'Unnamed' ) + exNam + '</div>\
+                                <div class="HContent25 FloatLeft Ellipsis">' + lst[a].Name + '</div>\
+                                <div class="HContent25 FloatLeft Ellipsis TextCenter">' + stat + '</div>\
+                                <div class="HContent25 FloatLeft Ellipsis TextCenter">' + logt + '</div>\
+                            </div>';
+                        }
+                        ge( 'UsersContent' ).innerHTML = str;
+                        
+                        let userRows = ge( 'UsersContent' ).getElementsByClassName( 'EditRow' );
+                        for( let a = 0; a < userRows.length; a++ )
+                        {
+                            ( function( delem )
+                            {
+                                delem.onclick = function( e )
+                                {
+                                    self.editUser( delem.getAttribute( 'userId' ) );
+                                }
+                            } )( userRows[ a ] );
+                        }
+                        
+                    }
+                    else
+                    {
+                        ge( 'UsersContent' ).innerHTML = '<div class="HRow"><div class="HContent100">No users in the system!</div></div>';
+                    }
+                    if( cbk ) cbk();
+                }
+                let args = {};
+                m.execute( 'appmodule', {
+                    appName: 'CourseCreator',
+                    command: 'submodule',
+                    vars: {
+                        method: 'listusers',
+                        submodule: 'users',
+                    }
+                } );
+            },
+            editUser( uid )
+            {
+                let self = this;
+                
+                // Load edit/create template
+                let m = new Module( 'system' );
+                m.onExecuted = function( e, d )
+                {
+                    if( e == 'ok' )
+                    {
+                        // Load user
+                        let p = new Module( 'system' );
+                        p.onExecuted = function( i, p )
+                        {
+                            
+                            let us = {};
+                            if( i == 'ok' )
+                            {
+                                us = JSON.parse( p );
+                            }
+                           
+                           console.log( 'user', {
+                             i  : i,
+                             p  : p,
+                             us : us,
+                           });
+                            let ep = document.createElement( 'div' );
+                            ep.className = 'EditPane';
+                            
+                            let types = {
+                                FullName: 'Unnamed user',
+                                Name: '',
+                                Email: '',
+                                ID: 0,
+                                Status: 1,
+                                Avatar: ''
+                            };
+                            
+                            if( us && !us.Status )
+                                us.Status = 0;
+                            if ( us && 0 == us.Status )
+                                us.Status = 'Active';
+                            if ( us && 1 == us.Status )
+                                us.Status = 'Disabled';
+                            if ( us && 2 == us.Status )
+                                us.Status = 'Locked';
+                            
+                            if( i == 'ok' )
+                            {
+                                for( let a in types )
+                                {
+                                    d = d.split( '{' + a + '}' ).join( us[ a ] );
+                                }
+                            }
+                            else
+                            {
+                                for( let a in types )
+                                {
+                                    d = d.split( '{' + a + '}' ).join( types[ a ] );
+                                }
+                            }
+                            
+                            ep.innerHTML = d;
+                            ge( 'PanelMain' ).appendChild( ep );
+                        
+                            // Parse workgroups
+                            ccAddCallback( 'w_reload_workgroups', function( listview )
+                            {
+                            	// Load workgroups
+		                        let w = new Module( 'system' );
+		                        w.onExecuted = function( we, wd )
+		                        {
+		                        	let wstr = '';
+			                        if( we == 'ok' )
+			                        {
+			                            let workgroups = JSON.parse( wd );
+			                            let output = [];
+			                            for( let z = 0; z < workgroups.length; z++ )
+			                            {
+			                            	// Add rowdata
+			                            	output.push( [ {
+		                            			Type: 'string',
+		                            			Value: workgroups[z].Name
+			                            	}, {
+			                            		Type: 'checkbox',
+			                            		Value: parseInt( workgroups[z].Member ) > 0 ? true : false,
+			                            		OnChange: 'w_change_' + z
+			                            	} ] );
+			                            	
+			                            	( function( onchange, userId, groupId )
+			                                {
+			                                    ccAddCallback( onchange, function( checked )
+			                                    {
+			                                        if( uid )
+			                                        {
+			                                            let n = new Module( 'system' );
+			                                            n.onExecuted = function( ne, nd )
+			                                            {
+			                                                // NIL!
+			                                            }
+			                                            n.execute( 'appmodule', {
+			                                                appName: 'CourseCreator',
+			                                                command: 'submodule',
+			                                                vars: {
+			                                                    method: 'toggleworkgroup',
+			                                                    submodule: 'users',
+			                                                    userId: userId,
+			                                                    groupId: groupId,
+			                                                    relation: checked
+			                                                }
+			                                            } );
+			                                        }
+			                                    } );
+			                                } )( 'w_change_' + z, uid, workgroups[z].ID );
+			                            }
+			                            listview.setRowData( output );
+			                        }
+		                        }
+		                        w.execute( 'appmodule', {
+		                            appName: 'CourseCreator',
+		                            command: 'submodule',
+		                            vars: {
+		                                method: 'workgroups',
+		                                submodule: 'users',
+		                                userId: uid ? uid : 0
+		                            }
+		                        } );
+	                        } );
+                                
+                            ccAddCallback( 'user_account_status', function( value )
+                            {
+                                let n = new Library( 'system.library' );
+                                n.onExecuted = function( ne, nd )
+                                {
+                                    //
+                                }
+                                n.execute( 'user/updatestatus', {
+                                    id: uid,
+                                    status: value
+                                } );
+                            } );
+                            
+                            setTimeout( function()
+                            {
+                                ccInitializeGUI();
+                                document.body.classList.add( 'Editmode' );
+                            }, 5 );
+                            
+                            // Check avatar
+                            if( us && us.ID && ge( 'UserAvatar' ) )
+                            {
+                                self.refreshAvatar( '/system.library/module/?module=system&command=getavatar&userid=' + uid + '&authid=' + Application.authId );
+                            }
+                        }
+                        p.execute( 'appmodule', {
+                            appName: 'CourseCreator',
+                            command: 'submodule',
+                            vars: {
+                                method: 'loaduser',
+                                submodule: 'users',
+                                userId: uid ? uid : 0
+                            }
+                        } );
+                    }
+                }
+                m.execute( 'appmodule', {
+                    appName: 'CourseCreator',
+                    command: 'submodule',
+                    vars: {
+                        method: 'loadtemplate',
+                        submodule: 'users',
+                        template: 'create'
+                    }
+                } );
+            },
+            resetPassword()
+            {
+                ge( 'PasswordResetForm' ).classList.remove( 'HiddenBlock' );
+                ge( 'PasswordResetButton' ).classList.add( 'HiddenBlock' );
+            },
+            setAvatar( data )
+            {
+                let self = this;
+                
+                if( !data )
+                {
+                    
+                    ( new Filedialog( {
+                        triggerFunction: function( inf )
+                        {
+                            if( !inf ) return;
+                            self.setAvatar( inf );
+                        },
+                        type: 'load',
+                        title: 'Select avatar image',
+                        filename: '',
+                        mainView: Application.viewId
+                    } ) );
+                    return;
+                }
+                
+                if( data.length && data[0].Path )
+                {
+                    ge( 'UserAvatar' ).parentNode.classList.add( 'Loading' );
+                
+                    let i = new Image();
+                    i.src = getImageUrl( data[0].Path );
+                    i.onload = function()
+                    {
+                        let isizesquare = 512; // Avatar base size
+                        
+                        let c = document.createElement( 'canvas' );
+                        c.setAttribute( 'width', isizesquare );
+                        c.setAttribute( 'height', isizesquare );
+                        let ctx = c.getContext( '2d' );
+                        ctx.fillStyle = '#000000';
+                        ctx.fillRect( 0, 0, isizesquare, isizesquare );
+                        
+                        let ix = 0, iy = 0;
+                        let iw = isizesquare;
+                        let ih = isizesquare;
+                        
+                        // Image scales to "cover" mode, centered
+                        if( this.height > this.width )
+                        {
+                            ih = this.height / ( this.width / isizesquare );
+                            iy = 0 - ( ( ih - isizesquare ) / 2 );
+                        }
+                        else if( this.height < this.width )
+                        {
+                            iw = this.width / ( this.height / isizesquare );
+                            ix = 0 - ( ( iw - isizesquare ) / 2 );
+                        }
+                        
+                        ctx.drawImage( this, ix, iy, iw, ih );
+                        
+                        document.body.appendChild( c );
+                        
+                        // Send the data to the appmodule
+                        let m = new Module( 'system' );
+                        m.onExecuted = function(){ self.refreshAvatar( data[0].Path ); };
+                        m.execute( 'appmodule', {
+                            appName: 'CourseCreator',
+                            command: 'submodule',
+                            vars: {
+                                method: 'updateavatar',
+                                submodule: 'users',
+                                uid: ge( 'userID' ).value,
+                                path: data[0].Path,
+                                data: c.toDataURL( 'img/png' )
+                            }
+                        } );
+                    }
+                }
+            },
+            refreshAvatar( path )
+            {
+                if( !path ) return;
+                
+                if( !ge( 'UserAvatar' ) ) return;
+                
+                if( ge( 'userID' ).value > 0 )
+                {
+                    let sm = new Module( 'system' );
+                    sm.onExecuted = function( e, d )
+                    {
+                        if( e != 'ok' ) return;
+                        d = JSON.parse( d );
+                        if( d.avatar )
+                        {
+                            ge( 'UserAvatar' ).style.backgroundImage = 'url(\'' + d.avatar + '\')';
+                            ge( 'UserAvatar' ).classList.add( 'hasImage' );
+                            ge( 'UserAvatar' ).parentNode.classList.remove( 'Loading' );
+                        }
+                    }
+                    sm.execute( 'getsetting', { userid: ge( 'userID' ).value, setting: 'avatar' } );
+                }
+                else
+                {
+                    let ur = path.substr( 0, 5 ) == '/syst' ? path : getImageUrl( path );
+                    ge( 'UserAvatar' ).backgroundImage = 'url(' + ur + ')';
+                    ge( 'UserAvatar' ).classList.add( 'hasImage' );
+                }
+                // Send message to Workspace that the avatar was updated
+                Application.sendMessage( {
+                    type: 'system',
+                    command: 'userupdate'
+                } );
+            },
+            addWorkgroup()
+            {
+                let submitCbk = 'w_submitCbk';
+                let d = document.createElement( 'itembox' );
+                d.setAttribute( 'onsubmit', submitCbk );
+                ge( 'userWorkgroups' ).insertBefore( d, ge( 'userWorkgroups' ).firstChild );
+                
+                ccInitializeGUI();
+                
+                ccAddCallback( submitCbk, function( obj )
+                {
+                    let m = new Module( 'system' );
+                    
+                    console.log( 'Here we are: ', obj );
+                } );
+            }
+        };   
+        Application.submodules.users.init();
+    </script>
+
+    <style>
+        .HRow .IconMedium.fa-user,
+        .UserIcon
+        {
+            border: 2px solid var(--menu-background);
+            border-radius: 100%;
+            width: 20px;
+            height: 20px;
+            font-size: 1.34em;
+            color: var(--menu-background);
+            text-align: center;
+            overflow: hidden;
+            background-color: white;
+            box-shadow: inset 0px 0px 3px rgb(0 0 0 / 50%);
+        }
+        
+        #UserAvatar
+        {
+            border: 5px solid var(--menu-background);
+            border-radius: 100%;
+            width: 160px;
+            height: 160px;
+            font-size: 1.54em;
+            color: var(--menu-background);
+            text-align: center;
+            overflow: hidden;
+            background-color: white;
+            box-shadow: inset 0px 0px 3px rgb(0 0 0 / 50%);
+        }
+        
+        #UserAvatar::before
+        {
+            font-size: 780%;
+        }
+        
+        .UserFullname
+        {
+            text-align: center;
+            font-size: 48px;
+        }
+        
+        .UserIcon
+        {
+            width: 50px;
+            height: 50px;
+            float: left;
+            margin: 0 0 50px 0;
+            box-sizing: border-box;
+            border-color: var(--gui-border-color-negative);
+            border-width: 3px;
+        }
+        
+        .UserIcon::before
+        {
+            font-size: 263%;
+        }
+        
+        #usersContentHeader, #usersListHeaders
+        {
+            position: fixed;
+            z-index: 2;
+            transition: left 0.25s;
+            left: 260px;
+            width: calc(100% - 276px);
+        }
+        #usersContentHeader
+        {
+            top: 10px;
+        }
+        #usersListHeaders
+        {
+            top: 53px;
+        }
+        #usersContentHeader:after
+        {
+            content: " ";
+            position: absolute;
+            top: -10px;
+            left: 0px;
+            width: 100%;
+            height: 10px;
+            background-color: var(--background);
+            z-index: 1;
+        }
+        #usersContainer:after
+        {
+            content: " ";
+            display: block;
+            width: 10px;
+            height: 10px;
+        }
+        html > body #PanelMain .SubModule
+        {
+            padding-top: 82px;
+        }
+        .Editmode #usersContentHeader
+        {
+            left: -100%;
+        }
+        .Editmode #usersListHeaders
+        {
+            left: -100%;
+        }
+    </style>
+

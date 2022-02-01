@@ -1,0 +1,84 @@
+/* Check boxes */
+
+.ccCheckbox
+{
+    position: relative;
+    width: 48px;
+    height: 18px;
+    background-color: var(--gui-checkbox);
+    border-radius: 3px;
+    cursor: pointer;
+    display: inline-block;
+}
+
+.ccCheckbox.ccChecked
+{
+    background-color: var(--gui-checkbox-checked);
+}
+
+.ccCheckbox .ccGroove
+{
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: calc(100% - 4px);
+    height: calc(100% - 4px);
+    background: rgba(0,70,30,0.1);
+    overflow: hidden;
+    border-radius: 2px;
+}
+
+.ccCheckbox .ccGroove .ccButton
+{
+    position: absolute;
+    width: 50%;
+    top: 0;
+    left: 0;
+    height: 100%;
+    box-shadow: 0px 0px 11px rgba(0,70,30,0.3);
+    transition: left,border-radius 0.25s,0.25s;
+    background-color: var(--gui-checkbox-button);
+    border-radius: 2px 0 0 2px;
+}
+
+.ccCheckbox.ccChecked .ccGroove .ccButton
+{
+    left: 50%;
+    border-radius: 0 2px 2px 0;
+}
+
+/* Radio boxes */
+
+.ccRadiobox
+{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    width: 100%;
+    position: relative;
+    gap: 5px;
+}
+
+.ccRadiobox > .ccRadioElement > .ccRadioToggle
+{
+    cursor: pointer;
+}
+
+.ccRadiobox > .ccRadioElement > .ccRadioToggle:after
+{
+    content: " ";
+    border-radius: 100%;
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border: 2px solid var(--gui-border-color);
+    background-color: var(--gui-checkbox-button);
+    margin-left: 5px;
+    vertical-align: middle;
+}
+
+.ccRadiobox > .ccRadioElement.ccSelected > .ccRadioToggle:after
+{
+    background-color: var(--menu-background);
+}
+

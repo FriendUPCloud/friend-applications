@@ -1,0 +1,103 @@
+<input type="hidden" id="ClassroomId" value="0"/>
+
+<div class="ContentHeader">
+    <span class="FloatLeft IconSmall fa-arrow-circle-left MarginTop MarginLeft MarginBottom MousePointer" onclick="document.body.classList.remove('Editmode')"></span>
+    <h2>
+        Edit classroom
+    </h2>
+</div>
+<div class="ContentBlock">
+    <div class="HRow MarginBottom">
+        <div class="HContent15 FloatLeft">
+            <strong>Name:</strong>
+        </div>
+        <div class="HContent85 FloatLeft">
+            <input type="text" class="FullWidth" id="className" onkeyup="Application.submodules.classrooms.executeSaveTheRoom()" value="{Name}" />
+        </div>
+    </div>
+    <div class="HRow MarginBottom">
+        <div class="HContent15 FloatLeft">
+            <strong>Course:</strong>
+        </div>
+        <div class="HContent85 FloatLeft">
+            <select id="classCourses" onchange="Application.submodules.classrooms.executeSaveTheRoom()">
+            	{courseList}
+            </select>
+        </div>
+    </div>
+    <div class="HRow">
+        <div class="HContent15 FloatLeft">
+            <strong>Start date:</strong>
+        </div>
+        <div class="HContent35 FloatLeft">
+            <input type="date" id="startDate" value="{StartDate}" onchange="Application.submodules.classrooms.executeSaveTheRoom()"/>
+        </div>
+        <div class="HContent15 FloatLeft">
+            <strong>End date:</strong>
+        </div>
+        <div class="HContent35 FloatLeft">
+            <input type="date" id="endDate" value="{EndDate}" onchange="Application.submodules.classrooms.executeSaveTheRoom()"/>
+        </div>
+    </div>
+    
+    <div class="BlockSpacer"></div>
+    
+    <div class="HRow">
+        <button type="button" class="FloatRight IconSmall fa-check">
+            Update
+        </button>
+    </div>
+</div>
+
+<div class="BlockSpacer"></div>
+
+<div class="ContentHeader">
+    <h2>
+        Users
+    </h2>
+    <div class="Left">
+        <div class="Buttons">
+            <div class="FindUsers HeaderButton IconSmall fa-plus-circle MousePointer" onclick="Application.submodules.classrooms.findUsers()"></div>
+            <div class="ClearFind HeaderButton IconSmall fa-remove MousePointer" onclick="Application.submodules.classrooms.clearFind()"></div>
+            <!--<div class="HeaderButton IconSmall fa-navicon MousePointer"></div>-->
+        </div>
+        <input type="text" placeholder="Search" id="userSearch" onkeydown="Application.submodules.classrooms.refreshClassroomUsers()"/>
+    </div>
+</div>
+<div class="ContentListHeaders" id="UserHeader">
+    <div class="HRow EditRow One">
+        <div class="HContent45 Ellipsis FloatLeft">Name</div>
+        <div class="HContent10 Ellipsis TextCenter FloatLeft">Progress</div>
+        <div class="HContent5 Ellipsis TextCenter FloatLeft">Status</div>
+        <div class="HContent10 Ellipsis TextCenter FloatLeft">Payment</div>
+        <div class="HContent10 Ellipsis TextCenter FloatLeft">Certificate</div>
+        <div class="HContent20 Ellipsis TextCenter FloatLeft">LastLogin</div>
+    </div>
+    <div class="HRow EditRow Two">
+        <div class="HContent100 Ellipsis FloatLeft">Search results:</div>
+    </div>
+</div>
+<div class="ContentBlock">
+    <div id="ClassroomUsers"></div>
+</div>
+
+<div class="BlockSpacer"></div>
+
+<div class="ContentHeader">
+    <h2>
+        News bulletin
+    </h2>
+</div>
+<div class="ContentBlock">
+    <div class="HRow BorderDefault Padding">
+        <div class="FloatLeft HContent80">
+            <textarea class="FullWidth" rows="5"></textarea>
+        </div>
+        <div class="FloatLeft HContent20">
+            <button type="button" class="MarginLeft IconSmall fa-plus">
+                Add
+            </button>
+        </div>
+    </div>
+</div>
+

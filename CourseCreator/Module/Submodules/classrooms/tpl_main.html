@@ -1,0 +1,713 @@
+
+    <div class="SubModule">
+        <div class="ContentHeader">
+            <h2>
+                Classrooms
+            </h2>
+            <div class="Left">
+                <div class="Buttons">
+                    <div class="HeaderButton IconSmall fa-plus-circle MousePointer" onclick="Application.submodules.classrooms.create()"></div>
+                    <!--<div class="HeaderButton IconSmall fa-navicon MousePointer"></div>-->
+                </div>
+                <input type="text" placeholder="Search"/>
+            </div>
+        </div>
+        <div class="ContentListHeaders">
+            <div class="HRow EditRow">
+                <div class="HContent30 Ellipsis FloatLeft">Class name</div>
+                <div class="HContent10 Ellipsis FloatLeft">Users</div>
+                <div class="HContent5 Ellipsis FloatLeft">Status</div>
+                <div class="HContent20 Ellipsis FloatLeft">Owner</div>
+                <div class="HContent10 Ellipsis FloatLeft">End date</div>
+                <div class="HContent25 Ellipsis FloatLeft">Date created</div>
+            </div>
+        </div>
+        <div class="ContentBlock">
+            <div id="ClassroomContent"></div>
+        </div>
+    </div>
+    
+    <script>
+        Application.submodules.classrooms = {
+            init()
+            {
+                let self = this;
+                
+                let m = new Module( 'system' );
+                m.onExecuted = function( e, d )
+                {
+                    if( e != 'ok' )
+                    {
+                        ge( 'ClassroomContent' ).innerHTML = '<p>No classrooms currently found.</p>';
+                        ge( 'PanelMain' ).classList.remove( 'SectionLoading' );
+                        
+                        self.refreshRooms();
+                        return;
+                    }
+                    ge( 'ClassroomContent' ).innerHTML = '';
+                   
+                    ge( 'PanelMain' ).classList.remove( 'SectionLoading' );
+                    
+                    self.refreshRooms();
+                }
+                m.execute( 'appmodule', {
+                    appName: 'CourseCreator',
+                    command: 'submodule',
+                    vars: {
+                        method: 'classrooms',
+                        submodule: 'classrooms'
+                    }
+                } );
+            },
+            refreshRooms( cbk )
+            {
+                let m = new Module( 'system' );
+                m.onExecuted = function( e, d )
+                {
+                    if( e != 'ok' )
+                    {
+                        ge( 'ClassroomContent' ).innerHTML = '<p>No classrooms currently found.</p>';
+                    }
+                    else
+                    {
+                        let ls = JSON.parse( d );
+                        let str = '';
+                        console.log( 'refreshrooms', ls );
+                        for( let a = 0; a < ls.length; a++ )
+                        {
+                            let users = ls[a].Users || + '0';
+                            let status = 'Planned';
+                            let owner = ls[a].Owner ? ls[a].Owner : '-';
+                            let end = ls[a].DateEnd ? ls[a].DateEnd : '-';
+                            let nam = ls[a].Name ? ls[a].Name : '&nbsp;';
+                            
+                            switch( status )
+                            {
+                                case 'Planned':
+                                    status = '<span class="Status Planned"></span>';
+                                    break;
+                                case 'Completed':
+                                    status = '<span class="Status Completed"></span>';
+                                    break;
+                                case 'Started':
+                                    status = '<span class="Status Started"></span>';
+                                    break;
+                                default:
+                                    status = '<span class="Status Default"></span>';
+                                    break;
+                            }
+                            
+                            str += '<div class="HRow EditRow" row-id="' + ls[a].ID + '">\
+                                <div class="HContent30 Ellipsis FloatLeft">' + nam + '</div>\
+                                <div class="HContent10 Ellipsis FloatLeft">' + users + '</div>\
+                                <div class="HContent5 Ellipsis FloatLeft TextCenter">' + status + '</div>\
+                                <div class="HContent20 Ellipsis FloatLeft">' + owner + '</div>\
+                                <div class="HContent10 Ellipsis FloatLeft">' + end + '</div>\
+                                <div class="HContent25 Ellipsis FloatLeft">' + ls[a].DateCreated + '</div>\
+                            </div>';
+                        }
+                        ge( 'ClassroomContent' ).innerHTML = str;
+                        let rows = ge( 'ClassroomContent' ).getElementsByClassName( 'HRow' );
+                        for( let a = 0; a < rows.length; a++ )
+                        {
+                            ( function( r ) {
+                                r.onclick = function()
+                                {
+                                    Application.submodules.classrooms.editClassroom( this.getAttribute( 'row-id' ) );
+                                }
+                            } )( rows[a] );
+                        }
+                    }
+                    if( cbk ) cbk();
+                }
+                m.execute( 'appmodule', {
+                    appName: 'CourseCreator',
+                    command: 'submodule',
+                    vars: {
+                        method: 'refreshrooms',
+                        submodule: 'classrooms'
+                    }
+                } );
+            },
+            setModuleState( state )
+            {
+                if( this.moduleStateTimeo )
+                {
+                    clearTimeout( this.moduleStateTimeo );
+                }
+                switch( state )
+                {
+                    case 'Editing':
+                        document.body.classList.remove( 'Saved' );
+                        document.body.classList.remove( 'Saving' );
+                        document.body.classList.add( 'Editing' );
+                        break;
+                    case 'Saving':
+                        document.body.classList.remove( 'Saved' );
+                        document.body.classList.remove( 'Editing' );
+                        document.body.classList.add( 'Saving' );
+                        break;
+                    case 'Saved':
+                    default:
+                        document.body.classList.remove( 'Saving' );
+                        document.body.classList.remove( 'Editing' );
+                        document.body.classList.add( 'Saved' );
+                        this.moduleStateTimeo = setTimeout( function()
+                        {
+                            document.body.classList.remove( 'Saving' );
+                            document.body.classList.remove( 'Editing' );
+                            document.body.classList.remove( 'Saved' );
+                        }, 500 );
+                        break;
+                }
+            },
+            // Just make sure it exists
+            checkEditPane()
+            {
+                if( !this.editPane )
+                {
+                    let d = document.createElement( 'div' );
+                    d.className = 'EditPane';
+                    ge( 'PanelMain' ).appendChild( d );
+                    this.editPane = d;
+                }
+            },
+            // Create a new classroom
+            create()
+            {
+                console.log( 'create' );
+                let self = this;
+                this.checkEditPane();
+                
+                let m = new Module( 'system' );
+                m.onExecuted = function( e, d )
+                {
+                    if( e != 'ok' )
+                    {
+                        return document.body.classList.remove( 'Editmode' );
+                    }
+                    console.log( 'create things', [ e, d ]);
+                    
+                    let cl = new Module( 'system' );
+                    cl.onExecuted = function( cle, cld )
+                    {
+                        console.log( 'create courselist', cld );
+                        // add courses list
+                        let courses = [ { ID: 0, Name: 'No course specified.' } ];
+                        if ( e == 'ok' )
+                        {
+                            let t = JSON.parse( cld );
+                            for( let b = 0; b < t.length; b++ )
+                                courses.push( t[b] );
+                        }
+                        
+                        let cstr = '';
+                        for( let z = 0; z < courses.length; z++ )
+                        {
+                            let sel = '';
+                            cstr += '<option value="' + courses[ z ].ID + '"' + sel + '>' + courses[ z ].Name + '</option>';
+                        }
+                        d = d.split( '{courseList}' ).join( cstr );
+                        
+                        // Reset the template
+                        let vars = { 'Name': '', 'StartDate': '', 'EndDate': '' };
+                        for( let a in vars )
+                            d = d.split( '{' + a + '}' ).join( vars[ a ] );
+                        
+                        self.editPane.innerHTML = d;
+                        
+                        document.body.classList.add( 'Editmode' );
+                        
+                    }
+                    cl.execute( 'appmodule', {
+                        appName: 'CourseCreator',
+                        command: 'submodule',
+                        vars: {
+                            method: 'classroomcourses',
+                            submodule: 'classrooms',
+                            classroomId: null,
+                        }
+                    } );
+                }
+                m.execute( 'appmodule', {
+                    appName: 'CourseCreator',
+                    command: 'submodule',
+                    vars: {
+                        method: 'loadtemplate',
+                        submodule: 'classrooms',
+                        template: 'create'
+                    }
+               });
+            },
+            // Edit an existing classroom
+            editClassroom( rowId )
+            {
+                let self = this;
+                this.checkEditPane();
+                
+                let u = new Module( 'system' );
+                u.onExecuted = function( ue, ud )
+                {
+                    if( ue == 'ok' )
+                    {
+                        let data = JSON.parse( ud );
+                        console.log( 'getClassroom back', [ ue, data ]);
+                        let m = new Module( 'system' );
+                        m.onExecuted = function( e, d )
+                        {
+                            console.log( 'classroom create back', [ e, d ]);
+                            if( e != 'ok' )
+                            {
+                                return v.close();
+                            }
+                            
+                            for( let i in data )
+                            {
+                                d = d.split( '{' + i + '}' ).join( data[ i ] );
+                            }
+                            
+                            let p = new Module( 'system' );
+                            p.onExecuted = function( pe, pd )
+                            {
+                            	let courses = [ { ID: 0, Name: 'No course specified.' } ];
+                            	if( pe == 'ok' )
+                            	{
+                            		let t = JSON.parse( pd );
+                            		for( let b = 0; b < t.length; b++ )
+                            			courses.push( t[b] );
+                            	}
+                            	
+                                console.log( 'classroom courses', [ pe, courses ]);
+                            	// Create courses string
+                            	let cstr = '';
+                            	for( let z = 0; z < courses.length; z++ )
+                            	{
+                            		let sel = '';
+                            		if( courses[ z ].ID == data.CourseID )
+                            			sel = ' selected="selected"';
+                            		cstr += '<option value="' + courses[ z ].ID + '"' + sel + '>' + courses[ z ].Name + '</option>';
+                            	}
+                            	d = d.split( '{courseList}' ).join( cstr );
+                            	
+		                        self.ID = rowId;
+		                        self.editPane.innerHTML = d;
+		                        
+		                        ge( 'ClassroomId' ).value = rowId;
+		                        document.body.classList.add( 'Editmode' );
+		                        Application.submodules.classrooms.refreshClassroomUsers();
+		                    }
+		                    p.execute( 'appmodule', {
+		                    	appName: 'CourseCreator',
+		                    	command: 'submodule',
+		                    	vars: {
+		                    		method: 'classroomcourses',
+		                    		submodule: 'classrooms',
+		                    		classroomId: rowId
+		                    	}
+		                    } );
+                        }
+                        m.execute( 'appmodule', {
+                            appName: 'CourseCreator',
+                            command: 'submodule',
+                            vars: {
+                                method: 'loadtemplate',
+                                submodule: 'classrooms',
+                                template: 'create'
+                            }
+                       } );
+                    }
+                }
+                u.execute( 'appmodule', {
+                    appName: 'CourseCreator',
+                    command: 'submodule',
+                    vars: {
+                        method: 'getclassroom',
+                        submodule: 'classrooms',
+                        classroomId: rowId
+                    }
+                } );
+            },
+            refreshClasses( data )
+            {
+                this.refreshRooms();
+            },
+            executeSaveTheRoom()
+            {
+                console.log( 'executeSaveTheRoom' );
+                let self = this;
+                
+                self.setModuleState( 'Editing' );
+                
+                // We are pending (and will save once done)
+                if( this.savePending )
+                {
+                    return;
+                }
+                // First save
+                else if( !this.ID )
+                {
+                    this.saveTheRoom();
+                    this.savePending = true;
+                }
+                // Delayed to not do too many saves
+                else
+                {
+                    if( this.saver ) clearTimeout( this.saver );
+                    this.saver = setTimeout( function()
+                    {
+                        self.saver = null;
+                        self.saveTheRoom();
+                    }, 750 );
+                }
+            },
+            saveTheRoom()
+            {
+                let self = this;
+                const name = ge( 'className' ).value;
+                if ( !name )
+                    return;
+                
+                self.setModuleState( 'Saving' );
+                const edEl = ge( 'endDate' );
+                const sd = ge( 'startDate' ).value;
+                const ed = ge( 'endDate' ).value;
+                const sa = sd.split( '-' );
+                const ea = ed.split( '-' );
+                console.log( 'saveToRoom, s e', [ sd, ed, sa, ea ]);
+                for( let i = 0; i < sa.length ; )
+                {
+                    const s = parseInt( sa[ i ], 10 );
+                    const e = parseInt( ea[ i ], 10 );
+                    console.log( 'comparing', [ i, s, e ]);
+                    if ( s > e )
+                    {
+                        self.setModuleState( 'Editing' );
+                        edEl.classList.toggle( 'Alert-Border', true );
+                        alert( 'PH_ALERT - replace with friend native thingie - invalid end date' );
+                        return;
+                    }
+                    else
+                    {
+                        if ( s < e )
+                        {
+                            i = sa.length;
+                        }
+                        else
+                        {
+                            i++;
+                        }
+                    }
+                }
+                
+                console.log( 'date check passed' );
+                edEl.classList.toggle( 'Alert-Border', false );
+                
+                let m = new Module( 'system' );
+                m.onExecuted = function( e, d )
+                {
+                    if( e == 'ok' )
+                    {
+                        self.setModuleState( 'Saved' );
+                        
+                        let res = JSON.parse( d );
+                        self.ID = res.ID;
+                        ge( 'ClassroomId' ).value = res.ID;
+                    }
+                    if( self.savePending )
+                    {
+                        self.savePending = null;
+                        self.saveTheRoom();
+                    }
+                    self.refreshRooms();
+                    
+                    // TODO: Add error
+                    self.setModuleState( false );
+                    return;
+                }
+                m.execute( 'appmodule', {
+                    appName: 'CourseCreator',
+                    command: 'submodule',
+                    vars: {
+                        submodule: 'classrooms',
+                        method: 'saveclassroom',
+                        data: {
+                            id: ge( 'ClassroomId' ).value,
+                            name: name,
+                            endDate: ed,
+                            startDate: sd,
+                            collectionId: ge( 'classCourses' ).value
+                        }
+                    }
+                } );
+            },
+            // Refresh list of users assigned to a classroom
+            refreshClassroomUsers()
+            {
+                // We are in a different mode, use findUsers instead!
+                if( ge( 'UserHeader' ).classList.contains( 'Two' ) )
+                {
+                    return this.findUsers( ge( 'userSearch' ).value );
+                }
+                
+                let self = this;
+                let keys = ge( 'userSearch' ).value.length > 0 ? ge( 'userSearch' ).value : false;
+                let m = new Module( 'system' );
+                m.onExecuted = function( e, d )
+                {
+                    if( e == 'ok' )
+                    {
+                        let str = '';
+                        
+                        let js = JSON.parse( d );
+                        console.log( 'refreshClassroomUsers', js );
+                        for( let a = 0; a < js.length; a++ )
+                        {
+                            let d = new Date();
+                            let name = js[a].FullName;
+                            let progress = parseInt( js[a].progress );
+                            if( isNaN( progress ) ) progress = 0;
+                            let status = js[a].Status;
+                            let payment = parseInt( js[a].PaymentStatus );
+                            if( isNaN( payment ) ) payment = 0;
+                            
+                            switch( status )
+                            {
+                                case 'Planned':
+                                    status = '<span class="Status Planned"></span>';
+                                    break;
+                                case 'Completed':
+                                    status = '<span class="Status Completed"></span>';
+                                    break;
+                                case 'Started':
+                                    status = '<span class="Status Started"></span>';
+                                    break;
+                                default:
+                                    status = '<span class="Status Default"></span>';
+                                    break;
+                            }
+                            
+                            switch( payment )
+                            {
+                                case 'Planned':
+                                    payment = '<span class="Payment Planned"></span>';
+                                    break;
+                                case 'Completed':
+                                    payment = '<span class="Payment Completed"></span>';
+                                    break;
+                                case 'Started':
+                                    payment = '<span class="Payment Started"></span>';
+                                    break;
+                                default:
+                                    payment = '<span class="Payment Default"></span>';
+                                    break;
+                            }
+                            
+                            let certificate = js[a].hasCert ? 'Open' : 'Upload';
+                            let lastLogin = js[a].LoginTime;
+                            let rem = '<span class="Remove IconSmall fa-remove" userId="' + js[a].UserID + '"></span>';
+                        
+                            str += '<div class="HRow EditRow">\
+                                <div class="HContent45 FloatLeft PaddingSmall Ellipsis UserName">' + name + '</div>\
+                                <div class="HContent10 FloatLeft PaddingSmall Ellipsis TextCenter">' + progress + '%</div>\
+                                <div class="HContent5 FloatLeft PaddingSmall Ellipsis TextCenter">' + status + '</div>\
+                                <div class="HContent10 FloatLeft PaddingSmall Ellipsis TextCenter">' + payment + '</div>\
+                                <div class="HContent10 FloatLeft PaddingSmall Ellipsis TextCenter">' + certificate + '</div>\
+                                <div class="HContent15 FloatLeft PaddingSmall Ellipsis TextCenter">' + lastLogin + '</div>\
+                                <div class="HContent5 FloatLeft PaddingSmall Ellipsis ButtonSpace">' + rem + '</div>\
+                            </div>';
+                        }
+                        
+                        ge( 'ClassroomUsers' ).innerHTML = str;
+                        
+                        let dels = ge( 'ClassroomUsers' ).getElementsByClassName( 'Remove' );
+                        for( let j = 0; j < dels.length; j++ )
+                        {
+                            ( function( btn, userid )
+                            {
+                                btn.onclick = function()
+                                {
+                                    Confirm( 
+                                        'Are you sure?',
+                                        'This will remove the user from the classroom.',
+                                        function( data )
+                                        {
+                                            if( data.data == true )
+                                            {
+                                                let io = new Module( 'system' );
+                                                io.onExecuted = function( e, d )
+                                                {
+                                                    self.refreshClassroomUsers();
+                                                }
+                                                io.execute( 'appmodule', {
+                                                    appName: 'CourseCreator',
+                                                    command: 'submodule',
+                                                    vars: {
+                                                        submodule: 'classrooms',
+                                                        method: 'removeuser',
+                                                        classroomId: ge( 'ClassroomId' ).value,
+                                                        userId: userid
+                                                    }
+                                                } );
+                                            }
+                                        }
+                                   );
+                                }
+                            } )( dels[ j ], dels[ j ].getAttribute( 'userId' ) );
+                        }
+                    }
+                    else
+                    {
+                        ge( 'ClassroomUsers' ).innerHTML = '<div class="HRow EditRow"><div class="HContent100 Ellipsis">This classroom has no users.</div></div>';
+                    }
+                }
+                m.execute( 'appmodule', {
+                    appName: 'CourseCreator',
+                    command: 'submodule',
+                    vars: {
+                        submodule: 'classrooms',
+                        method: 'refreshusers',
+                        classroomId: ge( 'ClassroomId' ).value,
+                        keys: keys ? keys : ''
+                    }
+                } );
+            },
+            addUser: function( userId, classroomId )
+            {
+            	let self = this;
+            	let m = new Module( 'system' );
+            	m.onExecuted = function( e, d )
+            	{
+            		self.clearFind();
+            		self.refreshClassroomUsers();
+            	}
+            	m.execute( 'appmodule', {
+            		appName: 'CourseCreator',
+            		command: 'submodule',
+            		vars: {
+            			submodule: 'classrooms',
+            			method: 'adduser',
+            			userId: userId,
+            			classroomId: classroomId
+            		}
+            	} );
+            },
+            clearFind: function()
+            {
+                document.querySelector( '.EditPane' ).classList.remove( 'Find' );
+                ge( 'UserHeader' ).classList.remove( 'Two' );
+                ge( 'UserHeader' ).classList.add( 'One' );
+                this.refreshClassroomUsers();
+            },
+            findUsers: function()
+            {
+                ge( 'UserHeader' ).classList.add( 'Two' );
+                ge( 'UserHeader' ).classList.remove( 'One' );
+                
+                document.querySelector( '.EditPane' ).classList.add( 'Find' );
+                
+                let searchParams = ge( 'userSearch' ).value;
+                
+                let m = new Module( 'system' );
+                m.onExecuted = function( e, d )
+                {
+                    if( e == 'ok' )
+                    {
+                        let lis = JSON.parse( d );
+                        let str = '';
+                        console.log( 'findUsers', lis );
+                        for( let a = 0; a < lis.length; a++ )
+                        {
+                            let name = lis[a].FullName;
+                            let addbtn = '<button type="button" class="IconSmall fa-plus" onclick="Application.submodules.classrooms.addUser(\'' + lis[a].ID + '\',\'' + ge( 'ClassroomId' ).value + '\')">Add user to classroom</button>';
+                            str += '<div class="HRow EditRow">\
+                                <div class="HContent50 FloatLeft PaddingSmall Ellipsis">' + name + '</div>\
+                                <div class="HContent50 FloatLeft TextRight PaddingSmall Ellipsis">' + addbtn + '</div>\
+                            </div>';
+                        }
+                        
+                        ge( 'ClassroomUsers' ).innerHTML = str;
+                    }
+                    else
+                    {
+                        ge( 'ClassroomUsers' ).innerHTML = '<div class="HRow EditRow"><div class="HContent100 Ellipsis">No search results.</div></div>';
+                    }
+                }
+                m.execute( 'appmodule', {
+                    appName: 'CourseCreator',
+                    command: 'submodule',
+                    vars: {
+                        submodule: 'classrooms',
+                        method: 'findusers',
+                        classroomId: ge( 'ClassroomId' ).value,
+                        keys: searchParams
+                    }
+                } );
+            }
+        };
+        Application.submodules.classrooms.init();
+    </script>
+    <style>
+        #UserHeader .Two,
+        #UserHeader.Two .One
+        {
+            display: none;
+        }
+        #UserHeader.Two .Two
+        {
+            display: block;
+        }
+        
+        .EditPane:not(.Find) .ClearFind { display: none; }
+        .EditPane.Find .FindUsers { display: none; }
+        
+        span.Status,
+        span.Payment
+        {
+            position: relative;
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 100%;
+        }
+        
+        .ButtonSpace
+        {
+            position: relative;
+            text-align: center;
+        }
+        
+        .ButtonSpace > span
+        {
+            padding: 2px 6px;
+            background: var(--list-button-background);
+            color: var(--list-button-color);
+            margin-top: 2px;
+            cursor: pointer;
+            border-radius: 100%;
+        }
+        
+        .ButtonSpace > span:hover
+        {
+            background: var(--list-button-background-hover);
+            color: var(--list-button-color-hover);
+        }
+        
+        span.Default
+        {
+            background-color: #bfbfbf;
+        }
+        span.Planned
+        {
+            background-color: #ff7700;
+        }
+        span.Started
+        {
+            background-color: #00aa00;
+        }
+        span.Completed
+        {
+            background-color: #009900;
+        }
+        
+    </style>
+
