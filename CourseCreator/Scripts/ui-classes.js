@@ -390,7 +390,7 @@ function ccInitializeGUI()
     {
         ( function( domtype )
         {
-            // Take care of checkboxes
+            // Convert markup into classes
             let ch = document.getElementsByTagName( domtype );
             let out = [];
             for( let a = 0; a < ch.length; a++ )
@@ -399,26 +399,9 @@ function ccInitializeGUI()
             }
             for( let a = 0; a < out.length; a++ )
             {
-                switch( domtype )
-                {
-                    case 'checkbox':
-                        new ccCheckbox( { placeholderElement: out[a] } );
-                        break;
-                    case 'radiobox':
-                        new ccRadiobox( { placeholderElement: out[a] } );
-                        break;
-                    case 'itembox':
-                        new ccItembox( { placeholderElement: out[a] } );
-                        break;
-                    case 'listview':
-                        new ccListview( { placeholderElement: out[a] } );
-                        break;
-                    case 'group':
-                        new ccListview( { placeholderElement: out[a] } );
-                    default:
-                        break;
-                }
-                //new (classname)( { placeholderElement: out[a] } );
+                let classStr = 'cc' + domtype.substr( 0, 1 ).toUpperCase() + domtype.substr( 1, domtype.length - 1 );
+                let classObj = eval( classStr );
+                new classObj( { placeholderElement: out[a] } );
             }
         } )( types[b] );
     }
