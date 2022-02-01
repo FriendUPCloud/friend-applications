@@ -47,4 +47,3 @@ class ccGroup extends ccGUIElement
     }
 }
 
-
