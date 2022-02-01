@@ -65,47 +65,54 @@
 
 <div class="MarginTop">&nbsp;</div>
 
-<listview>
-    <listviewheader>
-        <listviewheading>
-            Workgroups
-        </listviewheading>
-        <listviewtoolbar>
-            <listviewbutton icon="plus-circle" onclick="w_add_workgroup"></listviewbutton>
-        </listviewtoolbar>
-    </listvieheader>
-    <listviewheaders>
-        <listviewheader width="80%" sortable="sortable" name="Rolename">Name:</listviewheader>
-        <listviewheader align="right" width="20%" sortable="sortable" name="Active">Active:</listviewheader>
-    </listviewheaders>
-    <listviewrows onload="w_reload_workgroups">
-    </listviewrows>
-</listview>
-    
-<listview>
-    <listviewheader>
-        <listviewheading>
-            Classrooms
-        </listviewheading>
-    </listvieheader>
-    <listviewheaders>
-        <listviewheader width="100%" sortable="sortable" name="Classroom">Rolename:</listviewheader>
-    </listviewheaders>
-    <listviewrows onload="w_reload_classrooms">
-    </listviewrows>
-</listview>
+<group>
+    <rows>
+        <row>
 
-<listview>
-    <listviewheader>
-        <listviewheading>
-            Certificates
-        </listviewheading>
-    </listvieheader>
-    <listviewheaders>
-        <listviewheader width="80%" sortable="sortable" name="Rolename">Certificate:</listviewheader>
-        <listviewheader width="20%" sortable="sortable" name="Active">Verified:</listviewheader>
-    </listviewheaders>
-    <listviewrows onload="w_reload_certificates">
-    </listviewrows>
-</listview>
+            <listview>
+                <listviewhead>
+                    <listviewheading>
+                        Workgroups
+                    </listviewheading>
+                    <listviewtoolbar>
+                        <listviewbutton icon="plus-circle" onclick="w_add_workgroup"></listviewbutton>
+                    </listviewtoolbar>
+                </listviehead>
+                <listviewheaders>
+                    <listviewheader width="80%" sortable="sortable" name="Rolename">Name:</listviewheader>
+                    <listviewheader align="right" width="20%" sortable="sortable" name="Active">Active:</listviewheader>
+                </listviewheaders>
+                <listviewrows onload="w_reload_workgroups">
+                </listviewrows>
+            </listview>
+                
+            <listview>
+                <listviewhead>
+                    <listviewheading>
+                        Classrooms
+                    </listviewheading>
+                </listviehead>
+                <listviewheaders>
+                    <listviewheader width="100%" sortable="sortable" name="Classroom">Rolename:</listviewheader>
+                </listviewheaders>
+                <listviewrows onload="w_reload_classrooms">
+                </listviewrows>
+            </listview>
+
+            <listview>
+                <listviewhead>
+                    <listviewheading>
+                        Certificates
+                    </listviewheading>
+                </listviehead>
+                <listviewheaders>
+                    <listviewheader width="80%" sortable="sortable" name="Rolename">Certificate:</listviewheader>
+                    <listviewheader width="20%" sortable="sortable" name="Active">Verified:</listviewheader>
+                </listviewheaders>
+                <listviewrows onload="w_reload_certificates">
+                </listviewrows>
+            </listview>
+        </row>
+    </rows>
+</group>
 
