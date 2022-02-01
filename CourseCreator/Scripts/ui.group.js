@@ -18,12 +18,12 @@ class ccGroup extends ccGUIElement
     // Sets options on gui element
     setOptions( options )
     {
-        super( options );
         if( options.value )
             this.value = options.value;
         if( options.elements )
             this.elements = options.elements;
     }
+    
     // Attaches GUI to dom element if specified
     attachDomElement()
     {
@@ -39,7 +39,33 @@ class ccGroup extends ccGUIElement
     // Grabs attributes from the dom element if they are supported
     grabAttributes( domElement )
     {
+        let self = this;
         
+        this.domElement.innerHTML = '';
+        
+        let rowcontainer = domElement.getElementsByTagName( 'rows' );
+        let str = '';
+        if( rowcontainer.length )
+        {
+            rowcontainer = rowcontainer[0];
+            let rows = rowcontainer.getElementsByTagName( 'row' );
+            for( let a = 0; a < rows.length; a++ )
+            {
+                if( rows[a].parentNode != rowcontainer )
+                    continue;
+                let options = '';
+                let d = document.createElement( 'div' );
+                d.className = 'ccRow';
+                let children = rows[a].getElementsByTagName( '*' );
+                for( let b = 0; b < children.length; b++ )
+                {
+                    if( children[b].parentNode != rows[a] )
+                        continue;
+                    d.appendChild( children[b] );
+                }
+                this.domElement.appendChild( d );
+            }
+        }        
     }
     // Refreshes gui's own dom element
     refreshDom()
