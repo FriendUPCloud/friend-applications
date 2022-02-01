@@ -82,3 +82,30 @@
     background-color: var(--menu-background);
 }
 
+/* Groups */
+
+.ccGroup
+{
+    display: flex;
+}
+
+.ccGroup.ccRows
+{
+    flex-direction: column;
+}
+
+.ccGroup.ccColumns
+{
+    flex-direction: row;
+}
+
+.ccGroup > .ccRow
+{
+    margin-bottom: var(--padding-row);
+}
+
+.ccGroup > .ccColumn
+{
+    
+}
+

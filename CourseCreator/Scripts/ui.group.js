@@ -44,7 +44,6 @@ class ccGroup extends ccGUIElement
         this.domElement.innerHTML = '';
         
         let rowcontainer = domElement.getElementsByTagName( 'rows' );
-        let str = '';
         if( rowcontainer.length )
         {
             rowcontainer = rowcontainer[0];
@@ -65,7 +64,36 @@ class ccGroup extends ccGUIElement
                 }
                 this.domElement.appendChild( d );
             }
-        }        
+            this.domElement.classList.remove( 'ccColumns' );
+            this.domElement.classList.add( 'ccRows' );
+            return;
+        }  
+        
+        let colcontainer = domElement.getElementsByTagName( 'columns' );
+        if( colcontainer.length )
+        {
+            colcontainer = colcontainer[0];
+            let columns = colcontainer.getElementsByTagName( 'column' );
+            for( let a = 0; a < columns.length; a++ )
+            {
+                if( columns[a].parentNode != colcontainer )
+                    continue;
+                let options = '';
+                let d = document.createElement( 'div' );
+                d.className = 'ccColumn';
+                let children = columns[a].getElementsByTagName( '*' );
+                for( let b = 0; b < children.length; b++ )
+                {
+                    if( children[b].parentNode != columns[a] )
+                        continue;
+                    d.appendChild( children[b] );
+                }
+                this.domElement.appendChild( d );
+            }
+            this.domElement.classList.remove( 'ccRows' );
+            this.domElement.classList.add( 'ccColumns' );
+            return;
+        }
     }
     // Refreshes gui's own dom element
     refreshDom()
