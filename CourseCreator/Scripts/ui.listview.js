@@ -24,6 +24,8 @@ class ccListview extends ccGUIElement
     attachDomElement()
     {
         super.attachDomElement();
+        
+        this.domElement.classList.add( 'ccGUI', 'ccListview' );
     }
     
     grabAttributes( domElement )
@@ -197,6 +199,28 @@ class ccListview extends ccGUIElement
 				col.className = 'HContent' + w + ' Ellipsis FloatLeft' + alignment;
 				
 				let str = ccFactory.create( json[b][z] );
+				
+				let onclick = json[b][z].OnClick;
+				
+				if( onclick )
+				{
+				    ( function( data, column )
+				    {
+				        column.onclick = function()
+				        {
+				            if( window.ccGUI.callbacks[ onclick ] )
+	                        {
+	                            // Add structure with current element flags
+	                            let obj = {};
+	                            /*for( let d = 0; d < data.length; b++ )
+	                            {
+	                                obj[ data.Name ] = obj.data.Value;
+	                            }*/
+	                            window.ccGUI.callbacks[ onclick ]( obj );
+	                        }
+				        }
+				    } )( json[b], col );
+				}
 				
 				col.innerHTML = str;					
 				row.appendChild( col );

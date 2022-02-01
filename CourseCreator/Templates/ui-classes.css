@@ -106,6 +106,6 @@
 
 .ccGroup > .ccColumn
 {
-    
+    flex-grow: 1;
 }
 

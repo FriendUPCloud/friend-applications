@@ -1,12 +1,11 @@
-    <div class="SubModule" id="usersContainer">
-        <div class="ContentHeader" id="usersContentHeader">
+
+        <!--<div class="ContentHeader" id="usersContentHeader">
             <h2>
                 Users
             </h2>
             <div class="Left">
                 <div class="Buttons">
                     <div class="HeaderButton IconSmall fa-plus-circle MousePointer" onclick="Application.submodules.users.create()"></div>
-                    <!--<div class="HeaderButton IconSmall fa-navicon MousePointer"></div>-->
                 </div>
                 <input type="text" placeholder="Search"/>
             </div>
@@ -21,8 +20,34 @@
         </div>
         <div class="ContentBlock">
             <div id="UsersContent"></div>
-        </div>
-    </div>
+        </div>-->
+    <group>
+        <columns gap="10px">
+            <column>
+                <listview>
+                    <listviewhead>
+                        <listviewheading>
+                            Users
+                        </listviewheading>
+                        <listviewtoolbar>
+                            <listviewbutton icon="plus-circle" onclick="w_add_user"></listviewbutton>
+                        </listviewtoolbar>
+                    </listviehead>
+                    <listviewheaders>
+                        <listviewheader width="25%" sortable="sortable" name="Rolename">Name</listviewheader>
+                        <listviewheader width="25%" sortable="sortable" name="Username">Username</listviewheader>
+                        <listviewheader width="25%" sortable="sortable" name="Status">Status</listviewheader>
+                        <listviewheader width="25%" sortable="sortable" name="Last_login" align="right">Last login</listviewheader>
+                    </listviewheaders>
+                    <listviewrows onload="w_reload_users">
+                    </listviewrows>
+                </listview>
+            </column>
+            <column>
+                <div id="UserDetails"></div>
+            </column>
+        </columns>
+    </group>
 
     <script>
         Application.submodules.users = {
@@ -37,82 +62,143 @@
                 {
                     ge( 'PanelMain' ).classList.remove( 'SectionLoading' );
                 } );
+                
+                ccInitializeGUI();
             },
             refreshUsers( cbk )
             {
-                let self = this;
-                let searchParams;
-                let m = new Module( 'system' );
-                m.onExecuted = function( e, d )
+                if( this.userRefreshCallback )
                 {
-                    if( e == 'ok' )
-                    {
-                        let str = '';
-                        let lst = JSON.parse( d );
-                        console.log( 'users.refreshUsers( actually listusers )', lst );
-                        for( let a in lst )
-                        {
-                            if( !lst[ a ].ID ) continue;
-                            let cl = '';
-                            let exNam = '';
-                            if( Application.userId == lst[a].ID )
-                            {
-                                cl = ' Yourself';
-                                exNam = ' (you)';
-                            }
-                            let stat = '';
-                            switch( lst[a].Status )
-                            {
-                                case 0:
-                                default:
-                                    stat = 'Active';
-                                    break;
-                            }
-                            
-                            console.log( 'Logintime: ' + lst[a].FullName + ' -> ' + lst[a].LoginTime + ' ' + typeof( lst[a].LoginTime ) + ' ' + parseInt( lst[a].LoginTime ) );
-                            
-                            let logt = lst[a].LoginTime != '0' ? ( new Date( parseInt( ( lst[a].LoginTime + '000' ) ) ) ) : 'Never';
-                            if( typeof( logt ) == 'object' )
-                            {
-                                logt = logt.getFullYear() + '-' + StrPad( ( logt.getMonth() + 1 ), 2, '0' ) + '-' + StrPad( logt.getDate(), 2, '0' );
-                            }
-                            
-                            str += '<div class="HRow EditRow' + cl + '" userId="' + lst[ a ].ID + '">\
-                                <div class="HContent25 FloatLeft Ellipsis"><span class="IconMedium fa-user FloatLeft MarginRight"></span>' + ( lst[a].FullName ? lst[a].FullName : 'Unnamed' ) + exNam + '</div>\
-                                <div class="HContent25 FloatLeft Ellipsis">' + lst[a].Name + '</div>\
-                                <div class="HContent25 FloatLeft Ellipsis TextCenter">' + stat + '</div>\
-                                <div class="HContent25 FloatLeft Ellipsis TextCenter">' + logt + '</div>\
-                            </div>';
-                        }
-                        ge( 'UsersContent' ).innerHTML = str;
-                        
-                        let userRows = ge( 'UsersContent' ).getElementsByClassName( 'EditRow' );
-                        for( let a = 0; a < userRows.length; a++ )
-                        {
-                            ( function( delem )
-                            {
-                                delem.onclick = function( e )
-                                {
-                                    self.editUser( delem.getAttribute( 'userId' ) );
-                                }
-                            } )( userRows[ a ] );
-                        }
-                        
-                    }
-                    else
-                    {
-                        ge( 'UsersContent' ).innerHTML = '<div class="HRow"><div class="HContent100">No users in the system!</div></div>';
-                    }
-                    if( cbk ) cbk();
+                    return;
                 }
-                let args = {};
-                m.execute( 'appmodule', {
-                    appName: 'CourseCreator',
-                    command: 'submodule',
-                    vars: {
-                        method: 'listusers',
-                        submodule: 'users',
+                ccAddCallback( 'w_reload_users', function( listview )
+                {
+                    let self = this;
+                    let searchParams;
+                    let m = new Module( 'system' );
+                    m.onExecuted = function( e, d )
+                    {
+                        if( e == 'ok' )
+                        {
+                            let str = '';
+                            let lst = JSON.parse( d );
+                            let out = [];
+                            
+                            for( let a = 0; a < lst.length; a++ )
+                            {
+                                let uid = lst[a].ID;
+                                let cl = '';
+                                let exNam = '';
+                                if( Application.userId == lst[a].ID )
+                                {
+                                    cl = ' Yourself';
+                                    exNam = ' (you)';
+                                }
+                                let stat = '';
+                                switch( lst[a].Status )
+                                {
+                                    case 0:
+                                    default:
+                                        stat = 'Active';
+                                        break;
+                                }
+                            
+                                let logt = lst[a].LoginTime != '0' ? ( new Date( parseInt( ( lst[a].LoginTime + '000' ) ) ) ) : 'Never';
+                                if( typeof( logt ) == 'object' )
+                                {
+                                    logt = logt.getFullYear() + '-' + StrPad( ( logt.getMonth() + 1 ), 2, '0' ) + '-' + StrPad( logt.getDate(), 2, '0' );
+                                }
+                                
+                                out.push( [ {
+                        			Type: 'string',
+                        			Value: lst[a].FullName + exNam,
+                        			OnClick: 'user_click_' + a
+                            	}, {
+                        			Type: 'string',
+                        			Value: lst[a].Namem,
+                        			OnClick: 'user_click_' + a
+                            	}, {
+                        			Type: 'string',
+                        			Value: stat,
+                        			OnClick: 'user_click_' + a
+                            	}, {
+                        			Type: 'string',
+                        			Value: logt,
+                        			OnClick: 'user_click_' + a
+                            	} ] );
+                            	
+                            	ccAddCallback( 'user_click_' + a, function( element )
+                            	{
+                            	    Application.submodules.users.editUser( uid );
+                            	} );
+                            }
+                            
+                            /*console.log( 'users.refreshUsers( actually listusers )', lst );
+                            for( let a in lst )
+                            {
+                                if( !lst[ a ].ID ) continue;
+                                let cl = '';
+                                let exNam = '';
+                                if( Application.userId == lst[a].ID )
+                                {
+                                    cl = ' Yourself';
+                                    exNam = ' (you)';
+                                }
+                                let stat = '';
+                                switch( lst[a].Status )
+                                {
+                                    case 0:
+                                    default:
+                                        stat = 'Active';
+                                        break;
+                                }
+                                
+                                console.log( 'Logintime: ' + lst[a].FullName + ' -> ' + lst[a].LoginTime + ' ' + typeof( lst[a].LoginTime ) + ' ' + parseInt( lst[a].LoginTime ) );
+                                
+                                let logt = lst[a].LoginTime != '0' ? ( new Date( parseInt( ( lst[a].LoginTime + '000' ) ) ) ) : 'Never';
+                                if( typeof( logt ) == 'object' )
+                                {
+                                    logt = logt.getFullYear() + '-' + StrPad( ( logt.getMonth() + 1 ), 2, '0' ) + '-' + StrPad( logt.getDate(), 2, '0' );
+                                }
+                                
+                                str += '<div class="HRow EditRow' + cl + '" userId="' + lst[ a ].ID + '">\
+                                    <div class="HContent25 FloatLeft Ellipsis"><span class="IconMedium fa-user FloatLeft MarginRight"></span>' + ( lst[a].FullName ? lst[a].FullName : 'Unnamed' ) + exNam + '</div>\
+                                    <div class="HContent25 FloatLeft Ellipsis">' + lst[a].Name + '</div>\
+                                    <div class="HContent25 FloatLeft Ellipsis TextCenter">' + stat + '</div>\
+                                    <div class="HContent25 FloatLeft Ellipsis TextCenter">' + logt + '</div>\
+                                </div>';
+                            }
+                            ge( 'UsersContent' ).innerHTML = str;
+                            
+                            let userRows = ge( 'UsersContent' ).getElementsByClassName( 'EditRow' );
+                            for( let a = 0; a < userRows.length; a++ )
+                            {
+                                ( function( delem )
+                                {
+                                    delem.onclick = function( e )
+                                    {
+                                        self.editUser( delem.getAttribute( 'userId' ) );
+                                    }
+                                } )( userRows[ a ] );
+                            }*/
+                            listview.setRowData( out );
+                        }
+                        else
+                        {
+                            listview.clearRows();
+                        }
+                        if( cbk ) cbk();
+                    
                     }
+                    let args = {};
+                    m.execute( 'appmodule', {
+                        appName: 'CourseCreator',
+                        command: 'submodule',
+                        vars: {
+                            method: 'listusers',
+                            submodule: 'users',
+                        }
+                    } );
                 } );
             },
             editUser( uid )
@@ -178,7 +264,7 @@
                             }
                             
                             ep.innerHTML = d;
-                            ge( 'PanelMain' ).appendChild( ep );
+                            ge( 'UserDetails' ).appendChild( ep );
                         
                             // Parse workgroups
                             ccAddCallback( 'w_reload_workgroups', function( listview )
