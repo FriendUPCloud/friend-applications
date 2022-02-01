@@ -382,7 +382,8 @@ function ccInitializeGUI()
         'checkbox',
         'radiobox',
         'itembox',
-        'listview'
+        'listview',
+        'group'
     ];
     
     for( let b = 0; b < types.length; b++ )
@@ -412,6 +413,8 @@ function ccInitializeGUI()
                     case 'listview':
                         new ccListview( { placeholderElement: out[a] } );
                         break;
+                    case 'group':
+                        new ccListview( { placeholderElement: out[a] } );
                     default:
                         break;
                 }
