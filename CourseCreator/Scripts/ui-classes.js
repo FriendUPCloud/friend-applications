@@ -21,6 +21,8 @@ ccFactory = {
 			case 'string':
 				return data.Value;
 				break;
+			/*case 'radiobox':
+			    return ( new ccRadiobox() ).getMarkup( data );*/
 			case 'checkbox':
 				return ( new ccCheckbox() ).getMarkup( data );
 			default:
