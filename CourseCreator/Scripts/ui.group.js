@@ -43,6 +43,7 @@ class ccGroup extends ccGUIElement
         
         this.domElement.innerHTML = '';
         
+        // Group containers with rows cannot have columns
         let rowcontainer = domElement.getElementsByTagName( 'rows' );
         if( rowcontainer.length )
         {
@@ -68,6 +69,7 @@ class ccGroup extends ccGUIElement
             return;
         }  
         
+        // Group containers with columns cannot have rows
         let colcontainer = domElement.getElementsByTagName( 'columns' );
         if( colcontainer.length )
         {
