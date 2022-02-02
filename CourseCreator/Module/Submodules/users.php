@@ -60,22 +60,21 @@ if( isset( $args->method ) )
             // TODO: Add security layer
             if( isset( $args->userId ) )
             {
-                //$o = new dbIO( 'FUser' );
-                //$o->Load( $args->userId );
                 $q = '
                     SELECT
                         u.ID,
                         u.FullName,
                         u.Name,
                         u.Email,
-                        u.Status
+                        u.Status,
                         s.Data AS Locale
-                    LEFT JOIN FSetting as s
+                    FROM FUser AS u
+                    LEFT JOIN FSetting AS s
                         ON u.ID=s.UserID
-                    WHERE u.ID=' . intval( $args->userId, 10 ) . ' 
+                    WHERE u.ID=' . intval( $args->userId, 10 ) . '
                     AND s.Key=\'locale\'
                 ';
-                $o = $SqlDatabase->fetchObjects( $q );
+                $o = $SqlDatabase->fetchObjects( $q )[0];
                 if( $o->ID > 0 )
                 {
                     $us = new stdClass();
@@ -85,11 +84,11 @@ if( isset( $args->method ) )
                     $us->Status = $o->Status;
                     $us->Language = $o->Locale;
                     $us->FullName = $o->FullName;
-                    die( 'ok<!--separate-->' . json_encode( [ $o, $us ] ) );
+                    die( 'ok<!--separate-->' . json_encode( $us ) );
                 }
                 else
                 {
-                    die( 'fail<!--separate-->' . json_encode( [ $args, intval( $args->userId, 10 ), $q ] ) );
+                    die( 'fail<!--separate-->' . json_encode( [ $o, $q ] ) );
                 }
             }
             die( 'fail<!--separate-->' . json_encode( $args ) );

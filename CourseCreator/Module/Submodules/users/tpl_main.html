@@ -136,10 +136,10 @@
                                 us = JSON.parse( p );
                             }
                            
-                           console.log( 'user', {
-                             i  : i,
-                             p  : p,
-                             us : us,
+                           console.log( 'user???', {
+                                i : i,
+                                p  : JSON.parse( p ),
+                                us : us,
                            });
                             let ep = document.createElement( 'div' );
                             ep.className = 'EditPane';
@@ -150,7 +150,8 @@
                                 Email: '',
                                 ID: 0,
                                 Status: 1,
-                                Avatar: ''
+                                Language : '',
+                                Avatar: '',
                             };
                             
                             if( us && !us.Status )
