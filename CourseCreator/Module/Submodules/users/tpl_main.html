@@ -133,54 +133,6 @@
                             	} );
                             }
                             
-                            /*console.log( 'users.refreshUsers( actually listusers )', lst );
-                            for( let a in lst )
-                            {
-                                if( !lst[ a ].ID ) continue;
-                                let cl = '';
-                                let exNam = '';
-                                if( Application.userId == lst[a].ID )
-                                {
-                                    cl = ' Yourself';
-                                    exNam = ' (you)';
-                                }
-                                let stat = '';
-                                switch( lst[a].Status )
-                                {
-                                    case 0:
-                                    default:
-                                        stat = 'Active';
-                                        break;
-                                }
-                                
-                                console.log( 'Logintime: ' + lst[a].FullName + ' -> ' + lst[a].LoginTime + ' ' + typeof( lst[a].LoginTime ) + ' ' + parseInt( lst[a].LoginTime ) );
-                                
-                                let logt = lst[a].LoginTime != '0' ? ( new Date( parseInt( ( lst[a].LoginTime + '000' ) ) ) ) : 'Never';
-                                if( typeof( logt ) == 'object' )
-                                {
-                                    logt = logt.getFullYear() + '-' + StrPad( ( logt.getMonth() + 1 ), 2, '0' ) + '-' + StrPad( logt.getDate(), 2, '0' );
-                                }
-                                
-                                str += '<div class="HRow EditRow' + cl + '" userId="' + lst[ a ].ID + '">\
-                                    <div class="HContent25 FloatLeft Ellipsis"><span class="IconMedium fa-user FloatLeft MarginRight"></span>' + ( lst[a].FullName ? lst[a].FullName : 'Unnamed' ) + exNam + '</div>\
-                                    <div class="HContent25 FloatLeft Ellipsis">' + lst[a].Name + '</div>\
-                                    <div class="HContent25 FloatLeft Ellipsis TextCenter">' + stat + '</div>\
-                                    <div class="HContent25 FloatLeft Ellipsis TextCenter">' + logt + '</div>\
-                                </div>';
-                            }
-                            ge( 'UsersContent' ).innerHTML = str;
-                            
-                            let userRows = ge( 'UsersContent' ).getElementsByClassName( 'EditRow' );
-                            for( let a = 0; a < userRows.length; a++ )
-                            {
-                                ( function( delem )
-                                {
-                                    delem.onclick = function( e )
-                                    {
-                                        self.editUser( delem.getAttribute( 'userId' ) );
-                                    }
-                                } )( userRows[ a ] );
-                            }*/
                             listview.setRowData( out );
                         }
                         else
@@ -222,11 +174,6 @@
                                 us = JSON.parse( p );
                             }
                            
-                           console.log( 'user', {
-                             i  : i,
-                             p  : p,
-                             us : us,
-                           });
                             let ep = document.createElement( 'div' );
                             ep.className = 'EditPane';
                             
