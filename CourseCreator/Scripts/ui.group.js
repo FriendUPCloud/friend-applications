@@ -43,6 +43,7 @@ class ccGroup extends ccGUIElement
         
         this.domElement.innerHTML = '';
         
+        // Group containers with rows cannot have columns
         let rowcontainer = domElement.getElementsByTagName( 'rows' );
         if( rowcontainer.length )
         {
@@ -52,7 +53,6 @@ class ccGroup extends ccGUIElement
             {
                 if( rows[a].parentNode != rowcontainer )
                     continue;
-                let options = '';
                 let d = document.createElement( 'div' );
                 d.className = 'ccRow';
                 let children = rows[a].getElementsByTagName( '*' );
@@ -69,18 +69,27 @@ class ccGroup extends ccGUIElement
             return;
         }  
         
+        // Group containers with columns cannot have rows
         let colcontainer = domElement.getElementsByTagName( 'columns' );
         if( colcontainer.length )
         {
             colcontainer = colcontainer[0];
+            let gap = colcontainer.getAttribute( 'gap' );
+            if( gap )
+            {
+                this.domElement.style.gap = gap;
+            }
             let columns = colcontainer.getElementsByTagName( 'column' );
             for( let a = 0; a < columns.length; a++ )
             {
                 if( columns[a].parentNode != colcontainer )
                     continue;
-                let options = '';
                 let d = document.createElement( 'div' );
                 d.className = 'ccColumn';
+                if( columns[a].getAttribute( 'id' ) )
+                {
+                    d.id = columns[a].getAttribute( 'id' );
+                }
                 let children = columns[a].getElementsByTagName( '*' );
                 for( let b = 0; b < children.length; b++ )
                 {
