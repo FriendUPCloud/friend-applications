@@ -48,6 +48,9 @@ class ccGroup extends ccGUIElement
         if( rowcontainer.length )
         {
             rowcontainer = rowcontainer[0];
+            
+            this.setGroupAttributes( rowcontainer );
+            
             let rows = rowcontainer.getElementsByTagName( 'row' );
             for( let a = 0; a < rows.length; a++ )
             {
@@ -55,6 +58,19 @@ class ccGroup extends ccGUIElement
                     continue;
                 let d = document.createElement( 'div' );
                 d.className = 'ccRow';
+                
+                // Is column scrollable?
+                let scrollable = rows[a].getAttribute( 'scrollable' );
+                if( scrollable )
+                {
+                    d.style.overflow = 'auto';
+                    d.style.scrollBehavior = '';
+                    if( scrollable == 'smooth' )
+                    {
+                        d.style.scrollBehavior = 'smooth';
+                    }
+                }
+                
                 let children = rows[a].getElementsByTagName( '*' );
                 for( let b = 0; b < children.length; b++ )
                 {
@@ -74,11 +90,9 @@ class ccGroup extends ccGUIElement
         if( colcontainer.length )
         {
             colcontainer = colcontainer[0];
-            let gap = colcontainer.getAttribute( 'gap' );
-            if( gap )
-            {
-                this.domElement.style.gap = gap;
-            }
+            
+            this.setGroupAttributes( colcontainer );
+            
             let columns = colcontainer.getElementsByTagName( 'column' );
             for( let a = 0; a < columns.length; a++ )
             {
@@ -86,6 +100,19 @@ class ccGroup extends ccGUIElement
                     continue;
                 let d = document.createElement( 'div' );
                 d.className = 'ccColumn';
+                
+                // Is column scrollable?
+                let scrollable = columns[a].getAttribute( 'scrollable' );
+                if( scrollable )
+                {
+                    d.style.overflow = 'auto';
+                    d.style.scrollBehavior = '';
+                    if( scrollable == 'smooth' )
+                    {
+                        d.style.scrollBehavior = 'smooth';
+                    }
+                }
+                
                 if( columns[a].getAttribute( 'id' ) )
                 {
                     d.id = columns[a].getAttribute( 'id' );
@@ -102,6 +129,23 @@ class ccGroup extends ccGUIElement
             this.domElement.classList.remove( 'ccRows' );
             this.domElement.classList.add( 'ccColumns' );
             return;
+        }
+    }
+    
+    setGroupAttributes( domElement )
+    {
+        // Use gap for flex box
+        let gap = domElement.getAttribute( 'gap' );
+        if( gap )
+        {
+            this.domElement.style.gap = gap;
+        }
+        
+        // Set height based on parent
+        let height = domElement.getAttribute( 'height' );
+        if( height )
+        {
+            this.domElement.style.height = height;
         }
     }
     // Refreshes gui's own dom element

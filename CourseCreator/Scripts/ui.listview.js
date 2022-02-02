@@ -120,6 +120,8 @@ class ccListview extends ccGUIElement
             	self.headerElements[ a ] = {};
             	self.headerElements[ a ].width = parseInt( headerelements[a].getAttribute( 'width' ) );
             	self.headerElements[ a ].align = headerelements[a].getAttribute( 'align' );
+            	self.headerElements[ a ].name = headerelements[a].getAttribute( 'name' ) ? headerelements[a].getAttribute( 'name' ) : headerelements[a].innerText;
+            	self.headerElements[ a ].text = headerelements[a].innerText;
             	if( !self.headerElements[ a ].align ) self.headerElements[ a ].align = 'left';
             	let h = document.createElement( 'div' );
             	let alignment = self.headerElements[ a ].align;
@@ -200,6 +202,7 @@ class ccListview extends ccGUIElement
 				
 				let str = ccFactory.create( json[b][z] );
 				
+				json[b][z].Name = this.headerElements[z].name;
 				let onclick = json[b][z].OnClick;
 				
 				if( onclick )
@@ -210,12 +213,17 @@ class ccListview extends ccGUIElement
 				        {
 				            if( window.ccGUI.callbacks[ onclick ] )
 	                        {
-	                            // Add structure with current element flags
+	                            // Add structure with current element attributes
 	                            let obj = {};
-	                            /*for( let d = 0; d < data.length; b++ )
+	                            for( let d = 0; d < data.length; d++ )
 	                            {
-	                                obj[ data.Name ] = obj.data.Value;
-	                            }*/
+	                                obj[ data[ d ].Name ] = {};
+	                                for( let p in data[ d ] )
+	                                {
+	                                    if( p == 'Name' ) continue;
+	                                    obj[ data[ d ].Name ][ p ] = data[ d ][ p ];
+	                                }
+	                            }
 	                            window.ccGUI.callbacks[ onclick ]( obj );
 	                        }
 				        }
