@@ -70,9 +70,8 @@ if( isset( $args->method ) )
                         s.Data AS Locale
                     FROM FUser AS u
                     LEFT JOIN FSetting AS s
-                        ON u.ID=s.UserID
+                        ON u.ID=s.UserID AND s.Key=\'locale\'
                     WHERE u.ID=' . intval( $args->userId, 10 ) . '
-                    AND s.Key=\'locale\'
                 ';
                 $o = $SqlDatabase->fetchObjects( $q )[0];
                 if( $o->ID > 0 )
@@ -92,6 +91,35 @@ if( isset( $args->method ) )
                 }
             }
             die( 'fail<!--separate-->' . json_encode( $args ) );
+            break;
+        // load classrooms for a user
+        case 'classrooms':
+            if ( !isset( $args->userId ))
+            {
+                die( 'fail<!--separate-->' . json_encode( [ 'missing userId', $args ]) );
+            }
+            
+            $uid = intval( $args->userId, 10 );
+            $q = '
+                SELECT
+                    uc.ID,
+                    uc.Status,
+                    cr.ID AS ClassroomID,
+                    cr.Name AS ClassName,
+                    cr.StartDate,
+                    cr.EndDate,
+                    cu.ID AS CourseID,
+                    cu.Name AS CourseName
+                FROM CC_UserClassroom uc
+                LEFT JOIN CC_Classroom cr
+                    ON uc.ClassroomID=cr.ID
+                LEFT JOIN CC_Course cu
+                    ON cr.CourseID=cu.ID
+                WHERE uc.UserID=' . $uid . '
+            ';
+            $rows = $courseDb->fetchObjects( $q );
+            die( 'ok<!--separate-->' . json_encode( $rows ));
+            
             break;
         // List workgroups relative to a user
         case 'workgroups':
