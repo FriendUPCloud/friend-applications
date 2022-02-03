@@ -14,6 +14,9 @@ window.ccGUI = {
 };
 
 ccFactory = {
+    // Initial built-in classes
+    classTypes: [ 'string' ],
+    // Create meta markup for a class instance
 	create( data )
 	{
 		switch( data.Type )
@@ -21,8 +24,6 @@ ccFactory = {
 			case 'string':
 				return data.Value;
 				break;
-			/*case 'radiobox':
-			    return ( new ccRadiobox() ).getMarkup( data );*/
 			default:
 			{
     			let classStr = 'cc' + data.Type.substr( 0, 1 ).toUpperCase() + data.Type.substr( 1, data.Type.length - 1 );
@@ -38,6 +39,15 @@ ccFactory = {
                 return '';
              }   
 		}
+	},
+	// Registers a class to the factory
+	registerClass( type )
+	{
+	    for( let a = 0; a < this.classTypes.length; a++ )
+	    {
+	        if( this.classTypes[ a ] == type ) return false;
+	    }
+	    this.classTypes.push( type );
 	}
 };
 
@@ -203,6 +213,7 @@ class ccRadiobox extends ccGUIElement
         this.refreshDom();
     }
 }
+ccFactory.registerClass( 'radiobox' );
 
 // Checkbox element
 class ccCheckbox extends ccGUIElement
@@ -307,6 +318,7 @@ class ccCheckbox extends ccGUIElement
     	return str;
     }
 }
+ccFactory.registerClass( 'checkbox' );
 
 class ccItembox extends ccGUIElement
 {
@@ -381,6 +393,7 @@ class ccItembox extends ccGUIElement
         }
     }
 }
+ccFactory.registerClass( 'itembox' );
 
 /* Image class */
 class ccImage extends ccGUIElement
@@ -451,19 +464,14 @@ class ccImage extends ccGUIElement
     	return str;*/
     }
 }
+ccFactory.registerClass( 'image' );
 
 // Management functions --------------------------------------------------------
 
 // Initialize all gui elements on body
 function ccInitializeGUI()
 {
-    let types = [
-        'checkbox',
-        'radiobox',
-        'itembox',
-        'listview',
-        'group'
-    ];
+    let types = ccFactory.classTypes;
     
     for( let b = 0; b < types.length; b++ )
     {

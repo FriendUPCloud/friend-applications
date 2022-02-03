@@ -246,3 +246,4 @@ class ccListview extends ccGUIElement
     }
 }
 
+ccFactory.registerClass( 'listview' );

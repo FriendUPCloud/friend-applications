@@ -1,5 +1,5 @@
 // Checkbox element
-class ccCheckbox extends ccGUIElement
+class ccTemplate extends ccGUIElement
 {
     constructor( options )
     {
@@ -67,4 +67,6 @@ class ccCheckbox extends ccGUIElement
     	return str;*/
     }
 }
+ccFactory.registerClass( 'template' );
+
 

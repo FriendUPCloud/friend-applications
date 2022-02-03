@@ -153,4 +153,4 @@ class ccGroup extends ccGUIElement
     {
     }
 }
-
+ccFactory.registerClass( 'group' );
