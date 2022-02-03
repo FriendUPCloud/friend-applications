@@ -24,9 +24,19 @@ ccFactory = {
 			/*case 'radiobox':
 			    return ( new ccRadiobox() ).getMarkup( data );*/
 			default:
-			    let classStr = 'cc' + data.Type.substr( 0, 1 ).toUpperCase() + data.Type.substr( 1, data.Type.length - 1 );
-                let classObj = eval( classStr );
-                return( new classObj().getMarkup( data ) );
+			{
+    			let classStr = 'cc' + data.Type.substr( 0, 1 ).toUpperCase() + data.Type.substr( 1, data.Type.length - 1 );
+			    try
+			    {
+                    let classObj = eval( classStr );
+                    return( new classObj().getMarkup( data ) );
+                }
+                catch( e )
+                {
+                    console.log( 'No such class type ' + classStr );
+                }
+                return '';
+             }   
 		}
 	}
 };
