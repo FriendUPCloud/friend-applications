@@ -23,11 +23,10 @@ ccFactory = {
 				break;
 			/*case 'radiobox':
 			    return ( new ccRadiobox() ).getMarkup( data );*/
-			case 'checkbox':
-				return ( new ccCheckbox() ).getMarkup( data );
 			default:
-				return '';
-				break;
+			    let classStr = 'cc' + data.Type.substr( 0, 1 ).toUpperCase() + data.Type.substr( 1, data.Type.length - 1 );
+                let classObj = eval( classStr );
+                return( new classObj().getMarkup( data ) );
 		}
 	}
 };
@@ -370,6 +369,76 @@ class ccItembox extends ccGUIElement
         {
             this.domElement.classList.remove( 'ccChecked' );
         }
+    }
+}
+
+/* Image class */
+class ccImage extends ccGUIElement
+{
+    constructor( options )
+    {
+        super( options );
+        // Do stuff
+    }
+    attachDomElement()
+    {
+        super.attachDomElement();
+        
+        let self = this;
+        
+        // Set stuff on this.domElement.innerHTML
+    }
+    grabAttributes( domElement )
+    {
+        super.grabAttributes( domElement );
+        
+        // if( domElement.getAttribute( 'someattribute' ) )
+        //     do something
+        
+        
+        //this.refreshDom();
+    }
+    refreshDom()
+    {
+        super.refreshDom();
+        
+        // Do something with properties on dom
+        /*
+        if( this.property )
+        {
+            this.domElement.classList.add( 'ccClassName' );
+        }
+        else
+        {
+            this.domElement.classList.remove( 'ccClassName' );
+        }*/
+    }
+    getMarkup( data )
+    {
+    	// Return meta-markup for class instantiation later
+    	
+    	/*let str = '<checkbox {options}/>';
+    	let opts = [];
+    	for( let a in data )
+    	{
+    		if( a == 'OnChange' )
+    		{
+    			opts.push( 'onchange="' + data[a] + '"' );
+    		}
+    		if( a == 'Value' && data[a] )
+    		{
+    			opts.push( 'checked="checked"' );
+    		}
+    	}
+    	if( opts.length )
+    	{
+    		str = str.split( '{options}' ).join( opts.join( ' ' ) );
+    	}
+    	else
+    	{
+    		str = str.split( ' {options}' ).join( '' );
+    	}
+    	return str;*/
     }
 }
 
