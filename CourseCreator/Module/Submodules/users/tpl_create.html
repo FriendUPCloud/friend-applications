@@ -67,24 +67,6 @@
 
 <group>
     <rows>
-        <row>
-            <listview>
-                <listviewhead>
-                    <listviewheading>
-                        Workgroups
-                    </listviewheading>
-                    <listviewtoolbar>
-                        <listviewbutton icon="plus-circle" onclick="w_add_workgroup"></listviewbutton>
-                    </listviewtoolbar>
-                </listviehead>
-                <listviewheaders>
-                    <listviewheader width="80%" sortable="sortable" name="Rolename">Name:</listviewheader>
-                    <listviewheader align="right" width="20%" sortable="sortable" name="Active">Active:</listviewheader>
-                </listviewheaders>
-                <listviewrows onload="w_reload_workgroups">
-                </listviewrows>
-            </listview>
-        </row>
         <row>   
             <listview>
                 <listviewhead>
@@ -93,7 +75,10 @@
                     </listviewheading>
                 </listviehead>
                 <listviewheaders>
-                    <listviewheader width="100%" sortable="sortable" name="Classroom">Rolename:</listviewheader>
+                    <listviewheader width="25%" sortable="sortable" name="Classroom">Classroom:</listviewheader>
+                    <listviewheader width="25%" sortable="sortable" name="Classroom">Course:</listviewheader>
+                    <listviewheader width="25%" sortable="sortable" name="Classroom">Start date:</listviewheader>
+                    <listviewheader width="25%" sortable="sortable" name="Classroom">End date:</listviewheader>
                 </listviewheaders>
                 <listviewrows onload="w_reload_classrooms">
                 </listviewrows>

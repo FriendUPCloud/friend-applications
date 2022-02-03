@@ -84,6 +84,7 @@
                             let lst = JSON.parse( d );
                             let out = [];
                             
+                            console.log( 'load users', lst );
                             for( let a = 0; a < lst.length; a++ )
                             {
                                 let uid = lst[a].ID;
@@ -94,15 +95,11 @@
                                     cl = ' Yourself';
                                     exNam = ' (you)';
                                 }
-                                let stat = '';
-                                switch( lst[a].Status )
-                                {
-                                    case 0:
-                                    default:
-                                        stat = 'Active';
-                                        break;
-                                }
-                            
+                                if( null==lst[a].Status )
+                                    lst[a].Status = 0;
+                                
+                                const stat = [ 'Active', 'Disabled', 'Locked' ][ lst[a].Status ];
+                                
                                 let logt = lst[a].LoginTime != '0' ? ( new Date( parseInt( ( lst[a].LoginTime + '000' ) ) ) ) : 'Never';
                                 if( typeof( logt ) == 'object' )
                                 {
@@ -174,6 +171,12 @@
                                 us = JSON.parse( p );
                             }
                            
+                           console.log( 'user', {
+                                i : i,
+                                p  : JSON.parse( p ),
+                                us : us,
+                           });
+
                             let ep = document.createElement( 'div' );
                             ep.className = 'EditPane';
                             
@@ -183,17 +186,16 @@
                                 Email: '',
                                 ID: 0,
                                 Status: 1,
-                                Avatar: ''
+                                Language : '',
+                                Avatar: '',
                             };
                             
-                            if( us && !us.Status )
+                            if ( us && null==us.Language )
+                                us.Languange='';
+                            
+                            if( us && null==us.Status )
                                 us.Status = 0;
-                            if ( us && 0 == us.Status )
-                                us.Status = 'Active';
-                            if ( us && 1 == us.Status )
-                                us.Status = 'Disabled';
-                            if ( us && 2 == us.Status )
-                                us.Status = 'Locked';
+                            us.Status = [ 'Active', 'Disabled', 'Locked' ][ us.Status ];
                             
                             if( i == 'ok' )
                             {
@@ -213,7 +215,72 @@
                             ep.innerHTML = d;
                             ge( 'UserDetails' ).innerHTML = '';
                             ge( 'UserDetails' ).appendChild( ep );
-                        
+                            
+                            ccAddCallback( 'w_reload_classrooms', ( listView ) => {
+                                console.log( 'w_reload_classrooms', listView );
+                                const cl = new Module( 'system' );
+                                cl.onExecuted = ( suc, dta ) => {
+                                    console.log( 'user load classrooms', [ suc, dta ]);
+                                    if ( suc == 'ok' )
+                                    {
+                                        const rms = JSON.parse( dta );
+                                        console.log( 'user classrooms', JSON.parse( JSON.stringify({ 'rms': rms })));
+                                        rms.sort(( ra, rb ) => {
+                                            const an = ra.ClassName;
+                                            const bn = rb.ClassName;
+                                            if ( an == bn )
+                                                return 0;
+                                            if ( an > bn )
+                                                return 1;
+                                            else
+                                                return -1;
+                                        });
+                                        console.log( 'after sort', rms );
+                                        const rws = [];
+                                        let len = rms.length;
+                                        for( ;len;)
+                                        {
+                                            len--;
+                                            const r = rms[ len ];
+                                            console.log( 'adding row', [ len, r ]);
+                                            const cnf = [
+                                                {
+                                                    Type : 'string',
+                                                    Value : r.ClassName,
+                                                },
+                                                {
+                                                    Type : 'string',
+                                                    Value : r.CourseName,
+                                                },
+                                                {
+                                                    Type : 'string',
+                                                    Value : r.StartDate,
+                                                },
+                                                {
+                                                    Type : 'string',
+                                                    Value : r.EndDate,
+                                                }
+                                            ];
+                                            rws.push( cnf );
+                                        }
+                                        listView.setRowData( rws );
+                                    }
+                                    else
+                                        return;
+                                    
+                                };
+                                
+                                cl.execute( 'appmodule', {
+                                    appName: 'CourseCreator',
+                                    command: 'submodule',
+                                    vars: {
+                                        method: 'classrooms',
+                                        submodule: 'users',
+                                        userId: uid || 0,
+                                    }
+                                });
+                            });
+                            
                             // Parse workgroups
                             ccAddCallback( 'w_reload_workgroups', function( listview )
                             {
