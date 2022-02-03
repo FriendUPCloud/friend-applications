@@ -87,7 +87,7 @@ if( isset( $args->method ) )
                 }
                 else
                 {
-                    die( 'fail<!--separate-->' . json_encode( [ $o, $q ] ) );
+                    die( 'fail<!--separate-->{"response":0,"message":"Failed to load user.","userId":' . $args->userId . '}' );
                 }
             }
             die( 'fail<!--separate-->' . json_encode( $args ) );

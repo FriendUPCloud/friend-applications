@@ -201,6 +201,18 @@
     color: var(--menu-color);
 }
 
+body.Editmode .EditPane
+{
+    pointer-events: inherit;
+    opacity: 1;
+}
+
+body .EditPane
+{
+    opacity: 0;
+    transition: opacity 0.25s;   
+}
+
 /* Hrows -------------------------------------------------------------------- */
 
 .EditRow
