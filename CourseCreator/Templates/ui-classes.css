@@ -111,3 +111,10 @@
     flex-basis: 0;
 }
 
+/* Picture */
+
+.ccPicture
+{
+	display: inline-block;
+}
+

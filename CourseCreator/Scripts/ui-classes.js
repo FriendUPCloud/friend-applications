@@ -396,7 +396,7 @@ class ccItembox extends ccGUIElement
 ccFactory.registerClass( 'itembox' );
 
 /* Image class */
-class ccImage extends ccGUIElement
+class ccPicture extends ccGUIElement
 {
     constructor( options )
     {
@@ -409,48 +409,76 @@ class ccImage extends ccGUIElement
         
         let self = this;
         
-        // Set stuff on this.domElement.innerHTML
+        this.domElement.classList.add( 'ccGUI', 'ccPicture' );
     }
     grabAttributes( domElement )
     {
         super.grabAttributes( domElement );
         
-        // if( domElement.getAttribute( 'someattribute' ) )
-        //     do something
+        let width = domElement.getAttribute( 'width' );
+        if( width )
+        {
+        	this.options.width = width;
+        }
+        let height = domElement.getAttribute( 'height' );
+        if( height )
+        {
+        	this.options.height = height;
+        }
+        let icon = domElement.getAttribute( 'icon' );
+        if( icon )
+        {
+        	this.options.icon = icon;
+        }
+        let type = domElement.getAttribute( 'type' );
+        if( type )
+        {
+        	this.options.type = type;
+        }
         
-        
-        //this.refreshDom();
+        this.refreshDom();
     }
     refreshDom()
     {
         super.refreshDom();
         
         // Do something with properties on dom
-        /*
-        if( this.property )
+        
+        if( this.options.width )
         {
-            this.domElement.classList.add( 'ccClassName' );
+            this.domElement.style.width = this.options.width;
         }
-        else
+        if( this.options.height )
         {
-            this.domElement.classList.remove( 'ccClassName' );
-        }*/
+        	this.domElement.style.height = this.options.height;
+        }
+        
+        // Set stuff on this.domElement.innerHTML
+        if( this.options.type == 'icon' )
+        {
+        	let icon = this.options.icon ? ( 'fa-' + this.options.icon ) : 'fa-info';
+        	this.domElement.innerHTML = '<div class="IconSmall ' + icon + '"></div>';
+        }
     }
     getMarkup( data )
     {
     	// Return meta-markup for class instantiation later
     	
-    	/*let str = '<checkbox {options}/>';
+    	let str = '<picture {options}/>';
     	let opts = [];
     	for( let a in data )
     	{
-    		if( a == 'OnChange' )
+    		if( a == 'width' )
     		{
-    			opts.push( 'onchange="' + data[a] + '"' );
+    			opts.push( 'width="' + data[a] + '"' );
     		}
-    		if( a == 'Value' && data[a] )
+    		if( a == 'height' && data[a] )
     		{
-    			opts.push( 'checked="checked"' );
+    			opts.push( 'height="' + data[a] + '"' );
+    		}
+    		if( a == 'type' && data[a] )
+    		{
+    			opts.push( 'type="' + data[a] + '"' );
     		}
     	}
     	if( opts.length )
@@ -461,10 +489,10 @@ class ccImage extends ccGUIElement
     	{
     		str = str.split( ' {options}' ).join( '' );
     	}
-    	return str;*/
+    	return str;
     }
 }
-ccFactory.registerClass( 'image' );
+ccFactory.registerClass( 'picture' );
 
 // Management functions --------------------------------------------------------
 
