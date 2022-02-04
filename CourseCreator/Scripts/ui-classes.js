@@ -415,25 +415,13 @@ class ccPicture extends ccGUIElement
     {
         super.grabAttributes( domElement );
         
-        let width = domElement.getAttribute( 'width' );
-        if( width )
+        let attrs = [ 'width', 'height', 'icon', 'type', 'shape', 'border-size' ];
+        
+        for( let a in attrs )
         {
-        	this.options.width = width;
-        }
-        let height = domElement.getAttribute( 'height' );
-        if( height )
-        {
-        	this.options.height = height;
-        }
-        let icon = domElement.getAttribute( 'icon' );
-        if( icon )
-        {
-        	this.options.icon = icon;
-        }
-        let type = domElement.getAttribute( 'type' );
-        if( type )
-        {
-        	this.options.type = type;
+        	let op = domElement.getAttribute( attrs[ a ] );
+        	if( op )
+	        	this.options[ attrs[ a ] ] = op;
         }
         
         this.refreshDom();
@@ -453,11 +441,34 @@ class ccPicture extends ccGUIElement
         	this.domElement.style.height = this.options.height;
         }
         
+        let exClasses = '';
+        
+        if( this.options.shape )
+        {
+        	if( this.options.shape == 'circle' )
+        	{
+        		this.domElement.style.borderRadius = '100%';
+        	}
+        	else
+        	{
+        		this.domElement.style.borderRadius = '';
+        	}
+        }
+        if( this.options[ 'border-size' ] )
+        {
+        	this.domElement.style.borderWidth = this.options[ 'border-size' ];
+    		this.domElement.style.borderStyle = 'solid';
+        }
+        else
+        {
+        	this.domElement.style.borderWidth = '';
+        }
+        
         // Set stuff on this.domElement.innerHTML
         if( this.options.type == 'icon' )
         {
         	let icon = this.options.icon ? ( 'fa-' + this.options.icon ) : 'fa-info';
-        	this.domElement.innerHTML = '<div class="IconSmall ' + icon + '"></div>';
+        	this.domElement.innerHTML = '<div class="IconSmall ' + icon + exClasses + '"></div>';
         }
     }
     getMarkup( data )

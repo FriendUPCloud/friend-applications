@@ -116,5 +116,9 @@
 .ccPicture
 {
 	display: inline-block;
+	text-align: center;
+	box-sizing: border-box;
+	vertical-align: middle;
 }
+
 
