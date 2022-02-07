@@ -1,0 +1,44 @@
+.FUITabPages
+{
+	display: block;
+}
+
+.FUITabPages .FUITabContainer,
+.FUITabPages .FUITabPageContainer
+{
+	display: block;
+	position: relative;
+}
+
+.FUITabPages .FUITab
+{
+	display: inline-block;
+	margin: 0 5px 0 0;
+	border: 1px solid var(--fui-border-foreground);
+	background-color: var(--fui-background);
+	border-radius: var(--fui-border-radius-small) var(--fui-border-radius-small) 0 0;
+	padding: var(--fui-padding-row);
+	cursor: pointer;
+}
+
+.FUITabPages .FUITab.Active
+{
+	background-color: var(--fui-background-foreground);
+}
+
+.FUITabPages .FUIPage
+{
+	opacity: 0;
+	transition: opacity 0.25s;
+	pointer-events: none;
+	position: absolute;
+}
+
+.FUITabPages .FUIPage.Active
+{
+	opacity: 1;
+	pointer-events: all;
+	position: relative;
+}
+
+
