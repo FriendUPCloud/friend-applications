@@ -352,6 +352,10 @@
 	opacity: 0.7;
 }
 
+.properties > div:first-child
+{
+	margin: 0 0 5px 0;
+}
 
 .properties .right
 {
