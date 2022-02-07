@@ -1221,7 +1221,6 @@ class RootElement extends Element
         
         // Type of element
         let typeDiv = ce('div');
-        let typeSpan = ce('span');
         let typeLabel = ce('label',
             { 
                 "text": "Type:",
@@ -1239,14 +1238,12 @@ class RootElement extends Element
                 }
             }
         );
-        typeSpan.appendChild(typeLabel);
-        typeSpan.appendChild(typeField);
-        typeDiv.appendChild(typeSpan);
+        typeDiv.appendChild(typeLabel);
+        typeDiv.appendChild(typeField);
         div.appendChild(typeDiv);
 
         // Name form
         let nameDiv = ce('div');
-        let span = ce('span');
         let nameLabel = ce('label',
             {
                 "text": "Name:",
@@ -1263,21 +1260,21 @@ class RootElement extends Element
                 }
             }
         );
-        span.appendChild(nameLabel);
-        span.appendChild(nameInput);
-        nameDiv.appendChild(span);
+        nameDiv.appendChild(nameLabel);
+        nameDiv.appendChild(nameInput);
         div.appendChild(nameDiv);
 
         // buttons
         let outerDiv = ce('div', { "classes": ["right"]});
         let buttonDiv = ce('div',{ "classes": ["buttons"]});
         let buttons = ce('span');
-        let deleteButton = ce('span',
+        let deleteButton = ce('button',
             {
                 "text": "Delete",
                 "attributes": {
                     "name": "deleteButton"
                 },
+                "classes": [ "IconSmall", "fa-remove" ],
                 "listeners": [{
                     "event": "click",
                     "callBack": function (event) {
@@ -1291,12 +1288,13 @@ class RootElement extends Element
                 }]
             }
         );
-        let saveButton = ce('span',
+        let saveButton = ce('button',
             {
                 "text": "Save",
                 "attributes": {
                     "name": "saveButton"
                 },
+                "classes": [ "IconSmall", "fa-save" ],
                 "listeners": [{
                     "event": "click",
                     "callBack": function (event) {

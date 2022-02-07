@@ -317,11 +317,39 @@
 /*                     */
 
 
-.properties > div,
-.properties > span
+.properties > div:after
 {
+	content: " ";
+	display: block;
+	clear: both;
+}
+
+.properties label
+{
+	width: 25%;
+	display: block;
+	float: left;
+	box-sizing: border-box;
 	padding: 5px;
-	margin: 5px;
+	float: left;
+	margin: 0;
+}
+
+.properties input
+{
+	width: 75%;
+	display: block;
+	float: left;
+	box-sizing: border-box;
+	padding: 5px;
+	float: left;
+	margin: 0;
+}
+
+.properties input[readonly]
+{
+	cursor: not-allowed;
+	opacity: 0.7;
 }
 
 
@@ -332,14 +360,11 @@
 
 .properties .buttons
 {
-	padding:  5px;
-	margin: 5px;
+	padding-top:  5px;
 	display: inline-block;
 }
 
-.properties .buttons > span > span
+.properties button + button
 {
-	border: solid thin var(--border-foreground);
-	padding: 5px;
-	margin: 5px;
+	margin-right: 0;
 }
