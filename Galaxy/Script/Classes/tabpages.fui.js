@@ -15,7 +15,35 @@ class FUITabPages extends FUIElement
 		super( options );
 		
 	}
-	
+	// Sets options on gui element
+    setOptions( options )
+    {
+    	
+    }
+    
+    attachDomElement()
+    {
+        super.attachDomElement();
+        
+        let self = this;
+        
+        this.domElement.classList.add( 'FUI', 'FUITabPages' );
+        
+        this.refreshDom();
+    }
+    
+    grabAttributes( domElement )
+    {
+        let self = this;
+        
+        this.domElement.innerHTML = '';
+        
+    }
+    
+    // Refreshes gui's own dom element
+    refreshDom()
+    {
+    }
 }
 
 
