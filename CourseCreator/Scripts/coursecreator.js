@@ -1168,7 +1168,22 @@ class RootElement extends Element
         if( courseCreator.onReady )
             courseCreator.onReady( courseCreator.loadStatus );
     }
-
+	
+	getElementTypeIcon = function( type )
+    {
+    	console.log( 'What is the type: ' + type );
+    	switch( type )
+    	{
+			case 'image':
+				return 'image';
+			case 'checkBoxQuestion':
+				return 'check';
+			case 'textBox':
+				return 'align-left';
+    	}
+    	return 'warning';
+    }
+    
     // Render of toolbox menu is the same for all elements
     renderToolbox = function()
     {
@@ -1183,8 +1198,8 @@ class RootElement extends Element
                             "data-element-type": v.elementType,
                             "draggable": "true"
                         },
-                        "text": v.displayName,
-                        "classes": ["elementType"],
+                        "text": '&nbsp;' + v.displayName,
+                        "classes": ["elementType", "IconSmall", "fa-" + this.getElementTypeIcon( v.elementType )],
                         "listeners": [
                             {
                                 "event": "dragstart",

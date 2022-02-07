@@ -109,11 +109,30 @@
 	height: 30px;
 }
 
+#index .SectionButton
+{
+	height: auto;
+}
+
 #index > div > .buttons > span,
+#index .SectionButton > .buttons.Active > span,
 #index .SectionIndex.Active > .buttons > span
 {
 	opacity: 1;
 	pointer-events: all;
+}
+
+#index .SectionButton > .buttons.Active > span
+{
+	cursor: pointer;
+}
+
+#index .SectionButton > .buttons
+{
+	margin: 0;
+	border-top: 0;
+	border-radius: var(--gui-border-radius-normal);
+	height: 28px;
 }
 
 #index > div > .buttons,
@@ -134,6 +153,11 @@
 	opacity: 0;
 	transition: opacity 0.25s;
 	pointer-events: none;
+}
+
+#IndexHeader
+{
+	cursor: pointer;
 }
 
 #index .SectionIndex.Active > div:not(.buttons),
@@ -268,13 +292,26 @@
 	maring-block: 0px;
 }
 
-.elementType {
-	border: solid thin grey;
+.elementType 
+{
+	border: solid thin var(--border-foreground);
 	padding: 2px 5px;
 	text-align: center;
-	margin:  5px;
+	margin: 0 0 5px 0;
 	box-sizing: border-box;
-	border-radius:  3px;
+	border-radius: var(--gui-border-radius-normal);
+	background-color: var(--background-foreground);
+	transition: background 0.15s;
+	cursor: grab;
+}
+
+.elementType:hover
+{
+	background-color: var(--background);
+}
+.elementType:active
+{
+	cursor: grabbing;
 }
 
 /*                     */
