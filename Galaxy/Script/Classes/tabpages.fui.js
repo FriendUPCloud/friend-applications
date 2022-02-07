@@ -8,3 +8,16 @@
 *                                                                              *
 *****************************************************************************©*/
 
+class FUITabPages extends FUIElement
+{
+	constructor( options )
+	{
+		super( options );
+		
+	}
+	
+}
+
+
+FUI.registerClass( 'tabpages' );
+
