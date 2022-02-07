@@ -2,7 +2,8 @@
 	box-sizing: border-box;
 }
 
-.CcPanels {
+.CcPanels 
+{
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -10,7 +11,8 @@
 	height: 100%;
 }
 
-.CcPanelSide {
+.CcPanelSide 
+{
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -30,33 +32,47 @@
 	height: 100%;
 }
 
+.CcPanelMain .ContentBlock
+{
+	background-color: var(--canvas-background);
+}
+
 .CcPanelMain .ContentHeader h3
 {
 	width: 80%;
 }
 
-#index {
+#index 
+{
 	background-color: light-grey;
-	padding:  10px;
 	width: 100%;
 	height: 100%;
 }
 
-#index > ul > li > span {
+#index > ul > li > span 
+{
 	font-weight: bold;
 }
 
-#index ul {
+#index ul 
+{
 	list-style: none;
 }
 
-#index ul, #index li {
+#index ul, #index li 
+{
 	padding: 0px;
 	margin:  0px;
 }
 
-#index li {
-	padding: 0 0 0px 10px;
+#index li 
+{
+	padding: 0;
+}
+
+#index li li
+{
+	padding: 0 0 0 10px;
 }
 
 #index div
@@ -67,20 +83,57 @@
 	border-radius: 4px;
 }
 
-#index .buttons{
-	visibility: hidden;
+#index .buttons > span
+{
+	opacity: 0;
+	pointer-events: none;
+}
+
+#index .SectionIndex
+{
+	border: 1px solid var(--border-foreground);
+	border-radius: var(--gui-border-radius-normal);
+	margin: 0 0 5px 0;
+}
+
+#index .SectionIndex > div > span,
+#index .PageIndex > div > span
+{
+	cursor: pointer;
+}
+
+#index .SectionIndex > div,
+#index .PageIndex > div
+{
+	padding: 5px;
+	height: 30px;
+}
+
+#index > div > .buttons > span,
+#index .SectionIndex.Active > .buttons > span
+{
+	opacity: 1;
+	pointer-events: all;
 }
 
 #index > div > .buttons,
-#index .SectionIndex.Active > .buttons
+#index .SectionIndex > .buttons
 {
 	text-align: center;
 	padding-top: 5px;
-	margin-top: 5px;
+	margin: 5px 0 0 0;
 	border-top: 1px solid var(--border-foreground);
-	visibility: visible;
 	width: 100%;
+	background: var(--background);
+	border-radius: 0;
+}
 
+#index > div > .buttons > span,
+#index .SectionIndex > .buttons > span
+{
+	opacity: 0;
+	transition: opacity 0.25s;
+	pointer-events: none;
 }
 
 #index .SectionIndex.Active > div:not(.buttons),
@@ -113,11 +166,17 @@
 	padding-bottom: 300px;
 }
 
-.element .buttons{
+.element .buttons
+{
 	text-align: center;
 	padding-top: 5px;
 	margin-top: 5px;
 	border-top: 1px solid var(--border-foreground);
+}
+
+.element .buttons .IconSmall
+{
+	cursor: pointer;
 }
 
 .element .buttons.right
@@ -190,14 +249,18 @@
 
 
 
-.element {
+.element 
+{
 	padding:  5px;
 	border:  thin solid #E0E0E0;
 	margin: 5px;
 	display: flex;
 	justify-content: center;
-   align-items: left;
+	align-items: left;
 	flex-direction: column;
+	border-radius: var(--gui-border-radius-normal);
+	box-shadow: var(--gui-box-shadow);
+	background-color: var(--background);
 }
 
 .element > p {
