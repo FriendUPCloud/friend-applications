@@ -60,32 +60,37 @@ let ce = function(type,
 }
 
 
-let removeDomChildren = function (domEle) {
+let removeDomChildren = function (domEle)
+{
     while (domEle.firstChild) {
         domEle.firstChild.remove();
     }
 }
 
-let setDomChildren = function (domEle, domChildren) {
+let setDomChildren = function (domEle, domChildren)
+{
     //removeDomChildren(domEle);
     domChildren.forEach( domChild => {
         domEle.appendChild(domChild);
     });
 }
 
-function allowDrop(ev) {
+function allowDrop(ev)
+{
     ev.preventDefault();
     ev.dataTransfer.dropEffect = "copy";
 }
 
-function dragToolbox(ev) {
+function dragToolbox(ev)
+{
     //console.log(ev);
     ev.dataTransfer.setData("text", ev.srcElement.dataset.elementType);
     ev.dataTransfer.setData("isNew", true);
     ev.dataTransfer.dropEffect = "copy";
 }
 
-function drop(ev) {
+function drop(ev)
+{
     ev.preventDefault();
     console.log();
 
@@ -104,7 +109,8 @@ function drop(ev) {
 
 }
 
-function endDrag(ev){
+function endDrag(ev)
+{
     ev.preventDefault();
 }
 
@@ -112,10 +118,12 @@ function endDrag(ev){
 document.addEventListener('dragover', allowDrop);
 document.addEventListener('drop', drop );
 var isCtrl = false;
-document.onkeyup=function(e){
+document.onkeyup=function(e)
+{
     if(e.keyCode == 17) isCtrl=false;
 }
-document.onkeydown=function(e){
+document.onkeydown=function(e)
+{
     if(e.keyCode == 17) isCtrl=true;
     if(e.keyCode == 83 && isCtrl == true) {
         courseCreator.manager.saveActivePage();
@@ -155,7 +163,8 @@ Application.receiveMessage = function( msg )
 *
 *  Provides database interface for the elements
 */
-class CourseCollection {
+class CourseCollection 
+{
     constructor ( courseCreator ){
         this.courseCreator = courseCreator;
     }
@@ -168,8 +177,10 @@ class CourseCollection {
 *  implements: renderHtml( context )
 */
 //TODO: rewrite to capture indexing id vs index
-class Element{
-    constructor( parent, elementType, displayId=null, dbId=null, name=null) {
+class Element
+{
+    constructor( parent, elementType, displayId=null, dbId=null, name=null) 
+    {
         console.log(
             "in element construct", 
             "elementType", elementType, 
@@ -201,7 +212,8 @@ class Element{
         console.log("this is self ",this);
     }
 
-    resetDomContainer = function(){
+    resetDomContainer = function()
+    {
         // replaces all content except for delete button
         let buttons = this.domContainer.querySelector(".buttons");
         let handle = this.domContainer.querySelector(".handle");
@@ -209,7 +221,8 @@ class Element{
         this.domContainer.replaceChildren(buttons, handle);
     }
 
-    linkDomContainer = function(domContainer=null){
+    linkDomContainer = function(domContainer=null)
+    {
         let self = this;
         if (!domContainer)
             domContainer = self.createDomContainer(self.elementClass);
@@ -221,7 +234,8 @@ class Element{
             self.parent.domContainer.appendChild(self.domContainer);
     }
 
-    setActive = function(){
+    setActive = function()
+    {
         let self = this;
         self.parent.activeChild = self;
         if (typeof(self.parent.setActive) != "undefined")
@@ -230,7 +244,8 @@ class Element{
             self.activeChild = self.children[0];
     }
 
-    createDomContainer = function(){
+    createDomContainer = function()
+    {
         //TODO: need to add element db index plus index in doc
         let self = this; 
         let ele = ce(
@@ -277,7 +292,8 @@ class Element{
         Creates a new child element (generic) for all element types
 
     */
-    createNewElement = function(elementType=null, callBack=null){
+    createNewElement = function(elementType=null, callBack=null)
+    {
         let self = this;
 
         // Set DisplayID
@@ -307,7 +323,8 @@ class Element{
     // creates id on ID is given
     // updates / saves on ID if given
     // should be updated to be element sensitive.
-    save = function(callBack){
+    save = function(callBack)
+    {
         console.log(" properties in save ", this.properties);
         let params = {
             table: this.classInfo.dbTable,
@@ -334,7 +351,8 @@ class Element{
 
         Delete function for elements (page and section overload this)
     */
-    delete = function () {
+    delete = function () 
+    {
         let self = this;
 
         // Confirm delete
@@ -378,7 +396,8 @@ class Element{
 
     }
 
-    renderMain = function (){
+    renderMain = function ()
+    {
         if (this.children.length == 0)
             return false
         if (this.activeChild == null)
@@ -399,12 +418,15 @@ class Element{
 * render is a function on element and children to propogate
 *
 */
-class CourseElement extends Element {
-    constructor(parent, displayId=null, dbId=null, name=null){
+class CourseElement extends Element
+{
+    constructor(parent, displayId=null, dbId=null, name=null)
+    {
         super(parent, "course", displayId, dbId, name);
     }
 
-    save = function(callBack){
+    save = function(callBack)
+    {
         let params = {
             table: this.classInfo.dbTable,
             ID: this.dbId,
@@ -423,7 +445,8 @@ class CourseElement extends Element {
         );
     }
 
-    createSection = function(){
+    createSection = function()
+    {
         let cls = registeredElements.get("page").class;
         let s = new cls(this);
         s.save();
@@ -433,13 +456,16 @@ class CourseElement extends Element {
 }
 
 
-class SectionElement extends Element {
-    constructor( parent, displayId=null, dbId=null, name=null ) {    
+class SectionElement extends Element 
+{
+    constructor( parent, displayId=null, dbId=null, name=null ) 
+    {    
         super(parent, "section", displayId, dbId, name); 
         this.linkDomContainer(courseCreator.mainView);
     }
 
-    save = function(callBack){
+    save = function(callBack)
+    {
         let params = {
             table: this.classInfo.dbTable,
             ID: this.dbId,
@@ -460,8 +486,10 @@ class SectionElement extends Element {
     }
 }
 
-class PageElement extends Element{
-    constructor(parent, displayId=null, dbId=null, name=null){
+class PageElement extends Element
+{
+    constructor(parent, displayId=null, dbId=null, name=null)
+    {
         super(parent, "page", displayId, dbId, name);
         this.linkDomContainer();
         this.domContainer.hidden = true;
@@ -482,7 +510,8 @@ class PageElement extends Element{
         on the order in the page/domContainer
 
     */    
-    sortElements = function(){
+    sortElements = function()
+    {
         let self = this;
         let sortedElements = new Array();
 
@@ -508,7 +537,8 @@ class PageElement extends Element{
         Load elements from database to the page.
 
     */
-    loadElements = function ( callBack ) {
+    loadElements = function ( callBack ) 
+    {
         let self = this;
 
         // Reset the domContainer
@@ -522,7 +552,8 @@ class PageElement extends Element{
                 pageId: self.dbId
             },
             // CallBack to process the data returned
-            function ( code, data ) {
+            function ( code, data ) 
+            {
                 
                 if (code == "fail"){
                     console.log(data);
@@ -556,7 +587,8 @@ class PageElement extends Element{
         Save PageElement to database
 
     */
-    save = function(callBack){
+    save = function(callBack)
+    {
         // save page page to database
         let params = {
             table: this.classInfo.dbTable,
@@ -583,7 +615,8 @@ class PageElement extends Element{
         Save the elements on the page to database
 
     */
-    saveElements = function ( callBack ) {
+    saveElements = function ( callBack ) 
+    {
         let self = this;
 
         // Loop through children and save elements
@@ -598,7 +631,8 @@ class PageElement extends Element{
         Overloads render main of Element
         Renders all elements on a page
     */
-    renderMain = function(){
+    renderMain = function()
+    {
         let self = this;
 
         // Sort and set the displayId on elements
@@ -656,8 +690,10 @@ class PageElement extends Element{
     // }
 }
 
-class CheckBoxQuestionElement extends Element {
-    constructor( parent, displayId, dbId=null, name=null, properties=null ) {
+class CheckBoxQuestionElement extends Element 
+{
+    constructor( parent, displayId, dbId=null, name=null, properties=null ) 
+    {
         super(parent, "checkBoxQuestion", displayId, dbId, name);
         if (!properties){
             properties = {
@@ -681,7 +717,8 @@ class CheckBoxQuestionElement extends Element {
         this.domContainer.classList.add("list-group-item");
     }
 
-    renderMain = function(){
+    renderMain = function()
+    {
 
         //console.logr("in render main");
         let self = this;
@@ -806,7 +843,8 @@ class CheckBoxQuestionElement extends Element {
     }
 
     
-    addCheckBox = function () {
+    addCheckBox = function () 
+    {
         let self = this;
         this.properties.checkBoxes.push(
             {
@@ -820,8 +858,10 @@ class CheckBoxQuestionElement extends Element {
 
 
 
-class TextBoxElement extends Element {
-    constructor( parent, displayId, dbId=null, name=null, properties=null ) {
+class TextBoxElement extends Element 
+{
+    constructor( parent, displayId, dbId=null, name=null, properties=null ) 
+    {
         super(parent, "textBox", displayId, dbId, name);
         if (!properties){
             properties = {
@@ -836,12 +876,14 @@ class TextBoxElement extends Element {
         this.domContainer.classList.add("list-group-item");
     }
 
-    renderMain = function () {
+    renderMain = function () 
+    {
         let self = this;
 
         self.resetDomContainer();
        
-        if (!self.domContainer.classList.contains("ck")){
+        if (!self.domContainer.classList.contains("ck"))
+        {
             let div = ce('div');
             InlineEditor
                 .create( div )
@@ -863,7 +905,8 @@ class TextBoxElement extends Element {
         
     }
 
-    renderEdit = function() {
+    renderEdit = function() 
+    {
         let self = this;
     }
 }
@@ -871,8 +914,10 @@ class TextBoxElement extends Element {
 
 
 
-class ImageElement extends Element {
-    constructor( parent, displayId, dbId=null, name=null, properties=null ) {
+class ImageElement extends Element 
+{
+    constructor( parent, displayId, dbId=null, name=null, properties=null ) 
+    {
         super(parent, "image", displayId, dbId, name);
         if (!properties){
             properties = {
@@ -888,7 +933,8 @@ class ImageElement extends Element {
         this.domContainer.classList.add("list-group-item");
     }
 
-    renderMain = function () {
+    renderMain = function () 
+    {
         let self = this;
         this.domContainer.innerHTML = "";
 
@@ -925,7 +971,8 @@ class ImageElement extends Element {
         setDomChildren(this.domContainer, cdn);
     }
 
-    renderEdit = function() {
+    renderEdit = function() 
+    {
         let self = this;
         this.domContainer.className = "element";
         this.domContainer.classList.add("elementEdit");
@@ -998,7 +1045,8 @@ class ImageElement extends Element {
         setDomChildren(this.domContainer, cdn);
     }
 
-    saveEditElement = function() {
+    saveEditElement = function() 
+    {
         let self = this;
         
         // image title
@@ -1016,13 +1064,16 @@ class ImageElement extends Element {
     }
 }
 
-class DBIO{
-    constructor(moduleName, appName, type="appmodule"){
+class DBIO
+{
+    constructor(moduleName, appName, type="appmodule")
+    {
         this.moduleName = moduleName;
         this.appName = appName;
         this.type = type;
     }
-    call = function(funcName, vars, callBack){
+    call = function(funcName, vars, callBack)
+    {
         let self = this;
         let m = new Module ( self.moduleName );
         m.onExecuted = function ( returnCode, returnData )
@@ -1046,15 +1097,18 @@ class DBIO{
     }
 }
 
-class ElementTypeIO {
-    constructor(courseCreator) {
+class ElementTypeIO 
+{
+    constructor(courseCreator) 
+    {
         this.courseCreator = courseCreator;
         this.data = null;
         this.elementTypes = null;
         this.loadElementTypeData();
     }
 
-    createElementTypeMap = function(){
+    createElementTypeMap = function()
+    {
         let self = this;
         self.elementTypes = new Map();
         self.data.forEach( et => {
@@ -1062,7 +1116,8 @@ class ElementTypeIO {
         });
     }
 
-    loadElementTypeData= function(){
+    loadElementTypeData= function()
+    {
         let self = this;
         let types = self.courseCreator.dbio.call(
             'getTable',
@@ -1094,13 +1149,16 @@ class ElementTypeIO {
 }
 
 
-class RootElement extends Element{
-    constructor(courseCreator){
+class RootElement extends Element
+{
+    constructor(courseCreator)
+    {
         super(courseCreator, "root");
         this.activePage = null;
     }
 
-    loadData = function( courseId ){
+    loadData = function( courseId )
+    {
         let self = this;
         courseCreator.dbio.call(
             'getCourseList',
@@ -1115,7 +1173,8 @@ class RootElement extends Element{
     }
 
     // Creates a new course in the database
-    createNewCourse = function ( displayId, callBack ){
+    createNewCourse = function ( displayId, callBack )
+    {
         let self = this;
         // Creates a new course that can be saved
         let course = new CourseElement(self);
@@ -1145,7 +1204,8 @@ class RootElement extends Element{
         return course;
     }
 
-    saveActivePage = function(){
+    saveActivePage = function()
+    {
         let pageElements = (
             courseCreator
                 .mainView
@@ -1157,7 +1217,8 @@ class RootElement extends Element{
         });
     }
 
-    processData = function( data, courseId ){
+    processData = function( data, courseId )
+    {
         //TODO: also add pages here
         let self = this;
         console.log(" in the beginning ", self.children);
@@ -1215,7 +1276,8 @@ class RootElement extends Element{
     }
 
     // Render of toolbox menu is the same for all elements
-    renderToolbox = function(){
+    renderToolbox = function()
+    {
         let self = this;
         removeDomChildren(courseCreator.toolboxView);
         registeredElements.forEach( ( v, k ) => {
@@ -1241,7 +1303,8 @@ class RootElement extends Element{
         });
     }
 
-    renderProperties = function(){
+    renderProperties = function()
+    {
         let self = this;
 
         // create HTML
@@ -1355,10 +1418,12 @@ class RootElement extends Element{
     }
 
 
-    renderIndex = function (){
+    renderIndex = function ()
+    {
         let self = this;
 
-        let setActiveClass = function (domEle){
+        let setActiveClass = function (domEle)
+        {
             // remove all .Active classes
             let actives = courseCreator.indexView.querySelectorAll('.Active');
                 Array.from(actives).forEach( e => {
@@ -1368,7 +1433,8 @@ class RootElement extends Element{
         }
 
 
-        let setProperties = function ( ele ){
+        let setProperties = function ( ele )
+        {
             let elementType = self.parent.propertiesView.querySelector(
                             '[name="elementType"]'
             );
@@ -1392,7 +1458,8 @@ class RootElement extends Element{
         }
 
         // make Li Element
-        let makeLiElement = function( ele ){
+        let makeLiElement = function( ele )
+        {
             let li = ce("li");           
             // element index text
             let div = ce("div");
@@ -1521,8 +1588,10 @@ class RootElement extends Element{
 }
 
 
-class CourseCreator{
-    constructor() {
+class CourseCreator
+{
+    constructor() 
+    {
 
         console.log("Starting to define coursecreator");
 
@@ -1539,7 +1608,8 @@ class CourseCreator{
         this.manager = new RootElement(this);
     }
 
-    load = function( courseId ){
+    load = function( courseId )
+    {
         this.loadStatus = {
             "jobs": 1,
             "finished": 0
@@ -1547,7 +1617,8 @@ class CourseCreator{
         this.manager.loadData( courseId );
     }
 
-    render = function(){
+    render = function()
+    {
         // render index
         this.manager.renderIndex();
     
@@ -1562,7 +1633,8 @@ class CourseCreator{
 
     }
 
-    initialize = function(){
+    initialize = function()
+    {
         this.render();
 
         // set active to first child
