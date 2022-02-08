@@ -94,6 +94,12 @@
 	border: 1px solid var(--border-foreground);
 	border-radius: var(--gui-border-radius-normal);
 	margin: 0 0 5px 0;
+	overflow: hidden;
+}
+
+#index .SectionIndex.Active
+{
+	border-color: var(--gui-border-color-active);
 }
 
 #index .SectionIndex > div > span,

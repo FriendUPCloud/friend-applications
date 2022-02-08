@@ -30,6 +30,7 @@
     
     --gui-border-color-negative: #ffffff;
     --gui-border-color: #3b3b3b;
+    --gui-border-color-active: #20374D;
     --gui-border-radius-normal: 5px;
     --gui-box-shadow: 0px 2px 5px rgba(0,0,0,0.4);
     
