@@ -121,7 +121,7 @@
 	vertical-align: middle;
 }
 
-.ccPicture > div
+.ccPicture > div.IconSmall
 {
 	position: relative;
 	top: -1px;
