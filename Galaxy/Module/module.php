@@ -10,35 +10,6 @@
 *                                                                              *
 *****************************************************************************©*/
 
-if( isset( $args->method ) )
-{
-    switch( $args->method )
-    {
-    	case 'setcoursename':
-    		$o = new dbIO( 'CC_Course', $courseDb );
-    		if( $o->Load( $args->courseId ) )
-    		{
-    			$o->Name = $args->coursename;
-    			if( $o->Save() )
-    			{
-    				die( 'ok' );
-    			}
-    		}
-    		die( 'fail' );
-    		
-        case 'courses':
-        {
-            if( $rows = $courseDb->fetchObjects( 'SELECT * FROM CC_Course ORDER BY ID DESC' ) )
-            {
-                die( 'ok<!--separate-->' . json_encode( $rows ) );
-            }
-            break;
-        }
-    }
-    die( 'fail' );
-}
 
-$t = file_get_contents( __DIR__ . '/courses/tpl_main.html' );
-die( 'ok<!--separate-->' . $t );
 
 ?>

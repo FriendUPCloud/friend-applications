@@ -15,6 +15,8 @@
     --padding-normal: 10px;
     --padding-row: 5px;
     
+    --canvas-background: #b1b2b3;
+    
     --list-hover-background: #efefef;
     --module-background: #20374D;
     --module-background-hover: #344A5E;
@@ -28,6 +30,9 @@
     
     --gui-border-color-negative: #ffffff;
     --gui-border-color: #3b3b3b;
+    --gui-border-color-active: #20374D;
+    --gui-border-radius-normal: 5px;
+    --gui-box-shadow: 0px 2px 5px rgba(0,0,0,0.4);
     
     --gui-alert-border-color : red;
 }

@@ -19,7 +19,6 @@ Application.mainView = null;
 Application.run = function ( msg ) {
     
     this.setApplicationName( 'CourseCreator' );
-    
    
     // Create the admin view
     let adm = new View( {

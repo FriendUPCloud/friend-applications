@@ -1,166 +1,210 @@
 
     <div class="SubModule">
-        <div class="ContentHeader">
-            <h2>
-                Courses
-            </h2>
-            <div class="Left">
-                <div class="Buttons">
-                    <div class="HeaderButton IconSmall fa-plus-circle"></div>
-                    <div class="HeaderButton IconSmall fa-navicon"></div>
-                </div>
-                <input type="text" placeholder="Search"/>
-            </div>
-        </div>
-        <div class="ContentBlock">
-            <div id="CourseContent"></div>
-        </div>
+    	 <listview uniqueid="courses_listview">
+            <listviewhead>
+                <listviewheading>
+                    Courses
+                </listviewheading>
+                <listviewtoolbar>
+                    <listviewbutton icon="plus-circle" onclick="w_add_course"></listviewbutton>
+                </listviewtoolbar>
+            </listviehead>
+            <listviewheaders>
+                <listviewheader width="50%" sortable="sortable" name="Coursename">Course name</listviewheader>
+                <listviewheader width="40%" sortable="sortable" name="DateCreated">Date created</listviewheader>
+                <listviewheader width="10%" name="Buttons" align="right">&nbsp;</listviewheader>
+            </listviewheaders>
+            <listviewrows onload="w_reload_courses">
+            </listviewrows>
+        </listview>
     </div>
-    
+     
     <script>
         Application.submodules.courses = {
             init()
             {
-                // add new course button event handler 
-                let b = document.querySelector(
-                        '.SubModule .ContentHeader .Buttons .fa-plus-circle'
-                    );
-                b.addEventListener(
-                    'click',
-                    function ( event )    
+            	// Adding a new course
+            	ccAddCallback( 'w_add_course', function( data )
+            	{
+            		let v = new View({
+                       title: "Edit course",
+                       width: 800,
+                       height: 900
+                    });
+
+                    // Create a menu
+                    let myMenu = [
                     {
-                        let v = new View({
-                           title: "Edit course",
-                           width: 800,
-                           height: 900
-                        });
-
-                        // Create a menu
-                        let myMenu = [
-                        {
-                            name: 'File',
-                            items: [
-                                {
-                                    name: 'Save',
-                                    command: 'save',
-                                    scope: 'local'
-                                },
-                                {
-                                    name: 'Quit',
-                                    command: 'quit'
-                                }
-                            ]
-                        }
-                        ];
-
-                        // Number of courses
-                        let dId = document.querySelectorAll(
-                            '.SubModule .HRow'
-                        ).length
-
-                        console.log('this is dId', dId);
-
-                        // Add the menu to the view window
-                        v.setMenuItems( myMenu );
-                        
-                        let f = new File('Progdir:Templates/main.html');
-                        f.onLoad = function( data ){
-                            v.setContent( data, function(){         
-                                v.sendMessage(
-                                    { 
-                                        command: 'loadNewCourse',
-                                        displayId: dId
-                                    } 
-                                );
-                            });
-                        }
-                        f.load();
-                    }
-                );
-
-
-                let m = new Module( 'system' );
-                m.onExecuted = function( e, d )
-                {
-                    if( e != 'ok' )
-                    {
-                        ge( 'CourseContent' ).innerHTML = '<p>No classrooms currently found.</p>';
-                        ge( 'PanelMain' ).classList.remove( 'SectionLoading' );
-                        return;
-                    }
-                    let ls = JSON.parse( d );
-                    let str = '';
-                    for( let a = 0; a < ls.length; a++ )
-                    {
-                        str += '<div class="HRow EditRow" row-id="' + ls[a].ID + '">\
-                            <div class="HContent50 FloatLeft">' + ls[a].Name + '</div>\
-                            <!--<div class="HContent10"></div>\
-                            <div class="HContent10"></div>\
-                            <div class="HContent10"></div>\
-                            <div class="HContent10"></div>-->\
-                            <div class="HContent50 FloatLeft">' + ls[a].DateCreated + '</div>\
-                        </div>';
-                    }
-                    ge( 'CourseContent' ).innerHTML = str;
-                    
-                    let rows = ge( 'CourseContent' ).getElementsByClassName( 'HRow' );
-                    for( let a = 0; a < rows.length; a++ )
-                    {
-                        ( function( r )
-                        {
-                            r.onclick = function()
+                        name: 'File',
+                        items: [
                             {
-                                   let v = new View({
-                                       title: "Edit course",
-                                       width: 800,
-                                       height: 900
-                                    });
-
-                                    // Create a menu
-                                    let myMenu = [
-                                    {
-                                        name: 'File',
-                                        items: [
-                                            {
-                                                name: 'Save',
-                                                command: 'save',
-                                                scope: 'local'
-                                            },
-                                            {
-                                                name: 'Quit',
-                                                command: 'quit'
-                                            }
-                                        ]
-                                    }
-                                    ];
-                                    // Add the menu to the view window
-                                    v.setMenuItems( myMenu );
-                                    
-                                    let f = new File('Progdir:Templates/main.html');
-                                    f.onLoad = function( data ){
-                                        v.setContent( data, function(){         
-                                            v.sendMessage(
-                                                { 
-                                                    command: 'loadCourse',
-                                                    courseId: r.getAttribute('row-id')
-                                                }
-                                            );
-                                        });
-                                    }
-                                    f.load();
+                                name: 'Save',
+                                command: 'save',
+                                scope: 'local'
+                            },
+                            {
+                                name: 'Quit',
+                                command: 'quit'
                             }
-                        } )( rows[a] );
+                        ]
                     }
-                    ge( 'PanelMain' ).classList.remove( 'SectionLoading' );
-                }
-                m.execute( 'appmodule', {
-                    appName: 'CourseCreator',
-                    command: 'submodule',
-                    vars: {
-                        method: 'courses',
-                        submodule: 'courses'
+                    ];
+
+                    // Number of courses
+                    let dId = document.querySelectorAll(
+                        '.SubModule .HRow'
+                    ).length
+
+                    // Add the menu to the view window
+                    v.setMenuItems( myMenu );
+                    
+                    let f = new File('Progdir:Templates/main.html');
+                    f.onLoad = function( data ){
+                        v.setContent( data, function(){         
+                            v.sendMessage(
+                                { 
+                                    command: 'loadNewCourse',
+                                    displayId: dId
+                                } 
+                            );
+                        });
                     }
-                } );
+                    f.load();
+            	} );
+                
+                ccAddCallback( 'w_reload_courses', function( listview )
+                {
+		            // Refreshing courses
+		            let m = new Module( 'system' );
+		            m.onExecuted = function( e, d )
+		            {
+		                if( e != 'ok' )
+		                {
+		                	listview.clearRows();
+		                    ge( 'PanelMain' ).classList.remove( 'SectionLoading' );
+		                    return;
+		                }
+		                
+		                // Convert JSON response into something listview reads
+		                let ls = JSON.parse( d );
+		                let out = [];
+		                for( let a = 0; a < ls.length; a++ )
+		                {
+		                	out.push( [ {
+                    			type:     'string',
+                    			extras:   '<picture type="icon" width="22px" height="22px" icon="star-half-full" border-size="2" shape="circle"></picture>&nbsp;',
+                    			value:    ls[a].Name,
+                    			onclick:  'course_click_' + a,
+                    			onchange: 'course_change_' + a,
+                    			uniqueid: 'courserow_' + a
+                        	}, {
+                    			type:     'string',
+                    			value:    ls[a].DateCreated,
+                    			onclick:  'course_click_' + a
+                        	},
+                        	{
+                    			type:     'string',
+                    			align:    'right',
+                    			extras:   '<picture type="icon" width="22px" height="22px" icon="pencil-square" onclick="course_edit_' + a + '"></picture>',
+                    			value:    '',
+                    			onclick:  'course_click_' + a
+                        	} ] );
+                        	
+                        	( function( id )
+                        	{
+		                    	ccAddCallback( 'course_edit_' + a, function( element )
+		                    	{
+		                    		let listview = ccFactory.getElementByUniqueId( 'courses_listview' );
+		                    		if( listview )
+		                    		{
+		                    			listview.editColumnById( 'courserow_' + id );
+		                    		}
+		                    	} );
+		                   	} )( a );
+                        	
+                        	( function( id, rowId )
+                        	{
+                        		ccAddCallback( 'course_change_' + id, function( dataSet, listview )
+                        		{
+                        			let m = new Module( 'system' );
+                        			m.onExecuted = function( re, de )
+                        			{
+		                    			listview.refreshRows();
+		                    		}
+		                    		m.execute( 'appmodule', {
+		                    			appName: 'CourseCreator',
+										command: 'submodule',
+										vars: {
+										    method: 'setcoursename',
+										    submodule: 'courses',
+										    coursename: dataSet.value,
+										    courseId: rowId
+										}
+		                    		} );
+                        		} );
+                        	} )( a, ls[a].ID );
+                        	
+                        	( function( r )
+                        	{
+		                    	ccAddCallback( 'course_click_' + a, function( data )
+		                    	{
+		                    		let v = new View({
+	                                   title: "Edit course",
+	                                   width: 800,
+	                                   height: 900
+	                                });
+
+	                                // Create a menu
+	                                let myMenu = [
+	                                {
+	                                    name: 'File',
+	                                    items: [
+	                                        {
+	                                            name: 'Save',
+	                                            command: 'save',
+	                                            scope: 'local'
+	                                        },
+	                                        {
+	                                            name: 'Quit',
+	                                            command: 'quit'
+	                                        }
+	                                    ]
+	                                }
+	                                ];
+	                                // Add the menu to the view window
+	                                v.setMenuItems( myMenu );
+	                                
+	                                let f = new File('Progdir:Templates/main.html');
+	                                f.onLoad = function( data ){
+	                                    v.setContent( data, function(){         
+	                                        v.sendMessage(
+	                                            { 
+	                                                command: 'loadCourse',
+	                                                courseId: r.ID
+	                                            }
+	                                        );
+	                                    });
+	                                }
+	                                f.load();
+		                    	} );
+		                   	} )( ls[ a ] );
+		                }
+		                
+		                listview.setRowData( out );
+		                
+		                ge( 'PanelMain' ).classList.remove( 'SectionLoading' );
+		            }
+		            m.execute( 'appmodule', {
+		                appName: 'CourseCreator',
+		                command: 'submodule',
+		                vars: {
+		                    method: 'courses',
+		                    submodule: 'courses'
+		                }
+		            } );
+		        } );
+		        
+		        ccInitializeGUI();
             }
         };
         Application.submodules.courses.init();

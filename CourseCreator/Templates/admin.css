@@ -68,7 +68,7 @@
     left: 100%;
     transition: left 0.25s;
     padding: var(--padding-normal);
-    box-sizing: border-box;
+    box-sizing:CcPanelMain border-box;
 }
 
 .Editmode #PanelMain > .EditPane
@@ -218,3 +218,5 @@ body.Saved .Module.Active p > span:before
     background-repeat: no-repeat;
     background-position: center center;
 }
+
+

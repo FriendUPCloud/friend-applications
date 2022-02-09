@@ -111,3 +111,20 @@
     flex-basis: 0;
 }
 
+/* Picture */
+
+.ccPicture
+{
+	display: inline-block;
+	text-align: center;
+	box-sizing: border-box;
+	vertical-align: middle;
+}
+
+/* Listview */
+
+.ccListview input
+{
+	border-radius: var(--gui-border-radius-normal);
+}
+

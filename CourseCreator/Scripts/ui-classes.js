@@ -10,7 +10,8 @@
 
 // Global
 window.ccGUI = {
-    callbacks: {}
+    callbacks: {},
+    guiElements: {}
 };
 
 ccFactory = {
@@ -19,14 +20,20 @@ ccFactory = {
     // Create meta markup for a class instance
 	create( data )
 	{
-		switch( data.Type )
+		switch( data.type )
 		{
 			case 'string':
-				return data.Value;
-				break;
+				let str = data.value;
+				// Extras are things that prepend the value
+				if( data.extras )
+					str = data.extras + str;
+				// Additions are things that appear after the value
+				if( data.additions )
+					str += data.additions;
+				return str;
 			default:
 			{
-    			let classStr = 'cc' + data.Type.substr( 0, 1 ).toUpperCase() + data.Type.substr( 1, data.Type.length - 1 );
+    			let classStr = 'cc' + data.type.substr( 0, 1 ).toUpperCase() + data.type.substr( 1, data.type.length - 1 );
 			    try
 			    {
                     let classObj = eval( classStr );
@@ -48,6 +55,11 @@ ccFactory = {
 	        if( this.classTypes[ a ] == type ) return false;
 	    }
 	    this.classTypes.push( type );
+	},
+	// Get that element!
+	getElementByUniqueId( id )
+	{
+		return window.ccGUI.guiElements[ id ] ? window.ccGUI.guiElements[ id ] : false;
 	}
 };
 
@@ -58,6 +70,15 @@ class ccGUIElement
     constructor( options )
     {
         this.options = options;
+        
+        if( options.uniqueid )
+        {
+        	if( window.ccGUI.guiElements[ options.uniqueid ] )
+        	{
+        		console.log( 'ccGUI: Gui element with proposed uniqueId ' + options.uniqueid + ' is taken. Overwriting.' );
+        	}
+        	window.ccGUI.guiElements[ options.uniqueid ] = this;
+        }
         
         let d = document.createElement( 'div' );
         this.domElement = d;
@@ -90,6 +111,12 @@ class ccGUIElement
     // Grabs attributes from the dom element if they are supported
     grabAttributes( domElement )
     {
+    	let uid = domElement.getAttribute( 'uniqueid' );
+    	if( uid )
+    	{
+			// Set directly
+			window.ccGUI.guiElements[ uid ] = this;
+    	}
     }
     // Refreshes gui's own dom element
     refreshDom()
@@ -396,7 +423,7 @@ class ccItembox extends ccGUIElement
 ccFactory.registerClass( 'itembox' );
 
 /* Image class */
-class ccImage extends ccGUIElement
+class ccPicture extends ccGUIElement
 {
     constructor( options )
     {
@@ -409,48 +436,109 @@ class ccImage extends ccGUIElement
         
         let self = this;
         
-        // Set stuff on this.domElement.innerHTML
+        this.domElement.classList.add( 'ccGUI', 'ccPicture' );
     }
     grabAttributes( domElement )
     {
         super.grabAttributes( domElement );
         
-        // if( domElement.getAttribute( 'someattribute' ) )
-        //     do something
+        let attrs = [ 'width', 'height', 'icon', 'type', 'shape', 'border-size', 'onclick' ];
         
+        for( let a in attrs )
+        {
+        	let op = domElement.getAttribute( attrs[ a ] );
+        	if( op )
+	        	this.options[ attrs[ a ] ] = op;
+        }
         
-        //this.refreshDom();
+        this.refreshDom();
     }
     refreshDom()
     {
         super.refreshDom();
         
+        let self = this;
+        
         // Do something with properties on dom
-        /*
-        if( this.property )
+        
+        if( this.options.width )
         {
-            this.domElement.classList.add( 'ccClassName' );
+            this.domElement.style.width = this.options.width;
+        }
+        if( this.options.height )
+        {
+        	this.domElement.style.height = this.options.height;
+        }
+        
+        let exClasses = '';
+        
+        if( this.options.shape )
+        {
+        	if( this.options.shape == 'circle' )
+        	{
+        		this.domElement.style.borderRadius = '100%';
+        	}
+        	else
+        	{
+        		this.domElement.style.borderRadius = '';
+        	}
+        }
+        if( this.options[ 'border-size' ] )
+        {
+        	this.domElement.style.borderWidth = this.options[ 'border-size' ];
+    		this.domElement.style.borderStyle = 'solid';
         }
         else
         {
-            this.domElement.classList.remove( 'ccClassName' );
-        }*/
+        	this.domElement.style.borderWidth = '';
+        }
+        
+        if( this.options[ 'onclick' ] )
+        {
+        	this.domElement.style.cursor = 'pointer';
+        	this.domElement.onclick = function( e )
+        	{
+        		cancelBubble( e );
+        		if( window.ccGUI.callbacks[ self.options.onclick ] )
+		        {
+		            // Add structure with current element flags
+		            window.ccGUI.callbacks[ self.options.onclick ]( true );
+		        }
+		        return;
+        	}
+        }
+        
+        // Set stuff on this.domElement.innerHTML
+        if( this.options.type == 'icon' )
+        {
+        	let icon = this.options.icon ? ( 'fa-' + this.options.icon ) : 'fa-info';
+        	this.domElement.innerHTML = '<div class="IconSmall ' + icon + exClasses + '"></div>';
+        	if( this.options[ 'border-size' ] )
+        	{
+        		let d = this.domElement.getElementsByTagName( 'div' )[0];
+        		d.style.marginTop = -( this.options[ 'border-size' ] >> 1 ) + 'px';
+        	}
+        }
     }
     getMarkup( data )
     {
     	// Return meta-markup for class instantiation later
     	
-    	/*let str = '<checkbox {options}/>';
+    	let str = '<picture {options}/>';
     	let opts = [];
     	for( let a in data )
     	{
-    		if( a == 'OnChange' )
+    		if( a == 'width' )
     		{
-    			opts.push( 'onchange="' + data[a] + '"' );
+    			opts.push( 'width="' + data[a] + '"' );
     		}
-    		if( a == 'Value' && data[a] )
+    		if( a == 'height' && data[a] )
     		{
-    			opts.push( 'checked="checked"' );
+    			opts.push( 'height="' + data[a] + '"' );
+    		}
+    		if( a == 'type' && data[a] )
+    		{
+    			opts.push( 'type="' + data[a] + '"' );
     		}
     	}
     	if( opts.length )
@@ -461,10 +549,10 @@ class ccImage extends ccGUIElement
     	{
     		str = str.split( ' {options}' ).join( '' );
     	}
-    	return str;*/
+    	return str;
     }
 }
-ccFactory.registerClass( 'image' );
+ccFactory.registerClass( 'picture' );
 
 // Management functions --------------------------------------------------------
 
