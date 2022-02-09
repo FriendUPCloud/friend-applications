@@ -10,7 +10,8 @@
 
 // Global
 window.ccGUI = {
-    callbacks: {}
+    callbacks: {},
+    guiElements: {}
 };
 
 ccFactory = {
@@ -48,6 +49,11 @@ ccFactory = {
 	        if( this.classTypes[ a ] == type ) return false;
 	    }
 	    this.classTypes.push( type );
+	},
+	// Get that element!
+	getElementByUniqueId( id )
+	{
+		return window.ccGUI.guiElements[ id ] ? window.ccGUI.guiElements[ id ] : false;
 	}
 };
 
@@ -58,6 +64,18 @@ class ccGUIElement
     constructor( options )
     {
         this.options = options;
+        
+        if( options.uniqueid )
+        {
+        	if( window.ccGUI.guiElements[ options.uniqueid ] )
+        	{
+        		console.log( 'ccGUI: Gui element with proposed uniqueId ' + options.uniqueid + ' is taken. Object becomes an orphan.' );
+        	}
+        	else
+        	{
+        		window.ccGUI.guiElements[ options.uniqueid ] = this;
+        	}
+        }
         
         let d = document.createElement( 'div' );
         this.domElement = d;
@@ -90,6 +108,29 @@ class ccGUIElement
     // Grabs attributes from the dom element if they are supported
     grabAttributes( domElement )
     {
+    	let uid = domElement.getAttribute( 'uniqueid' );
+    	if( uid )
+    	{
+    		if( window.ccGUI.guiElements[ uid ] )
+    		{
+    			if( this.options.uniqueid )
+    			{
+    				console.log( 'ccGUI: Could not set new uniqueid - id ' + uid + ' already taken. Keeping old id: ' + this.options.uniqueId );
+    			}
+    			else
+    			{
+    				console.log( 'ccGUI: Gui element with proposed uniqueid ' + options.uniqueId + ' is taken. Object becomes an orphan.' );
+    			}
+    		}
+    		else
+    		{
+    			if( this.options.uniqueid && this.options.uniqueid != uid )
+    			{
+    				delete window.ccGUI.guiElements[ this.options.uniqueid ];
+    			}
+    			window.ccGUI.guiElements[ uid ] = this;
+    		}
+    	}
     }
     // Refreshes gui's own dom element
     refreshDom()

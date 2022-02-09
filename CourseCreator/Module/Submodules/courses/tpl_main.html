@@ -1,6 +1,6 @@
 
     <div class="SubModule">
-    	 <listview>
+    	 <listview uniqueid="courses_listview">
             <listviewhead>
                 <listviewheading>
                     Courses
@@ -105,6 +105,15 @@
                     			Value: '<picture type="icon" width="22px" height="22px" icon="pencil-square" onclick="course_edit_' + a + '"></picture>',
                     			OnClick: 'course_click_' + a
                         	} ] );
+                        	
+                        	ccAddCallback( 'course_edit_' + a, function( element )
+                        	{
+                        		let listview = ccFactory.getElementByUniqueId( 'courses_listview' );
+                        		if( listview )
+                        		{
+                        			console.log( 'Editing row..', listview );
+                        		}
+                        	} );
                         	
                         	( function( r )
                         	{

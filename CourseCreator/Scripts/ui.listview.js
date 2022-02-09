@@ -30,6 +30,8 @@ class ccListview extends ccGUIElement
     
     grabAttributes( domElement )
     {
+        super.grabAttributes( domElement );
+        
         let self = this;
         
         let header = domElement.getElementsByTagName( 'listviewhead' );
