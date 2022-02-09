@@ -216,8 +216,9 @@
                             ge( 'UserDetails' ).innerHTML = '';
                             ge( 'UserDetails' ).appendChild( ep );
                             
-                            ccAddCallback( 'w_reload_classrooms', ( listView ) => {
-                                console.log( 'w_reload_classrooms', listView );
+                            ccAddCallback( 'w_reload_classrooms', ( lv ) =>
+                            {
+                                console.log( 'w_reload_classrooms', lv );
                                 const cl = new Module( 'system' );
                                 cl.onExecuted = ( suc, dta ) => {
                                     console.log( 'user load classrooms', [ suc, dta ]);
@@ -263,7 +264,7 @@
                                             ];
                                             rws.push( cnf );
                                         }
-                                        listView.setRowData( rws );
+                                        lv.setRowData( rws );
                                     }
                                     else
                                         return;
@@ -278,6 +279,58 @@
                                         submodule: 'users',
                                         userId: uid || 0,
                                     }
+                                });
+                            });
+                            
+                            ccAddCallback( 'w_reload_certificates', listView => {
+                               console.log( 'load certs', listView ) ;
+                               const cg = new Module( 'system' );
+                               cg.onExecuted = ( s, d ) => {
+                                    console.log( 'load certs result', [ s, d ]);
+                                    
+                                    // list
+                               }
+                               cg.execute( 'appmodule', {
+                                    appName: 'CourseCreator',
+                                    command: 'submodule',
+                                    vars: {
+                                        submodule: 'users',
+                                        method: 'getcerts',
+                                        userId: uid,
+                                    }
+                                });
+                            });
+                            
+                            ccAddCallback( 'w_add_cert', listView => {
+                                console.log( 'add cert', listView ) ;
+                                Filedialog( null, ( files ) =>
+                                {
+                                    const nfo = files[ 0 ];
+                                    console.log( 'file back', [ files, nfo, uid ]);
+                                    if ( null == nfo )
+                                        return;
+                                    
+                                    const cert = {
+                                        UserFilePath : nfo.Path,
+                                        UserFileName : nfo.Filename
+                                    };
+                                    // save
+                                    const ca = new Module( 'system' );
+                                    ca.onExecuted = ( s, d ) => {
+                                        console.log( 'add cert result', [ s, d ]);
+                                        const res = JSON.parse( d );
+                                        console.log( 'add cert res', res );
+                                    }
+                                    ca.execute( 'appmodule', {
+                                        appName: 'CourseCreator',
+                                        command: 'submodule',
+                                        vars: {
+                                            submodule: 'users',
+                                            method: 'addcert',
+                                            userId: uid,
+                                            cert: cert
+                                        }
+                                    });
                                 });
                             });
                             

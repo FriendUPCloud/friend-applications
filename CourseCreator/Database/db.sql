@@ -217,6 +217,16 @@ CREATE TABLE IF NOT EXISTS CC_Role(
     PRIMARY KEY(ID)
 );
 
+select "Certificate Table" as "";
+CREATE TABLE IF NOT EXISTS CC_Certificate(
+    ID BIGINT(20) auto_increment NOT NULL,
+    UserID BIGINT(20) NOT NULL,
+    DateAdded DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    DiskFile VARCHAR(32) NOT NULL UNIQUE,
+    FileName VARCHAR(128) NOT NULL,
+    PRIMARY KEY(ID)
+);
+
 
 /* Fill in some dummy values in the database
 * 
