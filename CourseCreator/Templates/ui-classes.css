@@ -121,4 +121,10 @@
 	vertical-align: middle;
 }
 
+/* Listview */
+
+.ccListview input
+{
+	border-radius: var(--gui-border-radius-normal);
+}
 

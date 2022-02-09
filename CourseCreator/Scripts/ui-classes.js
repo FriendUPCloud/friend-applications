@@ -75,12 +75,9 @@ class ccGUIElement
         {
         	if( window.ccGUI.guiElements[ options.uniqueid ] )
         	{
-        		console.log( 'ccGUI: Gui element with proposed uniqueId ' + options.uniqueid + ' is taken. Object becomes an orphan.' );
+        		console.log( 'ccGUI: Gui element with proposed uniqueId ' + options.uniqueid + ' is taken. Overwriting.' );
         	}
-        	else
-        	{
-        		window.ccGUI.guiElements[ options.uniqueid ] = this;
-        	}
+        	window.ccGUI.guiElements[ options.uniqueid ] = this;
         }
         
         let d = document.createElement( 'div' );
@@ -117,29 +114,8 @@ class ccGUIElement
     	let uid = domElement.getAttribute( 'uniqueid' );
     	if( uid )
     	{
-    		// If we already have this unique id
-    		if( window.ccGUI.guiElements[ uid ] )
-    		{
-    			if( this.options.uniqueid )
-    			{
-    				console.log( 'ccGUI: Could not set new uniqueid - id ' + uid + ' already taken. Keeping old id: ' + this.options.uniqueId );
-    			}
-    			else
-    			{
-    				console.log( 'ccGUI: Gui element with proposed uniqueid ' + this.options.uniqueId + ' is taken. Object becomes an orphan.' );
-    			}
-    		}
-    		// If not, try to set it
-    		else
-    		{
-    			// Fetch from options
-    			if( this.options && this.options.uniqueid && this.options.uniqueid != uid )
-    			{
-    				delete window.ccGUI.guiElements[ this.options.uniqueid ];
-    			}
-    			// Set directly
-    			window.ccGUI.guiElements[ uid ] = this;
-    		}
+			// Set directly
+			window.ccGUI.guiElements[ uid ] = this;
     	}
     }
     // Refreshes gui's own dom element
