@@ -1277,9 +1277,11 @@ class RootElement extends Element
                 "classes": [ "IconSmall", "fa-remove" ],
                 "listeners": [{
                     "event": "click",
-                    "callBack": function (event) {
+                    "callBack": function (event)
+                    {
                         //TODO: does not fall back on a particular section
-                        if (event.target.eleRef) {
+                        if (event.target.eleRef)
+                        {
                             event.target.eleRef.delete();
                             self.renderIndex();
                             self.renderMain();
@@ -1300,7 +1302,8 @@ class RootElement extends Element
                     "callBack": function (event) {
                         console.log("what is event", event.target);
                         // does not remember the highlighted
-                        if (event.target.eleRef) {
+                        if (event.target.eleRef)
+                        {
                             let name = courseCreator.propertiesView
                                             .querySelector(
                                                 '[name="propertyName"]'
