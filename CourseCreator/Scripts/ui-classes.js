@@ -117,6 +117,7 @@ class ccGUIElement
     	let uid = domElement.getAttribute( 'uniqueid' );
     	if( uid )
     	{
+    		// If we already have this unique id
     		if( window.ccGUI.guiElements[ uid ] )
     		{
     			if( this.options.uniqueid )
@@ -125,15 +126,18 @@ class ccGUIElement
     			}
     			else
     			{
-    				console.log( 'ccGUI: Gui element with proposed uniqueid ' + options.uniqueId + ' is taken. Object becomes an orphan.' );
+    				console.log( 'ccGUI: Gui element with proposed uniqueid ' + this.options.uniqueId + ' is taken. Object becomes an orphan.' );
     			}
     		}
+    		// If not, try to set it
     		else
     		{
+    			// Fetch from options
     			if( this.options && this.options.uniqueid && this.options.uniqueid != uid )
     			{
     				delete window.ccGUI.guiElements[ this.options.uniqueid ];
     			}
+    			// Set directly
     			window.ccGUI.guiElements[ uid ] = this;
     		}
     	}
