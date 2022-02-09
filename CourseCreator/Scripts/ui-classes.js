@@ -23,8 +23,14 @@ ccFactory = {
 		switch( data.Type )
 		{
 			case 'string':
-				return data.Value;
-				break;
+				let str = data.Value;
+				// Extras are things that prepend the value
+				if( data.Extras )
+					str = data.Extras + str;
+				// Additions are things that appear after the value
+				if( data.Additions )
+					str += data.Additions;
+				return str;
 			default:
 			{
     			let classStr = 'cc' + data.Type.substr( 0, 1 ).toUpperCase() + data.Type.substr( 1, data.Type.length - 1 );

@@ -92,8 +92,10 @@
 		                {
 		                	out.push( [ {
                     			Type: 'string',
-                    			Value: '<picture type="icon" width="22px" height="22px" icon="star-half-full" border-size="2" shape="circle"></picture> &nbsp;' + ls[a].Name,
-                    			OnClick: 'course_click_' + a
+                    			Extras: '<picture type="icon" width="22px" height="22px" icon="star-half-full" border-size="2" shape="circle"></picture>&nbsp;',
+                    			Value: ls[a].Name,
+                    			OnClick: 'course_click_' + a,
+                    			UniqueId: 'courserow_' + a
                         	}, {
                     			Type: 'string',
                     			Value: ls[a].DateCreated,
@@ -102,18 +104,22 @@
                         	{
                     			Type: 'string',
                     			Align: 'right',
-                    			Value: '<picture type="icon" width="22px" height="22px" icon="pencil-square" onclick="course_edit_' + a + '"></picture>',
+                    			Extras: '<picture type="icon" width="22px" height="22px" icon="pencil-square" onclick="course_edit_' + a + '"></picture>',
+                    			Value: '',
                     			OnClick: 'course_click_' + a
                         	} ] );
                         	
-                        	ccAddCallback( 'course_edit_' + a, function( element )
+                        	( function( id )
                         	{
-                        		let listview = ccFactory.getElementByUniqueId( 'courses_listview' );
-                        		if( listview )
-                        		{
-                        			console.log( 'Editing row..', listview );
-                        		}
-                        	} );
+		                    	ccAddCallback( 'course_edit_' + a, function( element )
+		                    	{
+		                    		let listview = ccFactory.getElementByUniqueId( 'courses_listview' );
+		                    		if( listview )
+		                    		{
+		                    			listview.editColumnById( 'courserow_' + id );
+		                    		}
+		                    	} );
+		                   	} )( a );
                         	
                         	( function( r )
                         	{

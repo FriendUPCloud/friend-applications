@@ -172,6 +172,8 @@ class ccListview extends ccGUIElement
     
     setRowData( json )
     {
+    	// Contains references to data
+	    this.dataset = {};
     	this.rowData = json;
     	this.refreshRows();
     }
@@ -200,7 +202,14 @@ class ccListview extends ccGUIElement
             	else if( alignment == 'right' ) alignment = ' TextRight';
             	else if( alignment == 'center' ) alignment = ' TextCenter';
 				
-				col.className = 'HContent' + w + ' Ellipsis FloatLeft' + alignment;
+				col.className = 'HContent' + w + ' PaddingRight Ellipsis FloatLeft' + alignment;
+				
+				// Identify column dataset
+				if( json[b][z].UniqueId )
+				{
+					this.dataset[ json[b][z].UniqueId ] = json[b][z];
+					this.dataset[ json[b][z].UniqueId ].domNode = col;
+				}
 				
 				let str = ccFactory.create( json[b][z] );
 				
@@ -211,8 +220,9 @@ class ccListview extends ccGUIElement
 				{
 				    ( function( data, column )
 				    {
-				        column.onclick = function()
+				        column.onclick = function( e )
 				        {
+				        	if( e.target && e.target.nodeName == 'INPUT' ) return;
 				            if( window.ccGUI.callbacks[ onclick ] )
 	                        {
 	                            // Add structure with current element attributes
@@ -240,6 +250,41 @@ class ccListview extends ccGUIElement
 		}
 		
 		ccInitializeGUI();
+    }
+    
+    // Edit a row / column by id
+    editColumnById( uid )
+    {
+    	let self = this;
+    	let set = this.dataset[ uid ];
+    	// We need to handle editing many different types of columns
+    	if( set.Type == 'string' )
+    	{
+    		if( set.domNode && set.domNode.parentNode )
+    		{
+    			set.domNode.innerHTML = '<input type="text" class="InputHeight FullWidth" value="' + set.Value + '"/>';
+    			let nod = set.domNode.getElementsByTagName( 'input' )[0];
+    			nod.addEventListener( 'blur', function( e )
+    			{
+    				set.Value = this.value;
+    				self.refreshRows();
+    			} );
+    			nod.addEventListener( 'change', function( e )
+    			{
+    				this.blur();
+    			} );
+    			nod.focus();
+    			nod.select();
+    		}
+    		else
+    		{
+    			console.log( 'No supported dom node: ', set );
+    		}
+    	}
+    	else
+    	{
+    		console.log( 'Unsupported type: ' + set.Type );
+    	}
     }
     
     clearRows()
