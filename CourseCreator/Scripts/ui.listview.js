@@ -205,16 +205,16 @@ class ccListview extends ccGUIElement
 				col.className = 'HContent' + w + ' PaddingRight Ellipsis FloatLeft' + alignment;
 				
 				// Identify column dataset
-				if( json[b][z].UniqueId )
+				if( json[b][z].uniqueid )
 				{
-					this.dataset[ json[b][z].UniqueId ] = json[b][z];
-					this.dataset[ json[b][z].UniqueId ].domNode = col;
+					this.dataset[ json[b][z].uniqueid ] = json[b][z];
+					this.dataset[ json[b][z].uniqueid ].domNode = col;
 				}
 				
 				let str = ccFactory.create( json[b][z] );
 				
-				json[b][z].Name = this.headerElements[z].name;
-				let onclick = json[b][z].OnClick;
+				json[b][z].name = this.headerElements[z].name;
+				let onclick = json[b][z].onclick;
 				
 				if( onclick )
 				{
@@ -229,11 +229,11 @@ class ccListview extends ccGUIElement
 	                            let obj = {};
 	                            for( let d = 0; d < data.length; d++ )
 	                            {
-	                                obj[ data[ d ].Name ] = {};
+	                                obj[ data[ d ].name ] = {};
 	                                for( let p in data[ d ] )
 	                                {
 	                                    if( p == 'Name' ) continue;
-	                                    obj[ data[ d ].Name ][ p ] = data[ d ][ p ];
+	                                    obj[ data[ d ].name ][ p ] = data[ d ][ p ];
 	                                }
 	                            }
 	                            window.ccGUI.callbacks[ onclick ]( obj );
@@ -258,15 +258,25 @@ class ccListview extends ccGUIElement
     	let self = this;
     	let set = this.dataset[ uid ];
     	// We need to handle editing many different types of columns
-    	if( set.Type == 'string' )
+    	if( set.type == 'string' )
     	{
     		if( set.domNode && set.domNode.parentNode )
     		{
-    			set.domNode.innerHTML = '<input type="text" class="InputHeight FullWidth" value="' + set.Value + '"/>';
+    			set.domNode.innerHTML = '<input type="text" class="InputHeight FullWidth" value="' + set.value + '"/>';
     			let nod = set.domNode.getElementsByTagName( 'input' )[0];
     			nod.addEventListener( 'blur', function( e )
     			{
-    				set.Value = this.value;
+    				set.value = this.value;
+    				
+    				// If there's an onchange event, execute it and provide the dataset as well as listview object
+    				if( set.onchange )
+    				{
+    					if( window.ccGUI.callbacks[ set.onchange ] )
+    					{
+    						window.ccGUI.callbacks[ set.onchange ]( set, self );
+    						return;
+    					}
+    				}
     				self.refreshRows();
     			} );
     			nod.addEventListener( 'change', function( e )
@@ -283,7 +293,7 @@ class ccListview extends ccGUIElement
     	}
     	else
     	{
-    		console.log( 'Unsupported type: ' + set.Type );
+    		console.log( 'Unsupported type: ' + set.type );
     	}
     }
     

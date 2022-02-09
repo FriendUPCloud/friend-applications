@@ -20,20 +20,20 @@ ccFactory = {
     // Create meta markup for a class instance
 	create( data )
 	{
-		switch( data.Type )
+		switch( data.type )
 		{
 			case 'string':
-				let str = data.Value;
+				let str = data.value;
 				// Extras are things that prepend the value
-				if( data.Extras )
-					str = data.Extras + str;
+				if( data.extras )
+					str = data.extras + str;
 				// Additions are things that appear after the value
-				if( data.Additions )
-					str += data.Additions;
+				if( data.additions )
+					str += data.additions;
 				return str;
 			default:
 			{
-    			let classStr = 'cc' + data.Type.substr( 0, 1 ).toUpperCase() + data.Type.substr( 1, data.Type.length - 1 );
+    			let classStr = 'cc' + data.type.substr( 0, 1 ).toUpperCase() + data.type.substr( 1, data.type.length - 1 );
 			    try
 			    {
                     let classObj = eval( classStr );

@@ -106,22 +106,22 @@
                                 }
                                 
                                 out.push( [ {
-                        			Type: 'string',
-                        			Value: '<picture type="icon" width="22px" height="22px" icon="user" border-size="2" shape="circle"></picture> &nbsp;' + ( lst[a].FullName + exNam ),
-                        			Data: lst[a].FullName,
-                        			OnClick: 'user_click_' + a
+                        			type: 'string',
+                        			value: '<picture type="icon" width="22px" height="22px" icon="user" border-size="2" shape="circle"></picture> &nbsp;' + ( lst[a].FullName + exNam ),
+                        			data: lst[a].FullName,
+                        			onclick: 'user_click_' + a
                             	}, {
-                        			Type: 'string',
-                        			Value: lst[a].Name,
-                        			OnClick: 'user_click_' + a
+                        			type: 'string',
+                        			value: lst[a].Name,
+                        			onclick: 'user_click_' + a
                             	}, {
-                        			Type: 'string',
-                        			Value: stat,
-                        			OnClick: 'user_click_' + a
+                        			type: 'string',
+                        			value: stat,
+                        			onclick: 'user_click_' + a
                             	}, {
-                        			Type: 'string',
-                        			Value: logt,
-                        			OnClick: 'user_click_' + a
+                        			type: 'string',
+                        			value: logt,
+                        			onclick: 'user_click_' + a
                             	} ] );
                             	
                             	ccAddCallback( 'user_click_' + a, function( element )
@@ -245,20 +245,20 @@
                                             console.log( 'adding row', [ len, r ]);
                                             const cnf = [
                                                 {
-                                                    Type : 'string',
-                                                    Value : r.ClassName,
+                                                    type : 'string',
+                                                    value : r.ClassName,
                                                 },
                                                 {
-                                                    Type : 'string',
-                                                    Value : r.CourseName,
+                                                    type : 'string',
+                                                    value : r.CourseName,
                                                 },
                                                 {
-                                                    Type : 'string',
-                                                    Value : r.StartDate,
+                                                    type : 'string',
+                                                    value : r.StartDate,
                                                 },
                                                 {
-                                                    Type : 'string',
-                                                    Value : r.EndDate,
+                                                    type : 'string',
+                                                    value : r.EndDate,
                                                 }
                                             ];
                                             rws.push( cnf );
@@ -297,12 +297,12 @@
 			                            {
 			                            	// Add rowdata
 			                            	output.push( [ {
-		                            			Type: 'string',
-		                            			Value: workgroups[z].Name
+		                            			type: 'string',
+		                            			value: workgroups[z].Name
 			                            	}, {
-			                            		Type: 'checkbox',
-			                            		Value: parseInt( workgroups[z].Member ) > 0 ? true : false,
-			                            		OnChange: 'w_change_' + z
+			                            		type: 'checkbox',
+			                            		value: parseInt( workgroups[z].Member ) > 0 ? true : false,
+			                            		onchange: 'w_change_' + z
 			                            	} ] );
 			                            	
 			                            	( function( onchange, userId, groupId )

@@ -91,22 +91,23 @@
 		                for( let a = 0; a < ls.length; a++ )
 		                {
 		                	out.push( [ {
-                    			Type: 'string',
-                    			Extras: '<picture type="icon" width="22px" height="22px" icon="star-half-full" border-size="2" shape="circle"></picture>&nbsp;',
-                    			Value: ls[a].Name,
-                    			OnClick: 'course_click_' + a,
-                    			UniqueId: 'courserow_' + a
+                    			type:     'string',
+                    			extras:   '<picture type="icon" width="22px" height="22px" icon="star-half-full" border-size="2" shape="circle"></picture>&nbsp;',
+                    			value:    ls[a].Name,
+                    			onclick:  'course_click_' + a,
+                    			onchange: 'course_change_' + a,
+                    			uniqueid: 'courserow_' + a
                         	}, {
-                    			Type: 'string',
-                    			Value: ls[a].DateCreated,
-                    			OnClick: 'course_click_' + a
+                    			type:     'string',
+                    			value:    ls[a].DateCreated,
+                    			onclick:  'course_click_' + a
                         	},
                         	{
-                    			Type: 'string',
-                    			Align: 'right',
-                    			Extras: '<picture type="icon" width="22px" height="22px" icon="pencil-square" onclick="course_edit_' + a + '"></picture>',
-                    			Value: '',
-                    			OnClick: 'course_click_' + a
+                    			type:     'string',
+                    			align:    'right',
+                    			extras:   '<picture type="icon" width="22px" height="22px" icon="pencil-square" onclick="course_edit_' + a + '"></picture>',
+                    			value:    '',
+                    			onclick:  'course_click_' + a
                         	} ] );
                         	
                         	( function( id )
@@ -120,6 +121,15 @@
 		                    		}
 		                    	} );
 		                   	} )( a );
+                        	
+                        	( function( id )
+                        	{
+                        		ccAddCallback( 'course_change_' + id, function( dataSet, listview )
+                        		{
+                        			console.log( 'We got it!', dataSet, listview );
+                        			listview.refreshRows();
+                        		} );
+                        	} )( a );
                         	
                         	( function( r )
                         	{
