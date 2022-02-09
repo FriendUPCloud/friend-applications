@@ -121,12 +121,6 @@
 	vertical-align: middle;
 }
 
-.ccPicture > div.IconSmall
-{
-	position: relative;
-	top: -1px;
-}
-
 /* Listview */
 
 .ccListview input
