@@ -415,7 +415,7 @@ class ccPicture extends ccGUIElement
     {
         super.grabAttributes( domElement );
         
-        let attrs = [ 'width', 'height', 'icon', 'type', 'shape', 'border-size' ];
+        let attrs = [ 'width', 'height', 'icon', 'type', 'shape', 'border-size', 'onclick' ];
         
         for( let a in attrs )
         {
@@ -429,6 +429,8 @@ class ccPicture extends ccGUIElement
     refreshDom()
     {
         super.refreshDom();
+        
+        let self = this;
         
         // Do something with properties on dom
         
@@ -462,6 +464,21 @@ class ccPicture extends ccGUIElement
         else
         {
         	this.domElement.style.borderWidth = '';
+        }
+        
+        if( this.options[ 'onclick' ] )
+        {
+        	this.domElement.style.cursor = 'pointer';
+        	this.domElement.onclick = function( e )
+        	{
+        		cancelBubble( e );
+        		if( window.ccGUI.callbacks[ self.options.onclick ] )
+		        {
+		            // Add structure with current element flags
+		            window.ccGUI.callbacks[ self.options.onclick ]( true );
+		        }
+		        return;
+        	}
         }
         
         // Set stuff on this.domElement.innerHTML

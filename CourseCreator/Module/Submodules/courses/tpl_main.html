@@ -11,7 +11,8 @@
             </listviehead>
             <listviewheaders>
                 <listviewheader width="50%" sortable="sortable" name="Coursename">Course name</listviewheader>
-                <listviewheader width="50%" sortable="sortable" name="DateCreated">Date created</listviewheader>
+                <listviewheader width="40%" sortable="sortable" name="DateCreated">Date created</listviewheader>
+                <listviewheader width="10%" name="Buttons" align="right">&nbsp;</listviewheader>
             </listviewheaders>
             <listviewrows onload="w_reload_courses">
             </listviewrows>
@@ -91,11 +92,17 @@
 		                {
 		                	out.push( [ {
                     			Type: 'string',
-                    			Value: '<picture type="icon" width="22px" height="22px" icon="user" border-size="2" shape="image"></picture> &nbsp;' + ls[a].Name,
+                    			Value: '<picture type="icon" width="22px" height="22px" icon="star-half-full" border-size="2" shape="circle"></picture> &nbsp;' + ls[a].Name,
                     			OnClick: 'course_click_' + a
                         	}, {
                     			Type: 'string',
                     			Value: ls[a].DateCreated,
+                    			OnClick: 'course_click_' + a
+                        	},
+                        	{
+                    			Type: 'string',
+                    			Align: 'right',
+                    			Value: '<picture type="icon" width="22px" height="22px" icon="pencil-square" onclick="course_edit_' + a + '"></picture>',
                     			OnClick: 'course_click_' + a
                         	} ] );
                         	
