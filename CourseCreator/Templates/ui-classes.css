@@ -121,6 +121,12 @@
 	vertical-align: middle;
 }
 
+.ccPicture > div
+{
+	position: relative;
+	top: -1px;
+}
+
 /* Listview */
 
 .ccListview input
