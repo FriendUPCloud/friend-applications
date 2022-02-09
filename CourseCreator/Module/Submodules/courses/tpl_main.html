@@ -122,14 +122,27 @@
 		                    	} );
 		                   	} )( a );
                         	
-                        	( function( id )
+                        	( function( id, rowId )
                         	{
                         		ccAddCallback( 'course_change_' + id, function( dataSet, listview )
                         		{
-                        			console.log( 'We got it!', dataSet, listview );
-                        			listview.refreshRows();
+                        			let m = new Module( 'system' );
+                        			m.onExecuted = function( re, de )
+                        			{
+		                    			listview.refreshRows();
+		                    		}
+		                    		m.execute( 'appmodule', {
+		                    			appName: 'CourseCreator',
+										command: 'submodule',
+										vars: {
+										    method: 'setcoursename',
+										    submodule: 'courses',
+										    coursename: dataSet.value,
+										    courseId: rowId
+										}
+		                    		} );
                         		} );
-                        	} )( a );
+                        	} )( a, ls[a].ID );
                         	
                         	( function( r )
                         	{

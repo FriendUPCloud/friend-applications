@@ -130,7 +130,7 @@ class ccGUIElement
     		}
     		else
     		{
-    			if( this.options.uniqueid && this.options.uniqueid != uid )
+    			if( this.options && this.options.uniqueid && this.options.uniqueid != uid )
     			{
     				delete window.ccGUI.guiElements[ this.options.uniqueid ];
     			}

@@ -14,6 +14,18 @@ if( isset( $args->method ) )
 {
     switch( $args->method )
     {
+    	case 'setcoursename':
+    		$o = new dbIO( 'CC_Course', $courseDb );
+    		if( $o->Load( $args->courseId ) )
+    		{
+    			$o->Name = $args->coursename;
+    			if( $o->Save() )
+    			{
+    				die( 'ok' );
+    			}
+    		}
+    		die( 'fail' );
+    		
         case 'courses':
         {
             if( $rows = $courseDb->fetchObjects( 'SELECT * FROM CC_Course ORDER BY ID DESC' ) )
