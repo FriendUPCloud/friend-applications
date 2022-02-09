@@ -232,7 +232,7 @@ class ccListview extends ccGUIElement
 	                                obj[ data[ d ].name ] = {};
 	                                for( let p in data[ d ] )
 	                                {
-	                                    if( p == 'Name' ) continue;
+	                                    if( p == 'name' ) continue;
 	                                    obj[ data[ d ].name ][ p ] = data[ d ][ p ];
 	                                }
 	                            }
