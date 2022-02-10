@@ -245,13 +245,21 @@
 	padding-top: 0px;
 	margin-top: 0px;
 	height: 0px;
-	visibility:  hidden;
+	pointer-events: none;
+	opacity: 0;
+	transition: opacity 0.15s;
 }
 
 .element:hover .handle,
 .element:hover .buttons.right
 {
-	visibility: visible;
+	opacity: 1;
+	pointer-events: all;
+}
+
+.element .buttons.right .IconSmall
+{
+	cursor: pointer;
 }
 
 .element .handle
@@ -262,7 +270,10 @@
 	height: 24px;
 	float: left;
 	margin: 0 0 0 5px;
-	visibility: hidden;
+	pointer-events: none;
+	opacity: 0;
+	transition: opacity 0.15s;
+	cursor: move;
 }
 
 
