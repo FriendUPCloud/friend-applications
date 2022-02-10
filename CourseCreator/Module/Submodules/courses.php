@@ -14,6 +14,18 @@ if( isset( $args->method ) )
 {
     switch( $args->method )
     {
+    	case 'coursetotrash':
+    		$o = new dbIO( 'CC_Course', $courseDb );
+    		if( $o->Load( $args->courseId ) )
+    		{
+    			$o->IsDeleted = 1;
+    			if( $o->Save() )
+    			{
+    				die( 'ok' );
+    			}
+    		}
+    		die( 'fail' );
+    	
     	case 'setcoursename':
     		$o = new dbIO( 'CC_Course', $courseDb );
     		if( $o->Load( $args->courseId ) )
@@ -28,7 +40,7 @@ if( isset( $args->method ) )
     		
         case 'courses':
         {
-            if( $rows = $courseDb->fetchObjects( 'SELECT * FROM CC_Course ORDER BY ID DESC' ) )
+            if( $rows = $courseDb->fetchObjects( 'SELECT * FROM CC_Course WHERE IsDeleted = 0 ORDER BY ID DESC' ) )
             {
                 die( 'ok<!--separate-->' . json_encode( $rows ) );
             }
