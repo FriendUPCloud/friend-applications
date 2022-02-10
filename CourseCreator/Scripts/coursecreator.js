@@ -1394,6 +1394,7 @@ class RootElement extends Element
                                 event.stopPropagation();
                                 ele.setActive();
                                 ele.renderMain();
+                                courseCreator.setActivePanel( 'SectionsPanel' );
                                 setActiveClass(
                                     event
                                         .target
