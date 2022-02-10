@@ -226,6 +226,9 @@
                                     {
                                         const rms = JSON.parse( dta );
                                         console.log( 'user classrooms', JSON.parse( JSON.stringify({ 'rms': rms })));
+                                        if ( 0 == rms.length )
+                                            return;
+                                        
                                         rms.sort(( ra, rb ) => {
                                             const an = ra.ClassName;
                                             const bn = rb.ClassName;
@@ -287,6 +290,45 @@
                                const cg = new Module( 'system' );
                                cg.onExecuted = ( s, d ) => {
                                     console.log( 'load certs result', [ s, d ]);
+                                    if ( s == 'ok' ) {
+                                        const dbr = JSON.parse( d );
+                                        console.log( 'cert dbr', dbr );
+                                        let len = dbr.length;
+                                        if ( 0 == len )
+                                            return;
+                                        
+                                        const rws = [];
+                                        for( ;len; )
+                                        {
+                                            len--;
+                                            const r = dbr[ len ];
+                                            console.log( 'row', r );
+                                            const cnf = [
+                                                {
+                                                    type  : 'string',
+                                                    value : r.FileName,
+                                                },
+                                                {
+                                                    type  : 'string',
+                                                    value : r.DateAdded,
+                                                },
+                                                {
+                                                    type     : 'checkbox',
+                                                    value    : true,
+                                                    onchange : checkChange,
+                                                }
+                                            ];
+                                            rws.push( cnf );
+                                            
+                                            function checkChange( ...args ) {
+                                                console.log( 'chekcChange', {
+                                                    id   : r.ID,
+                                                    args : args,
+                                                });
+                                            }
+                                        }
+                                        listView.setRowData( rws );
+                                    }
                                     
                                     // list
                                }

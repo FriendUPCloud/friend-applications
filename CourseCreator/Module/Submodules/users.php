@@ -125,12 +125,23 @@ if( isset( $args->method ) )
         case 'getcerts':
             if( isset( $args->userId ))
             {
-                $uid = intval( $args->UserId, 10 );
+                $uid = intval( $args->userId, 10 );
                 $q = '
-                    SELECT c.*,  FROM CC_Certificate
+                    SELECT c.*  FROM CC_Certificate c
                     WHERE c.UserID=' . $uid . '
                 ';
+                
+                
                 $rows = $courseDb->fetchObjects( $q );
+                /*
+                die( 'ok<!--separate-->' . json_encode([
+                    'args' => $args,
+                    'uid' => $uid,
+                    'q' => $q,
+                    'rows' => $rows,
+                ]));
+                */
+                
                 die( 'ok<!--separate-->' . json_encode( $rows ));
             }
             else
@@ -313,6 +324,7 @@ if( isset( $args->method ) )
                 // return stored cert info
                 die( 'ok<!--separate-->' .json_encode( $row ));
                 
+                /*
                 die( 'ok<!--separate-->' . json_encode( [ 
                     'd' => $d,
                     'cs' => $cs,
@@ -344,6 +356,7 @@ if( isset( $args->method ) )
                     'qr' => $qr,
                     'row' => $row,
                  ] ));
+                 */
                 
             }
             else
