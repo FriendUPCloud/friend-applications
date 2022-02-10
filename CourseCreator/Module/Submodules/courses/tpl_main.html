@@ -31,6 +31,11 @@
                        width: 800,
                        height: 900
                     });
+                    
+                    v.onClose = function()
+                    {
+                    	ccFactory.getElementByUniqueId( 'courses_listview' ).onload();
+                    }
 
                     // Create a menu
                     let myMenu = [
@@ -173,6 +178,11 @@
 	                                ];
 	                                // Add the menu to the view window
 	                                v.setMenuItems( myMenu );
+	                                
+	                                v.onClose = function()
+	                                {
+	                                	listview.onload();
+	                                }
 	                                
 	                                let f = new File('Progdir:Templates/main.html');
 	                                f.onLoad = function( data ){
