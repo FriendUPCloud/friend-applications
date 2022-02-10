@@ -1387,15 +1387,21 @@ class RootElement extends Element
         }
 
         // make Li Element
-        let makeLiElement = function( ele )
+        let makeLiElement = function( ele, type )
         {
+        	if( !type ) type = '';
             let li = ce("li");           
             // element index text
             let div = ce("div");
+            let icon = type == 'page' ? 'fa-file-text-o' : ( type == 'section' ? 'fa-bookmark-o' : '' );
+            let num = ( parseInt( ele.displayId ) + 1 ) + '';
+            if( num.length < 2 )
+            	num = '0' + num;
             let text = ce(
                 "span",
                 { 
-                    "text": ele.displayId + " " + ele.name,
+                    "text": ( icon ? '&nbsp;' : '' ) + num + ". " + ele.name,
+                    "classes": [ 'IconSmall', icon ],
                     "listeners": [
                         {
                             "event": "click",
@@ -1430,13 +1436,14 @@ class RootElement extends Element
         self.children.forEach( c => {
             // Sections
             c.children.forEach( s => {
-                let sLi = makeLiElement(s);
+                let sLi = makeLiElement(s, 'section' );
                 sLi.classList.add('SectionIndex');
                 let pUl = ce('ul');
                 // Pages
                 s.children.forEach( p => {
-                    let pLi = makeLiElement(p);
-                    if (pLi){
+                    let pLi = makeLiElement(p, 'page' );
+                    if (pLi)
+                    {
                         pLi.classList.add('PageIndex');
                         pUl.appendChild(pLi);
                     }
@@ -1454,10 +1461,12 @@ class RootElement extends Element
                         "listeners": [
                             {
                                 "event": "click",
-                                "callBack": function ( event ) {
+                                "callBack": function ( event )
+                                {
                                     s.createNewElement(
                                         null,
-                                        function( newPage ){
+                                        function( newPage )
+                                        {
                                             newPage.setActive();
                                             let sLi = event
                                                         .target
@@ -1465,10 +1474,10 @@ class RootElement extends Element
                                                         .parentNode;
                                             let pUl = sLi.querySelector('ul');
                                             let pLi = makeLiElement(newPage);
-                                            if(pLi){
+                                            if( pLi )
+                                            {
                                                 courseCreator.manager.saveActivePage();
                                                 pLi.classList.add('PageIndex');
-                                                console.log("this is the pLi", pLi);
                                                 pUl.appendChild(pLi);
                                                 setActiveClass(pLi);
                                             }
@@ -1539,6 +1548,7 @@ class CourseCreator
         this.setActivePanel( 'SectionsPanel' )
     }
 
+	// Loads a source
     load( courseId )
     {
         this.loadStatus = {
@@ -1548,6 +1558,7 @@ class CourseCreator
         this.manager.loadData( courseId );
     }
 
+	// Renders all GUI components in the course
     render()
     {
         // render index
@@ -1564,6 +1575,7 @@ class CourseCreator
 
     }
 
+	// Initializes the course
     initialize()
     {
         this.render();
