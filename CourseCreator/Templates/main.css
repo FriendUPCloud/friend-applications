@@ -248,6 +248,7 @@
 	pointer-events: none;
 	opacity: 0;
 	transition: opacity 0.15s;
+	width: calc(100% - 5px);
 }
 
 .element:hover .handle,

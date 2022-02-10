@@ -153,7 +153,16 @@ class Element
                 },
                 "classes" : [
                     this.classInfo.cssClass
-                ]
+                ],
+                "listeners": [
+                            {
+                                "event": "dragend",
+                                "callBack": function( e )
+                                {
+                                	courseCreator.manager.saveActivePage();
+                                }
+                            }
+                        ]
             }
         );
          // add handle (float left for now)
