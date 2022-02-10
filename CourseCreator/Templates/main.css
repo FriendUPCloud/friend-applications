@@ -42,6 +42,40 @@
 	width: 80%;
 }
 
+.Panel.Active
+{
+	border: 1px solid var(--border-foreground);
+	opacity: 1;
+}
+
+.Panel
+{
+	border: 1px solid transparent;
+	margin: -1px -1px 10px -1px;
+	border-radius: var(--gui-border-radius-normal);
+	overflow: hidden;
+	opacity: 0.8;
+	transition: border,opacity 0.25s,0.25s;
+}
+
+.Panel > .ContentHeader
+{
+	cursor: pointer;
+}
+
+.Panel h3 span
+{
+	display: inline-block;
+}
+
+.Panel h3
+{
+	width: 100%;
+	box-sizing: border-box;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
 #index 
 {
 	background-color: light-grey;
@@ -97,11 +131,6 @@
 	overflow: hidden;
 }
 
-#index .SectionIndex.Active
-{
-	border-color: var(--gui-border-color-active);
-}
-
 #index .SectionIndex > div > span,
 #index .PageIndex > div > span
 {
@@ -118,14 +147,22 @@
 #index .SectionButton
 {
 	height: auto;
+	margin: 0;
+    padding: 0;
+}
+
+.Panel .buttons .IconSmall
+{
+	vertical-align: middle;
 }
 
 #index > div > .buttons > span,
-#index .SectionButton > .buttons.Active > span,
-#index .SectionIndex.Active > .buttons > span
+#index .SectionIndex.Active > .buttons > span,
+.Panel.Active .SectionButton > .buttons > span
 {
 	opacity: 1;
 	pointer-events: all;
+	cursor: pointer;
 }
 
 #index .SectionButton > .buttons.Active > span
@@ -138,7 +175,7 @@
 	margin: 0;
 	border-top: 0;
 	border-radius: var(--gui-border-radius-normal);
-	height: 28px;
+	height: 32px;
 }
 
 #index > div > .buttons,
@@ -151,14 +188,6 @@
 	width: 100%;
 	background: var(--background);
 	border-radius: 0;
-}
-
-#index > div > .buttons > span,
-#index .SectionIndex > .buttons > span
-{
-	opacity: 0;
-	transition: opacity 0.25s;
-	pointer-events: none;
 }
 
 #IndexHeader

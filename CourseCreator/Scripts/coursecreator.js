@@ -1124,6 +1124,17 @@ class RootElement extends Element
                     return;
                 console.log("r is", r);
                 console.log("in the beginning what is children", self.children);
+                
+                // Set project name
+                if( self.children && self.children.length && self.children[0].name )
+                {
+                	ge( 'ProjectName' ).innerHTML = self.children[0].name;
+                }
+                else
+                {
+                	ge( 'ProjectName' ).innerHTML = 'Unnamed project';
+                }
+                
                 // Course
                 let c = self.children[r.courseDisplayID];
                 console.log(" root children ", self.children);
@@ -1341,17 +1352,16 @@ class RootElement extends Element
                 });
                 domEle.classList.add('Active');
         }
-
-
+        
         let setProperties = function ( ele )
         {
             let elementType = self.parent.propertiesView.querySelector(
-                            '[name="elementType"]'
+            	'[name="elementType"]'
             );
             elementType.value = ele.classInfo.displayName;
 
             let propertyName = self.parent.propertiesView.querySelector(
-                            '[name="propertyName"]'
+                '[name="propertyName"]'
             );
             propertyName.value = ele.name;
 
@@ -1468,7 +1478,7 @@ class RootElement extends Element
          // add new section
         let div = ce('div', { 'classes' : ["SectionButton"]});
         let buttons = ce('div', { 'classes' : ["buttons","Active"] });
-        buttons.appendChild(ce(
+        let span = ce(
             "span",
             {
                 "classes": ['IconSmall', 'fa-plus-circle'],
@@ -1490,7 +1500,9 @@ class RootElement extends Element
                     }
                 ]
             }
-        ));
+        );
+        span.innerHTML = '&nbsp;New section';
+        buttons.appendChild( span );
         div.appendChild(buttons);
         courseCreator.indexView.appendChild(div);
     }
@@ -1502,10 +1514,7 @@ class CourseCreator
 {
     constructor() 
     {
-
-        console.log("Starting to define coursecreator");
-
-        // Define views
+		// Define views
         this.mainView = ge('main');
         this.indexView = ge('index');
         this.toolboxView = ge('toolbox');
@@ -1516,9 +1525,11 @@ class CourseCreator
         
         // Element manager
         this.manager = new RootElement(this);
+        
+        this.setActivePanel( 'SectionsPanel' )
     }
 
-    load = function( courseId )
+    load( courseId )
     {
         this.loadStatus = {
             "jobs": 1,
@@ -1527,7 +1538,7 @@ class CourseCreator
         this.manager.loadData( courseId );
     }
 
-    render = function()
+    render()
     {
         // render index
         this.manager.renderIndex();
@@ -1543,15 +1554,16 @@ class CourseCreator
 
     }
 
-    initialize = function()
+    initialize()
     {
         this.render();
 
         // set active to first child
-        let firstPage = this.indexView.querySelector(".PageIndex");
-        if (firstPage)
+        let firstPage = this.indexView.querySelector( '.PageIndex' );
+        if( firstPage )
+        {
             firstPage.classList.add("Active");
-        console.log(" courseCreator object", this);
+        }
 
         // set view button event handler
         ge('viewButton').addEventListener(
@@ -1577,6 +1589,22 @@ class CourseCreator
             }
         );
 
+    }
+    
+    setActivePanel( panel )
+    {
+    	let panels = [ 'SectionsPanel', 'ToolboxPanel', 'PropertiesPanel', 'LibraryPanel' ];
+    	for( let a in panels )
+    	{
+    		if( panels[ a ] == panel )
+    		{
+    			ge( panels[ a ] ).classList.add( 'Active' );
+    		}
+    		else
+    		{
+    			ge( panels[ a ] ).classList.remove( 'Active' );
+    		}
+    	}
     }
 }
 

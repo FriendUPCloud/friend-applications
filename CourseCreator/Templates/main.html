@@ -1,21 +1,21 @@
 
 <script src="Progdir:Scripts/Libraries/ckeditor5-build-inline/ckeditor.js"></script>
 <script src="Progdir:Scripts/helpers.js"></script>
-<script src="https://raw.githack.com/SortableJS/Sortable/master/Sortable.js"></script>
+<script src="Progdir:Scripts/Libraries/sortable/Sortable.js"></script>
 
 <div class="CcPanels">
 	<div class="CcPanelSide">
-		<div>
+		<div class="Panel" id="SectionsPanel" onclick="courseCreator.setActivePanel( this.id )">
 			<div class="ContentHeader">
-	            <h3 id="IndexHeader">
-	                Index
+	            <h3>
+	                Index - <span id="ProjectName"></span>
 	            </h3>
 	        </div>
 	        <div class="ContentBlock">
 	            <div id="index"></div>
 	        </div>
 		</div>
-		<div>
+		<div class="Panel" id="ToolboxPanel" onclick="courseCreator.setActivePanel( this.id )">
 			<div class="ContentHeader">
 	            <h3>
 	                Toolbox
@@ -25,7 +25,7 @@
 	        	<div id="toolbox"></div>
 	        </div>
 		</div>
-		<div>
+		<div class="Panel" id="PropertiesPanel" onclick="courseCreator.setActivePanel( this.id )">
 			<div class="ContentHeader">
 	            <h3>
 	                Properties
@@ -35,7 +35,7 @@
 	        	<div id="properties"></div>
 	        </div>
 		</div>
-		<div>
+		<div class="Panel" id="LibraryPanel" onclick="courseCreator.setActivePanel( this.id )">
 			<div class="ContentHeader">
 	            <h3>
 	                Library
