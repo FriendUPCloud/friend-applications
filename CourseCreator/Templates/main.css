@@ -131,11 +131,6 @@
 	overflow: hidden;
 }
 
-#index .SectionIndex.Active
-{
-	border-color: var(--gui-border-color-active);
-}
-
 #index .SectionIndex > div > span,
 #index .PageIndex > div > span
 {
@@ -167,6 +162,7 @@
 {
 	opacity: 1;
 	pointer-events: all;
+	cursor: pointer;
 }
 
 #index .SectionButton > .buttons.Active > span

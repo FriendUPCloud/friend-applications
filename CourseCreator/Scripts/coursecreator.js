@@ -1124,6 +1124,17 @@ class RootElement extends Element
                     return;
                 console.log("r is", r);
                 console.log("in the beginning what is children", self.children);
+                
+                // Set project name
+                if( self.children && self.children.length && self.children[0].name )
+                {
+                	ge( 'ProjectName' ).innerHTML = self.children[0].name;
+                }
+                else
+                {
+                	ge( 'ProjectName' ).innerHTML = 'Unnamed project';
+                }
+                
                 // Course
                 let c = self.children[r.courseDisplayID];
                 console.log(" root children ", self.children);
