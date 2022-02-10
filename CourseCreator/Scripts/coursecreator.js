@@ -1341,17 +1341,16 @@ class RootElement extends Element
                 });
                 domEle.classList.add('Active');
         }
-
-
+        
         let setProperties = function ( ele )
         {
             let elementType = self.parent.propertiesView.querySelector(
-                            '[name="elementType"]'
+            	'[name="elementType"]'
             );
             elementType.value = ele.classInfo.displayName;
 
             let propertyName = self.parent.propertiesView.querySelector(
-                            '[name="propertyName"]'
+                '[name="propertyName"]'
             );
             propertyName.value = ele.name;
 
@@ -1502,10 +1501,7 @@ class CourseCreator
 {
     constructor() 
     {
-
-        console.log("Starting to define coursecreator");
-
-        // Define views
+		// Define views
         this.mainView = ge('main');
         this.indexView = ge('index');
         this.toolboxView = ge('toolbox');
@@ -1516,9 +1512,11 @@ class CourseCreator
         
         // Element manager
         this.manager = new RootElement(this);
+        
+        this.setActivePanel( 'SectionsPanel' )
     }
 
-    load = function( courseId )
+    load( courseId )
     {
         this.loadStatus = {
             "jobs": 1,
@@ -1527,7 +1525,7 @@ class CourseCreator
         this.manager.loadData( courseId );
     }
 
-    render = function()
+    render()
     {
         // render index
         this.manager.renderIndex();
@@ -1543,15 +1541,16 @@ class CourseCreator
 
     }
 
-    initialize = function()
+    initialize()
     {
         this.render();
 
         // set active to first child
-        let firstPage = this.indexView.querySelector(".PageIndex");
-        if (firstPage)
+        let firstPage = this.indexView.querySelector( '.PageIndex' );
+        if( firstPage )
+        {
             firstPage.classList.add("Active");
-        console.log(" courseCreator object", this);
+        }
 
         // set view button event handler
         ge('viewButton').addEventListener(
@@ -1577,6 +1576,22 @@ class CourseCreator
             }
         );
 
+    }
+    
+    setActivePanel( panel )
+    {
+    	let panels = [ 'SectionsPanel', 'ToolboxPanel', 'PropertiesPanel', 'LibraryPanel' ];
+    	for( let a in panels )
+    	{
+    		if( panels[ a ] == panel )
+    		{
+    			ge( panels[ a ] ).classList.add( 'Active' );
+    		}
+    		else
+    		{
+    			ge( panels[ a ] ).classList.remove( 'Active' );
+    		}
+    	}
     }
 }
 
