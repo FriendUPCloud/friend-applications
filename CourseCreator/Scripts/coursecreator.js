@@ -228,17 +228,16 @@ class Element
     // should be updated to be element sensitive.
     save = function(callBack)
     {
-        console.log(" properties in save ", this.properties);
         let params = {
             table: this.classInfo.dbTable,
             ID: this.dbId,
             DisplayID: this.displayId,
             Name: this.name,
             Properties: JSON.stringify(this.properties),
+            SortOrder: JSON.stringify( this.sortOrder ),
             PageID: this.parent.dbId,
             ElementTypeID: this.classInfo.elementTypeId
         };
-        console.log("Update table !! ", params);
         courseCreator.dbio.call(
             'updateTable',
             params,
@@ -474,7 +473,8 @@ class PageElement extends Element
                         r.elementDisplayID,
                         r.elementID,
                         r.elementName,
-                        r.elementProperties
+                        r.elementProperties,
+                        r.sortOrder
                     );
                 });
 
@@ -522,10 +522,36 @@ class PageElement extends Element
     {
         let self = this;
 
+        if( self.children.length <= 0 ) return;
+        
         // Loop through children and save elements
-        self.children.forEach( e => {
-            e.save();
-        });
+        let sortOrder = 0;
+        // Get children by sortOrder
+        let cont = false;
+        for( let a = 0; a < self.children.length; a++ )
+        {
+        	if( self.children[a] && self.children[a].domContainer && self.children[a].domContainer.parentNode )
+        	{
+        		cont = self.children[a].domContainer.parentNode;
+        	}
+        }
+        if( cont )
+        {
+		    for( let b = 0; b < cont.childNodes.length; b++ )
+		    {
+		    	if( !cont.childNodes[b].getAttribute( 'data-element-type' ) )
+		    		continue;
+		    	// Find elements and save them by sort order
+		    	for( let a = 0; a < self.children.length; a++ )
+		    	{
+		    		let e = self.children[ a ];
+					if( e.domContainer != cont.childNodes[b] )
+						continue;
+					e.sortOrder = sortOrder++;
+				    e.save();
+				};
+		    }
+		} 
     }
 
     /*
@@ -1116,7 +1142,9 @@ class RootElement extends Element
         );
         Array.from(pageElements).forEach( e => {
             if ( !e.hidden )
+            {
                 e.elementRef.saveElements();
+            }
         });
     }
 
