@@ -152,6 +152,13 @@
 #index .SectionButton
 {
 	height: auto;
+	margin: 0;
+    padding: 0;
+}
+
+.Panel .buttons .IconSmall
+{
+	vertical-align: middle;
 }
 
 #index > div > .buttons > span,
@@ -172,7 +179,7 @@
 	margin: 0;
 	border-top: 0;
 	border-radius: var(--gui-border-radius-normal);
-	height: 28px;
+	height: 32px;
 }
 
 #index > div > .buttons,

@@ -1467,7 +1467,7 @@ class RootElement extends Element
          // add new section
         let div = ce('div', { 'classes' : ["SectionButton"]});
         let buttons = ce('div', { 'classes' : ["buttons","Active"] });
-        buttons.appendChild(ce(
+        let span = ce(
             "span",
             {
                 "classes": ['IconSmall', 'fa-plus-circle'],
@@ -1489,7 +1489,9 @@ class RootElement extends Element
                     }
                 ]
             }
-        ));
+        );
+        span.innerHTML = '&nbsp;New section';
+        buttons.appendChild( span );
         div.appendChild(buttons);
         courseCreator.indexView.appendChild(div);
     }
