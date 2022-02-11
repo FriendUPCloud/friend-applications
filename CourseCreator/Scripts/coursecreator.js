@@ -624,7 +624,8 @@ class CheckBoxQuestionElement extends Element
     constructor( parent, displayId, dbId=null, name=null, properties=null ) 
     {
         super(parent, "checkBoxQuestion", displayId, dbId, name);
-        if (!properties){
+        if( !properties )
+        {
             properties = {
                 question: "question",
                 checkBoxes: [
@@ -677,6 +678,7 @@ class CheckBoxQuestionElement extends Element
         
         // Checkboxes
         let cbxContainer = ce('div');
+        cbxContainer.classList.add( 'checkboxContainer' );
         this.properties.checkBoxes.forEach( ( cbx , i ) => {
             console.log('check box', cbx, "element", this);
             let cbxRow = ce('span', { "classes": ['checkBoxRow']});
@@ -1135,6 +1137,8 @@ class RootElement extends Element
 
     saveActivePage = function()
     {
+        let self = this;
+        
         let pageElements = (
             courseCreator
                 .mainView
@@ -1146,6 +1150,31 @@ class RootElement extends Element
                 e.elementRef.saveElements();
             }
         });
+        
+        if( this.saveIndicator )
+        {
+        	let t = this.saveIndicator;
+        	this.saveIndicator = null;
+        }
+        let t = document.createElement( 'span' );
+        t.className = 'IconSmall fa-refresh Saving';
+        t.innerHTML = '';
+        this.saveIndicator = t;
+        ge( 'pageSaveIndicator' ).appendChild( t );
+        setTimeout( function()
+        {
+        	t.classList.add( 'Showing' );
+        	setTimeout( function()
+        	{
+        		t.classList.remove( 'Showing' );
+        	}, 500 );
+        	setTimeout( function()
+        	{
+        		ge( 'pageSaveIndicator' ).removeChild( t );
+        		if( self.saveIndicator == t )
+	        		self.saveIndicator = null;
+        	}, 750 );
+        }, 5 );
     }
 
     processData = function( data, courseId )
@@ -1832,7 +1861,7 @@ ON Cascade delete Page, Section, Element
 
 
 
-1. Edit course name?
+DONE 1. Edit course name?
 3. CK Editor Image
 4. Sortable enable for index view
 5. Sortable enable for toolbox drop in

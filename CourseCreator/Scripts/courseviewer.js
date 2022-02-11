@@ -8,112 +8,11 @@
 *                                                                              *
 *****************************************************************************©*/
 
-/* 
-  General functions
-*/
-// Create DOM Element abstraction
-let ce = function(type,
-                  {
-                    "text": text = "",
-                    "ckEditor": ckEditor = false,
-                    "attributes": attributes = {},
-                    "classes": classes =  [],
-                    "listeners": listeners = []
-                   }={}){
-
-    let e = document.createElement(type);
-    
-    // Add attributes
-    for ( let [k, v]  of Object.entries(attributes) ) {
-        e.setAttribute(k, v);
-    }
-    
-    // Add text
-    e.innerHTML = text;
-    
-    // Add classes
-    classes.forEach( c => {
-        e.classList.add( c );
-    });
-
-    // Make CK Editor
-    if (ckEditor == true){
-        InlineEditor
-            .create( e )
-            .catch( error => {
-                console.error( error );
-                } 
-            );
-    }
-
-    // Add event listeners
-    listeners.forEach( l => {
-        //console.logr(l);
-        e.addEventListener(
-            l.event,
-            l.callBack,
-            (l.options) ? l.options : null
-        );
-    });
-    
-    return e;
-}
-
-
-let removeDomChildren = function (domEle) {
-    while (domEle.firstChild) {
-        domEle.firstChild.remove();
-    }
-}
-
-let setDomChildren = function (domEle, domChildren) {
-    //removeDomChildren(domEle);
-    domChildren.forEach( domChild => {
-        domEle.appendChild(domChild);
-    });
-}
-
-function allowDrop(ev) {
-    ev.preventDefault();
-    ev.dataTransfer.dropEffect = "copy";
-}
-
-function dragToolbox(ev) {
-    //console.log(ev);
-    ev.dataTransfer.setData("text", ev.srcElement.dataset.elementType);
-    ev.dataTransfer.setData("isNew", true);
-    ev.dataTransfer.dropEffect = "copy";
-}
-
-function drop(ev) {
-    ev.preventDefault();
-    console.log();
-
-    if ( ev.dataTransfer.getData("isNew") ) {
-        let elementType = ev.dataTransfer.getData("text");
-
-        // drop in Page (only element that has a createNewElement function)
-        let ele = ev.target.elementRef;
-        if ( (typeof(ele) != "undefined") 
-            && (typeof(ele.createNewElement) == "function") )
-            ele.createNewElement(elementType, function() {
-                    ele.sortElements();
-            });
-            
-    }
-
-}
-
-function endDrag(ev){
-    ev.preventDefault();
-}
-
 // general EventListeners
 document.addEventListener('dragover', allowDrop);
 document.addEventListener('drop', drop );
 
-
-
+// message listener for incoming postmessages
 Application.receiveMessage = function( msg )
 {
     // Don't treat noisy messages that do not adhere to our spec
@@ -142,8 +41,10 @@ Application.receiveMessage = function( msg )
 *
 *  Provides database interface for the elements
 */
-class CourseCollection {
-    constructor ( courseViewer ){
+class CourseCollection 
+{
+    constructor( courseViewer )
+    {
         this.courseViewer = courseViewer;
     }
 }
@@ -155,8 +56,10 @@ class CourseCollection {
 *  implements: renderHtml( context )
 */
 //TODO: rewrite to capture indexing id vs index
-class Element{
-    constructor( parent, elementType, displayId=null, dbId=null, name="untitled") {
+class Element
+{
+    constructor( parent, elementType, displayId=null, dbId=null, name="untitled")
+    {
         console.log(
             "in element construct", 
             "elementType", elementType, 
@@ -186,11 +89,13 @@ class Element{
         console.log("this is self ",this);
     }
 
-    resetDomContainer = function(){
+    resetDomContainer = function()
+    {
         this.domContainer.replaceChildren();
     }
 
-    linkDomContainer = function(domContainer=null){
+    linkDomContainer = function(domContainer=null)
+    {
         let self = this;
         if (!domContainer)
             domContainer = self.createDomContainer(self.elementClass);
@@ -202,7 +107,8 @@ class Element{
             self.parent.domContainer.appendChild(self.domContainer);
     }
 
-    setActive = function(){
+    setActive = function()
+    {
         let self = this;
         self.parent.activeChild = self;
         if (typeof(self.parent.setActive) != "undefined")
@@ -211,11 +117,13 @@ class Element{
             self.activeChild = self.children[0];
     }
 
-    checkComplete = function(){
+    checkComplete = function()
+    {
         return true;
     }
 
-    createDomContainer = function(){
+    createDomContainer = function()
+    {
         //TODO: need to add element db index plus index in doc
         let self = this; 
         let ele = ce(
@@ -235,7 +143,8 @@ class Element{
         return ele;
     }
 
-    createNewElement = function(elementType=null, callBack=null){
+    createNewElement = function(elementType=null, callBack=null)
+    {
         let self = this;
         let displayID = self.children.length;
         if (!elementType)
@@ -258,7 +167,8 @@ class Element{
     // creates id on ID is given
     // updates / saves on ID if given
     // should be updated to be element sensitive.
-    save = function(callBack){
+    save = function(callBack)
+    {
         let params = {
             table: this.classInfo.dbTable,
             ID: this.dbId,
@@ -279,7 +189,8 @@ class Element{
         );
     }
 
-    delete = function () {
+    delete = function()
+    {
         let self = this;
         let params = {
             table: this.classInfo.dbTable,
@@ -309,7 +220,8 @@ class Element{
         );
     }
 
-    renderMain = function (){
+    renderMain = function ()
+    {
         if (this.children.length == 0)
             return false
         if (this.activeChild == null)
@@ -330,12 +242,15 @@ class Element{
 * render is a function on element and children to propogate
 *
 */
-class CourseElement extends Element {
-    constructor(parent, displayId, dbId, name){
+class CourseElement extends Element 
+{
+    constructor(parent, displayId, dbId, name)
+    {
         super(parent, "course", displayId, dbId, name);
     }
 
-    createSection = function(){
+    createSection = function()
+    {
         let cls = registeredElements.get("page").class;
         let s = new cls(this);
         s.save();
@@ -345,13 +260,16 @@ class CourseElement extends Element {
 }
 
 
-class SectionElement extends Element {
-    constructor( parent, displayId=null, dbId=null, name="untitled") {    
+class SectionElement extends Element
+{
+    constructor( parent, displayId=null, dbId=null, name="untitled")
+    {    
         super(parent, "section", displayId, dbId, name); 
         this.linkDomContainer(courseViewer.mainView);
     }
 
-    save = function(callBack){
+    save = function(callBack)
+    {
         let params = {
             table: this.classInfo.dbTable,
             ID: this.dbId,
@@ -364,7 +282,8 @@ class SectionElement extends Element {
         courseViewer.dbio.call(
             'updateTable',
             params,
-            function ( code, data ) {
+            function ( code, data )
+            {
                 if (callBack)
                     callBack( data );
             }
@@ -372,8 +291,10 @@ class SectionElement extends Element {
     }
 }
 
-class PageElement extends Element{
-    constructor(parent, displayId, dbId, name){
+class PageElement extends Element
+{
+    constructor(parent, displayId, dbId, name)
+    {
         super(parent, "page", displayId, dbId, name);
         this.linkDomContainer();
         this.domContainer.hidden = true;
@@ -384,7 +305,8 @@ class PageElement extends Element{
     *
     */
 
-    sortElements = function(){
+    sortElements = function()
+    {
         let self = this;
         let sortedElements = new Array();
         let domElements = this.domContainer.getElementsByClassName('element');
@@ -396,7 +318,8 @@ class PageElement extends Element{
         self.children = sortedElements;
     }
 
-    loadElements = function ( callBack ) {
+    loadElements = function ( callBack )
+    {
         let self = this;
         courseViewer.dbio.call(
             'getSectionData',
@@ -427,7 +350,8 @@ class PageElement extends Element{
         );
     }
 
-    save = function(callBack){
+    save = function(callBack)
+    {
         let params = {
             table: this.classInfo.dbTable,
             ID: this.dbId,
@@ -447,7 +371,8 @@ class PageElement extends Element{
         );
     }
 
-    saveElements = function ( callBack ) {
+    saveElements = function ( callBack )
+    {
         let self = this;
         console.log("in page", self.displayId);
         self.children.forEach( e => {
@@ -457,7 +382,8 @@ class PageElement extends Element{
     }
 
     // overloads rendermain
-    renderMain = function(){
+    renderMain = function()
+    {
         let self = this;
         self.domContainer.hidden = false;
         let pageElements = self.parent.domContainer.getElementsByClassName(
@@ -483,7 +409,8 @@ class PageElement extends Element{
             self.domContainer.appendChild(np);
         });
 
-        let createNextPrevious = function (){
+        let createNextPrevious = function()
+        {
             // create next and back button
             let div = ce('div', { "classes" : ["buttons"]});
             let divPrevious = ce('div',
@@ -541,7 +468,8 @@ class PageElement extends Element{
     }
 }
 
-class CheckBoxQuestionElement extends Element {
+class CheckBoxQuestionElement extends Element
+{
     constructor( parent, displayId, dbId=null, name=null, properties=null ) {
         super(parent, "checkBoxQuestion", displayId, dbId, name);
         if (!properties){
@@ -651,8 +579,10 @@ class CheckBoxQuestionElement extends Element {
 
 
 
-class TextBoxElement extends Element {
-    constructor( parent, displayId, dbId=null, name=null, properties=null ) {
+class TextBoxElement extends Element
+{
+    constructor( parent, displayId, dbId=null, name=null, properties=null )
+    {
         super(parent, "textBox", displayId, dbId, name);
         if (!properties){
             properties = {
@@ -666,7 +596,8 @@ class TextBoxElement extends Element {
         this.domContainer.classList.add("element");
     }
 
-    renderMain = function () {
+    renderMain = function()
+    {
         let self = this;
 
         self.resetDomContainer();
@@ -679,7 +610,8 @@ class TextBoxElement extends Element {
         
     }
 
-    renderEdit = function() {
+    renderEdit = function()
+    {
         let self = this;
     }
 }
@@ -687,8 +619,10 @@ class TextBoxElement extends Element {
 
 
 
-class ImageElement extends Element {
-    constructor( parent, displayId, dbId=null, name=null, properties=null ) {
+class ImageElement extends Element
+{
+    constructor( parent, displayId, dbId=null, name=null, properties=null )
+    {
         super(parent, "image", displayId, dbId, name);
         if (!properties){
             properties = {
@@ -704,7 +638,8 @@ class ImageElement extends Element {
         this.domContainer.classList.add("list-group-item");
     }
 
-    renderMain = function () {
+    renderMain = function()
+    {
         let self = this;
         this.domContainer.innerHTML = "";
 
@@ -741,7 +676,8 @@ class ImageElement extends Element {
         setDomChildren(this.domContainer, cdn);
     }
 
-    renderEdit = function() {
+    renderEdit = function()
+    {
         let self = this;
         this.domContainer.className = "element";
         this.domContainer.classList.add("elementEdit");
@@ -814,7 +750,8 @@ class ImageElement extends Element {
         setDomChildren(this.domContainer, cdn);
     }
 
-    saveEditElement = function() {
+    saveEditElement = function()
+    {
         let self = this;
         
         // image title
@@ -832,13 +769,16 @@ class ImageElement extends Element {
     }
 }
 
-class DBIO{
-    constructor(moduleName, appName, type="appmodule"){
+class DBIO
+{
+    constructor(moduleName, appName, type="appmodule")
+    {
         this.moduleName = moduleName;
         this.appName = appName;
         this.type = type;
     }
-    call = function(funcName, vars, callBack){
+    call = function(funcName, vars, callBack)
+    {
         let self = this;
         let m = new Module ( self.moduleName );
         m.onExecuted = function ( returnCode, returnData )
@@ -856,15 +796,18 @@ class DBIO{
     }
 }
 
-class ElementTypeIO {
-    constructor(courseViewer) {
+class ElementTypeIO
+{
+    constructor(courseViewer)
+    {
         this.courseViewer = courseViewer;
         this.data = null;
         this.elementTypes = null;
         this.loadElementTypeData();
     }
 
-    createElementTypeMap = function(){
+    createElementTypeMap = function()
+    {
         let self = this;
         self.elementTypes = new Map();
         self.data.forEach( et => {
@@ -872,7 +815,8 @@ class ElementTypeIO {
         });
     }
 
-    loadElementTypeData= function(){
+    loadElementTypeData= function()
+    {
         let self = this;
         let types = self.courseViewer.dbio.call(
             'getTable',
@@ -904,13 +848,15 @@ class ElementTypeIO {
 }
 
 
-class RootElement extends Element{
+class RootElement extends Element
+{
     constructor(courseViewer){
         super(courseViewer, "root");
         this.activePage = null;
     }
 
-    loadClassRoomData = function( classRoomId ){
+    loadClassRoomData = function( classRoomId )
+    {
         // let self = this;
         // courseViewer.dbio.call(
         //     'getCourseList',
@@ -921,7 +867,8 @@ class RootElement extends Element{
         // );
     }
 
-    loadCourseData = function( courseId ){
+    loadCourseData = function( courseId )
+    {
         let self = this;
         courseViewer.dbio.call(
             'getCourseList',
@@ -933,7 +880,8 @@ class RootElement extends Element{
         );
     }
 
-    saveActivePage = function(){
+    saveActivePage = function()
+    {
         let pageElements = (
             courseViewer
                 .mainView
@@ -945,7 +893,8 @@ class RootElement extends Element{
         });
     }
 
-    processCourseData = function( data, courseId ){
+    processCourseData = function( data, courseId )
+    {
         //TODO: also add pages here
         let self = this;
         console.log(" in the beginning ", self.children);
@@ -1003,7 +952,8 @@ class RootElement extends Element{
     }
 
     // Render of toolbox menu is the same for all elements
-    renderToolbox = function(){
+    renderToolbox = function()
+    {
         let self = this;
         removeDomChildren(courseViewer.toolboxView);
         registeredElements.forEach( ( v, k ) => {
@@ -1030,7 +980,8 @@ class RootElement extends Element{
         });
     }
 
-    renderProperties = function(){
+    renderProperties = function()
+    {
         let self = this;
 
         // create HTML
@@ -1144,7 +1095,8 @@ class RootElement extends Element{
     }
 
 
-    renderIndex = function (){
+    renderIndex = function ()
+    {
         let self = this;
 
         let setActiveClass = function (domEle){
@@ -1242,8 +1194,10 @@ class RootElement extends Element{
 }
 
 
-class CourseViewer{
-    constructor() {
+class CourseViewer
+{
+    constructor()
+    {
 
         console.log("Starting to define courseViewer");
 
@@ -1273,7 +1227,8 @@ class CourseViewer{
         this.manager.loadClassRoomData( this.classRoomId);
     }
 
-    loadCourse = function( courseId ){
+    loadCourse = function( courseId )
+    {
         this.loadStatus = {
             "jobs": 1,
             "finished": 0
@@ -1281,7 +1236,8 @@ class CourseViewer{
         this.manager.loadCourseData( courseId );
     }
 
-    render = function(){
+    render = function()
+    {
         // render index
         this.manager.renderIndex();
     
@@ -1296,7 +1252,8 @@ class CourseViewer{
 
     }
 
-    initialize = function(){
+    initialize = function()
+    {
         this.render();
 
         // set active to first child
