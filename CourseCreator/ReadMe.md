@@ -12,18 +12,25 @@ Create a CourseCreator package in Friend Create, or use the one provided. As
 an Admin user in FriendOS, upload the package into your environment and right-
 click and choose "Install package".
 
-After this, create a new Type/Key in the "Server" app:
+After this, create two new Type/Key in the "Server" app:
 
- Type: CourseCreator
- Key: Database
+First:
+    Type : CourseCreator
+    Key  : Database
 
 In this, add properties (examples given:
 
- Hostname -> localhost
- Database -> CourseCreator
- Username -> sqluser
- Password -> sqlpass
- Port     -> 3306
+    Hostname -> localhost
+    Database -> CourseCreator
+    Username -> sqluser
+    Password -> sqlpass
+    Port     -> 3306
+ 
+Second:
+    Type : CourseCreator
+    Key  : Storage
+In this, add property path, the value will be the name of the folder where CourseCreator will store files
+    path -> 
 
 Now, you can execute "CourseCreator" from your GetStarted app in the "Work" 
 section.

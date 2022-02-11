@@ -364,6 +364,8 @@
                                         const res = JSON.parse( d );
                                         console.log( 'add cert res', res );
                                         
+                                        return;
+                                        
                                         cr = new Module( 'system' );
                                         cr.onExecuted = ( s, d ) => {
                                             console.log( 'removecert back', [ s, d ]);
