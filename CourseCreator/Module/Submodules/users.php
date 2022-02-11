@@ -219,7 +219,6 @@ if( isset( $args->method ) )
                 $fp = explode( '.', $cert->UserFileName );
                 $fext = array_pop( $fp );
                 $fnm = implode( '.', $fp );
-                $fh = md5( $fnm );
                 
                 // load file
                 $dl = ( $Config->SSLEnable ? 'https://' : 'http://' ) .
@@ -231,6 +230,7 @@ if( isset( $args->method ) )
                     'mode'        => 'rb',
                 ];
                 $file = FriendCall( $dl, null, $dlp );
+                $fh = md5( $file );
                 
                 // check storage path
                 $toPath = $Config->FCUpload;
@@ -257,40 +257,42 @@ if( isset( $args->method ) )
                 
                 $allok = file_exists( $toPath );
                 
-                // save file
+                // save file, maybe
                 $cwp = $toPath . '/' . $fh . '.' . $fext;
                 $exists = file_exists( $cwp );
-                if ( true == $exists )
-                    die( 'fail<!--separate-->' . json_encode([
-                        'message' => 'destination file already exists',
-                        'path'    => $cwp,
-                    ] ));
-                
-                $wok = file_put_contents( $cwp, $file );
-                if ( false == $wok )
-                    die( 'fail<!--separate-->' . json_encode([
-                        'message' => 'failed to write cert file',
-                        'path'    => $cwp,
-                    ] ));
-                
-                $os = intval( $fnfo->Filesize, 10 );
-                if ( $wok != $os )
-                {
-                    unlink( $cwp );
-                    die( 'fail<!--separate-->' . json_encode([
-                        'message'       => 'writing cert did not complete',
-                        'cert bytes'    => $os,
-                        'written bytes' => $wok,
-                    ]));
+                if ( false == $exists ) {
+                    $wok = file_put_contents( $cwp, $file );
+                    if ( false == $wok )
+                        die( 'fail<!--separate-->' . json_encode([
+                            'message' => 'failed to write cert file',
+                            'path'    => $cwp,
+                        ] ));
+                    
+                    $os = intval( $fnfo->Filesize, 10 );
+                    if ( $wok != $os )
+                    {
+                        unlink( $cwp );
+                        die( 'fail<!--separate-->' . json_encode([
+                            'message'       => 'writing cert did not complete',
+                            'cert bytes'    => $os,
+                            'written bytes' => $wok,
+                        ]));
+                    }
                 }
                 
                 // insert into db
-                $vals = [ $uid, '\''.$fh.'\'', '\''.$fnm . '.' . $fext.'\'' ];
+                $vals = [ 
+                    $uid, 
+                    '\'' . $fnm . '.' . $fext . '\'',
+                    '\'' . $fh . '\'', 
+                    '\'' . $fext . '\'', 
+                ];
                 $q = '
                     INSERT INTO CC_Certificate (
                         UserID,
-                        DiskFile,
-                        FileName
+                        CertName,
+                        FileName,
+                        FileExt
                     ) VALUES (' . implode( ',', $vals ). ')
                 ';
                 
@@ -306,10 +308,11 @@ if( isset( $args->method ) )
                 
                 $qr = '
                     SELECT c.* FROM CC_Certificate c
-                    WHERE c.DiskFile=\'' . $fh . '\'
+                    WHERE c.CertName=\'' . $fnm . '.' . $fext . '\' 
+                    ORDER BY c.ID
                 ';
                 $rows = $courseDb->fetchObjects( $qr );
-                if ( !$rows || !$rows[0])
+                if ( !$rows )
                 {
                     unlink( $cwp );
                     die( 'fail<!--separate-->' . json_encode([
@@ -318,11 +321,11 @@ if( isset( $args->method ) )
                     ] ));
                 }
                 
-                $row = $rows[ 0 ];
-                $row->url = $cwp;
+                $lr = array_pop( $rows );
+                $lr->url = $cwp;
                 
                 // return stored cert info
-                die( 'ok<!--separate-->' .json_encode( $row ));
+                die( 'ok<!--separate-->' .json_encode( $lr ));
                 
                 /*
                 die( 'ok<!--separate-->' . json_encode( [ 
@@ -349,14 +352,16 @@ if( isset( $args->method ) )
                     'uok' => $uok,
                     'crtok' => $crtok,
                     'allok' => $allok,
-                    'cwp' => $fwp,
+                    'cwp' => $cwp,
                     'wok' => $wok,
                     'vals' => $vals,
                     'q' => $q,
                     'qr' => $qr,
-                    'row' => $row,
+                    'rows' => $rows,
+                    'lr' => $lr,
                  ] ));
                  */
+                 
                 
             }
             else
@@ -368,14 +373,98 @@ if( isset( $args->method ) )
             if( isset( $args->userId ) && isset( $args->certId ) )
             {
                 // find cert in db
-                $uid = intval( $args->UserId, 10 );
-                $cid = intval( $args->CertId, 10 );
-                $rq = '
-                    SELECT c.UserID, c.ID, c.FilePath FROM CC_Certificate
+                $uid = intval( $args->userId, 10 );
+                $cid = intval( $args->certId, 10 );
+                $cq = '
+                    SELECT c.* FROM CC_Certificate c
                     WHERE c.ID=' . $cid . '
                     AND c.UserID=' . $uid . '
                 ';
-                $c = $courseDb->fetchObjects( $rq );
+                $crs = $courseDb->fetchObjects( $cq );
+                if ( !$crs )
+                    die( 'fail<!--separate-->' . json_encode([
+                        'message' => 'query failed',
+                        'query'   => $rq,
+                        'res'     => $crs,
+                    ]));
+                
+                $c = $crs[0];
+                if ( !$c )
+                    die( 'fail<!--separate-->' . json_encode([
+                        'message' => 'cert was not found',
+                        'userId' => $uid,
+                        'certId' => $cid,
+                    ]));
+                
+                $rq = '
+                    SELECT count(*) AS roos FROM CC_Certificate c
+                    WHERE c.UserID=\''.$uid.'\'
+                    AND c.FileName=\'' . $c->FileName . '\'
+                ';
+                $rrs = $courseDb->fetchObjects( $rq );
+                $fnum = $rrs[0]->roos;
+                $fPath = '';
+                $yep = false;
+                if ( 1 == $fnum )
+                {
+                    $usr = new dbIO( 'FUser' );
+                    $usr->Load( $uid );
+                    if ( !$usr || !isset( $usr->UniqueID ))
+                        die( 'fail<!--separate-->' . json_encode([
+                            'message' => 'user not found or uniqueId missing',
+                            'userId'  => $uid,
+                            'user'    => $to,
+                        ] ));
+                    
+                    $s = new dbIO( 'FSetting' );
+                    $s->Type = 'CourseCreator';
+                    $s->Key = 'Storage';
+                    if( !$s->Load() ) {
+                        die( 'fail<!--separate-->{"message":"Could not read server setting"}' );
+                    }
+                    
+                    if ( !isset( $s->Data ))
+                        die( 'fail<!--separate-->' . json_encode( [ 
+                            'message' => 'missing server setting',
+                            'setting' => $s,
+                        ] ));
+                    
+                    $cs = json_decode( $s->Data );
+                    if ( !isset( $cs->path ))
+                        die( 'fail<!--separate-->' . json_encode( [
+                            'message' => 'server setting missing path',
+                            'setting' => $cs,
+                        ] ));
+                    
+                    $fPath = $Config->FCUpload;
+                    $fPath .= $cs->path . '/' . $usr->UniqueID . '/certs/';
+                    $fPath .= $c->FileName . '.' . $c->FileExt;
+                    $yep = file_exists( $fPath );
+                    if ( $yep )
+                        unlink( $fPath );
+                }
+                
+                $dq = '
+                    DELETE FROM CC_Certificate c
+                    WHERE c.ID=' . $c->ID . '
+                ';
+                $dr = $courseDb->Query( $dq );
+                
+                die( 'ok<!--separate-->' . json_encode( [
+                    'uid'   => $uid,
+                    'cid'   => $cid,
+                    'cq'    => $cq,
+                    'crs'   => $crs,
+                    'c'     => $c,
+                    'rq'    => $rq,
+                    'rrs'   => $rrs,
+                    'fnum'  => $fnum,
+                    'fPath' => $fPath,
+                    'yep'   => $yep,
+                    'dq'    => $dq,
+                    'dr'    => $dr,
+                ] ));
+                
                 
                 // find file in storage
                 

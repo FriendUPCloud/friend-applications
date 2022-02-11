@@ -306,7 +306,7 @@
                                             const cnf = [
                                                 {
                                                     type  : 'string',
-                                                    value : r.FileName,
+                                                    value : r.CertName,
                                                 },
                                                 {
                                                     type  : 'string',
@@ -333,12 +333,12 @@
                                     // list
                                }
                                cg.execute( 'appmodule', {
-                                    appName: 'CourseCreator',
-                                    command: 'submodule',
-                                    vars: {
-                                        submodule: 'users',
-                                        method: 'getcerts',
-                                        userId: uid,
+                                    appName : 'CourseCreator',
+                                    command : 'submodule',
+                                    vars    : {
+                                        submodule : 'users',
+                                        method    : 'getcerts',
+                                        userId    : uid,
                                     }
                                 });
                             });
@@ -360,17 +360,37 @@
                                     const ca = new Module( 'system' );
                                     ca.onExecuted = ( s, d ) => {
                                         console.log( 'add cert result', [ s, d ]);
+                                        
                                         const res = JSON.parse( d );
                                         console.log( 'add cert res', res );
+                                        
+                                        cr = new Module( 'system' );
+                                        cr.onExecuted = ( s, d ) => {
+                                            console.log( 'removecert back', [ s, d ]);
+                                            const res = JSON.parse( d );
+                                            console.log( 'removecert result', res );
+                                            if ( 'ok' == s ) {
+                                            }
+                                        }
+                                        cr.execute( 'appmodule', {
+                                            appName : 'CourseCreator',
+                                            command : 'submodule',
+                                            vars    : {
+                                                submodule : 'users',
+                                                method    : 'removecert',
+                                                userId    : res.UserID,
+                                                certId    : res.ID
+                                            }
+                                        });
                                     }
                                     ca.execute( 'appmodule', {
-                                        appName: 'CourseCreator',
-                                        command: 'submodule',
-                                        vars: {
-                                            submodule: 'users',
-                                            method: 'addcert',
-                                            userId: uid,
-                                            cert: cert
+                                        appName : 'CourseCreator',
+                                        command : 'submodule',
+                                        vars    : {
+                                            submodule : 'users',
+                                            method    : 'addcert',
+                                            userId    : uid,
+                                            cert      : cert
                                         }
                                     });
                                 });
