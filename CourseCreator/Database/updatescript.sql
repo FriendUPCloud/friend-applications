@@ -6,3 +6,16 @@ ALTER TABLE CC_Course ADD IsDeleted tinyint(4) default 0 AFTER `Name`;
 
 ALTER TABLE CC_Element ADD SortOrder int(11) default 0 AFTER ElementTypeID;
 
+/* Add CC_Certificate table */
+
+select "Certificate Table" as "";
+CREATE TABLE IF NOT EXISTS CC_Certificate(
+    ID BIGINT(20) auto_increment NOT NULL,
+    UserID BIGINT(20) NOT NULL,
+    DateAdded DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CertName VARCHAR(128) NOT NULL,
+    FileName VARCHAR(32) NOT NULL,
+    FileExt VARCHAR(5) NOT NULL,
+    PRIMARY KEY(ID)
+);
+

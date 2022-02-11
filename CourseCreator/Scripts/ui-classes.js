@@ -50,6 +50,7 @@ ccFactory = {
 	// Registers a class to the factory
 	registerClass( type )
 	{
+        console.log( 'registerClass', type );
 	    for( let a = 0; a < this.classTypes.length; a++ )
 	    {
 	        if( this.classTypes[ a ] == type ) return false;
