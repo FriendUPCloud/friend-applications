@@ -153,7 +153,16 @@ class Element
                 },
                 "classes" : [
                     this.classInfo.cssClass
-                ]
+                ],
+                "listeners": [
+                            {
+                                "event": "dragend",
+                                "callBack": function( e )
+                                {
+                                	courseCreator.manager.saveActivePage();
+                                }
+                            }
+                        ]
             }
         );
          // add handle (float left for now)
@@ -219,17 +228,16 @@ class Element
     // should be updated to be element sensitive.
     save = function(callBack)
     {
-        console.log(" properties in save ", this.properties);
         let params = {
             table: this.classInfo.dbTable,
             ID: this.dbId,
             DisplayID: this.displayId,
             Name: this.name,
             Properties: JSON.stringify(this.properties),
+            SortOrder: JSON.stringify( this.sortOrder ),
             PageID: this.parent.dbId,
             ElementTypeID: this.classInfo.elementTypeId
         };
-        console.log("Update table !! ", params);
         courseCreator.dbio.call(
             'updateTable',
             params,
@@ -465,7 +473,8 @@ class PageElement extends Element
                         r.elementDisplayID,
                         r.elementID,
                         r.elementName,
-                        r.elementProperties
+                        r.elementProperties,
+                        r.sortOrder
                     );
                 });
 
@@ -513,10 +522,36 @@ class PageElement extends Element
     {
         let self = this;
 
+        if( self.children.length <= 0 ) return;
+        
         // Loop through children and save elements
-        self.children.forEach( e => {
-            e.save();
-        });
+        let sortOrder = 0;
+        // Get children by sortOrder
+        let cont = false;
+        for( let a = 0; a < self.children.length; a++ )
+        {
+        	if( self.children[a] && self.children[a].domContainer && self.children[a].domContainer.parentNode )
+        	{
+        		cont = self.children[a].domContainer.parentNode;
+        	}
+        }
+        if( cont )
+        {
+		    for( let b = 0; b < cont.childNodes.length; b++ )
+		    {
+		    	if( !cont.childNodes[b].getAttribute( 'data-element-type' ) )
+		    		continue;
+		    	// Find elements and save them by sort order
+		    	for( let a = 0; a < self.children.length; a++ )
+		    	{
+		    		let e = self.children[ a ];
+					if( e.domContainer != cont.childNodes[b] )
+						continue;
+					e.sortOrder = sortOrder++;
+				    e.save();
+				};
+		    }
+		} 
     }
 
     /*
@@ -589,7 +624,8 @@ class CheckBoxQuestionElement extends Element
     constructor( parent, displayId, dbId=null, name=null, properties=null ) 
     {
         super(parent, "checkBoxQuestion", displayId, dbId, name);
-        if (!properties){
+        if( !properties )
+        {
             properties = {
                 question: "question",
                 checkBoxes: [
@@ -642,6 +678,7 @@ class CheckBoxQuestionElement extends Element
         
         // Checkboxes
         let cbxContainer = ce('div');
+        cbxContainer.classList.add( 'checkboxContainer' );
         this.properties.checkBoxes.forEach( ( cbx , i ) => {
             console.log('check box', cbx, "element", this);
             let cbxRow = ce('span', { "classes": ['checkBoxRow']});
@@ -1100,6 +1137,8 @@ class RootElement extends Element
 
     saveActivePage = function()
     {
+        let self = this;
+        
         let pageElements = (
             courseCreator
                 .mainView
@@ -1107,8 +1146,35 @@ class RootElement extends Element
         );
         Array.from(pageElements).forEach( e => {
             if ( !e.hidden )
+            {
                 e.elementRef.saveElements();
+            }
         });
+        
+        if( this.saveIndicator )
+        {
+        	let t = this.saveIndicator;
+        	this.saveIndicator = null;
+        }
+        let t = document.createElement( 'span' );
+        t.className = 'IconSmall fa-refresh Saving';
+        t.innerHTML = '';
+        this.saveIndicator = t;
+        ge( 'pageSaveIndicator' ).appendChild( t );
+        setTimeout( function()
+        {
+        	t.classList.add( 'Showing' );
+        	setTimeout( function()
+        	{
+        		t.classList.remove( 'Showing' );
+        	}, 500 );
+        	setTimeout( function()
+        	{
+        		ge( 'pageSaveIndicator' ).removeChild( t );
+        		if( self.saveIndicator == t )
+	        		self.saveIndicator = null;
+        	}, 750 );
+        }, 5 );
     }
 
     processData = function( data, courseId )
@@ -1378,15 +1444,21 @@ class RootElement extends Element
         }
 
         // make Li Element
-        let makeLiElement = function( ele )
+        let makeLiElement = function( ele, type )
         {
+        	if( !type ) type = '';
             let li = ce("li");           
             // element index text
             let div = ce("div");
+            let icon = type == 'page' ? 'fa-file-text-o' : ( type == 'section' ? 'fa-bookmark-o' : '' );
+            let num = ( parseInt( ele.displayId ) + 1 ) + '';
+            if( num.length < 2 )
+            	num = '0' + num;
             let text = ce(
                 "span",
                 { 
-                    "text": ele.displayId + " " + ele.name,
+                    "text": ( icon ? '&nbsp;' : '' ) + num + ". " + ele.name,
+                    "classes": [ 'IconSmall', icon ],
                     "listeners": [
                         {
                             "event": "click",
@@ -1394,6 +1466,7 @@ class RootElement extends Element
                                 event.stopPropagation();
                                 ele.setActive();
                                 ele.renderMain();
+                                courseCreator.setActivePanel( 'SectionsPanel' );
                                 setActiveClass(
                                     event
                                         .target
@@ -1420,13 +1493,14 @@ class RootElement extends Element
         self.children.forEach( c => {
             // Sections
             c.children.forEach( s => {
-                let sLi = makeLiElement(s);
+                let sLi = makeLiElement(s, 'section' );
                 sLi.classList.add('SectionIndex');
                 let pUl = ce('ul');
                 // Pages
                 s.children.forEach( p => {
-                    let pLi = makeLiElement(p);
-                    if (pLi){
+                    let pLi = makeLiElement(p, 'page' );
+                    if (pLi)
+                    {
                         pLi.classList.add('PageIndex');
                         pUl.appendChild(pLi);
                     }
@@ -1444,10 +1518,12 @@ class RootElement extends Element
                         "listeners": [
                             {
                                 "event": "click",
-                                "callBack": function ( event ) {
+                                "callBack": function ( event )
+                                {
                                     s.createNewElement(
                                         null,
-                                        function( newPage ){
+                                        function( newPage )
+                                        {
                                             newPage.setActive();
                                             let sLi = event
                                                         .target
@@ -1455,10 +1531,10 @@ class RootElement extends Element
                                                         .parentNode;
                                             let pUl = sLi.querySelector('ul');
                                             let pLi = makeLiElement(newPage);
-                                            if(pLi){
+                                            if( pLi )
+                                            {
                                                 courseCreator.manager.saveActivePage();
                                                 pLi.classList.add('PageIndex');
-                                                console.log("this is the pLi", pLi);
                                                 pUl.appendChild(pLi);
                                                 setActiveClass(pLi);
                                             }
@@ -1529,6 +1605,7 @@ class CourseCreator
         this.setActivePanel( 'SectionsPanel' )
     }
 
+	// Loads a source
     load( courseId )
     {
         this.loadStatus = {
@@ -1538,6 +1615,7 @@ class CourseCreator
         this.manager.loadData( courseId );
     }
 
+	// Renders all GUI components in the course
     render()
     {
         // render index
@@ -1554,6 +1632,7 @@ class CourseCreator
 
     }
 
+	// Initializes the course
     initialize()
     {
         this.render();
@@ -1782,7 +1861,7 @@ ON Cascade delete Page, Section, Element
 
 
 
-1. Edit course name?
+DONE 1. Edit course name?
 3. CK Editor Image
 4. Sortable enable for index view
 5. Sortable enable for toolbox drop in

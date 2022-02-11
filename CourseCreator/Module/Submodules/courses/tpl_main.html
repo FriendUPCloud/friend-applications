@@ -31,6 +31,11 @@
                        width: 800,
                        height: 900
                     });
+                    
+                    v.onClose = function()
+                    {
+                    	ccFactory.getElementByUniqueId( 'courses_listview' ).onload();
+                    }
 
                     // Create a menu
                     let myMenu = [
@@ -105,7 +110,8 @@
                         	{
                     			type:     'string',
                     			align:    'right',
-                    			extras:   '<picture type="icon" width="22px" height="22px" icon="pencil-square" onclick="course_edit_' + a + '"></picture>',
+                    			extras:   '<picture type="icon" width="22px" height="22px" icon="pencil-square" onclick="course_edit_' + a + '"></picture>' +
+                                          '<picture type="icon" width="22px" height="22px" icon="remove" onclick="course_remove_' + a + '"></picture>',
                     			value:    '',
                     			onclick:  'course_click_' + a
                         	} ] );
@@ -121,6 +127,33 @@
 		                    		}
 		                    	} );
 		                   	} )( a );
+		                   	( function( id, courseId )
+                        	{
+		                    	ccAddCallback( 'course_remove_' + a, function( element )
+		                    	{
+		                    		Confirm( 'Are you sure?', 'This will remove the course from active courses.', function( msg )
+		                    		{
+		                    			if( msg.data )
+		                    			{
+				                			let lv = ccFactory.getElementByUniqueId( 'courses_listview' );
+		                    				let m = new Module( 'system' );
+				                			m.onExecuted = function( re, de )
+				                			{
+						            			lv.onload();
+						            		}
+						            		m.execute( 'appmodule', {
+						            			appName: 'CourseCreator',
+												command: 'submodule',
+												vars: {
+													method: 'coursetotrash',
+													submodule: 'courses',
+													courseId: courseId
+												}
+						            		} );
+		                    			}
+		                    		} );
+		                    	} );
+		                   	} )( a, ls[a].ID );
                         	
                         	( function( id, rowId )
                         	{
@@ -173,6 +206,11 @@
 	                                ];
 	                                // Add the menu to the view window
 	                                v.setMenuItems( myMenu );
+	                                
+	                                v.onClose = function()
+	                                {
+	                                	listview.onload();
+	                                }
 	                                
 	                                let f = new File('Progdir:Templates/main.html');
 	                                f.onLoad = function( data ){

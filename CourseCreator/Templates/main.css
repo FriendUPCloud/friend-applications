@@ -32,6 +32,20 @@
 	height: 100%;
 }
 
+.CcPanelMain .ContentHeader
+{
+	position: relative;
+}
+
+.CcPanelMain .ContentHeader .Right
+{
+	width: 100px;
+	position: absolute;
+	right: 10px;
+	top: 6px;
+	text-align: right;
+}
+
 .CcPanelMain .ContentBlock
 {
 	background-color: var(--canvas-background);
@@ -40,6 +54,34 @@
 .CcPanelMain .ContentHeader h3
 {
 	width: 80%;
+}
+
+#pageSaveIndicator
+{
+	display: inline-block;
+	width: 32px;
+	height: 20px;
+	margin: 0 5px 0 0;
+	vertical-align: middle;
+	perspective-origin: center;
+	position: relative;
+}
+
+#pageSaveIndicator > .Saving
+{
+	display: block;
+	width: 32px;
+	height: 24px;
+	opacity: 0;
+	transition: opacity,transform 0.25s,0.5s;
+	transform: rotateZ(0deg);
+	transform-origin: 24px 10px;
+}
+
+#pageSaveIndicator > .Saving.Showing
+{
+	opacity: 1;
+	transform: rotateZ(245deg);
 }
 
 .Panel.Active
@@ -245,13 +287,22 @@
 	padding-top: 0px;
 	margin-top: 0px;
 	height: 0px;
-	visibility:  hidden;
+	pointer-events: none;
+	opacity: 0;
+	transition: opacity 0.15s;
+	width: calc(100% - 5px);
 }
 
 .element:hover .handle,
 .element:hover .buttons.right
 {
-	visibility: visible;
+	opacity: 1;
+	pointer-events: all;
+}
+
+.element .buttons.right .IconSmall
+{
+	cursor: pointer;
 }
 
 .element .handle
@@ -262,7 +313,10 @@
 	height: 24px;
 	float: left;
 	margin: 0 0 0 5px;
-	visibility: hidden;
+	pointer-events: none;
+	opacity: 0;
+	transition: opacity 0.15s;
+	cursor: move;
 }
 
 
@@ -271,6 +325,11 @@
 	display: inline-block;
 }
 
+
+.checkboxContainer
+{
+	padding: 0 8px 0 8px;
+}
 
 .checkBoxQuestion {
 	padding: 2px;

@@ -241,7 +241,7 @@ if( isset( $args->method ) )
         	if( isset( $args->classroomId ) )
         	{
         		if( $rows = $courseDb->fetchObjects( '
-        			SELECT * FROM CC_Course
+        			SELECT * FROM CC_Course WHERE IsDeleted = 0
         			ORDER BY DateCreated DESC
         		' ) )
         		{

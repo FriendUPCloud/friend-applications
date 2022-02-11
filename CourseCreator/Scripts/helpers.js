@@ -33,7 +33,8 @@ let ce = function(type,
     
     // Add classes
     classes.forEach( c => {
-        e.classList.add( c );
+    	if( c )
+	        e.classList.add( c );
     });
 
     // Make CK Editor

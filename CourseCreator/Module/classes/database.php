@@ -457,6 +457,7 @@ class CourseDatabase
                 e.ID as elementID,
                 e.DisplayID as elementDisplayID,
                 e.Properties as elementProperties,
+                e.SortOrder as elementSortOrder,
                 t.Name as elementType
             FROM CC_Section s 
             INNER JOIN CC_Page p
@@ -469,6 +470,7 @@ class CourseDatabase
                 AND s.ID = ' . $vars->sectionId . '
                 AND p.ID = ' . $vars->pageId . '
             ORDER BY
+            	e.SortOrder ASC,
                 s.DisplayID,
                 p.DisplayID,
                 e.DisplayID
