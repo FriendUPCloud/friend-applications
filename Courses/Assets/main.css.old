@@ -1,0 +1,63 @@
+    /* All */
+
+#MainContainer
+{
+    overflow: hidden;
+}
+
+
+#MainContainer.WelcomeMode #Welcome
+{
+    left: 0%;
+}
+
+#MainContainer.WelcomeMode #Course
+{
+    left: 100%;
+}
+
+
+#MainContainer.CourseMode #Welcome
+{
+    left: -100%;
+}
+
+#MainContainer.CourseMode #Course
+{
+    left: 0%;
+}
+
+#Welcome, #Course
+{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transition: left 0.25s;
+}
+
+
+/* Welcome */
+
+#WLeftPane,
+#WMainPane
+{
+    position: absolute;
+    top: 0;
+    height: 100%;
+}
+
+#WLeftPane
+{
+    width: 250px;
+    left: 0;
+}
+
+#WMainPane
+{
+    width: calc(100% - 250px);
+    left: 250px;
+}
+
+
