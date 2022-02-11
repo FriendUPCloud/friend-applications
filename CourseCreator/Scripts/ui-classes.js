@@ -34,15 +34,15 @@ ccFactory = {
 			default:
 			{
     			let classStr = 'cc' + data.type.substr( 0, 1 ).toUpperCase() + data.type.substr( 1, data.type.length - 1 );
-			    try
-			    {
+			    //try
+			    //{
                     let classObj = eval( classStr );
                     return( new classObj().getMarkup( data ) );
-                }
-                catch( e )
-                {
+                //}
+               // catch( e )
+                //{
                     console.log( 'No such class type ' + classStr );
-                }
+                //}
                 return '';
              }   
 		}
@@ -72,14 +72,21 @@ class ccGUIElement
     {
         this.options = options;
         
-        if( options.uniqueid )
+        try
         {
-        	if( window.ccGUI.guiElements[ options.uniqueid ] )
-        	{
-        		console.log( 'ccGUI: Gui element with proposed uniqueId ' + options.uniqueid + ' is taken. Overwriting.' );
-        	}
-        	window.ccGUI.guiElements[ options.uniqueid ] = this;
-        }
+		    if( options.uniqueid )
+		    {
+		    	if( window.ccGUI.guiElements[ options.uniqueid ] )
+		    	{
+		    		console.log( 'ccGUI: Gui element with proposed uniqueId ' + options.uniqueid + ' is taken. Overwriting.' );
+		    	}
+		    	window.ccGUI.guiElements[ options.uniqueid ] = this;
+		    }
+		}
+		catch( e )
+		{
+			console.log( 'No options found, no uniqueid defined when creating object.' );
+		}
         
         let d = document.createElement( 'div' );
         this.domElement = d;
