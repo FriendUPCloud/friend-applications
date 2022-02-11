@@ -364,6 +364,33 @@
                                         const res = JSON.parse( d );
                                         console.log( 'add cert res', res );
                                         
+                                        const rws = [];
+                                        const cnf = [
+                                                {
+                                                    type  : 'string',
+                                                    value : r.CertName,
+                                                },
+                                                {
+                                                    type  : 'string',
+                                                    value : r.DateAdded,
+                                                },
+                                                {
+                                                    type     : 'checkbox',
+                                                    value    : true,
+                                                    onchange : checkChange,
+                                                }
+                                            ];
+                                            rws.push( cnf );
+                                            
+                                            function checkChange( ...args ) {
+                                                console.log( 'chekcChange', {
+                                                    id   : r.ID,
+                                                    args : args,
+                                                });
+                                            }
+                                            
+                                        listView.addRowData( rws );
+                                        
                                         return;
                                         
                                         cr = new Module( 'system' );

@@ -178,10 +178,15 @@ class ccListview extends ccGUIElement
     	this.refreshRows();
     }
     
+    addRowData( rows )
+    {
+    	
+    }
+    
     refreshRows()
     {
     	let json = this.rowData;
-    
+    	
     	this.clearRows();
     	
     	for( let b = 0; b < json.length; b++ )

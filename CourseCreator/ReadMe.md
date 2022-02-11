@@ -29,8 +29,11 @@ In this, add properties (examples given:
 Second:
     Type : CourseCreator
     Key  : Storage
-In this, add property path, the value will be the name of the folder where CourseCreator will store files
-    path -> 
+In this, add property 'path', 
+the value will be the name of the folder where CourseCreator will store files,
+within the friend Storage folder.
+
+    path -> CourseCreator
 
 Now, you can execute "CourseCreator" from your GetStarted app in the "Work" 
 section.
