@@ -12,7 +12,21 @@ Application.run = function( msg )
 {
 	FUI.addCallback( 'module_list_modules', function( moduleview )
 	{
-		console.log( 'We have loaded!' );
+		moduleview.setModules( [ {
+			name: 'Dashboard',
+			leadin: 'Learning portal',
+			module: 'dashboard'
+		},
+		{
+			name: 'My classrooms',
+			leadin: 'Active courses',
+			module: 'classrooms'
+		},
+		{
+			name: 'Certificates',
+			leadin: 'Completed classes',
+			module: 'certificates'
+		} ] );
 	} );
 
 }

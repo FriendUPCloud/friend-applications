@@ -164,6 +164,11 @@ class FUIModuleview extends FUIElement
     	}
     	return str;*/
     }
+    
+    setModules( moduleList )
+    {
+    	console.log( 'Setting: ', moduleList );
+    }
 }
 
 FUI.registerClass( 'moduleview' );
