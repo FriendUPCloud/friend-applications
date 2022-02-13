@@ -187,6 +187,8 @@ class FUIModuleview extends FUIElement
     		}
     	}
     	
+    	let firstClick = false;
+    	
     	let par = this.moduleList.domNode;
     	par.innerHTML = '';
     	for( let a = 0; a < moduleList.length; a++ )
@@ -214,7 +216,13 @@ class FUIModuleview extends FUIElement
 				}
 			} )( moduleList[a].module, moduleList[a].onclick );
 			par.appendChild( d );
+			if( moduleList[a].active )
+			{
+				firstClick = function(){ activateModule( moduleList[a].module ); moduleList[a].onclick( self ); };
+			}
     	}
+    	
+    	if( firstClick ) firstClick();
     }
     
     setModuleContent( module, content )

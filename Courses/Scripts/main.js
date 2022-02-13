@@ -18,7 +18,8 @@ Application.run = function( msg )
 			leadin: 'Learning portal',
 			module: 'dashboard',
 			icon: 'dashboard',
-			onclick: function(){ setModule( moduleview, 'dashboard' ) }
+			onclick: function(){ setModule( moduleview, 'dashboard' ) },
+			active: true
 		},
 		{
 			name: 'My classrooms',
@@ -34,7 +35,6 @@ Application.run = function( msg )
 			icon: 'certificate',
 			onclick: function(){ setModule( moduleview, 'certificates' ) }
 		} ] );
-		setModule( moduleview, 'dashboard' );
 	} );
 }
 
