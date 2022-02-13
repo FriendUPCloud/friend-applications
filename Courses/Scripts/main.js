@@ -38,16 +38,21 @@ Application.run = function( msg )
 	} );
 }
 
+let moduleObject = {};
+
 // Setting the module on a moduleview
 function setModule( mv, mod )
 {
 	let m = new Module( 'system' );
 	m.onExecuted = function( e, d )
 	{
-		console.log( 'what happens?', e, d );
 		if( e == 'ok' )
 		{
 			mv.setModuleContent( mod, d );
+			if( moduleObject[ mod ] )
+			{
+				moduleObject[ mod ].initialize( mv );
+			}
 		}
 	}
 	m.execute( 'appmodule', {
@@ -56,3 +61,15 @@ function setModule( mv, mod )
 		moduleName: mod
 	} );
 }
+
+/* Dashboard */
+
+moduleObject.dashboard = {
+	initialize( moduleView )
+	{
+		let cont = moduleView.moduleContainer.domNode;
+		cont.getElementsByTagName( 'h1' )[0].innerHTML = 'Velkommen ' + Application.fullName + '!';
+	}
+};
+
+
