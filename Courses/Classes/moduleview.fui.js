@@ -216,6 +216,15 @@ class FUIModuleview extends FUIElement
 			par.appendChild( d );
     	}
     }
+    
+    setModuleContent( module, content )
+    {
+    	// We can cache the module content for transitions?
+    	//if( !this.moduleContent ) this.moduleContent = {};
+    	//this.moduleContent[ module ] = content;
+    	this.moduleContainer.domNode.innerHTML = content;
+    	FUI.initialize();
+    }
 }
 
 FUI.registerClass( 'moduleview' );

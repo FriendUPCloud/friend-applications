@@ -40,5 +40,18 @@ Application.run = function( msg )
 // Setting the module on a moduleview
 function setModule( mv, mod )
 {
-	console.log( 'Setting module: ', mv, mod );
+	let m = new Module( 'system' );
+	m.onExecuted = function( e, d )
+	{
+		console.log( 'what happens?', e, d );
+		if( e == 'ok' )
+		{
+			mv.setModuleContent( mod, d );
+		}
+	}
+	m.execute( 'appmodule', {
+		command: 'getmodule',
+		appName: 'Courses',
+		moduleName: mod
+	} );
 }
