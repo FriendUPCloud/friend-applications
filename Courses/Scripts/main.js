@@ -15,17 +15,20 @@ Application.run = function( msg )
 		moduleview.setModules( [ {
 			name: 'Dashboard',
 			leadin: 'Learning portal',
-			module: 'dashboard'
+			module: 'dashboard',
+			icon: 'dashboard'
 		},
 		{
 			name: 'My classrooms',
 			leadin: 'Active courses',
-			module: 'classrooms'
+			module: 'classrooms',
+			icon: 'group'
 		},
 		{
 			name: 'Certificates',
 			leadin: 'Completed classes',
-			module: 'certificates'
+			module: 'certificates',
+			icon: 'certificate'
 		} ] );
 	} );
 

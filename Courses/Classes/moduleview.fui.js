@@ -167,7 +167,26 @@ class FUIModuleview extends FUIElement
     
     setModules( moduleList )
     {
-    	console.log( 'Setting: ', moduleList );
+    	let self = this;
+    	let par = this.moduleList.domNode;
+    	par.innerHTML = '';
+    	for( let a = 0; a < moduleList.length; a++ )
+    	{
+    		let d = document.createElement( 'div' );
+    		d.className = 'FUIModulelistModule';
+    		if( moduleList[ a ].icon )
+    		{
+    			d.classList.add( 'IconSmall', 'fa-' + moduleList[ a ].icon );
+    		}
+    		d.innerHTML = '<div><h2>' + moduleList[a].name + '</h2><p>' + moduleList[a].leadin + '</p></div>';
+    		( function( mod ){
+				d.onclick = function( e )
+				{
+					self.setModule( mod );
+				}
+			} )( moduleList[a].module );
+			par.appendChild( d );
+    	}
     }
 }
 
