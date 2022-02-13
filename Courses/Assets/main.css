@@ -1,0 +1,10 @@
+#Stats, #StatusStats, #Activitylog
+{
+	background: var(--fui-background-foreground);
+	border: 1px solid var(--fui-border-foreground);
+	border-radius: var(--fui-border-radius-normal);
+	margin: 0 0 10px 0;
+	display: block;
+	padding: var(--fui-padding-normal);
+}
+
