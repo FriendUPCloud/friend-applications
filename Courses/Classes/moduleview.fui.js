@@ -168,6 +168,25 @@ class FUIModuleview extends FUIElement
     setModules( moduleList )
     {
     	let self = this;
+    	
+    	function activateModule( mod )
+    	{
+    		let cont = self.moduleList.domNode;
+    		for( let a = 0; a < cont.childNodes.length; a++ )
+    		{
+    			let ch = cont.childNodes[a];
+    			if( !ch.module ) continue;
+    			if( ch.module == mod )
+    			{
+    				ch.classList.add( 'Clicked' );
+    			}
+    			else
+    			{
+    				ch.classList.remove( 'Clicked' );
+    			}
+    		}
+    	}
+    	
     	let par = this.moduleList.domNode;
     	par.innerHTML = '';
     	for( let a = 0; a < moduleList.length; a++ )
@@ -179,15 +198,25 @@ class FUIModuleview extends FUIElement
     			d.classList.add( 'IconSmall', 'fa-' + moduleList[ a ].icon );
     		}
     		d.innerHTML = '<div><h2>' + moduleList[a].name + '</h2><p>' + moduleList[a].leadin + '</p></div>';
-    		( function( mod ){
+    		d.module = moduleList[ a ].module;
+    		( function( mod, onc ){
 				d.onclick = function( e )
 				{
-					self.setModule( mod );
+					activateModule( mod );
+					
+					// Override
+					if( onc )
+					{
+						onc( self );
+						return;
+					}
+					// TODO: Create default functionality
 				}
-			} )( moduleList[a].module );
+			} )( moduleList[a].module, moduleList[a].onclick );
 			par.appendChild( d );
     	}
     }
 }
 
 FUI.registerClass( 'moduleview' );
+
