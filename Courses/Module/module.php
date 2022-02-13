@@ -17,9 +17,9 @@ switch( $args->args->command )
 	case 'getmodule':
 		$mod = $args->args->moduleName;
 		$mod = str_replace( array( '/', '..' ), '', $mod );
-		if( file_exists( 'mod_' . $mod . '/template.html' ) )
+		if( file_exists( __DIR__ . '/mod_' . $mod . '/template.html' ) )
 		{
-			die( 'ok<!--separate-->' . file_get_contents( 'mod_' . $mod . '/template.html' ) );
+			die( 'ok<!--separate-->' . file_get_contents( __DIR__ . '/mod_' . $mod . '/template.html' ) );
 		}
 		die( 'fail<!--separate-->{"message":"No such template found.","response":-1}' );
 		break;

@@ -34,6 +34,7 @@ Application.run = function( msg )
 			icon: 'certificate',
 			onclick: function(){ setModule( moduleview, 'certificates' ) }
 		} ] );
+		setModule( moduleview, 'dashboard' );
 	} );
 }
 
