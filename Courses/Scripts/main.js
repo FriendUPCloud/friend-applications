@@ -165,7 +165,8 @@ moduleObject.classrooms = {
 	},
 	initClassroomDetails()
 	{
-		console.log( 'Details are coming.' );
+		let section = FUI.getElementByUniqueId( 'classroom_section_1' );
+		section.setContent( 'Details are coming.' );
 	}
 };
 
