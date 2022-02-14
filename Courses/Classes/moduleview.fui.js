@@ -233,6 +233,17 @@ class FUIModuleview extends FUIElement
     	this.moduleContainer.domNode.innerHTML = content;
     	FUI.initialize();
     }
+    
+    // TODO: Animate both module tab as well as content
+    setSubModuleContent( module, submodule, content, callback )
+    {
+    	this.activateModule( module );
+    	// submodule...
+    	
+    	this.moduleContainer.domNode.innerHTML = content;
+    	FUI.initialize();
+    	if( callback ) callback();
+    }
 }
 
 FUI.registerClass( 'moduleview' );
