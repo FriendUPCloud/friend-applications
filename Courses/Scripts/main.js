@@ -167,6 +167,17 @@ moduleObject.classrooms = {
 	{
 		let section = FUI.getElementByUniqueId( 'classroom_section_1' );
 		section.setContent( 'Details are coming.' );
+		
+		let m = new Module( 'system' );
+		m.onExecuted = function()
+		{
+			
+		}
+		m.execute( 'appmodule', {
+			appName: 'Courses',
+			command: 'classsections',
+			classroomId: 1
+		} );
 	}
 };
 
