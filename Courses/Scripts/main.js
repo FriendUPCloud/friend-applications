@@ -8,6 +8,8 @@
 *                                                                              *
 *****************************************************************************©*/
 
+let moduleObject = {};
+
 Application.run = function( msg )
 {
 	// Adding the module menu
@@ -36,9 +38,16 @@ Application.run = function( msg )
 			onclick: function(){ setModule( moduleview, 'certificates' ) }
 		} ] );
 	} );
+	
+	// Set up callbacks etc
+	for( let a in moduleObject )
+	{
+		if( moduleObject[ a ].preload )
+		{
+			moduleObject[ a ].preload();
+		}
+	}
 }
-
-let moduleObject = {};
 
 // Setting the module on a moduleview
 function setModule( mv, mod )
@@ -71,5 +80,59 @@ moduleObject.dashboard = {
 		cont.getElementsByTagName( 'h1' )[0].innerHTML = 'Velkommen ' + Application.fullName + '!';
 	}
 };
+
+/* Classrooms */
+
+moduleObject.classrooms = {
+	initialize( moduleView )
+	{
+	},
+	preload()
+	{
+		FUI.addCallback( 'w_reload_classrooms', function( ls )
+		{
+			let m = new Module( 'system' );
+			m.onExecuted = function( rc, rd )
+			{
+				if( rc != 'ok' )
+				{
+					console.log( 'Could not load classroms.' );
+					ls.clearRows();
+					return;
+				}
+				let list = JSON.parse( rd );
+				let out = [];
+				for( let a = 0; a < list.length; a++ )
+				{
+					out.push( [
+						{
+							type: 'string',
+							value: list[a].Name
+						},
+						{
+							type: 'string',
+							value: '20%'
+						},
+						{
+							type: 'string',
+							value: 'tesing...'
+						},
+						{
+							type: 'string',
+							value: list[a].EndDate
+						}
+					] );
+				}
+				ls.setRowData( out );
+			}
+			m.execute( 'appmodule', {
+				appName: 'Courses',
+				command: 'listclassrooms'
+			} );
+		} );
+	}
+};
+
+
 
 
