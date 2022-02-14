@@ -165,27 +165,29 @@ class FUIModuleview extends FUIElement
     	return str;*/
     }
     
+    activateModule( mod )
+	{
+		let self = this;
+		
+		let cont = self.moduleList.domNode;
+		for( let a = 0; a < cont.childNodes.length; a++ )
+		{
+			let ch = cont.childNodes[a];
+			if( !ch.module ) continue;
+			if( ch.module == mod )
+			{
+				ch.classList.add( 'Clicked' );
+			}
+			else
+			{
+				ch.classList.remove( 'Clicked' );
+			}
+		}
+	}
+    
     setModules( moduleList )
     {
     	let self = this;
-    	
-    	function activateModule( mod )
-    	{
-    		let cont = self.moduleList.domNode;
-    		for( let a = 0; a < cont.childNodes.length; a++ )
-    		{
-    			let ch = cont.childNodes[a];
-    			if( !ch.module ) continue;
-    			if( ch.module == mod )
-    			{
-    				ch.classList.add( 'Clicked' );
-    			}
-    			else
-    			{
-    				ch.classList.remove( 'Clicked' );
-    			}
-    		}
-    	}
     	
     	let firstClick = false;
     	
@@ -204,7 +206,7 @@ class FUIModuleview extends FUIElement
     		( function( mod, onc ){
 				d.onclick = function( e )
 				{
-					activateModule( mod );
+					self.activateModule( mod );
 					
 					// Override
 					if( onc )
@@ -218,7 +220,7 @@ class FUIModuleview extends FUIElement
 			par.appendChild( d );
 			if( moduleList[a].active )
 			{
-				firstClick = function(){ activateModule( moduleList[a].module ); moduleList[a].onclick( self ); };
+				firstClick = function(){ self.activateModule( moduleList[a].module ); moduleList[a].onclick( self ); };
 			}
     	}
     	
@@ -232,6 +234,17 @@ class FUIModuleview extends FUIElement
     	//this.moduleContent[ module ] = content;
     	this.moduleContainer.domNode.innerHTML = content;
     	FUI.initialize();
+    }
+    
+    // TODO: Animate both module tab as well as content
+    setSubModuleContent( module, submodule, content, callback )
+    {
+    	this.activateModule( module );
+    	// submodule...
+    	
+    	this.moduleContainer.domNode.innerHTML = content;
+    	FUI.initialize();
+    	if( callback ) callback();
     }
 }
 

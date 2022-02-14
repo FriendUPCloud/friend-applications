@@ -15,6 +15,7 @@ Application.run = function( msg )
 	// Adding the module menu
 	FUI.addCallback( 'module_list_modules', function( moduleview )
 	{
+		moduleObject.moduleView = moduleview;
 		moduleview.setModules( [ {
 			name: 'Dashboard',
 			leadin: 'Learning portal',
@@ -107,7 +108,8 @@ moduleObject.classrooms = {
 					out.push( [
 						{
 							type: 'string',
-							value: list[a].Name
+							value: list[a].Name,
+							onclick: 'w_classroom_enter_' + a
 						},
 						{
 							type: 'string',
@@ -122,7 +124,37 @@ moduleObject.classrooms = {
 							value: list[a].EndDate
 						}
 					] );
-				}
+					
+					// Enter classroom overview
+					FUI.addCallback( 'w_classroom_enter_' + a, function( ls )
+					{
+						let m = new Module( 'system' );
+						m.onExecuted = function( mc, md )
+						{
+							if( mc != 'ok' )
+							{
+								console.log( 'Could not load classroom.' );
+								return;
+							}
+							moduleObject.moduleView.setSubModuleContent( 
+								'classroom', 
+								'classroom_details', 
+								md, 
+								function()
+								{
+									moduleObject.classrooms.initClassroomDetails();
+								} 
+							);
+						}
+						m.execute( 'appmodule', {
+							appName: 'Courses',
+							command: 'gettemplate',
+							moduleName: 'classrooms',
+							template: 'classroom'
+						} );
+					} );
+				}				
+				
 				ls.setRowData( out );
 			}
 			m.execute( 'appmodule', {
@@ -130,6 +162,10 @@ moduleObject.classrooms = {
 				command: 'listclassrooms'
 			} );
 		} );
+	},
+	initClassroomDetails()
+	{
+		console.log( 'Details are coming.' );
 	}
 };
 

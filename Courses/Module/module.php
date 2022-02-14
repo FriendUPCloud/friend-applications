@@ -31,6 +31,21 @@ switch( $args->args->command )
 		}
 		die( 'fail<!--separate-->{"message":"No such template found.","response":-1}' );
 		break;
+	case 'gettemplate':
+		if( !isset( $args->args->moduleName ) )
+		{
+			die( 'fail<!--separate-->{"message":"No module requested.","response":-1}' );
+		}
+		$mod = $args->args->moduleName;
+		$mod = str_replace( array( '/', '..' ), '', $mod );
+		$tpl = $args->args->template;
+		$tpl = str_replace( array( '/', '..' ), '', $tpl );
+		if( file_exists( __DIR__ . '/mod_' . $mod . '/' . $tpl . '.html' ) )
+		{
+			die( 'ok<!--separate-->' . file_get_contents( __DIR__ . '/mod_' . $mod . '/' . $tpl . '.html' ) );
+		}
+		die( 'fail<!--separate-->{"message":"No such template found","response":-1}' );
+		break;
 	/* Classrooms */
 	case 'listclassrooms':
 		if( $rows = $db->database->fetchObjects( 'SELECT cr.* FROM CC_UserClassroom uc, CC_Classroom cr WHERE uc.ClassroomID = cr.ID AND uc.UserID=\'' . intval( $User->ID, 10 ) . '\' ORDER BY cr.StartDate DESC' ) )
