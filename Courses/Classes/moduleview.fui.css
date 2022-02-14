@@ -31,6 +31,7 @@
 	scroll-behavior: smooth;
 	background-color: var(--fui-background);
 	padding: var(--fui-padding-large);
+	box-sizing: border-box;
 }
 
 .FUIModuleView .FUIModulelistModule
