@@ -288,7 +288,8 @@
                             ccAddCallback( 'w_reload_certificates', listView => {
                                console.log( 'load certs', listView ) ;
                                const cg = new Module( 'system' );
-                               cg.onExecuted = ( s, d ) => {
+                               cg.onExecuted = ( s, d ) =>
+                               {
                                     console.log( 'load certs result', [ s, d ]);
                                     if ( s == 'ok' ) {
                                         const dbr = JSON.parse( d );
@@ -301,31 +302,55 @@
                                         for( ;len; )
                                         {
                                             len--;
-                                            const r = dbr[ len ];
-                                            console.log( 'row', r );
+                                            const cr = dbr[ len ];
+                                            console.log( 'cert row', cr );
                                             const cnf = [
                                                 {
                                                     type  : 'string',
-                                                    value : r.CertName,
+                                                    value : cr.CertName,
                                                 },
                                                 {
                                                     type  : 'string',
-                                                    value : r.DateAdded,
+                                                    value : cr.DateAdded,
                                                 },
                                                 {
                                                     type     : 'checkbox',
-                                                    value    : true,
-                                                    onchange : checkChange,
+                                                    Value    : true,
+                                                    OnChange : 'cert_valid_onchange_' + cr.ID,
                                                 }
                                             ];
                                             rws.push( cnf );
                                             
-                                            function checkChange( ...args ) {
+                                            ccAddCallback( 'cert_valid_onchange_' + cr.ID, ( v ) => 
+                                            {
                                                 console.log( 'chekcChange', {
-                                                    id   : r.ID,
-                                                    args : args,
+                                                    cid : cr.ID,
+                                                    uid : uid,
+                                                    v   : v,
                                                 });
-                                            }
+                                                if ( true == v )
+                                                    return;
+                                                
+                                                const rem = new Module( 'system' );
+                                                rem.onExecuted = ( s, d ) =>
+                                                {
+                                                    console.log( 'remove cert on exec', [ s, d ]);
+                                                    const res = JSON.parse( d );
+                                                    console.log( 'remove cert', res );
+                                                    Application.submodules.users.editUser( uid );
+                                                }
+                                                rem.execute( 'appmodule',
+                                                {
+                                                    appName : 'CourseCreator',
+                                                    command : 'submodule',
+                                                    vars    : {
+                                                        submodule : 'users',
+                                                        method    : 'removecert',
+                                                        userId    : uid,
+                                                        certId    : cr.ID,
+                                                    },
+                                                });
+                                            });
                                         }
                                         listView.setRowData( rws );
                                     }
@@ -361,8 +386,58 @@
                                     ca.onExecuted = ( s, d ) => {
                                         console.log( 'add cert result', [ s, d ]);
                                         
-                                        const res = JSON.parse( d );
-                                        console.log( 'add cert res', res );
+                                        const cr = JSON.parse( d );
+                                        console.log( 'add cert res', cr );
+                                        
+                                        const rws = [];
+                                        const cnf = [
+                                                {
+                                                    type  : 'string',
+                                                    value : cr.CertName,
+                                                },
+                                                {
+                                                    type  : 'string',
+                                                    value : cr.DateAdded,
+                                                },
+                                                {
+                                                    type     : 'checkbox',
+                                                    Value    : true,
+                                                    OnChange : 'cert_valid_onchange_' + cr.ID,
+                                                }
+                                            ];
+                                            rws.push( cnf );
+                                            
+                                            ccAddCallback( 'cert_valid_onchange_' + cr.ID, ( v ) =>
+                                            {
+                                                console.log( 'chekcChange', {
+                                                    id : cr.ID,
+                                                    v  : v,
+                                                });
+                                                if ( true == v )
+                                                    return;
+                                                
+                                                const rem = new Module( 'system' );
+                                                rem.onExecuted = ( s, d ) =>
+                                                {
+                                                    console.log( 'remove cert on exec', [ s, d ]);
+                                                    const res = JSON.parse( d );
+                                                    console.log( 'remove cert', res );
+                                                    Application.submodules.users.editUser( uid );
+                                                }
+                                                rem.execute( 'appmodule',
+                                                {
+                                                    appName : 'CourseCreator',
+                                                    command : 'submodule',
+                                                    vars    : {
+                                                        submodule : 'users',
+                                                        method    : 'removecert',
+                                                        userId    : uid,
+                                                        certId    : cr.ID,
+                                                    },
+                                                });
+                                            });
+                                            
+                                        listView.addRowData( rws );
                                         
                                         return;
                                         
