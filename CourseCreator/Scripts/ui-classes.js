@@ -20,6 +20,7 @@ ccFactory = {
     // Create meta markup for a class instance
 	create( data )
 	{
+        console.log( 'ccFactory.create', data );
 		switch( data.type )
 		{
 			case 'string':
@@ -255,6 +256,7 @@ class ccCheckbox extends ccGUIElement
 {
     constructor( options )
     {
+        console.log( 'ccCheckbox', options );
         super( options );
         if( options && options.checked )
             this.checked = options.checked;
@@ -329,10 +331,12 @@ class ccCheckbox extends ccGUIElement
     }
     getMarkup( data )
     {
+        console.log( 'getMarkup', data );
     	let str = '<checkbox {options}/>';
     	let opts = [];
     	for( let a in data )
     	{
+            console.log( 'for', a );
     		if( a == 'OnChange' )
     		{
     			opts.push( 'onchange="' + data[a] + '"' );

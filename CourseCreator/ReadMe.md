@@ -29,9 +29,11 @@ In this, add properties (examples given:
 Second:
     Type : CourseCreator
     Key  : Storage
-In this, add property 'path', 
-the value will be the name of the folder where CourseCreator will store files,
-within the friend Storage folder.
+    
+In this, add property 'path', and set the value to the
+name of the directory where CourseCreator will store files,
+within the friend Storage folder. The directory will be created
+if it does not yet exist (example given):
 
     path -> CourseCreator
 
