@@ -445,8 +445,8 @@ if( isset( $args->method ) )
                 }
                 
                 $dq = '
-                    DELETE FROM CC_Certificate c
-                    WHERE c.ID=' . $c->ID . '
+                    DELETE FROM CC_Certificate
+                    WHERE ID=' . $c->ID . '
                 ';
                 $dr = $courseDb->Query( $dq );
                 
