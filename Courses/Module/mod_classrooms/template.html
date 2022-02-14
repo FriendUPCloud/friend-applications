@@ -1,3 +1,17 @@
-<h1>
-	Classrooms
-</h1>
+
+	 <listview>
+        <listviewhead>
+            <listviewheading>
+                Classrooms
+            </listviewheading>
+        </listviehead>
+        <listviewheaders>
+            <listviewheader width="60%" sortable="sortable" name="Classroom">Class name</listviewheader>
+            <listviewheader width="10%" sortable="sortable" name="Progress">Progress</listviewheader>
+            <listviewheader width="15%" sortable="sortable" name="Status">Status</listviewheader>
+            <listviewheader width="15%" sortable="sortable" name="End_date" align="right">End date</listviewheader>
+        </listviewheaders>
+        <listviewrows onload="w_reload_classrooms">
+        </listviewrows>
+    </listview>
+
