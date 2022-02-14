@@ -1,63 +1,10 @@
-    /* All */
-
-#MainContainer
+#Stats, #StatusStats, #Activitylog
 {
-    overflow: hidden;
+	background: var(--fui-background-foreground);
+	border: 1px solid var(--fui-border-foreground);
+	border-radius: var(--fui-border-radius-normal);
+	margin: 0 0 10px 0;
+	display: block;
+	padding: var(--fui-padding-normal);
 }
-
-
-#MainContainer.WelcomeMode #Welcome
-{
-    left: 0%;
-}
-
-#MainContainer.WelcomeMode #Course
-{
-    left: 100%;
-}
-
-
-#MainContainer.CourseMode #Welcome
-{
-    left: -100%;
-}
-
-#MainContainer.CourseMode #Course
-{
-    left: 0%;
-}
-
-#Welcome, #Course
-{
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    transition: left 0.25s;
-}
-
-
-/* Welcome */
-
-#WLeftPane,
-#WMainPane
-{
-    position: absolute;
-    top: 0;
-    height: 100%;
-}
-
-#WLeftPane
-{
-    width: 250px;
-    left: 0;
-}
-
-#WMainPane
-{
-    width: calc(100% - 250px);
-    left: 250px;
-}
-
 
