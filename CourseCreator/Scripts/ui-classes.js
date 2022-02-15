@@ -434,6 +434,46 @@ class ccItembox extends ccGUIElement
 }
 ccFactory.registerClass( 'itembox' );
 
+/* button i guess */
+
+class ccButton extends ccGUIElement
+{
+    constructor( options )
+    {
+        super( options );
+    }
+    
+    attachDomElement()
+    {
+        super.attachDomElement();
+        this.domElement.classList.add( 'ccGUI', 'ccButton' );
+    }
+    
+    grabAttributes( domElement )
+    {
+        super.grabAttributes( domElement );
+    }
+    
+    refreshDom()
+    {
+        super.refreshDom();
+        const oc = this.options[ 'onclick' ];
+        if ( null == oc )
+            return;
+        
+        this.domElement.onclick = ( e ) => {
+            console.log( 'ccButton onclick', e );
+            const cb = window.ccGUI.callbacks[ oc ];
+            if ( null != cb )
+                cb( e );
+        }
+        
+        
+    }
+    
+}
+
+
 /* Image class */
 class ccPicture extends ccGUIElement
 {
