@@ -1,2 +1,33 @@
 
-	<h1>Classroom coming here</h1>
+	<group>
+		<rows gap="20px">
+			<row>
+				<section uniqueid="classroom_section_1">
+					<sectionheader>
+						Classroom coming here
+					</sectionheader>
+					<sectioncontent>
+					</sectioncontent>
+				</section>
+			</row>
+			<row>
+				<listview uniqueid="classroom_progress">
+					<listviewhead>
+						<listviewheading>
+							Progress
+						</listviewheading>
+					</listviehead>
+					<listviewheaders>
+						<listviewheader width="45%" sortable="sortable" name="Classroom">Section</listviewheader>
+						<listviewheader width="10%" sortable="sortable" name="Progress">Progress</listviewheader>
+						<listviewheader width="15%" sortable="sortable" name="Goto">Goto</listviewheader>
+						<listviewheader width="15%" sortable="sortable" name="Status">Status</listviewheader>
+						<listviewheader width="15%" sortable="sortable" name="End_date" align="right">End date</listviewheader>
+					</listviewheaders>
+					<listviewrows onload="w_reload_progress">
+					</listviewrows>
+				</listview>
+			</row>
+		</rows>
+	</group>
+

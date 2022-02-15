@@ -366,7 +366,8 @@ class CourseDatabase
     /* Update Element
     *
     */
-    public function updateElement( $vars ){
+    public function updateElement( $vars )
+    {
         $query = '
             UPDATE CC_Element
             SET
@@ -388,7 +389,8 @@ class CourseDatabase
     }
 
 
-    public function deleteRow( $vars ){
+    public function deleteRow( $vars )
+    {
         global $User;
         $vars->OwnerID = $User->ID;
 
@@ -407,7 +409,8 @@ class CourseDatabase
         return 'fail<!--separate-->{"message":"Could delete row","response":-1,"mysql_error":"' . mysqli_error( $this->database->_link ) . '"}';
     }
 
-    public function getCourseList( $vars ){
+    public function getCourseList( $vars )
+    {
         global $User;
         
         $query = '
@@ -443,7 +446,8 @@ class CourseDatabase
         return 'fail<!--separate-->{"message":"Could not get CourseList","response":-1,"mysql_error":"' . mysqli_error( $this->database->_link ) . '"}';
     }
 
-    public function getSectionData( $vars ){
+    public function getSectionData( $vars )
+    {
         global $User;
         //die('in get section data ' . var_dump($vars));
         $query =  '
@@ -488,7 +492,8 @@ class CourseDatabase
         return 'fail<!--separate-->{"message":"Could not get sectiondata","response":-1,"mysql_error":"' . mysqli_error( $this->database->_link ) . '"}';
     }
 
-    public function _convertJsonColumns( $rows, $columns ){
+    public function _convertJsonColumns( $rows, $columns )
+    {
         foreach( $columns as $c )
         {
             foreach( $rows as $i=>$r)
