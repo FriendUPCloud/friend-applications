@@ -140,6 +140,8 @@ class DbIOFix extends DbIO
             {
                 if( in_array( $f, $this->_primarykeys ) )
                     continue;
+                // Skip empties
+                if( !isset( $this->f ) && !( $this->f === '' ) ) continue;
                 /* ******************* *
                 *  Overloaded
                 *  Add criteria to skip autofields for update 
