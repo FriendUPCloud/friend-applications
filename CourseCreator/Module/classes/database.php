@@ -257,7 +257,7 @@ class CourseDatabase
             return "ok<!--separate-->" . $o->ID;
         }
         
-        return 'fail<!--separate-->{"message":"Could not update table","response":-1,"mysql_error":"' . mysqli_error( $this->database->_link ) . '"}';
+        return 'fail<!--separate-->{"message":"Could not update table","response":-1,"mysql_error":"' . mysqli_error( $this->database->_link ) . '"}<!--separate-->' . $o->_lastQuery;
     }
 
 
