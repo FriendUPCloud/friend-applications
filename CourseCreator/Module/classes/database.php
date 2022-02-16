@@ -166,7 +166,12 @@ class DbIOFix extends DbIO
             // Hook
             if( method_exists( $this, 'OnSaved' ) ) $this->OnSaved();
         }
+        if( !$this->_queryHistory )
+        {
+        	$this->_queryHistory = [];
+        }
         $this->_lastQuery = $query;
+        $this->_queryHistory[] = $query;
         
         // Update with right ID --------------------------------------------
         if( count( $this->_primarykeys ) == 1 )
@@ -250,22 +255,15 @@ class CourseDatabase
             $vars->table, 
             $this->database 
         );
-        
-        foreach( $vars as $k=>$v )
+
+        $o->SetFromObject( $vars );
+
+        if ( $o->Save() )
         {
-        	if( $v == null )
-        	{
-        		$v = '';
-        	}
-        }
-
-        $o->SetFromObject($vars);
-
-        if ( $o->Save() ){
             return "ok<!--separate-->" . $o->ID;
         }
         // TODO: Remove last query.
-        return 'fail<!--separate-->{"message":"Could not update table","response":-1,"mysql_error":"' . mysqli_error( $this->database->_link ) . '"}<!--separate-->' . $o->_lastQuery;
+        return 'fail<!--separate-->{"message":"Could not update table","response":-1,"mysql_error":"' . mysqli_error( $this->database->_link ) . '"}<!--separate-->' . print_r( $o->_queryHistory, 1 );
     }
 
 
