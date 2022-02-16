@@ -1008,7 +1008,7 @@ class DBIO
     	for( let a in vars )
     	{
     		console.log( 'Calling DBIO with var: ' + a + ' vars[a]: ' + vars[a] );
-    		if( vars[a] == null )
+    		if( vars[a] == null || typeof( vars[a] ) == 'undefined' )
     		{
     			vars[a] = false;
     		}
