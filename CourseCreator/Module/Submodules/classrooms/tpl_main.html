@@ -49,6 +49,8 @@
                     ge( 'PanelMain' ).classList.remove( 'SectionLoading' );
                     
                     self.refreshRooms();
+                    
+                    ccInitializeGUI();
                 }
                 m.execute( 'appmodule', {
                     appName: 'CourseCreator',
@@ -291,10 +293,18 @@
                             	
 		                        self.ID = rowId;
 		                        self.editPane.innerHTML = d;
-		                        
+                                
+                                
+                                
 		                        ge( 'ClassroomId' ).value = rowId;
 		                        document.body.classList.add( 'Editmode' );
-		                        Application.submodules.classrooms.refreshClassroomUsers();
+                                
+                                ccAddCallback( 'w_reload_class_users', ( lv => {
+                                    console.log( 'w_reload_class_users' );
+                                    Application.submodules.classrooms.refreshClassroomUsers( lv );
+                                }));
+                                
+                                ccInitializeGUI();
 		                    }
 		                    p.execute( 'appmodule', {
 		                    	appName: 'CourseCreator',
@@ -441,84 +451,171 @@
                 } );
             },
             // Refresh list of users assigned to a classroom
-            refreshClassroomUsers()
+            
+            refreshClassroomUsers( lv )
             {
+                const self = this;
                 // We are in a different mode, use findUsers instead!
+                /*
                 if( ge( 'UserHeader' ).classList.contains( 'Two' ) )
                 {
                     return this.findUsers( ge( 'userSearch' ).value );
                 }
+                */
                 
-                let self = this;
-                let keys = ge( 'userSearch' ).value.length > 0 ? ge( 'userSearch' ).value : false;
+                console.log( 'refreshClassroomUsers', [ lv, self.usrLView ]);
+                if ( null != lv )
+                    self.usrLView = lv;
+                if ( null == lv )
+                    lv = self.usrLView;
+                
+                //let keys = ge( 'userSearch' ).value.length > 0 ? ge( 'userSearch' ).value : false;
+                let keys = null;
                 let m = new Module( 'system' );
                 m.onExecuted = function( e, d )
                 {
+                    console.log( 'refreshusers', [ e, d ]);
                     if( e == 'ok' )
                     {
-                        let str = '';
-                        
                         let js = JSON.parse( d );
                         console.log( 'refreshClassroomUsers', js );
-                        for( let a = 0; a < js.length; a++ )
+                        const rws = [];
+                        let l = js.length;
+                        for( ;l; )
                         {
+                            l--;
                             let d = new Date();
-                            let name = js[a].FullName;
-                            let progress = parseInt( js[a].progress );
+                            let name = js[l].FullName;
+                            let progress = parseInt( js[l].progress );
                             if( isNaN( progress ) ) progress = 0;
-                            let status = js[a].Status;
-                            let payment = parseInt( js[a].PaymentStatus );
+                            let status = js[l].Status;
+                            let payment = parseInt( js[l].PaymentStatus );
                             if( isNaN( payment ) ) payment = 0;
+                            let cert = js[l].CertName;
+                            let lastLogin = js[l].LoginTime;
                             
-                            switch( status )
-                            {
-                                case 'Planned':
-                                    status = '<span class="Status Planned"></span>';
-                                    break;
-                                case 'Completed':
-                                    status = '<span class="Status Completed"></span>';
-                                    break;
-                                case 'Started':
-                                    status = '<span class="Status Started"></span>';
-                                    break;
-                                default:
-                                    status = '<span class="Status Default"></span>';
-                                    break;
-                            }
+                            const cnf =
+                            [
+                                {
+                                    type  : 'string',
+                                    value : name,
+                                },
+                                {
+                                    type  : 'string',
+                                    value : progress
+                                },
+                                {
+                                    type  : 'string',
+                                    value : status,
+                                },
+                                {
+                                    type  : 'string',
+                                    value : payment,
+                                },
+                                {
+                                    type      : ( null == cert ) ? 'button'  : 'string',
+                                    value     : ( null == cert ) ? ' Upload' : cert,
+                                    iconclass : ( null == cert ) ? 'IconSmall  fa-plus' : undefined,
+                                    onclick   : ( null == cert ) ? 'class_user_add_cert_' + js[l].UserID : undefined,
+                                },
+                                {
+                                    type  : 'string',
+                                    value : lastLogin,
+                                },
+                                {
+                                    type     : 'checkbox',
+                                    Value    : true,
+                                    OnChange : 'class_user_remove_' + js[l].UserID,
+                                }
+                            ];
                             
-                            switch( payment )
-                            {
-                                case 'Planned':
-                                    payment = '<span class="Payment Planned"></span>';
-                                    break;
-                                case 'Completed':
-                                    payment = '<span class="Payment Completed"></span>';
-                                    break;
-                                case 'Started':
-                                    payment = '<span class="Payment Started"></span>';
-                                    break;
-                                default:
-                                    payment = '<span class="Payment Default"></span>';
-                                    break;
-                            }
+                            rws.push( cnf );
                             
-                            let certificate = js[a].hasCert ? 'Open' : 'Upload';
-                            let lastLogin = js[a].LoginTime;
-                            let rem = '<span class="Remove IconSmall fa-remove" userId="' + js[a].UserID + '"></span>';
-                        
-                            str += '<div class="HRow EditRow">\
-                                <div class="HContent45 FloatLeft PaddingSmall Ellipsis UserName">' + name + '</div>\
-                                <div class="HContent10 FloatLeft PaddingSmall Ellipsis TextCenter">' + progress + '%</div>\
-                                <div class="HContent5 FloatLeft PaddingSmall Ellipsis TextCenter">' + status + '</div>\
-                                <div class="HContent10 FloatLeft PaddingSmall Ellipsis TextCenter">' + payment + '</div>\
-                                <div class="HContent10 FloatLeft PaddingSmall Ellipsis TextCenter">' + certificate + '</div>\
-                                <div class="HContent15 FloatLeft PaddingSmall Ellipsis TextCenter">' + lastLogin + '</div>\
-                                <div class="HContent5 FloatLeft PaddingSmall Ellipsis ButtonSpace">' + rem + '</div>\
-                            </div>';
                         }
                         
-                        ge( 'ClassroomUsers' ).innerHTML = str;
+                        lv.setRowData( rws );
                         
+                        l = js.length;
+                        for( ;l; )
+                        {
+                            l--;
+                            const uid = js[l].UserID;
+                            if ( null == js[l].CertName )
+                            {
+                                ccAddCallback( 'class_user_add_cert_' + js[l].UserID, ( e ) => {
+                                    console.log( 'cert upload for class, user', [ 
+                                        ge( 'ClassroomId' ).value,
+                                        uid,
+                                        e,
+                                    ]);
+                                    Filedialog( null, ( files ) => 
+                                    {
+                                        const nfo = files[0];
+                                        console.log( 'file back', [ files, nfo, uid ]);
+                                        if ( null == nfo )
+                                            return;
+                                        
+                                        const cert = {
+                                            UserFilePath : nfo.Path,
+                                            UserFileName : nfo.Filename
+                                        };
+                                        // save
+                                        const ca = new Module( 'system' );
+                                        ca.onExecuted = ( e ) => 
+                                        {
+                                            self.refreshClassroomUsers();
+                                        }
+                                        
+                                        ca.execute( 'appmodule', {
+                                            appName : 'CourseCreator',
+                                            command : 'submodule',
+                                            vars    : {
+                                                submodule   : 'users',
+                                                method      : 'addcert',
+                                                userId      : uid,
+                                                classroomId : ge( 'ClassroomId' ).value,
+                                                cert        : cert,
+                                            },
+                                        });
+                                    });
+                                });
+                            }
+                            
+                            ccAddCallback( 'class_user_remove_' + js[l].UserID, ( e ) => {
+                                console.log( 'remove btn for class, user', [
+                                    ge( 'ClassroomId' ).value,
+                                    uid,
+                                    e,
+                                ]);
+                                Confirm( 
+                                    'Are you sure?',
+                                    'This will remove the user from the classroom.',
+                                    function( data )
+                                    {
+                                        if( data.data == true )
+                                        {
+                                            let io = new Module( 'system' );
+                                            io.onExecuted = function( e, d )
+                                            {
+                                                self.refreshClassroomUsers();
+                                            }
+                                            io.execute( 'appmodule', {
+                                                appName: 'CourseCreator',
+                                                command: 'submodule',
+                                                vars: {
+                                                    submodule: 'classrooms',
+                                                    method: 'removeuser',
+                                                    classroomId: ge( 'ClassroomId' ).value,
+                                                    userId: uid,
+                                                }
+                                            } );
+                                        }
+                                    }
+                               );
+                            });
+                        }
+                        
+                        /*
                         let dels = ge( 'ClassroomUsers' ).getElementsByClassName( 'Remove' );
                         for( let j = 0; j < dels.length; j++ )
                         {
@@ -554,12 +651,15 @@
                                 }
                             } )( dels[ j ], dels[ j ].getAttribute( 'userId' ) );
                         }
+                        */
                     }
                     else
                     {
-                        ge( 'ClassroomUsers' ).innerHTML = '<div class="HRow EditRow"><div class="HContent100 Ellipsis">This classroom has no users.</div></div>';
+                        console.log( 'no users in classroom i guess' );
+                        //ge( 'ClassroomUsers' ).innerHTML = '<div class="HRow EditRow"><div class="HContent100 Ellipsis">This classroom has no users.</div></div>';
                     }
                 }
+                console.log( 'classroom id ', ge( 'ClassroomId' ).value );
                 m.execute( 'appmodule', {
                     appName: 'CourseCreator',
                     command: 'submodule',

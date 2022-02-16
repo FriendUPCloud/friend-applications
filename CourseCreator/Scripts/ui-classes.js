@@ -269,6 +269,7 @@ class ccCheckbox extends ccGUIElement
         
         this.domElement.onclick = function()
         {
+            console.log( 'ccCheckbox onclick', self.options );
             if( self.checked )
             {
                 self.domElement.classList.remove( 'ccChecked' );
@@ -331,7 +332,7 @@ class ccCheckbox extends ccGUIElement
     }
     getMarkup( data )
     {
-        console.log( 'getMarkup', data );
+        console.log( 'getMarkup', [ data, this.options ] );
     	let str = '<checkbox {options}/>';
     	let opts = [];
     	for( let a in data )
@@ -440,13 +441,32 @@ class ccButton extends ccGUIElement
 {
     constructor( options )
     {
+        console.log( 'ccButton', options );
         super( options );
     }
     
     attachDomElement()
     {
-        super.attachDomElement();
+        const self = this;
+        console.log( 'ccButton.attachDomElement', {
+            el  : self.domElement,
+            opt : self.options,
+        });
+        //super.attachDomElement();
         this.domElement.classList.add( 'ccGUI', 'ccButton' );
+        //const oc = this.options[ 'onclick' ];
+        //if ( null == oc )
+          //  return;
+        
+        this.domElement.onclick = ( e ) => {
+            console.log( 'ccButton onclick', {
+                e   : e,
+                opt : self.options,
+            });
+            const cb = window.ccGUI.callbacks[ thios.options.onclick ];
+            if ( null != cb )
+                cb( e );
+        }
     }
     
     grabAttributes( domElement )
@@ -457,20 +477,33 @@ class ccButton extends ccGUIElement
     refreshDom()
     {
         super.refreshDom();
-        const oc = this.options[ 'onclick' ];
-        if ( null == oc )
-            return;
-        
-        this.domElement.onclick = ( e ) => {
-            console.log( 'ccButton onclick', e );
-            const cb = window.ccGUI.callbacks[ oc ];
-            if ( null != cb )
-                cb( e );
-        }
-        
-        
     }
     
+    getMarkup( o )
+    {
+        console.log( 'button.getMarkup', [ o, this.options ]);
+        const op = o || this.options || {};
+        let btn = '<button';
+        if ( op.id )
+        {
+            btn += ' id="' + op.id + '"';
+        }
+        
+        if ( op.iconclass )
+        {
+            btn += ' class="IconSmall ' + op.iconclass + '"'
+        }
+        
+        btn += '>';
+        if ( op.value )
+        {
+            btn += op.value;
+        }
+        
+        btn += '</button>';
+        
+        return btn;
+    }
 }
 
 

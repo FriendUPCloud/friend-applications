@@ -51,6 +51,32 @@
 
 <div class="BlockSpacer"></div>
 
+<group>
+    <rows>
+        <row>
+            <listview>
+                <listviewhead>
+                    <listviewheading>
+                        Users
+                    </listviewheading>
+                </listviewhead>
+                <listviewheaders>
+                    <listviewheader width="20%" sortable="sortable" name="Name">Name:</listviewheader>
+                    <listviewheader width="15%" sortable="sortable" name="Progress">Progress:</listviewheader>
+                    <listviewheader width="5%" sortable="sortable" name="Status">Status</listviewheader>
+                    <listviewheader width="10%" sortable="sortable" name="Payment">Payment</listviewheader>
+                    <listviewheader width="20%" sortable="sortable" name="Certificate">Certificate</listviewheader>
+                    <listviewheader width="20%" sortable="sortable" name="LastLogin">Last login</listviewheader>
+                    <listviewheader width="10%" sortable="sortable" name="Remove">Remove</listviewheader>
+                </listviewheaders>
+                <listviewrows onload="w_reload_class_users">
+                </listviewrows>
+            </listview>
+        </row>
+    </rows>
+</group>
+
+<!--
 <div class="ContentHeader">
     <h2>
         Users
@@ -59,7 +85,7 @@
         <div class="Buttons">
             <div class="FindUsers HeaderButton IconSmall fa-plus-circle MousePointer" onclick="Application.submodules.classrooms.findUsers()"></div>
             <div class="ClearFind HeaderButton IconSmall fa-remove MousePointer" onclick="Application.submodules.classrooms.clearFind()"></div>
-            <!--<div class="HeaderButton IconSmall fa-navicon MousePointer"></div>-->
+            <-<div class="HeaderButton IconSmall fa-navicon MousePointer"></div>->
         </div>
         <input type="text" placeholder="Search" id="userSearch" onkeydown="Application.submodules.classrooms.refreshClassroomUsers()"/>
     </div>
@@ -80,6 +106,7 @@
 <div class="ContentBlock">
     <div id="ClassroomUsers"></div>
 </div>
+-->
 
 <div class="BlockSpacer"></div>
 

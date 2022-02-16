@@ -18,8 +18,10 @@ if( isset( $args->method ) )
     {
         case 'refreshusers':
             if( $rows = $courseDb->fetchObjects( '
-                SELECT u.* FROM 
+                SELECT u.*, crt.ID AS CertID, crt.CertName FROM 
                     CC_Classroom c, CC_UserClassroom u
+                LEFT JOIN CC_Certificate crt
+                    ON u.UserID=crt.UserID AND crt.ClassID=\'' . intval( $args->classroomId, 10 ) . '\'
                 WHERE
                     c.ID = u.ClassroomID AND
                     c.ID = \'' . intval( $args->classroomId, 10 ) . '\'
