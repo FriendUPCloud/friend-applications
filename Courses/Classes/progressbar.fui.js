@@ -35,6 +35,8 @@ class FUIProgressbar extends FUIElement
         d.appendChild( b );
         
         this.bar = b;
+        
+        this.refreshDom();
     }
     grabAttributes( domElement )
     {
@@ -43,7 +45,7 @@ class FUIProgressbar extends FUIElement
         let pct = domElement.getAttribute( 'progress' );
         if( pct )
         {
-        	this.options.percent = pct;
+        	this.options.percent = parseInt( pct );
         }
         
         this.refreshDom();
@@ -53,9 +55,22 @@ class FUIProgressbar extends FUIElement
         super.refreshDom();
         
         // Do something with properties on dom
-        
-        this.bar.style.width = this.options.percent ? this.options.percent : '0%';
-        
+        if( this.bar )
+        {
+	        this.bar.style.width = this.options.percent ? ( parseInt( this.options.percent ) + '%' ) : '0%';
+	        let progressClasses = [ 'FUIPG0', 'FUIPG20', 'FUIPG40', 'FUIPG60', 'FUIPG80', 'FUIPG100' ];
+	        for( let a = 0, b = 0; a < 100; a += 20, b++ )
+	        {
+	        	if( parseInt( this.options.percent ) <= a && parseInt( this.options.percent ) > a - 20 )
+	        	{
+	        		this.bar.classList.add( progressClasses[ b ] );
+	        	}
+	        	else
+	        	{
+	        		this.bar.classList.remove( progressClasses[ b ] );
+	        	}
+	        }
+	    }
     }
     getMarkup( data )
     {
