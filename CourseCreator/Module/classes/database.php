@@ -468,8 +468,8 @@ class CourseDatabase
             ON p.ID = e.PageID
             INNER JOIN CC_ElementType t
             ON e.ElementTypeID = t.ID
-            WHERE s.OwnerID = \'' . $User->ID . '\' 
-                AND s.ID = ' . $vars->sectionId . '
+            WHERE 
+            	s.ID = ' . $vars->sectionId . '
                 AND p.ID = ' . $vars->pageId . '
             ORDER BY
             	e.SortOrder ASC,
