@@ -24,58 +24,43 @@ class FUITemplate extends FUIElement
         let self = this;
         
         // Set stuff on this.domElement.innerHTML
+        this.domElement.classList.add( 'FUIProgress' );
+        
+        let d = document.createElement( 'div' );
+        d.className = 'FUIProgressGroove';
+        this.domElement.appendChild( d );
+        
+        let b = document.createElement( 'div' );
+        b.className = 'FUIProgressBar';
+        d.appendChild( b );
+        
+        this.bar = b;
     }
     grabAttributes( domElement )
     {
         super.grabAttributes( domElement );
         
-        // if( domElement.getAttribute( 'someattribute' ) )
-        //     do something
+        let pct = domElement.getAttribute( 'progress' );
+        if( pct )
+        {
+        	this.options.percent = pct;
+        }
         
-        
-        //this.refreshDom();
+        this.refreshDom();
     }
     refreshDom()
     {
         super.refreshDom();
         
         // Do something with properties on dom
-        /*
-        if( this.property )
-        {
-            this.domElement.classList.add( 'FUIClassName' );
-        }
-        else
-        {
-            this.domElement.classList.remove( 'FUIClassName' );
-        }*/
+        
+        this.bar.style.width = this.options.percent ? this.options.percent : '0%';
+        
     }
     getMarkup( data )
     {
     	// Return meta-markup for class instantiation later
-    	
-    	/*let str = '<checkbox {options}/>';
-    	let opts = [];
-    	for( let a in data )
-    	{
-    		if( a == 'OnChange' )
-    		{
-    			opts.push( 'onchange="' + data[a] + '"' );
-    		}
-    		if( a == 'Value' && data[a] )
-    		{
-    			opts.push( 'checked="checked"' );
-    		}
-    	}
-    	if( opts.length )
-    	{
-    		str = str.split( '{options}' ).join( opts.join( ' ' ) );
-    	}
-    	else
-    	{
-    		str = str.split( ' {options}' ).join( '' );
-    	}
-    	return str;*/
+    	return '<progress progress="' + ( this.options.progress ? this.options.progress : '0%' ) + '"/>';
     }
 }
 FUI.registerClass( 'progress' );
