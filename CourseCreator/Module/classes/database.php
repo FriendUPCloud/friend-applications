@@ -121,6 +121,8 @@ class DbIOFix extends DbIO
             {
                 if( in_array( $f, $this->_autofields ) )
                     continue;
+                // Skip empties
+                if( !isset( $this->{$f} ) && !( $this->{$f} === '' ) ) continue;
                 $filds[] = "`$f`";
                 $fildz[] = $f;
             }
