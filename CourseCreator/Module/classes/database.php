@@ -250,6 +250,14 @@ class CourseDatabase
             $vars->table, 
             $this->database 
         );
+        
+        foreach( $vars as $k=>$v )
+        {
+        	if( $v == null )
+        	{
+        		$v = '';
+        	}
+        }
 
         $o->SetFromObject($vars);
 
