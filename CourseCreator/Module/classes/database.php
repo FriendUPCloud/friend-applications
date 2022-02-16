@@ -50,7 +50,7 @@ class DbIOFix extends DbIO
             {
                 $this->_fieldnames[] = $row[ 'Field' ];
                 $this->_fieldtypes[] = preg_replace( '/\(.*\)/', '', $row[ 'Type' ] );
-                $this->{$row['Field']} = '';
+                
                 if( $row[ 'Key' ] == 'PRI' )
                 {
                     if( $row['Extra'] == 'auto_increment' )
