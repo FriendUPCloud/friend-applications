@@ -113,7 +113,7 @@ moduleObject.classrooms = {
 						},
 						{
 							type: 'string',
-							value: '20%'
+							value: '<progressbar progress="20%"/>'
 						},
 						{
 							type: 'string',
