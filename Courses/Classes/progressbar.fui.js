@@ -42,7 +42,7 @@ class FUIProgressbar extends FUIElement
         
         let pct = domElement.getAttribute( 'progress' );
         if( pct )
-        {FUITemplate
+        {
         	this.options.percent = pct;
         }
         
