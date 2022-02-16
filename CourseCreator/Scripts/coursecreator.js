@@ -100,9 +100,9 @@ class Element
         }
 
         // Initialize element properties
-        this.domContainer = null;
+        this.domContainer = false;
         this.children = new Array();
-        this.activeChild = null;
+        this.activeChild = false;
         console.log("this is self ",this);
     }
 
@@ -115,7 +115,7 @@ class Element
         this.domContainer.replaceChildren(buttons, handle);
     }
 
-    linkDomContainer = function(domContainer=null)
+    linkDomContainer = function(domContainer=false)
     {
         let self = this;
         if (!domContainer)
@@ -195,7 +195,7 @@ class Element
         Creates a new child element (generic) for all element types
 
     */
-    createNewElement = function(elementType='', callBack=null)
+    createNewElement = function(elementType='', callBack=false)
     {
         let self = this;
 
@@ -1033,8 +1033,8 @@ class ElementTypeIO
     constructor(courseCreator) 
     {
         this.courseCreator = courseCreator;
-        this.data = null;
-        this.elementTypes = null;
+        this.data = false;
+        this.elementTypes = false;
         this.loadElementTypeData();
     }
 
@@ -1085,7 +1085,7 @@ class RootElement extends Element
     constructor(courseCreator)
     {
         super(courseCreator, "root");
-        this.activePage = null;
+        this.activePage = false;
     }
 
     loadData = function( courseId )
@@ -1154,7 +1154,7 @@ class RootElement extends Element
         if( this.saveIndicator )
         {
         	let t = this.saveIndicator;
-        	this.saveIndicator = null;
+        	this.saveIndicator = false;
         }
         let t = document.createElement( 'span' );
         t.className = 'IconSmall fa-refresh Saving';
@@ -1172,7 +1172,7 @@ class RootElement extends Element
         	{
         		ge( 'pageSaveIndicator' ).removeChild( t );
         		if( self.saveIndicator == t )
-	        		self.saveIndicator = null;
+	        		self.saveIndicator = false;
         	}, 750 );
         }, 5 );
     }
