@@ -122,7 +122,8 @@ class DbIOFix extends DbIO
                 if( in_array( $f, $this->_autofields ) )
                     continue;
                 // Skip empties
-                if( !isset( $this->{$f} ) && !( $this->{$f} === '' ) ) continue;
+                if( !isset( $this->{$f} ) ) continue;
+                
                 $filds[] = "`$f`";
                 $fildz[] = $f;
             }
@@ -143,7 +144,8 @@ class DbIOFix extends DbIO
                 if( in_array( $f, $this->_primarykeys ) )
                     continue;
                 // Skip empties
-                if( !isset( $this->{$f} ) && !( $this->{$f} === '' ) ) continue;
+                if( !isset( $this->{$f} ) ) continue;
+
                 /* ******************* *
                 *  Overloaded
                 *  Add criteria to skip autofields for update 
