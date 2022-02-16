@@ -331,9 +331,9 @@ class CourseElement extends Element
     {
         let params = {
             table: this.classInfo.dbTable,
-            ID: this.dbId,
-            Name: this.name,
-            DisplayID: this.displayId,
+            ID: this.dbId == null ? 0 : this.dbId,
+            Name: this.name == null ? '' : this.name,
+            DisplayID: this.displayId == null ? 0 : this.displayId,
             CourseCollectionID: 1
         };
         console.log("Update table ", params);
@@ -370,10 +370,10 @@ class SectionElement extends Element
     {
         let params = {
             table: this.classInfo.dbTable,
-            ID: this.dbId,
-            Name: this.name,
-            DisplayID: this.displayId,
-            CourseID: this.parent.dbId,
+            ID: this.dbId == null ? 0 : this.name,
+            Name: this.name == null ? '' : this.name,
+            DisplayID: this.displayId == null ? 0 : this.displayId,
+            CourseID: this.parent.dbId == null ? 0 : this.dbId,
             ElementTypeID: this.classInfo.elementTypeId
         };
         console.log("Update table ", params);
@@ -495,10 +495,10 @@ class PageElement extends Element
         // save page page to database
         let params = {
             table: this.classInfo.dbTable,
-            ID: this.dbId,
-            DisplayID: this.displayId,
-            Name: this.name,
-            SectionID: this.parent.dbId,
+            ID: this.dbId == null ? 0 : this.displayId,
+            DisplayID: this.displayId == null ? 0 : this.displayId,
+            Name: this.name == null ? '' : this.name,
+            SectionID: this.parent.dbId == null ? 0 : this.parent.dbId,
             ElementTypeID: this.classInfo.elementTypeId
         };
         console.log("Update table ", params);
