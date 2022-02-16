@@ -1005,6 +1005,11 @@ class DBIO
     }
     call = function(funcName, vars, callBack)
     {
+    	for( let a in vars )
+    	{
+    		if( vars[a] == null )
+    			vars[a] = false;
+    	}
         let self = this;
         let m = new Module ( self.moduleName );
         m.onExecuted = function ( returnCode, returnData )
