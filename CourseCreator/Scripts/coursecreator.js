@@ -230,13 +230,13 @@ class Element
     {
         let params = {
             table: this.classInfo.dbTable,
-            ID: this.dbId,
-            DisplayID: this.displayId,
-            Name: this.name,
+            ID: this.dbId == null ? 0 : this.dbId,
+            DisplayID: this.displayId == null ? 0 : this.displayId,
+            Name: this.name == null ? '' : this.name,
             Properties: JSON.stringify(this.properties),
             SortOrder: JSON.stringify( this.sortOrder ),
-            PageID: this.parent.dbId,
-            ElementTypeID: this.classInfo.elementTypeId
+            PageID: this.parent.dbId == null ? 0 : this.parent.dbId,
+            ElementTypeID: this.classInfo.elementTypeId == null ? 0 : this.classInfo.elementTypeId
         };
         courseCreator.dbio.call(
             'updateTable',
