@@ -73,7 +73,7 @@ class CourseCollection
 //TODO: rewrite to capture indexing id vs index
 class Element
 {
-    constructor( parent, elementType, displayId=null, dbId=null, name=null) 
+    constructor( parent, elementType, displayId=0, dbId=0, name='') 
     {
         console.log(
             "in element construct", 
@@ -195,7 +195,7 @@ class Element
         Creates a new child element (generic) for all element types
 
     */
-    createNewElement = function(elementType=null, callBack=null)
+    createNewElement = function(elementType='', callBack=null)
     {
         let self = this;
 
@@ -322,7 +322,7 @@ class Element
 */
 class CourseElement extends Element
 {
-    constructor(parent, displayId=null, dbId=null, name=null)
+    constructor(parent, displayId=0, dbId=0, name='')
     {
         super(parent, "course", displayId, dbId, name);
     }
@@ -360,7 +360,7 @@ class CourseElement extends Element
 
 class SectionElement extends Element 
 {
-    constructor( parent, displayId=null, dbId=null, name=null ) 
+    constructor( parent, displayId=0, dbId=0, name='' ) 
     {    
         super(parent, "section", displayId, dbId, name); 
         this.linkDomContainer(courseCreator.mainView);
@@ -390,7 +390,7 @@ class SectionElement extends Element
 
 class PageElement extends Element
 {
-    constructor(parent, displayId=null, dbId=null, name=null)
+    constructor(parent, displayId=0, dbId=0, name='')
     {
         super(parent, "page", displayId, dbId, name);
         this.linkDomContainer();
@@ -621,7 +621,7 @@ class PageElement extends Element
 
 class CheckBoxQuestionElement extends Element 
 {
-    constructor( parent, displayId, dbId=null, name=null, properties=null ) 
+    constructor( parent, displayId, dbId=0, name='', properties='' ) 
     {
         super(parent, "checkBoxQuestion", displayId, dbId, name);
         if( !properties )
@@ -791,7 +791,7 @@ class CheckBoxQuestionElement extends Element
 
 class TextBoxElement extends Element 
 {
-    constructor( parent, displayId, dbId=null, name=null, properties=null ) 
+    constructor( parent, displayId, dbId=0, name='', properties='' ) 
     {
         super(parent, "textBox", displayId, dbId, name);
         if (!properties){
@@ -847,7 +847,7 @@ class TextBoxElement extends Element
 
 class ImageElement extends Element 
 {
-    constructor( parent, displayId, dbId=null, name=null, properties=null ) 
+    constructor( parent, displayId = 0, dbId=0, name='', properties='' ) 
     {
         super(parent, "image", displayId, dbId, name);
         if (!properties){
@@ -1104,7 +1104,7 @@ class RootElement extends Element
     }
 
     // Creates a new course in the database
-    createNewCourse = function ( displayId, callBack )
+    createNewCourse = function ( displayId = 0, callBack )
     {
         let self = this;
         // Creates a new course that can be saved

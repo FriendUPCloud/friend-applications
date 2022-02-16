@@ -256,7 +256,7 @@ class CourseDatabase
         if ( $o->Save() ){
             return "ok<!--separate-->" . $o->ID;
         }
-        
+        // TODO: Remove last query.
         return 'fail<!--separate-->{"message":"Could not update table","response":-1,"mysql_error":"' . mysqli_error( $this->database->_link ) . '"}<!--separate-->' . $o->_lastQuery;
     }
 
