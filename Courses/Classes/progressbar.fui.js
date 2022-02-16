@@ -8,8 +8,9 @@
 *                                                                              *
 *****************************************************************************©*/
 
+
 // Checkbox element
-class FUISection extends FUIElement
+class FUIProgressbar extends FUIElement
 {
     constructor( options )
     {
@@ -23,25 +24,17 @@ class FUISection extends FUIElement
         let self = this;
         
         // Set stuff on this.domElement.innerHTML
-        this.domElement.classList.add( 'FUISection' );
-        
-        let h = document.createElement( 'div' );
-        h.classList.add( 'FUISectionHeader' );
-        this.domElement.appendChild( h );
-        
-        this.sectionHeader = h;
+        this.domElement.classList.add( 'FUIProgressbar' );
         
         let d = document.createElement( 'div' );
-        d.classList.add( 'FUISectionContent' );
+        d.className = 'FUIProgressGroove';
         this.domElement.appendChild( d );
         
-        this.sectionContent = d;
-        
         let b = document.createElement( 'div' );
-        b.classList.add( 'FUISectionFooter' );
-        this.domElement.appendChild( b );
+        b.className = 'FUIProgressBar';
+        d.appendChild( b );
         
-        this.sectionFooter = b;
+        this.bar = b;
         
         this.refreshDom();
     }
@@ -49,48 +42,43 @@ class FUISection extends FUIElement
     {
         super.grabAttributes( domElement );
         
-        let header = domElement.getElementsByTagName( 'sectionheader' );
-        if( header )
+        let pct = domElement.getAttribute( 'progress' );
+        if( pct )
         {
-        	this.options.header = header[0].innerHTML;
+        	this.options.percent = parseInt( pct );
         }
+        
+        this.refreshDom();
     }
     refreshDom()
     {
         super.refreshDom();
         
-        if( this.options.header )
+        // Do something with properties on dom
+        if( this.bar )
         {
-        	this.setHeader( this.options.header );
-        }
+	        this.bar.style.width = this.options.percent ? ( parseInt( this.options.percent ) + '%' ) : '0%';
+	        let progressClasses = [ 'FUIPG0', 'FUIPG20', 'FUIPG40', 'FUIPG60', 'FUIPG80', 'FUIPG100' ];
+	        for( let a = 0, b = 0; a < 100; a += 20, b++ )
+	        {
+	        	if( parseInt( this.options.percent ) <= a && parseInt( this.options.percent ) > a - 20 )
+	        	{
+	        		this.bar.classList.add( progressClasses[ b ] );
+	        	}
+	        	else
+	        	{
+	        		this.bar.classList.remove( progressClasses[ b ] );
+	        	}
+	        }
+	    }
     }
     getMarkup( data )
     {
-    	
-    }
-    
-    // Set section header
-    setHeader( data )
-    {
-    	this.sectionHeader.innerHTML = '<h2>' + data + '</h2>';
-    }
-    
-    // Set section content
-    setContent( data )
-    {
-    	this.sectionContent.innerHTML = data;
-    	FUI.initialize();
-    }
-    
-    // Set section content
-    setFooter( data )
-    {
-    	this.sectionFooter.innerHTML = data;
-    	FUI.initialize();
+    	// Return meta-markup for class instantiation later
+    	return '<progressbar progress="' + ( this.options.progress ? this.options.progress : '0%' ) + '"/>';
     }
 }
-
-FUI.registerClass( 'section' );
+FUI.registerClass( 'progressbar' );
 
 
 

@@ -50,7 +50,7 @@ class DbIOFix extends DbIO
             {
                 $this->_fieldnames[] = $row[ 'Field' ];
                 $this->_fieldtypes[] = preg_replace( '/\(.*\)/', '', $row[ 'Type' ] );
-                $this->{$row['Field']} = null;
+                
                 if( $row[ 'Key' ] == 'PRI' )
                 {
                     if( $row['Extra'] == 'auto_increment' )
@@ -121,6 +121,9 @@ class DbIOFix extends DbIO
             {
                 if( in_array( $f, $this->_autofields ) )
                     continue;
+                // Skip empties
+                if( !isset( $this->{$f} ) ) continue;
+                
                 $filds[] = "`$f`";
                 $fildz[] = $f;
             }
@@ -140,6 +143,9 @@ class DbIOFix extends DbIO
             {
                 if( in_array( $f, $this->_primarykeys ) )
                     continue;
+                // Skip empties
+                if( !isset( $this->{$f} ) ) continue;
+
                 /* ******************* *
                 *  Overloaded
                 *  Add criteria to skip autofields for update 
@@ -166,7 +172,12 @@ class DbIOFix extends DbIO
             // Hook
             if( method_exists( $this, 'OnSaved' ) ) $this->OnSaved();
         }
+        if( !$this->_queryHistory )
+        {
+        	$this->_queryHistory = [];
+        }
         $this->_lastQuery = $query;
+        $this->_queryHistory[] = $query;
         
         // Update with right ID --------------------------------------------
         if( count( $this->_primarykeys ) == 1 )
@@ -251,13 +262,14 @@ class CourseDatabase
             $this->database 
         );
 
-        $o->SetFromObject($vars);
+        $o->SetFromObject( $vars );
 
-        if ( $o->Save() ){
+        if ( $o->Save() )
+        {
             return "ok<!--separate-->" . $o->ID;
         }
-        
-        return 'fail<!--separate-->{"message":"Could not update table","response":-1,"mysql_error":"' . mysqli_error( $this->database->_link ) . '"}';
+        // TODO: Remove last query.
+        return 'fail<!--separate-->{"message":"Could not update table","response":-1,"mysql_error":"' . mysqli_error( $this->database->_link ) . '"}<!--separate-->' . print_r( $o->_queryHistory, 1 );
     }
 
 
@@ -412,7 +424,7 @@ class CourseDatabase
     public function getCourseList( $vars )
     {
         global $User;
-        
+        // TODO: Add permissions on who can get the entire list
         $query = '
             SELECT 
                 c.ID as courseID,
@@ -430,8 +442,6 @@ class CourseDatabase
                 ON c.ID = s.CourseID
                 LEFT JOIN CC_Page p
                 ON s.ID = p.SectionID
-            WHERE
-                c.OwnerID = \'' . $User->ID . '\'
             ORDER BY
                 c.DisplayID,
                 s.DisplayID,
@@ -470,8 +480,8 @@ class CourseDatabase
             ON p.ID = e.PageID
             INNER JOIN CC_ElementType t
             ON e.ElementTypeID = t.ID
-            WHERE s.OwnerID = \'' . $User->ID . '\' 
-                AND s.ID = ' . $vars->sectionId . '
+            WHERE 
+            	s.ID = ' . $vars->sectionId . '
                 AND p.ID = ' . $vars->pageId . '
             ORDER BY
             	e.SortOrder ASC,

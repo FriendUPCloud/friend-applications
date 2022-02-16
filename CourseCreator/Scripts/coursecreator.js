@@ -73,7 +73,7 @@ class CourseCollection
 //TODO: rewrite to capture indexing id vs index
 class Element
 {
-    constructor( parent, elementType, displayId=null, dbId=null, name=null) 
+    constructor( parent, elementType, displayId=0, dbId=0, name='') 
     {
         console.log(
             "in element construct", 
@@ -100,9 +100,9 @@ class Element
         }
 
         // Initialize element properties
-        this.domContainer = null;
+        this.domContainer = false;
         this.children = new Array();
-        this.activeChild = null;
+        this.activeChild = false;
         console.log("this is self ",this);
     }
 
@@ -115,7 +115,7 @@ class Element
         this.domContainer.replaceChildren(buttons, handle);
     }
 
-    linkDomContainer = function(domContainer=null)
+    linkDomContainer = function(domContainer=false)
     {
         let self = this;
         if (!domContainer)
@@ -195,7 +195,7 @@ class Element
         Creates a new child element (generic) for all element types
 
     */
-    createNewElement = function(elementType=null, callBack=null)
+    createNewElement = function(elementType='', callBack=false)
     {
         let self = this;
 
@@ -230,13 +230,13 @@ class Element
     {
         let params = {
             table: this.classInfo.dbTable,
-            ID: this.dbId,
-            DisplayID: this.displayId,
-            Name: this.name,
+            ID: this.dbId == null ? 0 : this.dbId,
+            DisplayID: this.displayId == null ? 0 : this.displayId,
+            Name: this.name == null ? '' : this.name,
             Properties: JSON.stringify(this.properties),
             SortOrder: JSON.stringify( this.sortOrder ),
-            PageID: this.parent.dbId,
-            ElementTypeID: this.classInfo.elementTypeId
+            PageID: this.parent.dbId == null ? 0 : this.parent.dbId,
+            ElementTypeID: this.classInfo.elementTypeId == null ? 0 : this.classInfo.elementTypeId
         };
         courseCreator.dbio.call(
             'updateTable',
@@ -304,7 +304,8 @@ class Element
             return false
         if (this.activeChild == null)
             this.activeChild = this.children[0];
-        this.activeChild.renderMain();
+        if( this.activeChild )
+	        this.activeChild.renderMain();
         this.parent.activeChild = this;
     }
 }
@@ -322,7 +323,7 @@ class Element
 */
 class CourseElement extends Element
 {
-    constructor(parent, displayId=null, dbId=null, name=null)
+    constructor(parent, displayId=0, dbId=0, name='')
     {
         super(parent, "course", displayId, dbId, name);
     }
@@ -331,9 +332,9 @@ class CourseElement extends Element
     {
         let params = {
             table: this.classInfo.dbTable,
-            ID: this.dbId,
-            Name: this.name,
-            DisplayID: this.displayId,
+            ID: this.dbId == null ? 0 : this.dbId,
+            Name: this.name == null ? '' : this.name,
+            DisplayID: this.displayId == null ? 0 : this.displayId,
             CourseCollectionID: 1
         };
         console.log("Update table ", params);
@@ -360,7 +361,7 @@ class CourseElement extends Element
 
 class SectionElement extends Element 
 {
-    constructor( parent, displayId=null, dbId=null, name=null ) 
+    constructor( parent, displayId=0, dbId=0, name='' ) 
     {    
         super(parent, "section", displayId, dbId, name); 
         this.linkDomContainer(courseCreator.mainView);
@@ -370,10 +371,10 @@ class SectionElement extends Element
     {
         let params = {
             table: this.classInfo.dbTable,
-            ID: this.dbId,
-            Name: this.name,
-            DisplayID: this.displayId,
-            CourseID: this.parent.dbId,
+            ID: this.dbId == null ? 0 : this.name,
+            Name: this.name == null ? '' : this.name,
+            DisplayID: this.displayId == null ? 0 : this.displayId,
+            CourseID: this.parent.dbId == null ? 0 : this.dbId,
             ElementTypeID: this.classInfo.elementTypeId
         };
         console.log("Update table ", params);
@@ -390,7 +391,7 @@ class SectionElement extends Element
 
 class PageElement extends Element
 {
-    constructor(parent, displayId=null, dbId=null, name=null)
+    constructor(parent, displayId=0, dbId=0, name='')
     {
         super(parent, "page", displayId, dbId, name);
         this.linkDomContainer();
@@ -495,10 +496,10 @@ class PageElement extends Element
         // save page page to database
         let params = {
             table: this.classInfo.dbTable,
-            ID: this.dbId,
-            DisplayID: this.displayId,
-            Name: this.name,
-            SectionID: this.parent.dbId,
+            ID: this.dbId == null ? 0 : this.displayId,
+            DisplayID: this.displayId == null ? 0 : this.displayId,
+            Name: this.name == null ? '' : this.name,
+            SectionID: this.parent.dbId == null ? 0 : this.parent.dbId,
             ElementTypeID: this.classInfo.elementTypeId
         };
         console.log("Update table ", params);
@@ -621,7 +622,7 @@ class PageElement extends Element
 
 class CheckBoxQuestionElement extends Element 
 {
-    constructor( parent, displayId, dbId=null, name=null, properties=null ) 
+    constructor( parent, displayId, dbId=0, name='', properties='' ) 
     {
         super(parent, "checkBoxQuestion", displayId, dbId, name);
         if( !properties )
@@ -791,7 +792,7 @@ class CheckBoxQuestionElement extends Element
 
 class TextBoxElement extends Element 
 {
-    constructor( parent, displayId, dbId=null, name=null, properties=null ) 
+    constructor( parent, displayId, dbId=0, name='', properties='' ) 
     {
         super(parent, "textBox", displayId, dbId, name);
         if (!properties){
@@ -847,7 +848,7 @@ class TextBoxElement extends Element
 
 class ImageElement extends Element 
 {
-    constructor( parent, displayId, dbId=null, name=null, properties=null ) 
+    constructor( parent, displayId = 0, dbId=0, name='', properties='' ) 
     {
         super(parent, "image", displayId, dbId, name);
         if (!properties){
@@ -1005,6 +1006,14 @@ class DBIO
     }
     call = function(funcName, vars, callBack)
     {
+    	for( let a in vars )
+    	{
+    		console.log( 'Calling DBIO with var: ' + a + ' vars[a]: ' + vars[a] );
+    		if( vars[a] == null || typeof( vars[a] ) == 'undefined' )
+    		{
+    			vars[a] = false;
+    		}
+    	}
         let self = this;
         let m = new Module ( self.moduleName );
         m.onExecuted = function ( returnCode, returnData )
@@ -1033,8 +1042,8 @@ class ElementTypeIO
     constructor(courseCreator) 
     {
         this.courseCreator = courseCreator;
-        this.data = null;
-        this.elementTypes = null;
+        this.data = false;
+        this.elementTypes = false;
         this.loadElementTypeData();
     }
 
@@ -1085,7 +1094,7 @@ class RootElement extends Element
     constructor(courseCreator)
     {
         super(courseCreator, "root");
-        this.activePage = null;
+        this.activePage = false;
     }
 
     loadData = function( courseId )
@@ -1104,7 +1113,7 @@ class RootElement extends Element
     }
 
     // Creates a new course in the database
-    createNewCourse = function ( displayId, callBack )
+    createNewCourse = function ( displayId = 0, callBack )
     {
         let self = this;
         // Creates a new course that can be saved
@@ -1154,7 +1163,7 @@ class RootElement extends Element
         if( this.saveIndicator )
         {
         	let t = this.saveIndicator;
-        	this.saveIndicator = null;
+        	this.saveIndicator = false;
         }
         let t = document.createElement( 'span' );
         t.className = 'IconSmall fa-refresh Saving';
@@ -1172,7 +1181,7 @@ class RootElement extends Element
         	{
         		ge( 'pageSaveIndicator' ).removeChild( t );
         		if( self.saveIndicator == t )
-	        		self.saveIndicator = null;
+	        		self.saveIndicator = false;
         	}, 750 );
         }, 5 );
     }
