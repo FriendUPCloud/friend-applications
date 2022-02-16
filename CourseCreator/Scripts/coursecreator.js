@@ -304,7 +304,8 @@ class Element
             return false
         if (this.activeChild == null)
             this.activeChild = this.children[0];
-        this.activeChild.renderMain();
+        if( this.activeChild )
+	        this.activeChild.renderMain();
         this.parent.activeChild = this;
     }
 }
