@@ -412,7 +412,7 @@ class CourseDatabase
     public function getCourseList( $vars )
     {
         global $User;
-        
+        // TODO: Add permissions on who can get the entire list
         $query = '
             SELECT 
                 c.ID as courseID,
@@ -430,8 +430,6 @@ class CourseDatabase
                 ON c.ID = s.CourseID
                 LEFT JOIN CC_Page p
                 ON s.ID = p.SectionID
-            WHERE
-                c.OwnerID = \'' . $User->ID . '\'
             ORDER BY
                 c.DisplayID,
                 s.DisplayID,
