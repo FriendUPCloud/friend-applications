@@ -163,6 +163,7 @@ moduleObject.classrooms = {
 			} );
 		} );
 	},
+	// Show the classroom details
 	initClassroomDetails()
 	{
 		let section = FUI.getElementByUniqueId( 'classroom_section_1' );
