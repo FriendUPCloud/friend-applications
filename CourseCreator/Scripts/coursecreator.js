@@ -1007,8 +1007,11 @@ class DBIO
     {
     	for( let a in vars )
     	{
+    		console.log( 'Calling DBIO with var: ' + a + ' vars[a]: ' + vars[a] );
     		if( vars[a] == null )
+    		{
     			vars[a] = false;
+    		}
     	}
         let self = this;
         let m = new Module ( self.moduleName );
