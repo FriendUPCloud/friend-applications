@@ -212,7 +212,7 @@ class Element
 
         // Call save on the child element
         ele.save(function( data ){
-            console.log('')
+            console.log('element save: why are we saving?', data )
             ele.dbId = data;
             ele.domContainer.dataset.dbId = ele.dbId;
             ele.renderMain();
@@ -238,6 +238,7 @@ class Element
             PageID: this.parent.dbId == null ? 0 : this.parent.dbId,
             ElementTypeID: this.classInfo.elementTypeId == null ? 0 : this.classInfo.elementTypeId
         };
+        console.log( 'Saving course with these params: ', params );
         courseCreator.dbio.call(
             'updateTable',
             params,
@@ -1125,11 +1126,12 @@ class RootElement extends Element
         // Save course into the database
         course.save( function( data1 )
         {
-            console.log( 'What is it: ', course );
+            console.log( 'Saving course What is it: ', course );
             course.dbId = data1;
             course.displayId = displayId;
             // Save the section in the database
             section.save( function ( data2 ){
+            	console.log( 'Saving section: ' + data2 );
                 section.dbId = data2; 
                 section.displayId = 0;
                 // Save the page in the database
@@ -1192,15 +1194,15 @@ class RootElement extends Element
     {
         //TODO: also add pages here
         let self = this;
-        console.log(" in the beginning ", self.children);
+        //console.log(" in the beginning ", self.children);
         try
         {
             let pageRows = JSON.parse(data);
             pageRows.forEach( r => {
                 if (r.courseID != courseId)
                     return;
-                console.log("r is", r);
-                console.log("in the beginning what is children", self.children);
+                //console.log("r is", r);
+                //console.log("in the beginning what is children", self.children);
                 
                 // Set project name
                 if( self.children && self.children.length && self.children[0].name )
@@ -1214,27 +1216,28 @@ class RootElement extends Element
                 
                 // Course
                 let c = self.children[r.courseDisplayID];
-                console.log(" root children ", self.children);
-                console.log(" c", c);
-                if ( typeof(c) == "undefined" ){
-                    console.log("created new course", r);
+                //console.log(" root children ", self.children);
+                //console.log(" c", c);
+                if ( typeof(c) == "undefined" )
+                {
+                    //console.log("created new course", r);
                     c = new CourseElement(
-                            self,
-                            r.courseDisplayID,
-                            r.courseID,
-                            r.courseName
-                        );
+                        self,
+                        r.courseDisplayID,
+                        r.courseID,
+                        r.courseName
+                    );
                 }
                 // Section
                 let s = c.children[r.sectionDisplayID];
-                if ( typeof(s) == "undefined" && r.sectionID != null ){
-                    console.log(r);
+                if ( typeof(s) == "undefined" && r.sectionID != null )
+                {
                     s = new SectionElement(
-                            c, 
-                            r.sectionDisplayID, 
-                            r.sectionID,
-                            r.sectionName 
-                        );
+                        c, 
+                        r.sectionDisplayID, 
+                        r.sectionID,
+                        r.sectionName 
+                    );
                 }
                 // Page
                 if( s && s.children && s.children[r.pageDisplayID] )
