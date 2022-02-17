@@ -1208,7 +1208,7 @@ class RootElement extends Element
             pageRows.forEach( r => {
                 if( r.courseID == courseId )
                 {
-                	console.log( 'Parsing child for course: ' + courseId );
+                	console.log( 'Parsing child for course: ' + courseId, r );
                 	
 		            // Set project name
 		            if( self.children && self.children.length && self.children[0].name )
@@ -1222,7 +1222,7 @@ class RootElement extends Element
 		            
 		            // Course
 		            let c = self.children[r.courseDisplayID];
-		            if ( typeof(c) == "undefined" )
+		            if ( typeof(c) == 'undefined' )
 		            {
 		                //console.log("created new course", r);
 		                c = new CourseElement(
@@ -1232,6 +1232,7 @@ class RootElement extends Element
 		                    r.courseName
 		                );
 		            }
+		            
 		            // Section
 		            let s = c.children[r.sectionDisplayID];
 		            if( s && r.sectionID != null )
@@ -1243,6 +1244,7 @@ class RootElement extends Element
 		                    r.sectionName 
 		                );
 		            }
+		            
 		            // Page
 		            if( s && s.children && s.children[r.pageDisplayID] )
 		            {
