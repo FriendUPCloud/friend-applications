@@ -1209,21 +1209,15 @@ class RootElement extends Element
             pageRows.forEach( r => {
                 if( r.courseID == courseId )
                 {
-                	console.log( 'Parsing child for course: ' + courseId, r );
-                	
-		            // Set project name
+                	// Set project name
 		            if( self.children && self.children.length && self.children[0].name )
 		            {
 		            	ge( 'ProjectName' ).innerHTML = self.children[0].name;
 		            }
-		            else
-		            {
-		            	ge( 'ProjectName' ).innerHTML = 'Unnamed project';
-		            }
 		            
 		            // Course
 		            let c = self.children[r.courseDisplayID];
-		            if ( typeof(c) == 'undefined' )
+		            if ( typeof( c ) == 'undefined' )
 		            {
 		                //console.log("created new course", r);
 		                c = new CourseElement(
@@ -1232,11 +1226,12 @@ class RootElement extends Element
 		                    r.courseID,
 		                    r.courseName
 		                );
+		                self.children[r.courseDisplayID] = c;
 		            }
 		            
 		            // Section
 		            let s = c.children[r.sectionDisplayID];
-		            if( s && r.sectionID != null )
+		            if( typeof( s ) == 'undefined' )
 		            {
 		                s = new SectionElement(
 		                    c, 
@@ -1244,12 +1239,12 @@ class RootElement extends Element
 		                    r.sectionID,
 		                    r.sectionName 
 		                );
+		                c.children[r.sectionDisplayID] = s;
 		            }
 		            
 		            // Page
-		            if( s && s.children && s.children[r.pageDisplayID] )
+		            if( s && s.children )
 		            {
-		            	console.log( 'Found a page: ' + r.pageDisplayID );
 				        let p = s.children[r.pageDisplayID];
 				        if( p && r.pageID != null )
 				        {
@@ -1259,6 +1254,7 @@ class RootElement extends Element
 			                    r.pageID,
 			                    r.pageName
 			                );
+			                s.children[r.pageDisplayID] = p;
 				        }
 				    }
 				}
