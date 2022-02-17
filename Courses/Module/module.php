@@ -77,7 +77,7 @@ switch( $args->args->command )
 			SELECT * FROM CC_Course WHERE ID=\'' . intval( $args->args->courseId, 10 ) . '\'
 		' ) )
 		{
-			die( 'ok<!--separate-->' . json_encode( $rows ) );
+			die( 'ok<!--separate-->' . json_encode( $row ) );
 		}
 		die( 'fail<!--separate-->{"message":"Could not find this course.","response":-1}' );
 }

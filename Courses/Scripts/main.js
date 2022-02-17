@@ -51,7 +51,7 @@ Application.run = function( msg )
 }
 
 // Just get a template
-Application.getTemplate( module, template, callback )
+Application.getTemplate = function( module, template, callback )
 {
 	let m = new Module( 'system' );
 	m.onExecuted = function( e, d )
@@ -246,11 +246,21 @@ class Courseviewer
 				return;
 			}
 			let course = JSON.parse( d );
+			if( !course )
+			{
+				Alert( 'Could not load coarse', 'Course was not found on the server.' );
+				return;
+			}
+			console.log( 'What is it: ', course );
 			self.view = new View( {
 				title: 'Taking course: ' + course.Name,
 				width: 1280,
 				height: 700
 			} );
+			self.view.onClose = function()
+			{
+				if( self.view ) self.view = null;
+			}
 			
 			Application.getTemplate( 'classrooms', 'course', function( e, d )
 			{
