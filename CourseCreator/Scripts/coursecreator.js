@@ -1026,15 +1026,15 @@ class DBIO
         m.onExecuted = function ( returnCode, returnData )
         {
             // add check for OK return code
-            console.log("in dbio ", returnCode, returnData);
+            //console.log("in dbio ", returnCode, returnData);
             if (callBack)
                 callBack( returnCode, returnData );
         }
-        console.log( 'Let\'s query module: ', self.type, {
+        /*console.log( 'Let\'s query module: ', self.type, {
             appName: self.appName,
             command: funcName,
             vars: vars
-        } );
+        } );*/
         
         m.execute( self.type, {
             appName: self.appName,
@@ -1200,7 +1200,7 @@ class RootElement extends Element
     {
         //TODO: also add pages here
         let self = this;
-        console.log( 'Checking data for processing (courseId: ' + courseId + ')', data, '--', self.children );
+        //console.log( 'Checking data for processing (courseId: ' + courseId + ')', data, '--', self.children );
         try
         {
             let pageRows = JSON.parse(data);
