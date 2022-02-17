@@ -1206,9 +1206,7 @@ class RootElement extends Element
             let pageRows = JSON.parse(data);
             pageRows.forEach( r => {
                 if (r.courseID != courseId)
-                    return;
-                //console.log("r is", r);
-                //console.log("in the beginning what is children", self.children);
+                    continue;
                 
                 // Set project name
                 if( self.children && self.children.length && self.children[0].name )
