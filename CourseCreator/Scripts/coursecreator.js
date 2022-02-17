@@ -288,7 +288,8 @@ class Element
                     ID: this.dbId
                 },
                 // all parent renderMain and render index afterwards
-                function ( code, data ) {
+                function( code, data )
+                {
                     if (typeof(self.parent.sortElements) == "function")
                         self.parent.sortElements();
                     if (self.elemenType == "page" || self.elementType == "section" )
@@ -1111,9 +1112,10 @@ class RootElement extends Element
         courseCreator.dbio.call(
             'getCourseList',
             {},
-            function ( code, data ) {
+            function ( code, data )
+            {
             	if( data.substr( 0, 1 ) == '{' || data.substr( 0, 1 ) == '[' )
-	                console.log("this is the course table", JSON.parse(data));
+	                console.log( "this is the course table", JSON.parse(data) );
 	            else console.log( 'response from call: ' + data );
                 self.processData(data, courseId);
             }
@@ -1247,7 +1249,7 @@ class RootElement extends Element
 		            {
 		            	console.log( 'There is a page: ', r );
 				        let p = s.children[r.pageDisplayID];
-				        if( p && r.pageID != null )
+				        if( !p && r.pageID != null )
 				        {
 				            p = new PageElement(
 			                    s,
