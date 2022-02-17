@@ -561,8 +561,10 @@
                                         };
                                         // save
                                         const ca = new Module( 'system' );
-                                        ca.onExecuted = ( e ) => 
+                                        ca.onExecuted = ( s, d ) => 
                                         {
+                                            console.log( 'cert add back', [ s, d ]);
+                                            console.log( 'res', JSON.parse( d ));
                                             self.refreshClassroomUsers();
                                         }
                                         
