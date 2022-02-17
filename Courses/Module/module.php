@@ -64,7 +64,6 @@ switch( $args->args->command )
 			die( 'ok<!--separate-->' . json_encode( $rows ) );
 		}
 		die( 'fail<!--separate-->{"message":"Could not find any classrooms for this user.","response":-1}' );
-		break;
 	case 'listsections':
 		if( $rows = $db->database->fetchObjects( '
 			SELECT * FROM CC_Section WHERE CourseID=\'' . intval( $args->args->courseId, 10 ) . '\' ORDER BY DisplayID ASC
@@ -73,7 +72,14 @@ switch( $args->args->command )
 			die( 'ok<!--separate-->' . json_encode( $rows ) );
 		}
 		die( 'fail<!--separate-->{"message":"Could not find sections for this course.","response":-1}' );
-		break;
+	case 'getcourse':
+		if( $row = $db->database->fetchObject( '
+			SELECT * FROM CC_Course WHERE ID=\'' . intval( $args->args->courseId, 10 ) . '\'
+		' ) )
+		{
+			die( 'ok<!--separate-->' . json_encode( $rows ) );
+		}
+		die( 'fail<!--separate-->{"message":"Could not find this course.","response":-1}' );
 }
 die( 'fail<!--separate-->{"message":"Unknown appmodule method.","response":-1}' );
 

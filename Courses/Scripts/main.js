@@ -50,6 +50,22 @@ Application.run = function( msg )
 	}
 }
 
+// Just get a template
+Application.getTemplate( module, template, callback )
+{
+	let m = new Module( 'system' );
+	m.onExecuted = function( e, d )
+	{
+		callback( e, d );
+	}
+	m.execute( 'appmodule', {
+		appName: 'Courses',
+		command: 'gettemplate',
+		moduleName: module,
+		template: template
+	} );
+}
+
 // Setting the module on a moduleview
 function setModule( mv, mod )
 {
@@ -170,7 +186,7 @@ moduleObject.classrooms = {
 	initClassroomDetails( courseId, listview )
 	{
 		let section = FUI.getElementByUniqueId( 'classroom_section_1' );
-		section.setContent( 'Details are coming.' );
+		section.setContent( '<p>Details are coming.</p><p class="TextRight"><button type="button" onclick="moduleObject.classrooms.courseViewer(' + courseId +')">Continue course</button></p>' );
 		
 		let list = FUI.getElementByUniqueId( 'classroom_progress' );
 		let m = new Module( 'system' );
@@ -207,9 +223,57 @@ moduleObject.classrooms = {
 			command: 'listsections',
 			courseId: courseId
 		} );
+	},
+	// The actual course viewer
+	courseViewer( courseId )
+	{
+		let course = new Courseviewer( courseId );
 	}
 };
 
-
+class Courseviewer
+{
+	constructor( courseId )
+	{
+		let self = this;
+		this.courseId = courseId;
+		let m = new Module( 'system' );
+		m.onExecuted = function( e, d )
+		{
+			if( e != 'ok' )
+			{
+				Alert( 'Could not load coarse', 'Course was not found on the server.' );
+				return;
+			}
+			let course = JSON.parse( d );
+			self.view = new View( {
+				title: 'Taking course: ' + course.Name,
+				width: 1280,
+				height: 700
+			} );
+			
+			Application.getTemplate( 'classrooms', 'course', function( e, d )
+			{
+				if( e == 'ok' )
+				{
+					self.view.setContent( d, function()
+					{
+						self.view.sendMessage( { command: 'loadcourse', course: course } );
+					} );
+				}
+				else
+				{
+					self.view.close();
+					self.view = null;
+				}
+			} );
+		}
+		m.execute( 'appmodule', {
+			appName: 'Courses',
+			command: 'getcourse',
+			courseId: courseId
+		} );
+	}
+}
 
 
