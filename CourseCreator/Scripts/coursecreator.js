@@ -1205,58 +1205,59 @@ class RootElement extends Element
         {
             let pageRows = JSON.parse(data);
             pageRows.forEach( r => {
-                if (r.courseID != courseId)
-                    continue;
+                if( r.courseID == courseId )
+                {
                 
-                // Set project name
-                if( self.children && self.children.length && self.children[0].name )
-                {
-                	ge( 'ProjectName' ).innerHTML = self.children[0].name;
-                }
-                else
-                {
-                	ge( 'ProjectName' ).innerHTML = 'Unnamed project';
-                }
-                
-                // Course
-                let c = self.children[r.courseDisplayID];
-                //console.log(" root children ", self.children);
-                //console.log(" c", c);
-                if ( typeof(c) == "undefined" )
-                {
-                    //console.log("created new course", r);
-                    c = new CourseElement(
-                        self,
-                        r.courseDisplayID,
-                        r.courseID,
-                        r.courseName
-                    );
-                }
-                // Section
-                let s = c.children[r.sectionDisplayID];
-                if ( typeof(s) == "undefined" && r.sectionID != null )
-                {
-                    s = new SectionElement(
-                        c, 
-                        r.sectionDisplayID, 
-                        r.sectionID,
-                        r.sectionName 
-                    );
-                }
-                // Page
-                if( s && s.children && s.children[r.pageDisplayID] )
-                {
-		            let p = s.children[r.pageDisplayID];
-		            if( typeof(p) == "undefined" && r.pageID != null )
+		            // Set project name
+		            if( self.children && self.children.length && self.children[0].name )
 		            {
-		                p = new PageElement(
-		                        s,
-		                        r.pageDisplayID,
-		                        r.pageID,
-		                        r.pageName
-		                    );
+		            	ge( 'ProjectName' ).innerHTML = self.children[0].name;
 		            }
-		        }
+		            else
+		            {
+		            	ge( 'ProjectName' ).innerHTML = 'Unnamed project';
+		            }
+		            
+		            // Course
+		            let c = self.children[r.courseDisplayID];
+		            //console.log(" root children ", self.children);
+		            //console.log(" c", c);
+		            if ( typeof(c) == "undefined" )
+		            {
+		                //console.log("created new course", r);
+		                c = new CourseElement(
+		                    self,
+		                    r.courseDisplayID,
+		                    r.courseID,
+		                    r.courseName
+		                );
+		            }
+		            // Section
+		            let s = c.children[r.sectionDisplayID];
+		            if ( typeof(s) == "undefined" && r.sectionID != null )
+		            {
+		                s = new SectionElement(
+		                    c, 
+		                    r.sectionDisplayID, 
+		                    r.sectionID,
+		                    r.sectionName 
+		                );
+		            }
+		            // Page
+		            if( s && s.children && s.children[r.pageDisplayID] )
+		            {
+				        let p = s.children[r.pageDisplayID];
+				        if( typeof(p) == "undefined" && r.pageID != null )
+				        {
+				            p = new PageElement(
+				                    s,
+				                    r.pageDisplayID,
+				                    r.pageID,
+				                    r.pageName
+				                );
+				        }
+				    }
+				}
             });
             courseCreator.loadStatus.finished += 1;
         }
