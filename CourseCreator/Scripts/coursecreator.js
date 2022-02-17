@@ -1245,6 +1245,7 @@ class RootElement extends Element
 		            // Page
 		            if( s && s.children )
 		            {
+		            	console.log( 'There is a page: ', r );
 				        let p = s.children[r.pageDisplayID];
 				        if( p && r.pageID != null )
 				        {
