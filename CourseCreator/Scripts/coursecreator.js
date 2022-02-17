@@ -1123,7 +1123,9 @@ class RootElement extends Element
         // Creates a new page element that can be saved
         let page = new PageElement(section);
         // Save course into the database
-        course.save( function( data1 ){
+        course.save( function( data1 )
+        {
+            console.log( 'What is it: ', course );
             course.dbId = data1;
             course.displayId = displayId;
             // Save the section in the database
@@ -1140,7 +1142,7 @@ class RootElement extends Element
                     }
                 });
             });
-        })
+        } );
         return course;
     }
 
