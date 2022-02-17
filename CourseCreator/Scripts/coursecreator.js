@@ -458,7 +458,8 @@ class PageElement extends Element
             // CallBack to process the data returned
             function ( code, data ) 
             {
-                
+             	console.log( 'Did we get some data? ' + code, data );
+             	console.log( '----' );   
                 if (code == "fail"){
                     console.log(data);
                     return false;
@@ -1505,12 +1506,16 @@ class RootElement extends Element
         // add to dom
         removeDomChildren(courseCreator.indexView);
 
+		
+
         // Add Indexes
         let ul = ce("ul");
         // Courses
         self.children.forEach( c => {
             // Sections
+            console.log( 'Here is a course: ', c );
             c.children.forEach( s => {
+            	console.log( 'Here is a section: ', s );
                 let sLi = makeLiElement(s, 'section' );
                 sLi.classList.add('SectionIndex');
                 let pUl = ce('ul');
