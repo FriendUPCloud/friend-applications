@@ -156,6 +156,9 @@ if( isset( $args->method ) )
                 $d = getcwd();
                 require_once( $d . '/php/friend.php' ); // FriendCall
                 $uid = intval( $args->userId, 10 );
+                $cid = null;
+                if ( isset( $args->classroomId ))
+                    $cid = intval( $args->classroomId, 10 );
                 $to = new dbIO( 'FUser' );
                 $to->Load( $uid );
                 if ( !$to || !isset( $to->UniqueID ))
@@ -283,6 +286,7 @@ if( isset( $args->method ) )
                 // insert into db
                 $vals = [ 
                     $uid, 
+                    $cid,
                     '\'' . $fnm . '.' . $fext . '\'',
                     '\'' . $fh . '\'', 
                     '\'' . $fext . '\'', 
@@ -290,6 +294,7 @@ if( isset( $args->method ) )
                 $q = '
                     INSERT INTO CC_Certificate (
                         UserID,
+                        ClassID,
                         CertName,
                         FileName,
                         FileExt
