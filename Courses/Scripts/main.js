@@ -126,33 +126,36 @@ moduleObject.classrooms = {
 					] );
 					
 					// Enter classroom overview
-					FUI.addCallback( 'w_classroom_enter_' + a, function( ls )
+					( function( courseId )
 					{
-						let m = new Module( 'system' );
-						m.onExecuted = function( mc, md )
+						FUI.addCallback( 'w_classroom_enter_' + a, function( ls )
 						{
-							if( mc != 'ok' )
+							let m = new Module( 'system' );
+							m.onExecuted = function( mc, md )
 							{
-								console.log( 'Could not load classroom.' );
-								return;
-							}
-							moduleObject.moduleView.setSubModuleContent( 
-								'classroom', 
-								'classroom_details', 
-								md, 
-								function()
+								if( mc != 'ok' )
 								{
-									moduleObject.classrooms.initClassroomDetails();
-								} 
-							);
-						}
-						m.execute( 'appmodule', {
-							appName: 'Courses',
-							command: 'gettemplate',
-							moduleName: 'classrooms',
-							template: 'classroom'
+									console.log( 'Could not load classroom.' );
+									return;
+								}
+								moduleObject.moduleView.setSubModuleContent( 
+									'classroom', 
+									'classroom_details', 
+									md, 
+									function()
+									{
+										moduleObject.classrooms.initClassroomDetails( courseId );
+									} 
+								);
+							}
+							m.execute( 'appmodule', {
+								appName: 'Courses',
+								command: 'gettemplate',
+								moduleName: 'classrooms',
+								template: 'classroom'
+							} );
 						} );
-					} );
+					} )( list[ a ].ID );
 				}				
 				
 				ls.setRowData( out );
@@ -164,20 +167,45 @@ moduleObject.classrooms = {
 		} );
 	},
 	// Show the classroom details
-	initClassroomDetails()
+	initClassroomDetails( courseId, listview )
 	{
 		let section = FUI.getElementByUniqueId( 'classroom_section_1' );
 		section.setContent( 'Details are coming.' );
 		
+		let list = FUI.getElementByUniqueId( 'classroom_progress' );
 		let m = new Module( 'system' );
-		m.onExecuted = function()
+		m.onExecuted = function( ee, ed )
 		{
-			
+			if( ee == 'ok' )
+			{
+				let rows = JSON.parse( ed );
+				let out = [];
+				for( let a = 0; a < rows.length; a++ )
+				{
+					out.push( [ {
+						type: 'string',
+						value: rows[a].Name
+					}, {
+						type: 'string',
+						value: '<progressbar progress="20%"/>',
+					}, {
+						type: 'string',
+						value: '..',
+					}, {
+						type: 'string',
+						value: 'Pending',
+					}, {
+						type: 'string',
+						value: 'date'
+					} ] );
+				};
+				list.setRowData( out );
+			}
 		}
 		m.execute( 'appmodule', {
 			appName: 'Courses',
-			command: 'classsections',
-			classroomId: 1
+			command: 'listsections',
+			courseId: courseId
 		} );
 	}
 };
