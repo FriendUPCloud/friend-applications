@@ -1205,6 +1205,7 @@ class RootElement extends Element
         try
         {
             let pageRows = JSON.parse(data);
+            console.log( 'Looking at children: ', self.children );
             pageRows.forEach( r => {
                 if( r.courseID == courseId )
                 {
@@ -1248,7 +1249,7 @@ class RootElement extends Element
 		            // Page
 		            if( s && s.children && s.children[r.pageDisplayID] )
 		            {
-		            	console.log( 'Found a page: ' + r.pageDisplayId );
+		            	console.log( 'Found a page: ' + r.pageDisplayID );
 				        let p = s.children[r.pageDisplayID];
 				        if( p && r.pageID != null )
 				        {
