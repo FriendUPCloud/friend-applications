@@ -375,7 +375,7 @@ class SectionElement extends Element
             ID: this.dbId == null ? 0 : this.dbId,
             Name: this.name == null ? '' : this.name,
             DisplayID: this.displayId == null ? 0 : this.displayId,
-            CourseID: this.parent.dbId == null ? 0 : this.dbId,
+            CourseID: this.parent.dbId == null ? 0 : this.parent.dbId,
             ElementTypeID: this.classInfo.elementTypeId
         };
         console.log("Update table ", params);
@@ -1589,7 +1589,8 @@ class RootElement extends Element
                     {
                         "event": "click",
                         "callBack": function ( event ) {
-                            self.children[0].createNewElement(null, function ( newEle ){
+                            self.children[0].createNewElement(null, function ( newEle )
+                            {
                                 newEle.setActive();
                                 self.renderIndex();
                                 let ss = courseCreator.indexView.querySelectorAll(
@@ -1598,7 +1599,7 @@ class RootElement extends Element
                                 let lastSection = ss[ss.length - 1];
                                 console.log('last section', lastSection);
                                 setActiveClass(lastSection);
-                            });
+                            } );
                         }
                     }
                 ]
