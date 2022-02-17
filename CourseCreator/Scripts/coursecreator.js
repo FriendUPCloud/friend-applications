@@ -372,7 +372,7 @@ class SectionElement extends Element
     {
         let params = {
             table: this.classInfo.dbTable,
-            ID: this.dbId == null ? 0 : this.name,
+            ID: this.dbId == null ? 0 : this.dbId,
             Name: this.name == null ? '' : this.name,
             DisplayID: this.displayId == null ? 0 : this.displayId,
             CourseID: this.parent.dbId == null ? 0 : this.dbId,
