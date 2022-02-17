@@ -365,7 +365,7 @@ class SectionElement extends Element
     constructor( parent, displayId=0, dbId=0, name='' ) 
     {    
         super(parent, "section", displayId, dbId, name); 
-        this.linkDomContainer(courseCreator.mainView);
+        this.linkDomContainer( courseCreator.mainView );
     }
 
     save = function(callBack)
@@ -395,14 +395,18 @@ class PageElement extends Element
     constructor(parent, displayId=0, dbId=0, name='')
     {
         super(parent, "page", displayId, dbId, name);
+        
         this.linkDomContainer();
+        
         this.domContainer.hidden = true;
+        
         // make the pages sortable        
         Sortable.create(
             this.domContainer, {
             handle: '.handle',
             animation: 300
         });
+        
         this.domContainer.classList.add('list-group');
     }
 
@@ -448,6 +452,8 @@ class PageElement extends Element
         // Reset the domContainer
         self.domContainer.replaceChildren();
 
+		console.log( 'Loading elements. sectionId: ' + self.parent.dbId+ ', pageId: ' + self.dbId );
+
         // Get the elements on sectionId/pageId
         courseCreator.dbio.call(
             'getSectionData',
@@ -458,9 +464,8 @@ class PageElement extends Element
             // CallBack to process the data returned
             function ( code, data ) 
             {
-             	console.log( 'Did we get some data? ' + code, data );
-             	console.log( '----' );   
-                if (code == "fail"){
+                if (code == "fail")
+                {
                     console.log(data);
                     return false;
                 }
@@ -1195,7 +1200,7 @@ class RootElement extends Element
     {
         //TODO: also add pages here
         let self = this;
-        //console.log(" in the beginning ", self.children);
+        console.log( 'Checking data for processing (courseId: ' + courseId + ')', data, '--', self.children );
         try
         {
             let pageRows = JSON.parse(data);
