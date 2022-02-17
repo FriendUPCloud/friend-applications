@@ -75,13 +75,13 @@ class Element
 {
     constructor( parent, elementType, displayId=0, dbId=0, name='') 
     {
-        console.log(
+        /*console.log(
             "in element construct", 
             "elementType", elementType, 
             "displayId", displayId, 
             "dbId", dbId, 
             "name", name
-        );
+        );*/
         this.parent = parent;
         this.elementType = elementType;
         this.displayId = displayId;
@@ -94,8 +94,9 @@ class Element
         this.name = name ? name : "Untitled " + this.classInfo.displayName;
 
         // Add child to parents children if exists
-        if (! ( typeof(this.parent.children) == "undefined") ) {
-            console.log("adding to parent");
+        if( !( typeof(this.parent.children) == 'undefined' ) )
+        {
+            //console.log("adding to parent");
             this.parent.children.push(this);
         }
 
@@ -103,7 +104,7 @@ class Element
         this.domContainer = false;
         this.children = new Array();
         this.activeChild = false;
-        console.log("this is self ",this);
+        //console.log("this is self ",this);
     }
 
     resetDomContainer = function()
@@ -111,7 +112,7 @@ class Element
         // replaces all content except for delete button
         let buttons = this.domContainer.querySelector(".buttons");
         let handle = this.domContainer.querySelector(".handle");
-        console.log("nav items are ", buttons, handle);
+        //console.log("nav items are ", buttons, handle);
         this.domContainer.replaceChildren(buttons, handle);
     }
 
@@ -122,8 +123,8 @@ class Element
             domContainer = self.createDomContainer(self.elementClass);
         self.domContainer = domContainer;
         self.domContainer.elementRef = self;
-        console.log("self parent dom", self.parent.domContainer);
-        console.log("self dom", self.domContainer);
+        //console.log("self parent dom", self.parent.domContainer);
+        //console.log("self dom", self.domContainer);
         if (self.parent.domContainer) 
             self.parent.domContainer.appendChild(self.domContainer);
     }
@@ -145,19 +146,19 @@ class Element
         let ele = ce(
             'div',
             {
-                "attributes": {
-                    "data-display-id": this.displayId,
-                    "data-db-id": this.dbId,
-                    "data-element-type": this.elementType,
-                    "draggable": "true"
+                'attributes': {
+                    'data-display-id': this.displayId,
+                    'data-db-id': this.dbId,
+                    'data-element-type': this.elementType,
+                    'draggable': 'true'
                 },
-                "classes" : [
+                'classes' : [
                     this.classInfo.cssClass
                 ],
-                "listeners": [
+                'listeners': [
                             {
-                                "event": "dragend",
-                                "callBack": function( e )
+                                'event': 'dragend',
+                                'callBack': function( e )
                                 {
                                 	courseCreator.manager.saveActivePage();
                                 }
@@ -1207,7 +1208,8 @@ class RootElement extends Element
             pageRows.forEach( r => {
                 if( r.courseID == courseId )
                 {
-                
+                	console.log( 'Parsing child for course: ' + courseId );
+                	
 		            // Set project name
 		            if( self.children && self.children.length && self.children[0].name )
 		            {
@@ -1220,8 +1222,6 @@ class RootElement extends Element
 		            
 		            // Course
 		            let c = self.children[r.courseDisplayID];
-		            //console.log(" root children ", self.children);
-		            //console.log(" c", c);
 		            if ( typeof(c) == "undefined" )
 		            {
 		                //console.log("created new course", r);
@@ -1234,7 +1234,7 @@ class RootElement extends Element
 		            }
 		            // Section
 		            let s = c.children[r.sectionDisplayID];
-		            if ( typeof(s) == "undefined" && r.sectionID != null )
+		            if( s && r.sectionID != null )
 		            {
 		                s = new SectionElement(
 		                    c, 
@@ -1246,15 +1246,16 @@ class RootElement extends Element
 		            // Page
 		            if( s && s.children && s.children[r.pageDisplayID] )
 		            {
+		            	console.log( 'Found a page: ' + r.pageDisplayId );
 				        let p = s.children[r.pageDisplayID];
-				        if( typeof(p) == "undefined" && r.pageID != null )
+				        if( p && r.pageID != null )
 				        {
 				            p = new PageElement(
-				                    s,
-				                    r.pageDisplayID,
-				                    r.pageID,
-				                    r.pageName
-				                );
+			                    s,
+			                    r.pageDisplayID,
+			                    r.pageID,
+			                    r.pageName
+			                );
 				        }
 				    }
 				}
