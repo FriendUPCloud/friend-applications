@@ -75,13 +75,13 @@ class Element
 {
     constructor( parent, elementType, displayId=0, dbId=0, name='') 
     {
-        console.log(
+        /*console.log(
             "in element construct", 
             "elementType", elementType, 
             "displayId", displayId, 
             "dbId", dbId, 
             "name", name
-        );
+        );*/
         this.parent = parent;
         this.elementType = elementType;
         this.displayId = displayId;
@@ -94,8 +94,9 @@ class Element
         this.name = name ? name : "Untitled " + this.classInfo.displayName;
 
         // Add child to parents children if exists
-        if (! ( typeof(this.parent.children) == "undefined") ) {
-            console.log("adding to parent");
+        if( !( typeof(this.parent.children) == 'undefined' ) )
+        {
+            //console.log("adding to parent");
             this.parent.children.push(this);
         }
 
@@ -103,7 +104,7 @@ class Element
         this.domContainer = false;
         this.children = new Array();
         this.activeChild = false;
-        console.log("this is self ",this);
+        //console.log("this is self ",this);
     }
 
     resetDomContainer = function()
@@ -111,7 +112,7 @@ class Element
         // replaces all content except for delete button
         let buttons = this.domContainer.querySelector(".buttons");
         let handle = this.domContainer.querySelector(".handle");
-        console.log("nav items are ", buttons, handle);
+        //console.log("nav items are ", buttons, handle);
         this.domContainer.replaceChildren(buttons, handle);
     }
 
@@ -122,8 +123,8 @@ class Element
             domContainer = self.createDomContainer(self.elementClass);
         self.domContainer = domContainer;
         self.domContainer.elementRef = self;
-        console.log("self parent dom", self.parent.domContainer);
-        console.log("self dom", self.domContainer);
+        //console.log("self parent dom", self.parent.domContainer);
+        //console.log("self dom", self.domContainer);
         if (self.parent.domContainer) 
             self.parent.domContainer.appendChild(self.domContainer);
     }
@@ -145,19 +146,19 @@ class Element
         let ele = ce(
             'div',
             {
-                "attributes": {
-                    "data-display-id": this.displayId,
-                    "data-db-id": this.dbId,
-                    "data-element-type": this.elementType,
-                    "draggable": "true"
+                'attributes': {
+                    'data-display-id': this.displayId,
+                    'data-db-id': this.dbId,
+                    'data-element-type': this.elementType,
+                    'draggable': 'true'
                 },
-                "classes" : [
+                'classes' : [
                     this.classInfo.cssClass
                 ],
-                "listeners": [
+                'listeners': [
                             {
-                                "event": "dragend",
-                                "callBack": function( e )
+                                'event': 'dragend',
+                                'callBack': function( e )
                                 {
                                 	courseCreator.manager.saveActivePage();
                                 }
@@ -212,7 +213,7 @@ class Element
 
         // Call save on the child element
         ele.save(function( data ){
-            console.log('')
+            console.log('element save: why are we saving?', data )
             ele.dbId = data;
             ele.domContainer.dataset.dbId = ele.dbId;
             ele.renderMain();
@@ -238,6 +239,7 @@ class Element
             PageID: this.parent.dbId == null ? 0 : this.parent.dbId,
             ElementTypeID: this.classInfo.elementTypeId == null ? 0 : this.classInfo.elementTypeId
         };
+        console.log( 'Saving course with these params: ', params );
         courseCreator.dbio.call(
             'updateTable',
             params,
@@ -286,7 +288,8 @@ class Element
                     ID: this.dbId
                 },
                 // all parent renderMain and render index afterwards
-                function ( code, data ) {
+                function( code, data )
+                {
                     if (typeof(self.parent.sortElements) == "function")
                         self.parent.sortElements();
                     if (self.elemenType == "page" || self.elementType == "section" )
@@ -364,17 +367,17 @@ class SectionElement extends Element
     constructor( parent, displayId=0, dbId=0, name='' ) 
     {    
         super(parent, "section", displayId, dbId, name); 
-        this.linkDomContainer(courseCreator.mainView);
+        this.linkDomContainer( courseCreator.mainView );
     }
 
     save = function(callBack)
     {
         let params = {
             table: this.classInfo.dbTable,
-            ID: this.dbId == null ? 0 : this.name,
+            ID: this.dbId == null ? 0 : this.dbId,
             Name: this.name == null ? '' : this.name,
             DisplayID: this.displayId == null ? 0 : this.displayId,
-            CourseID: this.parent.dbId == null ? 0 : this.dbId,
+            CourseID: this.parent.dbId == null ? 0 : this.parent.dbId,
             ElementTypeID: this.classInfo.elementTypeId
         };
         console.log("Update table ", params);
@@ -394,14 +397,18 @@ class PageElement extends Element
     constructor(parent, displayId=0, dbId=0, name='')
     {
         super(parent, "page", displayId, dbId, name);
+        
         this.linkDomContainer();
+        
         this.domContainer.hidden = true;
+        
         // make the pages sortable        
         Sortable.create(
             this.domContainer, {
             handle: '.handle',
             animation: 300
         });
+        
         this.domContainer.classList.add('list-group');
     }
 
@@ -447,6 +454,8 @@ class PageElement extends Element
         // Reset the domContainer
         self.domContainer.replaceChildren();
 
+		console.log( 'Loading elements. sectionId: ' + self.parent.dbId+ ', pageId: ' + self.dbId );
+
         // Get the elements on sectionId/pageId
         courseCreator.dbio.call(
             'getSectionData',
@@ -457,8 +466,8 @@ class PageElement extends Element
             // CallBack to process the data returned
             function ( code, data ) 
             {
-                
-                if (code == "fail"){
+                if (code == "fail")
+                {
                     console.log(data);
                     return false;
                 }
@@ -1019,15 +1028,15 @@ class DBIO
         m.onExecuted = function ( returnCode, returnData )
         {
             // add check for OK return code
-            console.log("in dbio ", returnCode, returnData);
+            //console.log("in dbio ", returnCode, returnData);
             if (callBack)
                 callBack( returnCode, returnData );
         }
-        console.log( 'Let\'s query module: ', self.type, {
+        /*console.log( 'Let\'s query module: ', self.type, {
             appName: self.appName,
             command: funcName,
             vars: vars
-        } );
+        } );*/
         
         m.execute( self.type, {
             appName: self.appName,
@@ -1103,9 +1112,10 @@ class RootElement extends Element
         courseCreator.dbio.call(
             'getCourseList',
             {},
-            function ( code, data ) {
+            function ( code, data )
+            {
             	if( data.substr( 0, 1 ) == '{' || data.substr( 0, 1 ) == '[' )
-	                console.log("this is the course table", JSON.parse(data));
+	                console.log( "this is the course table", JSON.parse(data) );
 	            else console.log( 'response from call: ' + data );
                 self.processData(data, courseId);
             }
@@ -1123,11 +1133,14 @@ class RootElement extends Element
         // Creates a new page element that can be saved
         let page = new PageElement(section);
         // Save course into the database
-        course.save( function( data1 ){
+        course.save( function( data1 )
+        {
+            console.log( 'Saving course What is it: ', course );
             course.dbId = data1;
             course.displayId = displayId;
             // Save the section in the database
             section.save( function ( data2 ){
+            	console.log( 'Saving section: ' + data2 );
                 section.dbId = data2; 
                 section.displayId = 0;
                 // Save the page in the database
@@ -1140,7 +1153,7 @@ class RootElement extends Element
                     }
                 });
             });
-        })
+        } );
         return course;
     }
 
@@ -1190,60 +1203,64 @@ class RootElement extends Element
     {
         //TODO: also add pages here
         let self = this;
-        console.log(" in the beginning ", self.children);
+        //console.log( 'Checking data for processing (courseId: ' + courseId + ')', data, '--', self.children );
         try
         {
             let pageRows = JSON.parse(data);
+            console.log( 'Looking at children: ', self.children );
             pageRows.forEach( r => {
-                if (r.courseID != courseId)
-                    return;
-                console.log("r is", r);
-                console.log("in the beginning what is children", self.children);
-                
-                // Set project name
-                if( self.children && self.children.length && self.children[0].name )
+                if( r.courseID == courseId )
                 {
-                	ge( 'ProjectName' ).innerHTML = self.children[0].name;
-                }
-                else
-                {
-                	ge( 'ProjectName' ).innerHTML = 'Unnamed project';
-                }
-                
-                // Course
-                let c = self.children[r.courseDisplayID];
-                console.log(" root children ", self.children);
-                console.log(" c", c);
-                if ( typeof(c) == "undefined" ){
-                    console.log("created new course", r);
-                    c = new CourseElement(
-                            self,
-                            r.courseDisplayID,
-                            r.courseID,
-                            r.courseName
-                        );
-                }
-                // Section
-                let s = c.children[r.sectionDisplayID];
-                if ( typeof(s) == "undefined" && r.sectionID != null ){
-                    console.log(r);
-                    s = new SectionElement(
-                            c, 
-                            r.sectionDisplayID, 
-                            r.sectionID,
-                            r.sectionName 
-                        );
-                }
-                // Page
-                let p = s.children[r.pageDisplayID];
-                if ( typeof(p) == "undefined" && r.pageID != null ){
-                    p = new PageElement(
-                            s,
-                            r.pageDisplayID,
-                            r.pageID,
-                            r.pageName
-                        );
-                }
+                	// Set project name
+		            if( self.children && self.children.length && self.children[0].name )
+		            {
+		            	ge( 'ProjectName' ).innerHTML = self.children[0].name;
+		            }
+		            
+		            // Course
+		            let c = self.children[r.courseDisplayID];
+		            if ( typeof( c ) == 'undefined' )
+		            {
+		                //console.log("created new course", r);
+		                c = new CourseElement(
+		                    self,
+		                    r.courseDisplayID,
+		                    r.courseID,
+		                    r.courseName
+		                );
+		                self.children[r.courseDisplayID] = c;
+		            }
+		            
+		            // Section
+		            let s = c.children[r.sectionDisplayID];
+		            if( typeof( s ) == 'undefined' )
+		            {
+		                s = new SectionElement(
+		                    c, 
+		                    r.sectionDisplayID, 
+		                    r.sectionID,
+		                    r.sectionName 
+		                );
+		                c.children[r.sectionDisplayID] = s;
+		            }
+		            
+		            // Page
+		            if( s && s.children )
+		            {
+		            	console.log( 'There is a page: ', r );
+				        let p = s.children[r.pageDisplayID];
+				        if( !p && r.pageID != null )
+				        {
+				            p = new PageElement(
+			                    s,
+			                    r.pageDisplayID,
+			                    r.pageID,
+			                    r.pageName
+			                );
+			                s.children[r.pageDisplayID] = p;
+				        }
+				    }
+				}
             });
             courseCreator.loadStatus.finished += 1;
         }
@@ -1496,12 +1513,16 @@ class RootElement extends Element
         // add to dom
         removeDomChildren(courseCreator.indexView);
 
+		
+
         // Add Indexes
         let ul = ce("ul");
         // Courses
         self.children.forEach( c => {
             // Sections
+            console.log( 'Here is a course: ', c );
             c.children.forEach( s => {
+            	console.log( 'Here is a section: ', s );
                 let sLi = makeLiElement(s, 'section' );
                 sLi.classList.add('SectionIndex');
                 let pUl = ce('ul');
@@ -1571,7 +1592,8 @@ class RootElement extends Element
                     {
                         "event": "click",
                         "callBack": function ( event ) {
-                            self.children[0].createNewElement(null, function ( newEle ){
+                            self.children[0].createNewElement(null, function ( newEle )
+                            {
                                 newEle.setActive();
                                 self.renderIndex();
                                 let ss = courseCreator.indexView.querySelectorAll(
@@ -1580,7 +1602,7 @@ class RootElement extends Element
                                 let lastSection = ss[ss.length - 1];
                                 console.log('last section', lastSection);
                                 setActiveClass(lastSection);
-                            });
+                            } );
                         }
                     }
                 ]

@@ -13,7 +13,10 @@ class FUIModuleview extends FUIElement
 	constructor( options )
     {
         super( options );
-        // Do stuff
+        
+        // Set some vars
+        this.currentModule = false;
+        
     }
     attachDomElement()
     {
@@ -177,6 +180,7 @@ class FUIModuleview extends FUIElement
 			if( ch.module == mod )
 			{
 				ch.classList.add( 'Clicked' );
+				this.currentModule = mod;
 			}
 			else
 			{
