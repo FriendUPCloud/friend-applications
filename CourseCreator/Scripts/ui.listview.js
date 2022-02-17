@@ -21,6 +21,18 @@ class ccListview extends ccGUIElement
 	        this.options.hasRows = false;
     }
     
+    show()
+    {
+    	console.log( 'lv.show', this.domElement );
+    	this.domElement.classList.toggle( 'ccHidden', false );
+    }
+    
+    hide()
+    {
+    	console.log( 'lv.hide', this.domElement );
+    	this.domElement.classList.toggle( 'ccHidden', true );
+    }
+    
     attachDomElement()
     {
         super.attachDomElement();
