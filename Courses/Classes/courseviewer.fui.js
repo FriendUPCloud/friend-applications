@@ -23,7 +23,7 @@ class FUICourseviewer extends FUIElement
         
         let self = this;
         
-        this.domElement.setAttribute( 'FUICourseviewer' );
+        this.domElement.classList.add( 'FUICourseviewer' );
     }
     grabAttributes( domElement )
     {
@@ -79,6 +79,4 @@ class FUICourseviewer extends FUIElement
     }
 }
 FUI.registerClass( 'courseviewer' );
-
-
 

@@ -262,21 +262,15 @@ class Courseviewer
 				if( self.view ) self.view = null;
 			}
 			
-			Application.getTemplate( 'classrooms', 'course', function( e, d )
+			let f = new File( 'Progdir:Assets/course.html' );
+			f.onLoad = function( data )
 			{
-				if( e == 'ok' )
+				self.view.setContent( data, function()
 				{
-					self.view.setContent( d, function()
-					{
-						self.view.sendMessage( { command: 'loadcourse', course: course } );
-					} );
-				}
-				else
-				{
-					self.view.close();
-					self.view = null;
-				}
-			} );
+					self.view.sendMessage( { command: 'loadcourse', course: course } );
+				} );
+			}
+			f.load();
 		}
 		m.execute( 'appmodule', {
 			appName: 'Courses',
