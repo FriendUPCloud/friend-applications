@@ -100,12 +100,17 @@ function drop(ev)
 
         // drop in Page (only element that has a createNewElement function)
         let ele = ev.target.elementRef;
-        if ( (typeof(ele) != "undefined") 
-            && (typeof(ele.createNewElement) == "function") )
-            ele.createNewElement(elementType, function() {
+        if( 
+        	(typeof(ele) != "undefined") &&
+            (typeof(ele.createNewElement) == "function") 
+        )
+        {
+            ele.createNewElement(elementType, function()
+            {
+            	if( ele.sortElements )
                     ele.sortElements();
-            });
-            
+            } );
+        }   
     }
 
 }

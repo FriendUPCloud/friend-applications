@@ -1235,15 +1235,18 @@ class RootElement extends Element
                         );
                 }
                 // Page
-                let p = s.children[r.pageDisplayID];
-                if ( typeof(p) == "undefined" && r.pageID != null ){
-                    p = new PageElement(
-                            s,
-                            r.pageDisplayID,
-                            r.pageID,
-                            r.pageName
-                        );
-                }
+                if( typeof( s.children[r.pageDisplayID] ) != undefined )
+                {
+		            let p = s.children[r.pageDisplayID];
+		            if ( typeof(p) == "undefined" && r.pageID != null ){
+		                p = new PageElement(
+		                        s,
+		                        r.pageDisplayID,
+		                        r.pageID,
+		                        r.pageName
+		                    );
+		            }
+		        }
             });
             courseCreator.loadStatus.finished += 1;
         }
