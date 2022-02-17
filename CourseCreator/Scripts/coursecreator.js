@@ -1237,10 +1237,11 @@ class RootElement extends Element
                         );
                 }
                 // Page
-                if( typeof( s.children[r.pageDisplayID] ) != undefined )
+                if( s && s.children && s.children[r.pageDisplayID] )
                 {
 		            let p = s.children[r.pageDisplayID];
-		            if ( typeof(p) == "undefined" && r.pageID != null ){
+		            if( typeof(p) == "undefined" && r.pageID != null )
+		            {
 		                p = new PageElement(
 		                        s,
 		                        r.pageDisplayID,
