@@ -142,7 +142,7 @@ moduleObject.classrooms = {
 					] );
 					
 					// Enter classroom overview
-					( function( courseId )
+					( function( classroomId )
 					{
 						FUI.addCallback( 'w_classroom_enter_' + a, function( ls )
 						{
@@ -160,7 +160,7 @@ moduleObject.classrooms = {
 									md, 
 									function()
 									{
-										moduleObject.classrooms.initClassroomDetails( courseId );
+										moduleObject.classrooms.initClassroomDetails( classroomId );
 									} 
 								);
 							}
@@ -183,45 +183,58 @@ moduleObject.classrooms = {
 		} );
 	},
 	// Show the classroom details
-	initClassroomDetails( courseId, listview )
+	initClassroomDetails( classroomId, listview )
 	{
-		let section = FUI.getElementByUniqueId( 'classroom_section_1' );
-		section.setContent( '<p>Details are coming.</p><p class="TextRight"><button type="button" onclick="moduleObject.classrooms.courseViewer(' + courseId +')">Continue course</button></p>' );
-		
-		let list = FUI.getElementByUniqueId( 'classroom_progress' );
-		let m = new Module( 'system' );
-		m.onExecuted = function( ee, ed )
+		let n = new Module( 'system' );
+		n.onExecuted = function( ee, dd )
 		{
-			if( ee == 'ok' )
+			let course = JSON.parse( dd );
+			
+			let section = FUI.getElementByUniqueId( 'classroom_section_1' );
+			section.setHeader( 'Details for ' + course.Name );
+			section.setContent( '<p>Details are coming.</p><p class="TextRight"><button type="button" onclick="moduleObject.classrooms.courseViewer(' + course.ID +')">Continue course</button></p>' );
+			
+			let list = FUI.getElementByUniqueId( 'classroom_progress' );
+			let m = new Module( 'system' );
+			m.onExecuted = function( ee, ed )
 			{
-				let rows = JSON.parse( ed );
-				let out = [];
-				for( let a = 0; a < rows.length; a++ )
+				if( ee == 'ok' )
 				{
-					out.push( [ {
-						type: 'string',
-						value: rows[a].Name
-					}, {
-						type: 'string',
-						value: '<progressbar progress="20%"/>',
-					}, {
-						type: 'string',
-						value: '..',
-					}, {
-						type: 'string',
-						value: 'Pending',
-					}, {
-						type: 'string',
-						value: 'date'
-					} ] );
-				};
-				list.setRowData( out );
+					let rows = JSON.parse( ed );
+					let out = [];
+					console.log( 'What are the sections?', rows );
+					for( let a = 0; a < rows.length; a++ )
+					{
+						out.push( [ {
+							type: 'string',
+							value: rows[a].Name
+						}, {
+							type: 'string',
+							value: '<progressbar progress="20%"/>',
+						}, {
+							type: 'string',
+							value: '..',
+						}, {
+							type: 'string',
+							value: 'Pending',
+						}, {
+							type: 'string',
+							value: 'date'
+						} ] );
+					};
+					list.setRowData( out );
+				}
 			}
+			m.execute( 'appmodule', {
+				appName: 'Courses',
+				command: 'listsections',
+				courseId: course.ID
+			} );
 		}
-		m.execute( 'appmodule', {
+		n.execute( 'appmodule', {
 			appName: 'Courses',
-			command: 'listsections',
-			courseId: courseId
+			command: 'getcoursebyclassroom',
+			courseId: classroomId
 		} );
 	},
 	// The actual course viewer

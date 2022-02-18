@@ -82,6 +82,15 @@ switch( $args->args->command )
 			die( 'ok<!--separate-->' . json_encode( $row ) );
 		}
 		die( 'fail<!--separate-->{"message":"Could not find this course.","response":-1}' );
+	case 'getcoursebyclassroom':
+		if( $row = $db->database->fetchObject( '
+			SELECT c.* FROM CC_Course c, CC_Classroom cl WHERE cl.ID=\'' . intval( $args->args->courseId, 10 ) . '\' AND c.ID = cl.CourseID
+		' ) )
+		{
+			die( 'ok<!--separate-->' . json_encode( $row ) );
+		}
+		die( 'fail<!--separate-->{"message":"Could not find this course.","response":-1}' );
+		break;
 	// Load the entire course structure
 	case 'loadcoursestructure':
 		if( $rows = $db->database->fetchObjects( '
