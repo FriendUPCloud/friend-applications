@@ -124,7 +124,6 @@ class FUICourseviewer extends FUIElement
     			if( list[a].Type == 'Section' )
     			{
     				self.sections[ list[a].ID ] = list[a];
-    				console.log( 'Added section with id: ' + list[a].ID );
     			}
     			else if( list[a].Type == 'Page' )
     			{
@@ -150,9 +149,28 @@ class FUICourseviewer extends FUIElement
     			
     			if( !self.activeSection )
     			{
-    				self.activeSection = self.sections[a];
+    				self.activeSection = a;
     				d.classList.add( 'Emphasized' );
     			}
+    			else if( self.activeSection == a )
+    			{
+    				d.classList.add( 'Emphasized' );
+    			}
+    			else
+    			{
+    				d.classList.remove( 'Emphasized' );
+    			}
+    			
+    			( function( ind )
+    			{
+					d.onclick = function()
+					{
+						self.activeSection = ind;
+						self.currentPage = 0;
+						self.refreshStructure();
+						self.renderElements();
+					}
+				} )( a );
     			
     			/*let pages = d.querySelector( '.FUICourseviewerPages' );
     			for( let b = 0; b < row.pages.length; b++ )
@@ -166,8 +184,6 @@ class FUICourseviewer extends FUIElement
     		}
     		
     		self.renderElements();
-    		
-    		FUI.initialize();
     	} );
     }
     
@@ -184,10 +200,17 @@ class FUICourseviewer extends FUIElement
     		self.currentPage = 0;
     	}
     	
-    	if( self.activeSection.pages && self.activeSection.pages[self.currentPage] )
+    	self.canvasContent.innerHTML = '';
+    	
+    	let act = false;
+    	for( let a in self.sections )
+    		if( a == self.activeSection )
+    			act = self.sections[ a ];
+    	
+    	if( act && act.pages && act.pages[self.currentPage] )
     	{
     		// Ref the page
-    		let page = self.activeSection.pages[self.currentPage];
+    		let page = act.pages[self.currentPage];
 			// Load all elements for the page
 			let m = new Module( 'system' );
 			m.onExecuted = function( e, d )
@@ -198,6 +221,7 @@ class FUICourseviewer extends FUIElement
 				{
 					self.addToCanvas( self.createElement( els[a].ElementType, els[a] ) );
 				}
+				FUI.initialize();
 			}
 			m.execute( 'appmodule', {
 				appName: 'Courses',
@@ -231,6 +255,33 @@ class FUICourseviewer extends FUIElement
     			
     			return d;
     		}
+    		case 'checkBoxQuestion':
+    		{
+    			let d = document.createElement( 'div' );
+    			d.className = 'FUICourseCheckbox';
+    			
+    			let bx = document.createElement( 'div' );
+    			bx.className = 'FUICCBXContent';
+    			//txt.innerHTML = props.textBox.content;
+    			d.appendChild( bx );
+    		
+    			return d;
+    		}
+    		case 'image':
+    		{
+    			let d = document.createElement( 'div' );
+    			d.className = 'FUICourseImage';
+    			
+    			let im = document.createElement( 'div' );
+    			im.className = 'FUICCIMG';
+    			//txt.innerHTML = props.textBox.content;
+    			d.appendChild( im );
+    		
+    			return d;
+    		}
+    		default:
+    			console.log( 'Unknown type ' + type );
+    			break;
     	}
     }
     
