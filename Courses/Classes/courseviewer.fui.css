@@ -26,7 +26,7 @@
 	position: absolute;
 	top: 0;
 	left: 0;
-	width: 250px;
+	width: 300px;
 	height: 100%;
 	scroll-behavior: smooth;
 	overflow: auto;
@@ -38,8 +38,8 @@
 {
 	position: absolute;
 	top: 0;
-	left: 250px;
-	width: calc(100% - 250px);
+	left: 300px;
+	width: calc(100% - 300px);
 	height: 100%;
 	scroll-behavior: smooth;
 	overflow: auto;
@@ -103,7 +103,8 @@
 
 /* Types */
 
-.FUICourseviewerCanvas .FUICourseTextbox
+.FUICourseviewerCanvas .FUICourseTextbox, 
+.FUICourseviewerCanvas .FUICourseCheckbox
 {
 	display: block;
 	border: 1px solid var(--fui-border-foreground);
@@ -112,5 +113,57 @@
 	padding: var(--fui-padding-normal);
 	box-sizing: border-box;
 	margin: 0 0 10px 0;
+	border-radius: var(--fui-border-radius-normal);
 }
+
+.FUICourseCheckbox .FUICBXUL:after
+{
+	content: " ";
+	display: block;
+	clear: both;
+}
+
+.FUICourseCheckbox .FUICBXUL .FUICBXLI
+{
+	display: block;
+	padding: 0;
+	margin: 0;
+}
+
+.FUICourseCheckbox .FUICBXUL .FUICBXLI span
+{
+	display: inline-block;
+	width: 30px;
+	box-sizing: border-box;
+	padding: 0 5px 0 0;
+	text-align: right;
+}
+
+.FUICourseCheckbox .FUICBXUL .FUICBXLI span+span
+{
+	width: calc(50% - 60px);
+	padding: 0;
+	text-align: left;
+}
+
+.FUICourseCheckbox .FUICBXUL .FUICBXLI span+span+span
+{
+	width: 30px;
+}
+
+.FUICourseImage h2
+{
+	color: var(--fui-color);
+	font-size: var(--font-size-normal);
+	font-weight: bold;
+}
+
+.FUICourseImage img
+{
+	width: 100%;
+	height: auto;
+	border-radius: var(--fui-border-radius-normal);
+}
+
+
 

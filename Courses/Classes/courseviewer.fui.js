@@ -246,6 +246,8 @@ class FUICourseviewer extends FUIElement
     {
     	let props = JSON.parse( data.Properties );
     
+	    console.log( 'Props: ', props );
+    
     	switch( type )
     	{
     		case 'textBox':
@@ -267,7 +269,21 @@ class FUICourseviewer extends FUIElement
     			
     			let bx = document.createElement( 'div' );
     			bx.className = 'FUICCBXContent';
-    			//txt.innerHTML = props.textBox.content;
+    			bx.innerHTML = '<strong>' + props.question + '</strong>';
+    			
+    			let ul = document.createElement( 'div' );
+    			ul.className = 'FUICBXUL';
+    			
+    			for( let b in props.checkBoxes )
+    			{
+    				let n = document.createElement( 'div' );
+    				n.className = 'FUICBXLI';
+    				n.innerHTML = '<span>' + ( parseInt( b ) + 1 ) + '.</span><span>' + props.checkBoxes[b].label + '</span><span><input type="checkbox"/></span>';
+    				ul.appendChild( n );
+    			}
+    			
+    			bx.appendChild( ul );
+    			
     			d.appendChild( bx );
     		
     			return d;
@@ -279,7 +295,13 @@ class FUICourseviewer extends FUIElement
     			
     			let im = document.createElement( 'div' );
     			im.className = 'FUICCIMG';
-    			//txt.innerHTML = props.textBox.content;
+    			
+    			im.innerHTML = '<h2>' + props.image.title + '</h2>';
+    			
+    			let i = document.createElement( 'img' );
+    			i.src = getImageUrl( props.image.friendSource );
+    			im.appendChild( i );
+    			
     			d.appendChild( im );
     		
     			return d;
