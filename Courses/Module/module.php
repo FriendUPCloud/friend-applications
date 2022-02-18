@@ -84,33 +84,32 @@ switch( $args->args->command )
 		die( 'fail<!--separate-->{"message":"Could not find this course.","response":-1}' );
 	// Load the entire course structure
 	case 'loadcoursestructure':
-		if( $rows = $db->database->fetchObject( '
+		if( $rows = $db->database->fetchObjects( '
 			SELECT * FROM
 			(
 				SELECT 
-					p.ID, p.Name, p.DisplayID, p.DateCreated, p.DateUpdated, `Page` as `Type`
+					p.ID, p.Name, p.DisplayID, p.DateCreated, p.DateUpdated, "Page" as `Type`
 				FROM 
 					CC_Page p, CC_Section s
 				WHERE
 					p.SectionID = s.ID AND 
 					s.CourseID = \'' . intval( $args->args->courseId, 10 ) . '\'
-			)
+			) AS NR1
 			UNION
 			(
 				SELECT 
-					d.ID, d.Name, d.DisplayID, d.DateCreated, d.DateUpdated, `Section` as `Type`
+					d.ID, d.Name, d.DisplayID, d.DateCreated, d.DateUpdated, "Section" as `Type`
 				FROM 
 					CC_Section d
 				WHERE
 					d.CourseID = \'' . intval( $args->args->courseId, 10 ) . '\'
 			)
-			ORDER BY DisplayID ASC
+			ORDER BY `Type` DESC, DisplayID ASC
 		' ) )
 		{
 			die( 'ok<!--separate-->' . json_encode( $rows ) );
 		}
 		die( 'fail<!--separate-->{"message":"Could not find course structure.","response":-1}' );
-		break;
 }
 die( 'fail<!--separate-->{"message":"Unknown appmodule method.","response":-1}' );
 

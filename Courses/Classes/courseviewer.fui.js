@@ -101,10 +101,32 @@ class FUICourseviewer extends FUIElement
     	let self = this;
     	
     	// Load course structure and make DOM elements
-    	this.loadCourseStructure( function( data )
+    	this.#loadCourseStructure( function( data )
     	{
-    		if( data )
-	    		console.log( 'Here is the data: ', JSON.parse( data ) );
+    		if( !data ) return;
+    		self.sections = {};
+    		let list = JSON.parse( data );
+			console.log( 'Data from list: ', list );
+    		for( let a = 0; a < list.length; a++ )
+    		{
+    			if( list[a].Type == 'Section' )
+    			{
+    				self.sections[ list[a].ID ] = list[a];
+    			}
+    			else if( list[a].Type == 'Page' )
+    			{
+    				let sect = list[a].SectionID;
+    				if( self.sections[ sect ] )
+    				{
+    					if( !self.sections[ sect ].pages )
+    					{
+    						self.sections[ sect ].pages = [];
+    					}
+    					self.sections[ sect ].pages.push( list[a] );
+    				}
+    			}
+    		}
+    		console.log( 'Sections: ', self.sections );
     	} );
     }
     
@@ -117,7 +139,7 @@ class FUICourseviewer extends FUIElement
     
     /* Private methods ------------------------------------------------------ */
     
-    loadCourseStructure( cbk )
+    #loadCourseStructure( cbk )
     {
     	let m = new Module( 'system' );
     	m.onExecuted = function( me, md )
@@ -130,7 +152,7 @@ class FUICourseviewer extends FUIElement
     		return;
     	}
     	m.execute( 'appmodule', {
-    		moduleName: 'Courses',
+    		appName: 'Courses',
     		command: 'loadcoursestructure',
     		courseId: this.course.ID
     	} );
