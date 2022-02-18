@@ -35,6 +35,19 @@ class FUICourseviewer extends FUIElement
         this.canv = document.createElement( 'div' );
         this.canv.className = 'FUICourseviewerCanvas';
         this.domElement.appendChild( this.canv );
+        
+        let hd  = document.createElement( 'h1' );
+        hd.className = 'FUICourseviewerCanvasHeader';
+        hd.innerHTML = '';
+        this.canv.appendChild( hd );
+        
+        this.canvasHeader = hd;
+        
+        let cnt = document.createElement( 'div' );
+        cnt.className = 'FUICourseviewerCanvasContent';
+        this.canv.appendChild( cnt );
+        
+        this.canvasContent = cnt;
     }
     
     grabAttributes( domElement )
@@ -179,19 +192,52 @@ class FUICourseviewer extends FUIElement
 			let m = new Module( 'system' );
 			m.onExecuted = function( e, d )
 			{
-				console.log( 'Response from call on page: ', e, d );
+				if( e != 'ok' ) return;
+				let els = JSON.parse( d );
+				for( let a = 0; a < els.length; a++ )
+				{
+					self.addToCanvas( self.createElement( els[a].ElementType, els[a] ) );
+				}
 			}
 			m.execute( 'appmodule', {
 				appName: 'Courses',
-				command: 'getelements',
+				command: 'loadpageelements',
 				pageId: page.ID
 			} );
 		}
     }
     
+    // Just add an element to the canvas
+    addToCanvas( element )
+    {
+    	this.canvasContent.appendChild( element );
+    }
+    
+    createElement( type, data )
+    {
+    	let props = JSON.parse( data.Properties );
+    
+    	switch( type )
+    	{
+    		case 'textBox':
+    		{
+    			let d = document.createElement( 'div' );
+    			d.className = 'FUICourseTextbox';
+    			
+    			let txt = document.createElement( 'div' );
+    			txt.className = 'FUICTextContent';
+    			txt.innerHTML = props.textBox.content;
+    			d.appendChild( txt );
+    			
+    			return d;
+    		}
+    	}
+    }
+    
     setCourse( courseStructure )
     {
     	this.course = courseStructure;
+    	this.canvasHeader.innerHTML = this.course.Name;
     	this.structureUpdated = true;
     	this.refreshDom();
     }

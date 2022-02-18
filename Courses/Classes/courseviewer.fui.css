@@ -1,4 +1,5 @@
-.FUICourseviewerSectionHeader
+.FUICourseviewerSectionHeader,
+.FUICourseviewerCanvasHeader
 {
 	background: var(--fui-module-background);
 	padding: var(--fui-padding-normal);
@@ -18,7 +19,6 @@
 	height: 100%;
 	background: var(--fui-border-foreground);
 	color: var(--fui-module-color);
-	padding: var(--fui-padding-normal);
 }
 
 .FUICourseviewerPanel
@@ -43,6 +43,18 @@
 	height: 100%;
 	scroll-behavior: smooth;
 	overflow: auto;
+	padding: var(--fui-padding-normal);
+	box-sizing: border-box;
+}
+
+.FUICourseviewerCanvasContent
+{
+	border-radius: 0 0 var(--fui-border-radius-normal) var(--fui-border-radius-normal);
+	scroll-behavior: smooth;
+	overflow: auto;
+	padding: var(--fui-padding-normal);
+	box-sizing: border-box;
+	background: var(--fui-background-foreground);
 }
 
 .FUICourseviewerSection
@@ -54,6 +66,7 @@
 	color: var(--fui-color);
 	padding: var(--fui-padding-normal);
 	cursor: pointer;
+	box-sizing: border-box;
 }
 
 .FUICourseviewerSection:hover
@@ -86,5 +99,18 @@
 	width: 40%;
 	float: left;
 	font-size: var(--font-size-small);
+}
+
+/* Types */
+
+.FUICourseviewerCanvas .FUICourseTextbox
+{
+	display: block;
+	border: 1px solid var(--fui-border-foreground);
+	background-color: var(--fui-background-foreground);
+	color: var(--fui-color);
+	padding: var(--fui-padding-normal);
+	box-sizing: border-box;
+	margin: 0 0 10px 0;
 }
 
