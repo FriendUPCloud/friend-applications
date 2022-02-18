@@ -106,7 +106,6 @@ class FUICourseviewer extends FUIElement
     		if( !data ) return;
     		self.sections = {};
     		let list = JSON.parse( data );
-			console.log( 'Data from list: ', list );
     		for( let a = 0; a < list.length; a++ )
     		{
     			if( list[a].Type == 'Section' )
@@ -126,7 +125,25 @@ class FUICourseviewer extends FUIElement
     				}
     			}
     		}
-    		console.log( 'Sections: ', self.sections );
+    		
+    		self.panel.innerHTML = '';
+    		for( let a in self.sections )
+    		{
+    			let row = self.sections[a];
+    			let d = document.createElement( 'div' );
+    			d.className = 'FUICourseviewerSection';
+    			d.innerHTML = '<div class="Name">' + row.Name + '</div><div class="Progress"><progressbar progress="0%"/></div><div class="Pages"></div>';
+    			/*let pages = d.querySelector( '.FUICourseviewerPages' );
+    			for( let b = 0; b < row.pages.length; b++ )
+    			{
+    				let p = document.createElement( 'div' );
+    				p.className = 'FUICourseviewerPage';
+    				p.innerHTML = row.pages[b].Name;
+    				pages.appendChild( p );
+    			}*/
+    			self.panel.appendChild( d );
+    		}
+    		FUI.initialize();
     	} );
     }
     
