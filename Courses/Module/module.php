@@ -110,6 +110,20 @@ switch( $args->args->command )
 			die( 'ok<!--separate-->' . json_encode( $rows ) );
 		}
 		die( 'fail<!--separate-->{"message":"Could not find course structure.","response":-1}' );
+	case 'loadpageelements':
+		if( $rows = $db->database->fetchObjects( '
+			SELECT t.Name AS ElementType, e.* FROM
+				CC_Element e, CC_ElementType t
+			WHERE
+				e.ElementTypeID = t.ID AND
+				e.PageID = \'' . intval( $args->args->pageId, 10 ) . '\'
+			ORDER BY e.DisplayID ASC
+		' ) )
+		{
+			die( 'ok<!--separate-->' . json_encode( $rows ) );
+		}
+		die( 'fail<!--separate-->{"message":"No page elements found.","response":-1}' );
+		break;
 }
 die( 'fail<!--separate-->{"message":"Unknown appmodule method.","response":-1}' );
 
