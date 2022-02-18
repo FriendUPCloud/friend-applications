@@ -111,6 +111,7 @@ class FUICourseviewer extends FUIElement
     			if( list[a].Type == 'Section' )
     			{
     				self.sections[ list[a].ID ] = list[a];
+    				console.log( 'Added section with id: ' + list[a].ID );
     			}
     			else if( list[a].Type == 'Page' )
     			{
@@ -121,7 +122,7 @@ class FUICourseviewer extends FUIElement
     					{
     						self.sections[ sect ].pages = [];
     					}
-    					self.sections[ sect ].pages.push( list[a] );
+						self.sections[ sect ].pages.push( list[a] );
     				}
     			}
     		}

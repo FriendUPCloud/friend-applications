@@ -88,7 +88,7 @@ switch( $args->args->command )
 			SELECT * FROM
 			(
 				SELECT 
-					p.ID, p.Name, p.DisplayID, p.DateCreated, p.DateUpdated, "Page" as `Type`
+					p.ID, p.Name, p.DisplayID, p.DateCreated, p.DateUpdated, "Page" as `Type`, s.ID as `SectionID`
 				FROM 
 					CC_Page p, CC_Section s
 				WHERE
@@ -98,7 +98,7 @@ switch( $args->args->command )
 			UNION
 			(
 				SELECT 
-					d.ID, d.Name, d.DisplayID, d.DateCreated, d.DateUpdated, "Section" as `Type`
+					d.ID, d.Name, d.DisplayID, d.DateCreated, d.DateUpdated, "Section" as `Type`, 0 as `SectionID`
 				FROM 
 					CC_Section d
 				WHERE
