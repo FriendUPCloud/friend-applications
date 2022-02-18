@@ -126,13 +126,20 @@ class FUICourseviewer extends FUIElement
     			}
     		}
     		
-    		self.panel.innerHTML = '';
+    		self.panel.innerHTML = '<h1 class="FUICourseviewerSectionHeader">Course navigation</h1>';
     		for( let a in self.sections )
     		{
     			let row = self.sections[a];
     			let d = document.createElement( 'div' );
     			d.className = 'FUICourseviewerSection';
     			d.innerHTML = '<div class="Name">' + row.Name + '</div><div class="Progress"><progressbar progress="0%"/></div><div class="Pages"></div>';
+    			
+    			if( !self.activeSection )
+    			{
+    				self.activeSection = a;
+    				d.classList.add( 'Emphasized' );
+    			}
+    			
     			/*let pages = d.querySelector( '.FUICourseviewerPages' );
     			for( let b = 0; b < row.pages.length; b++ )
     			{
