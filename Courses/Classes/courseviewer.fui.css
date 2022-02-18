@@ -130,7 +130,8 @@
 	margin: 0;
 }
 
-.FUICourseCheckbox .FUICBXUL .FUICBXLI span
+.FUICourseCheckbox .FUICBXUL .FUICBXLI span,
+.FUICourseCheckbox .FUICBXUL .FUICBXLI label
 {
 	display: inline-block;
 	width: 30px;
@@ -139,14 +140,26 @@
 	text-align: right;
 }
 
-.FUICourseCheckbox .FUICBXUL .FUICBXLI span+span
+.FUICourseCheckbox .FUICBXUL .FUICBXLI span+label
 {
 	width: calc(50% - 60px);
 	padding: 0;
 	text-align: left;
+	cursor: pointer;
+	border-radius: var(--fui-border-radius-normal);
+	background-color: transparent;
+	transition: background-color,color 0.1s,0.1s;
+	color: inherit;
+	padding: 0 5px 0 5px;
 }
 
-.FUICourseCheckbox .FUICBXUL .FUICBXLI span+span+span
+.FUICourseCheckbox .FUICBXUL .FUICBXLI span+label:hover
+{
+	background-color: var(--fui-module-background);
+	color: var(--fui-module-color);
+}
+
+.FUICourseCheckbox .FUICBXUL .FUICBXLI span+label+span
 {
 	width: 30px;
 }

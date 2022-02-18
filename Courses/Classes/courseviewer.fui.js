@@ -278,7 +278,11 @@ class FUICourseviewer extends FUIElement
     			{
     				let n = document.createElement( 'div' );
     				n.className = 'FUICBXLI';
-    				n.innerHTML = '<span>' + ( parseInt( b ) + 1 ) + '.</span><span>' + props.checkBoxes[b].label + '</span><span><input type="checkbox"/></span>';
+    				let nam = md5( data.ID + '_' + b );
+    				
+    				let l = props.checkBoxes[b].label.split( /\<.*?\>/ ).join( '' );
+    				
+    				n.innerHTML = '<span>' + ( parseInt( b ) + 1 ) + '.</span><label for="ch_' + nam + '">' + l + '</label><span><input id="ch_' + nam + '" type="checkbox"/></span>';
     				ul.appendChild( n );
     			}
     			
