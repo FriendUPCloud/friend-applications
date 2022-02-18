@@ -228,6 +228,7 @@ class FUICourseviewer extends FUIElement
 				FUI.initialize();
 				self.renderingElements = false;
 			}
+			console.log( 'Checking elements on page: ' + page.ID );
 			m.execute( 'appmodule', {
 				appName: 'Courses',
 				command: 'loadpageelements',
