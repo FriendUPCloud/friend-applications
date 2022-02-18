@@ -9,3 +9,27 @@
 	background: var(--fui-module-background);
 	color: var(--fui-module-color);
 }
+
+.FUICourseviewerPanel
+{
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 250px;
+	height: 100%;
+	scroll-behavior: smooth;
+	overflow: auto;
+}
+
+.FUICourseviewerCanvas
+{
+	background-color: white;
+	position: absolute;
+	top: 0;
+	left: 250px;
+	width: calc(100% - 250px);
+	height: 100%;
+	scroll-behavior: smooth;
+	overflow: auto;
+}
+

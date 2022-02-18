@@ -4,6 +4,9 @@ Application.run = function( msg )
 }
 Application.receiveMessage = function( msg )
 {
-	console.log( 'Got message: ', msg );
-	FUI.initialize();
+	if( msg.command == 'loadcourse' )
+	{
+		let cr = FUI.getElementByUniqueId( 'course' );
+		cr.setCourse( msg.course );
+	}
 }

@@ -9,7 +9,7 @@
 *****************************************************************************©*/
 
 
-// Checkbox element
+// Course viewer element
 class FUICourseviewer extends FUIElement
 {
     constructor( options )
@@ -17,6 +17,7 @@ class FUICourseviewer extends FUIElement
         super( options );
         // Do stuff
     }
+    
     attachDomElement()
     {
         super.attachDomElement();
@@ -24,7 +25,18 @@ class FUICourseviewer extends FUIElement
         let self = this;
         
         this.domElement.classList.add( 'FUICourseviewer' );
+        
+        // Add side panel
+        this.panel = document.createElement( 'div' );
+        this.panel.className = 'FUICourseviewerPanel';
+        this.domElement.appendChild( this.panel );
+        
+        // Add main canvas
+        this.canv = document.createElement( 'div' );
+        this.canv.className = 'FUICourseviewerCanvas';
+        this.domElement.appendChild( this.canv );
     }
+    
     grabAttributes( domElement )
     {
         super.grabAttributes( domElement );
@@ -38,6 +50,12 @@ class FUICourseviewer extends FUIElement
     refreshDom()
     {
         super.refreshDom();
+        
+        if( this.structureUpdated )
+        {
+        	this.structureUpdated = false;
+        	this.refreshStructure();
+        }
         
         // Do something with properties on dom
         /*
@@ -76,6 +94,46 @@ class FUICourseviewer extends FUIElement
     		str = str.split( ' {options}' ).join( '' );
     	}
     	return str;*/
+    }
+    
+    refreshStructure()
+    {
+    	let self = this;
+    	
+    	// Load course structure and make DOM elements
+    	this.loadCourseStructure( function( data )
+    	{
+    		if( data )
+	    		console.log( 'Here is the data: ', JSON.parse( data ) );
+    	} );
+    }
+    
+    setCourse( courseStructure )
+    {
+    	this.course = courseStructure;
+    	this.structureUpdated = true;
+    	this.refreshDom();
+    }
+    
+    /* Private methods ------------------------------------------------------ */
+    
+    loadCourseStructure( cbk )
+    {
+    	let m = new Module( 'system' );
+    	m.onExecuted = function( me, md )
+    	{
+    		if( me )
+    		{
+    			if( cbk ) return cbk( md );
+    		}
+    		if( cbk ) return cbk( false );
+    		return;
+    	}
+    	m.execute( 'appmodule', {
+    		moduleName: 'Courses',
+    		command: 'loadcoursestructure',
+    		courseId: this.course.ID
+    	} );
     }
 }
 FUI.registerClass( 'courseviewer' );
