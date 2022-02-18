@@ -34,6 +34,12 @@ class FUIProgressbar extends FUIElement
         b.className = 'FUIProgressBar';
         d.appendChild( b );
         
+        let pc = document.createElement( 'div' );
+        pc.className = 'FUIProgressBarText';
+        d.appendChild( pc );
+        
+        this.indicator = pc;
+        
         this.bar = b;
         
         this.refreshDom();
@@ -58,6 +64,7 @@ class FUIProgressbar extends FUIElement
         if( this.bar )
         {
 	        this.bar.style.width = this.options.percent ? ( parseInt( this.options.percent ) + '%' ) : '0%';
+	        this.indicator.innerHTML = this.options.percent ? ( parseInt( this.options.percent ) + '%' ) : '0%';
 	        let progressClasses = [ 'FUIPG0', 'FUIPG20', 'FUIPG40', 'FUIPG60', 'FUIPG80', 'FUIPG100' ];
 	        for( let a = 0, b = 0; a < 100; a += 20, b++ )
 	        {

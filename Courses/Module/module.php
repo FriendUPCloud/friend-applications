@@ -56,7 +56,7 @@ switch( $args->args->command )
 				CC_Classroom cr 
 			WHERE 
 				uc.ClassroomID = cr.ID AND 
-				uc.UserID=\'' . intval( $User->ID, 10 ) . '\' 
+				uc.UserID=\'' . intval( $User->ID, 10 ) . '\'
 			ORDER BY 
 				cr.StartDate DESC
 		' ) )
@@ -64,6 +64,7 @@ switch( $args->args->command )
 			die( 'ok<!--separate-->' . json_encode( $rows ) );
 		}
 		die( 'fail<!--separate-->{"message":"Could not find any classrooms for this user.","response":-1}' );
+	// List sections in course
 	case 'listsections':
 		if( $rows = $db->database->fetchObjects( '
 			SELECT * FROM CC_Section WHERE CourseID=\'' . intval( $args->args->courseId, 10 ) . '\' ORDER BY DisplayID ASC
@@ -72,6 +73,7 @@ switch( $args->args->command )
 			die( 'ok<!--separate-->' . json_encode( $rows ) );
 		}
 		die( 'fail<!--separate-->{"message":"Could not find sections for this course.","response":-1}' );
+	// Just get the basic course definition
 	case 'getcourse':
 		if( $row = $db->database->fetchObject( '
 			SELECT * FROM CC_Course WHERE ID=\'' . intval( $args->args->courseId, 10 ) . '\'
@@ -80,6 +82,34 @@ switch( $args->args->command )
 			die( 'ok<!--separate-->' . json_encode( $row ) );
 		}
 		die( 'fail<!--separate-->{"message":"Could not find this course.","response":-1}' );
+	// Load the entire course structure
+	case 'loadcoursestructure':
+		if( $rows = $db->database->fetchObjects( '
+			SELECT * FROM
+			(
+				SELECT 
+					p.ID, p.Name, p.DisplayID, p.DateCreated, p.DateUpdated, "Page" as `Type`
+				FROM 
+					CC_Page p, CC_Section s
+				WHERE
+					p.SectionID = s.ID AND 
+					s.CourseID = \'' . intval( $args->args->courseId, 10 ) . '\'
+			) AS NR1
+			UNION
+			(
+				SELECT 
+					d.ID, d.Name, d.DisplayID, d.DateCreated, d.DateUpdated, "Section" as `Type`
+				FROM 
+					CC_Section d
+				WHERE
+					d.CourseID = \'' . intval( $args->args->courseId, 10 ) . '\'
+			)
+			ORDER BY `Type` DESC, DisplayID ASC
+		' ) )
+		{
+			die( 'ok<!--separate-->' . json_encode( $rows ) );
+		}
+		die( 'fail<!--separate-->{"message":"Could not find course structure.","response":-1}' );
 }
 die( 'fail<!--separate-->{"message":"Unknown appmodule method.","response":-1}' );
 

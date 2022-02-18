@@ -9,7 +9,7 @@
 *****************************************************************************©*/
 
 
-// Checkbox element
+// Course viewer element
 class FUICourseviewer extends FUIElement
 {
     constructor( options )
@@ -17,6 +17,7 @@ class FUICourseviewer extends FUIElement
         super( options );
         // Do stuff
     }
+    
     attachDomElement()
     {
         super.attachDomElement();
@@ -24,7 +25,18 @@ class FUICourseviewer extends FUIElement
         let self = this;
         
         this.domElement.classList.add( 'FUICourseviewer' );
+        
+        // Add side panel
+        this.panel = document.createElement( 'div' );
+        this.panel.className = 'FUICourseviewerPanel';
+        this.domElement.appendChild( this.panel );
+        
+        // Add main canvas
+        this.canv = document.createElement( 'div' );
+        this.canv.className = 'FUICourseviewerCanvas';
+        this.domElement.appendChild( this.canv );
     }
+    
     grabAttributes( domElement )
     {
         super.grabAttributes( domElement );
@@ -38,6 +50,12 @@ class FUICourseviewer extends FUIElement
     refreshDom()
     {
         super.refreshDom();
+        
+        if( this.structureUpdated )
+        {
+        	this.structureUpdated = false;
+        	this.refreshStructure();
+        }
         
         // Do something with properties on dom
         /*
@@ -76,6 +94,126 @@ class FUICourseviewer extends FUIElement
     		str = str.split( ' {options}' ).join( '' );
     	}
     	return str;*/
+    }
+    
+    refreshStructure()
+    {
+    	let self = this;
+    	
+    	// Load course structure and make DOM elements
+    	this.#loadCourseStructure( function( data )
+    	{
+    		if( !data ) return;
+    		self.sections = {};
+    		let list = JSON.parse( data );
+    		for( let a = 0; a < list.length; a++ )
+    		{
+    			if( list[a].Type == 'Section' )
+    			{
+    				self.sections[ list[a].ID ] = list[a];
+    			}
+    			else if( list[a].Type == 'Page' )
+    			{
+    				let sect = list[a].SectionID;
+    				if( self.sections[ sect ] )
+    				{
+    					if( !self.sections[ sect ].pages )
+    					{
+    						self.sections[ sect ].pages = [];
+    					}
+    					self.sections[ sect ].pages.push( list[a] );
+    				}
+    			}
+    		}
+    		
+    		self.panel.innerHTML = '<h1 class="FUICourseviewerSectionHeader">Course navigation</h1>';
+    		for( let a in self.sections )
+    		{
+    			let row = self.sections[a];
+    			let d = document.createElement( 'div' );
+    			d.className = 'FUICourseviewerSection';
+    			d.innerHTML = '<div class="Name">' + row.Name + '</div><div class="Progress"><progressbar progress="0%"/></div><div class="Pages"></div>';
+    			
+    			if( !self.activeSection )
+    			{
+    				self.activeSection = self.sections[a];
+    				d.classList.add( 'Emphasized' );
+    			}
+    			
+    			/*let pages = d.querySelector( '.FUICourseviewerPages' );
+    			for( let b = 0; b < row.pages.length; b++ )
+    			{
+    				let p = document.createElement( 'div' );
+    				p.className = 'FUICourseviewerPage';
+    				p.innerHTML = row.pages[b].Name;
+    				pages.appendChild( p );
+    			}*/
+    			self.panel.appendChild( d );
+    		}
+    		
+    		self.renderElements();
+    		
+    		FUI.initialize();
+    	} );
+    }
+    
+    // Render page and elements for that page
+    renderElements()
+    {
+    	let self = this;
+    	
+    	// TODO: Handle no section?
+    	if( !self.activeSection ) return;
+    	
+    	if( !self.currentPage )
+    	{
+    		self.currentPage = 0;
+    	}
+    	
+    	if( self.activeSection.pages && self.activeSection.pages[self.currentPage] )
+    	{
+    		// Ref the page
+    		let page = self.activeSection.pages[self.currentPage];
+			// Load all elements for the page
+			let m = new Module( 'system' );
+			m.onExecuted = function( e, d )
+			{
+				console.log( 'Response from call on page: ', e, d );
+			}
+			m.execute( 'appmodule', {
+				appName: 'Courses',
+				command: 'getelements',
+				pageId: page.ID
+			} );
+		}
+    }
+    
+    setCourse( courseStructure )
+    {
+    	this.course = courseStructure;
+    	this.structureUpdated = true;
+    	this.refreshDom();
+    }
+    
+    /* Private methods ------------------------------------------------------ */
+    
+    #loadCourseStructure( cbk )
+    {
+    	let m = new Module( 'system' );
+    	m.onExecuted = function( me, md )
+    	{
+    		if( me )
+    		{
+    			if( cbk ) return cbk( md );
+    		}
+    		if( cbk ) return cbk( false );
+    		return;
+    	}
+    	m.execute( 'appmodule', {
+    		appName: 'Courses',
+    		command: 'loadcoursestructure',
+    		courseId: this.course.ID
+    	} );
     }
 }
 FUI.registerClass( 'courseviewer' );
