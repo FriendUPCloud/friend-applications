@@ -54,11 +54,14 @@
 <group>
     <rows>
         <row>
-            <listview>
+            <listview id="classroom_list_users">
                 <listviewhead>
                     <listviewheading>
                         Users
                     </listviewheading>
+                    <listviewtoolbar>
+                        <listviewbutton icon="plus-circle" onclick="cr_edit_add_users_btn"></listviewbutton>
+                    </listviewtoolbar>
                 </listviewhead>
                 <listviewheaders>
                     <listviewheader width="20%" sortable="sortable" name="Name">Name:</listviewheader>
@@ -69,7 +72,26 @@
                     <listviewheader width="20%" sortable="sortable" name="LastLogin">Last login</listviewheader>
                     <listviewheader width="10%" sortable="sortable" name="Remove">Remove</listviewheader>
                 </listviewheaders>
-                <listviewrows onload="w_reload_class_users">
+                <listviewrows onload="cr_edit_list_users">
+                </listviewrows>
+            </listview>
+        </row>
+        <row>
+            <listview id="classroom_add_users">
+                <listviewhead>
+                    <listviewtoolbar>
+                        <listviewbutton icon="arrow-circle-left" onclick="cr_edit_show_user_list_btn"></listviewbutton>
+                    </listviewtoolbar>
+                    <listviewheading>
+                        Add Users
+                    </listviewheading>
+                </listviewhead>
+                <listviewheaders>
+                    <listviewheader width="60%" sortable="sortable" name="Name">Name</listviewheader>
+                    <listviewheader width="20%" sortable="sortable" name="Status">Status</listviewheader>
+                    <listviewheader width="20%" sortable="sortable" name="Progress">Add</listviewheader>
+                </listviewheaders>
+                <listviewrows onload="cr_edit_add_users_list">
                 </listviewrows>
             </listview>
         </row>

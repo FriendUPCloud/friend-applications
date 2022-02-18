@@ -244,7 +244,7 @@
             // Edit an existing classroom
             editClassroom( rowId )
             {
-                let self = this;
+                const self = this;
                 this.checkEditPane();
                 
                 let u = new Module( 'system' );
@@ -294,15 +294,37 @@
 		                        self.ID = rowId;
 		                        self.editPane.innerHTML = d;
                                 
-                                
-                                
 		                        ge( 'ClassroomId' ).value = rowId;
 		                        document.body.classList.add( 'Editmode' );
                                 
-                                ccAddCallback( 'w_reload_class_users', ( lv => {
-                                    console.log( 'w_reload_class_users' );
+                                ccAddCallback( 'cr_edit_add_users_btn', lv => 
+                                {
+                                    console.log( 'cr_edit_add_users_btn', lv );
+                                    self.ulv.hide();
+                                    self.auv.show();
+                                });
+                                
+                                ccAddCallback( 'cr_edit_list_users', lv =>
+                                {
+                                    console.log( 'cr_edit_list_users', lv );
+                                    self.ulv = lv;
                                     Application.submodules.classrooms.refreshClassroomUsers( lv );
-                                }));
+                                });
+                                
+                                ccAddCallback( 'cr_edit_show_user_list_btn', lv =>
+                                {
+                                    console.log( 'cr_edit_show_user_list_btn', lv );
+                                    self.auv.hide();
+                                    self.ulv.show();
+                                });
+                                
+                                ccAddCallback( 'cr_edit_add_users_list', lv =>
+                                {
+                                    console.log( 'cr_edit_add_users_list', lv );
+                                    self.auv = lv;
+                                    self.auv.hide();
+                                    
+                                });
                                 
                                 ccInitializeGUI();
 		                    }

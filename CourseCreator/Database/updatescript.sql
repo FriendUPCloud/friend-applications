@@ -12,6 +12,7 @@ select "Certificate Table" as "";
 CREATE TABLE IF NOT EXISTS CC_Certificate(
     ID BIGINT(20) auto_increment NOT NULL,
     UserID BIGINT(20) NOT NULL,
+    ClassID BIGINT(20) NULL,
     DateAdded DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CertName VARCHAR(128) NOT NULL,
     FileName VARCHAR(32) NOT NULL,
