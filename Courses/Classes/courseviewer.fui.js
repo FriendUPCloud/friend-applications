@@ -136,7 +136,7 @@ class FUICourseviewer extends FUIElement
     			
     			if( !self.activeSection )
     			{
-    				self.activeSection = a;
+    				self.activeSection = self.sections[a];
     				d.classList.add( 'Emphasized' );
     			}
     			
@@ -150,8 +150,42 @@ class FUICourseviewer extends FUIElement
     			}*/
     			self.panel.appendChild( d );
     		}
+    		
+    		self.renderElements();
+    		
     		FUI.initialize();
     	} );
+    }
+    
+    // Render page and elements for that page
+    renderElements()
+    {
+    	let self = this;
+    	
+    	// TODO: Handle no section?
+    	if( !self.activeSection ) return;
+    	
+    	if( !self.currentPage )
+    	{
+    		self.currentPage = 0;
+    	}
+    	
+    	if( self.activeSection.pages && self.activeSection.pages[self.currentPage] )
+    	{
+    		// Ref the page
+    		let page = self.activeSection.pages[self.currentPage];
+			// Load all elements for the page
+			let m = new Module( 'system' );
+			m.onExecuted = function( e, d )
+			{
+				console.log( 'Response from call on page: ', e, d );
+			}
+			m.execute( 'appmodule', {
+				appName: 'Courses',
+				command: 'getelements',
+				pageId: page.ID
+			} );
+		}
     }
     
     setCourse( courseStructure )
