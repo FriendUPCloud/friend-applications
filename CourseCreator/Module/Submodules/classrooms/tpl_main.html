@@ -302,6 +302,8 @@
                                     console.log( 'cr_edit_add_users_btn', lv );
                                     self.ulv.hide();
                                     self.auv.show();
+                                    self.ulv.clearRows();
+                                    Application.submodules.classrooms.populateAddUserList( rowId );
                                 });
                                 
                                 ccAddCallback( 'cr_edit_list_users', lv =>
@@ -316,6 +318,8 @@
                                     console.log( 'cr_edit_show_user_list_btn', lv );
                                     self.auv.hide();
                                     self.ulv.show();
+                                    self.auv.clearRows();
+                                    Application.submodules.classrooms.refreshClassroomUsers( self.ulv );
                                 });
                                 
                                 ccAddCallback( 'cr_edit_add_users_list', lv =>
@@ -611,6 +615,23 @@
                                     uid,
                                     e,
                                 ]);
+                                let io = new Module( 'system' );
+                                io.onExecuted = function( e, d )
+                                {
+                                    self.refreshClassroomUsers();
+                                }
+                                io.execute( 'appmodule', {
+                                    appName: 'CourseCreator',
+                                    command: 'submodule',
+                                    vars: {
+                                        submodule: 'classrooms',
+                                        method: 'removeuser',
+                                        classroomId: ge( 'ClassroomId' ).value,
+                                        userId: uid,
+                                    }
+                                } );
+                                
+                                /*
                                 Confirm( 
                                     'Are you sure?',
                                     'This will remove the user from the classroom.',
@@ -618,24 +639,10 @@
                                     {
                                         if( data.data == true )
                                         {
-                                            let io = new Module( 'system' );
-                                            io.onExecuted = function( e, d )
-                                            {
-                                                self.refreshClassroomUsers();
-                                            }
-                                            io.execute( 'appmodule', {
-                                                appName: 'CourseCreator',
-                                                command: 'submodule',
-                                                vars: {
-                                                    submodule: 'classrooms',
-                                                    method: 'removeuser',
-                                                    classroomId: ge( 'ClassroomId' ).value,
-                                                    userId: uid,
-                                                }
-                                            } );
                                         }
                                     }
                                );
+                               */
                             });
                         }
                         
@@ -695,6 +702,99 @@
                     }
                 } );
             },
+            
+            populateAddUserList : function( crId )
+            {
+                const self = this;
+                console.log( 'populateAddUserList', [ crId, self.auv ]);
+                const filter = null;
+                const au = new Module( 'system' );
+                au.onExecuted = ( s, d ) => {
+                    console.log( 'populateAddUserList on exe', [ s, d ] );
+                    const res = JSON.parse( d );
+                    console.log( 'addulist', res );
+                    let l = res.length;
+                    if ( !l )
+                        return;
+                    
+                    const rws = [];
+                    
+                    for( ;l; )
+                    {
+                        l--;
+                        const uId = res[l].ID;
+                        const cnf = [
+                            {
+                                type  : 'string',
+                                value : res[l].FullName,
+                            },
+                            {
+                                type     : 'checkbox',
+                                Value    : false,
+                                OnChange : 'cr_add_user_check_' + res[l].ID
+                            },
+                        ];
+                        
+                        rws.push( cnf );
+                        
+                        ccAddCallback( 'cr_add_user_check_' + res[l].ID, e =>
+                        {
+                            console.log( 'cr_add_user_check_', { e : e, uid : uId, crid : crId } );
+                            if ( !e )
+                            {
+                                const r = new Module( 'system' );
+                                r.onExecuted = ( s, d ) =>
+                                {
+                                    console.log( 'rem user back', [ s, d ]);
+                                }
+                                r.execute( 'appmodule', {
+                                    appName : 'CourseCreator',
+                                    command : 'submodule',
+                                    vars    : {
+                                        submodule   : 'classrooms',
+                                        method      : 'removeuser',
+                                        classroomId : crId,
+                                        userId      : uid,
+                                    }
+                                });
+                            }
+                            else
+                            {
+                                const a = new Module( 'system' );
+                                a.onExecuted = ( s, d ) => 
+                                {
+                                    console.log( 'add user back', [ s, d ]);
+                                }
+                                a.execute( 'appmodule',
+                                {
+                                    appName : 'CourseCreator',
+                                    command : 'submodule',
+                                    vars    : {
+                                        submodule : 'classrooms',
+                                        method    : 'adduser',
+                                        userId    : uId,
+                                        classId   : crId,
+                                    },
+                                });
+                            }
+                        });
+                    }
+                    
+                    self.auv.setRowData( rws );
+                }
+                
+                au.execute( 'appmodule', {
+                    appName: 'CourseCreator',
+                    command: 'submodule',
+                    vars: {
+                        submodule: 'classrooms',
+                        method: 'findusers',
+                        classroomId: crId,
+                        keys: filter
+                    }
+                } );
+            },
+            
             addUser: function( userId, classroomId )
             {
             	let self = this;

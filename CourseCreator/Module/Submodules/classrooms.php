@@ -81,7 +81,7 @@ if( isset( $args->method ) )
             // Find existing users
             $s = '';
             if( $exist = $courseDb->fetchObjects( '
-                SELECT UserID FROM CC_UserClassroom 
+                SELECT UserID, PaymentStatus FROM CC_UserClassroom 
                 WHERE ClassroomID = \'' . intval( $args->classroomId, 10 ) . '\'
             ' ) )
             {
@@ -118,7 +118,7 @@ if( isset( $args->method ) )
             break;
         case 'adduser':
         	$o = new dbIO( 'CC_UserClassroom', $courseDb );
-        	$o->ClassroomID = $args->classroomId;
+        	$o->ClassroomID = $args->classId;
         	$o->UserID = $args->userId;
         	if( !$o->Load() )
         	{
