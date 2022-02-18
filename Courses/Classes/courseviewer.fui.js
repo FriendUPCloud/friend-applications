@@ -195,6 +195,10 @@ class FUICourseviewer extends FUIElement
     	// TODO: Handle no section?
     	if( !self.activeSection ) return;
     	
+    	
+    	if( self.renderingElements ) return;
+    	self.renderingElements = true;
+    	
     	if( !self.currentPage )
     	{
     		self.currentPage = 0;
@@ -222,6 +226,7 @@ class FUICourseviewer extends FUIElement
 					self.addToCanvas( self.createElement( els[a].ElementType, els[a] ) );
 				}
 				FUI.initialize();
+				self.renderingElements = false;
 			}
 			m.execute( 'appmodule', {
 				appName: 'Courses',
