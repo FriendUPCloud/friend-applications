@@ -310,6 +310,22 @@ class FUICourseviewer extends FUIElement
     	this.canvasContent.appendChild( element );
     }
     
+    // Register the value of the element
+    registerElementValue( uniqueName, value )
+    {
+    	let m = new Module( 'system' );
+    	m.onExecuted = function( e, d )
+    	{
+    		console.log( 'Response: ', e, d );
+    	}
+    	m.execute( 'appmodule', {
+    		appName: 'Courses',
+    		command: 'regelementvalue',
+    		uniqueName: uniqueName,
+    		value: value
+    	} );
+    }
+    
     createElement( type, data )
     {
     	let props = JSON.parse( data.Properties );
@@ -356,8 +372,34 @@ class FUICourseviewer extends FUIElement
     				let check = n.getElementsByTagName( 'input' )[0];
     				check.onmouseup = function( e )
     				{
-    					
+    					self.registerElementValue( nam, this.checked );
     				}
+    				
+    				// Restore value
+    				( function( n, c )
+    				{
+    					let m = new Module( 'system' );
+    					m.onExecuted = function( ee, dd )
+    					{
+    						if( ee == 'ok' )
+    						{
+    							let v = JSON.parse( dd );
+    							if( dd.value )
+    							{
+    								c.checked = 'checked';
+    							}
+    							else
+    							{
+    								c.checked = '';
+    							}
+    						}
+    					}
+    					m.execute( 'appmodule', {
+    						appName: 'Courses',
+    						command: 'getelementvalue',
+    						uniqueName: n
+    					} );
+    				} )( nam, check );
     			}
     			
     			bx.appendChild( ul );
