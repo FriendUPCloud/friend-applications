@@ -48,6 +48,11 @@ class FUICourseviewer extends FUIElement
         this.canv.appendChild( cnt );
         
         this.canvasContent = cnt;
+        
+        // Add navigation panel
+        this.navpanel = document.createElement( 'div' );
+        this.navpanel.className = 'FUICourseviewerNavigation';
+        this.domElement.appendChild( this.navpanel );
     }
     
     grabAttributes( domElement )
@@ -70,16 +75,6 @@ class FUICourseviewer extends FUIElement
         	this.refreshStructure();
         }
         
-        // Do something with properties on dom
-        /*
-        if( this.property )
-        {
-            this.domElement.classList.add( 'FUIClassName' );
-        }
-        else
-        {
-            this.domElement.classList.remove( 'FUIClassName' );
-        }*/
     }
     getMarkup( data )
     {
@@ -187,6 +182,43 @@ class FUICourseviewer extends FUIElement
     	} );
     }
     
+    // Redraw the navigation panel
+    redrawNavPanel()
+    {
+    	let self = this;
+    	
+    	let b = 0;
+    	let sect = false;
+    	for( let a in self.sections )
+		{
+			if( a == self.activeSection )
+				sect = self.sections[ a ];
+		}
+		if( !sect ) return;
+		
+		// Make next prev
+		if( !this.#navbarAdded )
+		{
+			this.#navbarAdded = true;
+			let str = '';
+			str += '<div class="Previous"></div><div class="Pages"></div><div class="Next"></div>';
+			this.navpanel.innerHTML = str;
+		}
+		
+		this.navpanel.querySelector( '.Pages' ).innerHTML = '';
+		
+		let offset = 0;
+		
+		for( let a = 0; a < sect.pages.length; a++ )
+		{
+			let p = document.createElement( 'div' );
+			p.className = 'PageElement';
+			p.style.left = ( ( a * 40 ) - offset ) + 'px';
+			p.innerHTML = '<span>' + ( a + 1 ) + '</span>';
+			this.navpanel.querySelector( '.Pages' ).appendChild( p );
+		}
+    }
+    
     // Render page and elements for that page
     renderElements()
     {
@@ -235,6 +267,7 @@ class FUICourseviewer extends FUIElement
 				pageId: page.ID
 			} );
 		}
+		self.redrawNavPanel();
     }
     
     // Just add an element to the canvas
@@ -326,6 +359,8 @@ class FUICourseviewer extends FUIElement
     }
     
     /* Private methods ------------------------------------------------------ */
+    
+    #navbarAdded = false
     
     #loadCourseStructure( cbk )
     {

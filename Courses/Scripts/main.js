@@ -264,7 +264,7 @@ class Courseviewer
 				Alert( 'Could not load coarse', 'Course was not found on the server.' );
 				return;
 			}
-			console.log( 'What is it: ', course );
+
 			self.view = new View( {
 				title: 'Taking course: ' + course.Name,
 				width: 1280,

@@ -40,7 +40,7 @@
 	top: 0;
 	left: 300px;
 	width: calc(100% - 300px);
-	height: 100%;
+	height: calc(100% - 50px);
 	scroll-behavior: smooth;
 	overflow: auto;
 	padding: var(--fui-padding-normal);
@@ -178,5 +178,70 @@
 	border-radius: var(--fui-border-radius-normal);
 }
 
+/* Nav panel */
 
+.FUICourseviewerNavigation
+{
+	position: absolute;
+	top: calc(100% - 50px);
+	left: 300px;
+	width: calc(100% - 300px);
+	height: 50px;
+	background-color: var(--fui-module-background);
+	color: var(--fui-module-color);
+}
+
+.FUICourseviewerNavigation .Previous
+{
+	position: absolute;
+	width: 100px;
+	left: 0;
+	top: 0;
+	height: 50px;
+	overflow: hidden;
+}
+
+.FUICourseviewerNavigation .Next
+{
+	position: absolute;
+	width: 100px;
+	left: calc(100% - 100px);
+	top: 0;
+	height: 50px;
+	overflow: hidden;
+}
+
+.FUICourseviewerNavigation .Pages
+{
+	position: absolute;
+	width: calc(100% - 200px);
+	left: 100px;
+	top: 0;
+	height: 50px;
+	overflow: hidden;
+}
+
+.FUICourseviewerNavigation .PageElement
+{
+	border-radius: 100%;
+	background-color: var(--fui-module-color);
+	color: var(--fui-module-background);
+	position: absolute;
+	top: 10px;
+	width: 30px;
+	height: 30px;
+	text-align: center;
+	cursor: pointer;
+}
+
+.FUICourseviewerNavigation .PageElement:hover
+{
+	
+}
+
+.FUICourseviewerNavigation .PageElement > span
+{
+	position: relative;
+	top: 4px;
+}
 
