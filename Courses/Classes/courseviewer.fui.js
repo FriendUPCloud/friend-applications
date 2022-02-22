@@ -289,12 +289,15 @@ class FUICourseviewer extends FUIElement
 				let els = JSON.parse( d );
 				for( let a = 0; a < els.length; a++ )
 				{
-					self.addToCanvas( self.createElement( els[a].ElementType, els[a] ) );
+					let ele = self.createElement( els[a].ElementType, els[a] );
+					self.addToCanvas( ele );
+					if( ele.init )
+						ele.init();
 				}
 				FUI.initialize();
 				self.renderingElements = false;
 			}
-			console.log( 'Checking elements on page: ' + page.ID );
+			
 			m.execute( 'appmodule', {
 				appName: 'Courses',
 				command: 'loadpageelements',
@@ -382,33 +385,30 @@ class FUICourseviewer extends FUIElement
     					name: nam,
     					func: function( n )
 						{
-							setTimeout( function()
+							let chk = ge( 'ch_' + n );
+							let m = new Module( 'system' );
+							m.onExecuted = function( ee, dd )
 							{
-								let chk = ge( 'ch_' + n );
-								let m = new Module( 'system' );
-								m.onExecuted = function( ee, dd )
+								if( ee == 'ok' )
 								{
-									if( ee == 'ok' )
+									let v = JSON.parse( dd );
+									if( v.Value )
 									{
-										let v = JSON.parse( dd );
-										if( v.Value )
-										{
-											console.log( 'We got something!' );
-											chk.checked = 'checked';
-										}
-										else
-										{
-											console.log( 'Nah.' );
-											chk.checked = '';
-										}
+										console.log( 'We got something!' );
+										chk.checked = 'checked';
+									}
+									else
+									{
+										console.log( 'Nah.' );
+										chk.checked = '';
 									}
 								}
-								m.execute( 'appmodule', {
-									appName: 'Courses',
-									command: 'getelementvalue',
-									uniqueName: n
-								} );
-							}, 250 );
+							}
+							m.execute( 'appmodule', {
+								appName: 'Courses',
+								command: 'getelementvalue',
+								uniqueName: n
+							} );
 						}
 					} );
     			}
@@ -417,11 +417,15 @@ class FUICourseviewer extends FUIElement
     			
     			d.appendChild( bx );
     			
-    			for( let a = 0; a < initializers.length; a++ )
+    			d.initializers = initializers;
+    			d.init = function()
     			{
-    				initializers[ a ].func( initializers[ a ].name );
-    			}
-    		
+					for( let a = 0; a < this.initializers.length; a++ )
+					{
+						this.initializers[ a ].func( this.initializers[ a ].name );
+					}
+				}
+    			
     			return d;
     		}
     		case 'image':
