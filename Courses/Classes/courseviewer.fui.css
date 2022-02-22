@@ -189,26 +189,52 @@
 	height: 50px;
 	background-color: var(--fui-module-background);
 	color: var(--fui-module-color);
+	overflow: hidden;
 }
 
 .FUICourseviewerNavigation .Previous
 {
 	position: absolute;
-	width: 100px;
-	left: 0;
-	top: 0;
-	height: 50px;
-	overflow: hidden;
+	width: 80px;
+	left: 10px;
+	top: 10px;
+	height: 30px;
+	border: 1px solid var(--fui-module-color);
+	border-radius: var(--fui-border-radius-small);
+	text-align: center;
+	box-sizing: border-box;
+	cursor: pointer;
+	background-color: transparent;
+	transition: background-color 0.15s;
+}
+
+.FUICourseviewerNavigation .Previous:hover,
+.FUICourseviewerNavigation .Next:hover
+{
+	background-color: var(--fui-module-background-hover);
 }
 
 .FUICourseviewerNavigation .Next
 {
 	position: absolute;
-	width: 100px;
-	left: calc(100% - 100px);
-	top: 0;
-	height: 50px;
-	overflow: hidden;
+	width: 80px;
+	left: calc(100% - 90px);
+	top: 10px;
+	height: 30px;
+	border: 1px solid var(--fui-module-color);
+	border-radius: var(--fui-border-radius-small);
+	text-align: center;
+	box-sizing: border-box;
+	cursor: pointer;
+	background-color: transparent;
+	transition: background-color 0.15s;
+}
+
+.FUICourseviewerNavigation .Previous > span, 
+.FUICourseviewerNavigation .Next > span
+{
+	position: relative;
+	top: 4px;
 }
 
 .FUICourseviewerNavigation .Pages
@@ -223,15 +249,22 @@
 
 .FUICourseviewerNavigation .PageElement
 {
-	border-radius: 100%;
-	background-color: var(--fui-module-color);
-	color: var(--fui-module-background);
+	border-radius: var(--fui-border-radius-small);
+	background-color: var(--fui-module-background-hover);
+	color: var(--fui-module-color);
 	position: absolute;
 	top: 10px;
 	width: 30px;
 	height: 30px;
 	text-align: center;
 	cursor: pointer;
+	transition: background-color 0.15s;
+}
+
+.FUICourseviewerNavigation .PageElement.ActivePage
+{
+	background-color: var(--fui-module-color);
+	color: var(--fui-module-background);
 }
 
 .FUICourseviewerNavigation .PageElement:hover

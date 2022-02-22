@@ -201,7 +201,7 @@ class FUICourseviewer extends FUIElement
 		{
 			this.#navbarAdded = true;
 			let str = '';
-			str += '<div class="Previous"></div><div class="Pages"></div><div class="Next"></div>';
+			str += '<div class="Previous"><span>Previous</span></div><div class="Pages"></div><div class="Next"><span>Next</span></div>';
 			this.navpanel.innerHTML = str;
 		}
 		
@@ -214,7 +214,19 @@ class FUICourseviewer extends FUIElement
 			let p = document.createElement( 'div' );
 			p.className = 'PageElement';
 			p.style.left = ( ( a * 40 ) - offset ) + 'px';
+			if( self.currentPage == a )
+			{
+				p.classList.add( 'ActivePage' );
+			}
 			p.innerHTML = '<span>' + ( a + 1 ) + '</span>';
+			( function( pag, num )
+			{
+				pag.onclick = function()
+				{
+					self.currentPage = num;
+					self.renderElements();
+				}
+			} )( p, a );
 			this.navpanel.querySelector( '.Pages' ).appendChild( p );
 		}
     }
