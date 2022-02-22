@@ -64,7 +64,7 @@ class FUIProgressbar extends FUIElement
         if( this.bar )
         {
 	        this.bar.style.width = this.options.percent ? ( parseInt( this.options.percent ) + '%' ) : '0%';
-	        this.indicator.innerHTML = this.options.percent ? ( parseInt( this.options.percent ) + '%' ) : '0%';
+	        this.indicator.innerHTML = '<span>' + ( this.options.percent ? ( parseInt( this.options.percent ) + '%' ) : '0%' ) + '</span>';
 	        let progressClasses = [ 'FUIPG0', 'FUIPG20', 'FUIPG40', 'FUIPG60', 'FUIPG80', 'FUIPG100' ];
 	        for( let a = 0, b = 0; a < 100; a += 20, b++ )
 	        {

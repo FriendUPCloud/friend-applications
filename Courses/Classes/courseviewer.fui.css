@@ -68,6 +68,10 @@
 	cursor: pointer;
 	box-sizing: border-box;
 }
+.FUICourseviewerSection:last-child
+{
+	border-radius: 0 0 var(--fui-border-radius-normal) var(--fui-border-radius-normal);
+}
 
 .FUICourseviewerSection:hover
 {
@@ -96,6 +100,7 @@
 
 .FUICourseviewerSection > .Progress
 {
+	margin-top: 1px;
 	width: 40%;
 	float: left;
 	font-size: var(--font-size-small);

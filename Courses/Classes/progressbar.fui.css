@@ -76,4 +76,9 @@
 	mix-blend-mode: exclusion;
 }
 
+.FUIProgressBarText > span
+{
+	vertical-align: middle;
+}
+
 
