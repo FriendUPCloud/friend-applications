@@ -352,6 +352,12 @@ class FUICourseviewer extends FUIElement
     				
     				n.innerHTML = '<span>' + ( parseInt( b ) + 1 ) + '.</span><label for="ch_' + nam + '">' + l + '</label><span><input id="ch_' + nam + '" type="checkbox"/></span>';
     				ul.appendChild( n );
+    				
+    				let check = n.getElementsByTagName( 'input' )[0];
+    				check.onmouseup = function( e )
+    				{
+    					
+    				}
     			}
     			
     			bx.appendChild( ul );

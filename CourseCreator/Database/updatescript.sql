@@ -20,3 +20,12 @@ CREATE TABLE IF NOT EXISTS CC_Certificate(
     PRIMARY KEY(ID)
 );
 
+CREATE TABLE CC_ElementResult ( 
+	ID bigint(20) NOT NULL auto_increment, 
+	ElementType varchar(255) default "", 
+	Data text, 
+	DateCreated datetime, 
+	DateUpdated datetime, 
+	PRIMARY KEY (ID) 
+);
+
