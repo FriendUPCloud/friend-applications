@@ -133,6 +133,41 @@ switch( $args->args->command )
 		}
 		die( 'fail<!--separate-->{"message":"No page elements found.","response":-1}' );
 		break;
+	case 'regelementvalue':
+		$d =& $db->database->_link;
+		$o = new dbIO( 'CC_ElementResult', $db->database );
+		$o->ElementID = $d->real_escape_string( $args->args->uniqueName );
+		$o->UserID = intval( $User->ID, 10 );
+		if( !$o->Load() )
+		{
+			$o->DateCreated = date( 'Y-m-d H:i:s' );
+		}
+		$o->Data = $d->real_escape_string( $args->args->value );
+		$o->DateUpdated = date( 'Y-m-d H:i:s' );
+		$o->Save();
+		if( $o->ID > 0 )
+		{
+			die( 'ok<!--separate-->{"response":1,"message":"Stored element value."}' );
+		}
+		die( 'fail<!--separate-->{"response":-1,"message":"Could not store element value."}' );
+		break;
+	case 'getelementvalue':
+		if( $row = $db->database->fetchObject( '
+			SELECT * FROM CC_ElementResult
+			WHERE
+				UserID=\'' . intval( $User->ID, 10 ) . '\' AND
+				ElementID=\'' . $db->database->_link->real_escape_string( $args->args->uniqueName ) . '\'
+		' ) )
+		{
+			$o = new stdClass();
+			$o->Value = $row->Data;
+			$o->UniqueName = $row->ElementID;
+			$o->DateCreated = $row->DateCreated;
+			$o->DateUpdated = $row->DateUpdated;
+			die( 'ok<!--separate-->' . json_encode( $o ) );
+		}
+		die( 'fail<!--separate-->{"response":-1,"message":"Could not retrieve element value."}' );
+		break;
 }
 die( 'fail<!--separate-->{"message":"Unknown appmodule method.","response":-1}' );
 

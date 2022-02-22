@@ -328,6 +328,7 @@ class FUICourseviewer extends FUIElement
     
     createElement( type, data )
     {
+    	let self = this;
     	let props = JSON.parse( data.Properties );
     
 	    console.log( 'Props: ', props );
@@ -348,6 +349,7 @@ class FUICourseviewer extends FUIElement
     		}
     		case 'checkBoxQuestion':
     		{
+    			let initializers = [];
     			let d = document.createElement( 'div' );
     			d.className = 'FUICourseCheckbox';
     			
@@ -376,35 +378,49 @@ class FUICourseviewer extends FUIElement
     				}
     				
     				// Restore value
-    				( function( n, c )
-    				{
-    					let m = new Module( 'system' );
-    					m.onExecuted = function( ee, dd )
-    					{
-    						if( ee == 'ok' )
-    						{
-    							let v = JSON.parse( dd );
-    							if( dd.value )
-    							{
-    								c.checked = 'checked';
-    							}
-    							else
-    							{
-    								c.checked = '';
-    							}
-    						}
-    					}
-    					m.execute( 'appmodule', {
-    						appName: 'Courses',
-    						command: 'getelementvalue',
-    						uniqueName: n
-    					} );
-    				} )( nam, check );
+    				initializers.push( {
+    					name: nam,
+    					func: function( n )
+						{
+							setTimeout( function()
+							{
+								let chk = ge( 'ch_' + n );
+								let m = new Module( 'system' );
+								m.onExecuted = function( ee, dd )
+								{
+									if( ee == 'ok' )
+									{
+										let v = JSON.parse( dd );
+										if( v.Value )
+										{
+											console.log( 'We got something!' );
+											chk.checked = 'checked';
+										}
+										else
+										{
+											console.log( 'Nah.' );
+											chk.checked = '';
+										}
+									}
+								}
+								m.execute( 'appmodule', {
+									appName: 'Courses',
+									command: 'getelementvalue',
+									uniqueName: n
+								} );
+							}, 250 );
+						}
+					} );
     			}
     			
     			bx.appendChild( ul );
     			
     			d.appendChild( bx );
+    			
+    			for( let a = 0; a < initializers.length; a++ )
+    			{
+    				initializers[ a ].func( initializers[ a ].name );
+    			}
     		
     			return d;
     		}
