@@ -317,10 +317,7 @@ class FUICourseviewer extends FUIElement
     registerElementValue( uniqueName, value )
     {
     	let m = new Module( 'system' );
-    	m.onExecuted = function( e, d )
-    	{
-    		console.log( 'Response: ', e, d );
-    	}
+    	m.onExecuted = function( e, d ){}
     	m.execute( 'appmodule', {
     		appName: 'Courses',
     		command: 'regelementvalue',
@@ -375,9 +372,10 @@ class FUICourseviewer extends FUIElement
     				ul.appendChild( n );
     				
     				let check = n.getElementsByTagName( 'input' )[0];
-    				check.onmouseup = function( e )
+    				check.nam = nam;
+    				check.onchange = function( e )
     				{
-    					self.registerElementValue( nam, this.checked );
+    					self.registerElementValue( this.nam, this.checked );
     				}
     				
     				// Restore value
@@ -394,12 +392,10 @@ class FUICourseviewer extends FUIElement
 									let v = JSON.parse( dd );
 									if( v.Value )
 									{
-										console.log( 'We got something!' );
 										chk.checked = 'checked';
 									}
 									else
 									{
-										console.log( 'Nah.' );
 										chk.checked = '';
 									}
 								}
