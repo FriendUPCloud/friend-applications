@@ -229,6 +229,28 @@ class FUICourseviewer extends FUIElement
 			} )( p, a );
 			this.navpanel.querySelector( '.Pages' ).appendChild( p );
 		}
+		
+		this.navpanel.querySelector( '.Previous' ).onclick = function()
+		{
+			self.currentPage--;
+			if( self.currentPage < 0 ) 
+			{
+				self.currentPage = 0;
+				return;
+			}
+			self.renderElements();
+		}
+		
+		this.navpanel.querySelector( '.Next' ).onclick = function()
+		{
+			self.currentPage++;
+			if( self.currentPage >= self.sections[ self.activeSection ].pages.length )
+			{
+				self.currentPage--;
+				return;
+			}
+			self.renderElements();
+		}
     }
     
     // Render page and elements for that page
