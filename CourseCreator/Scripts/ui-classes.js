@@ -20,7 +20,7 @@ ccFactory = {
     // Create meta markup for a class instance
 	create( data )
 	{
-        console.log( 'ccFactory.create', data );
+        //console.log( 'ccFactory.create', data );
 		switch( data.type )
 		{
 			case 'string':
