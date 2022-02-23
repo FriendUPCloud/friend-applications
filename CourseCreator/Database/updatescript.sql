@@ -31,3 +31,11 @@ CREATE TABLE IF NOT EXISTS `CC_ElementResult` (
   `DateUpdated` datetime DEFAULT NULL,
   PRIMARY KEY (`ID`)
 );
+
+CREATE TABLE IF NOT EXISTS `CC_CourseSession` (
+  `ID` bigint NOT NULL AUTO_INCREMENT,
+  `UserID` bigint NOT NULL,
+  `CourseID` bigint NOT NULL,
+  `DateCreated` datetime DEFAULT NULL,
+  PRIMARY KEY (`ID`)
+);
