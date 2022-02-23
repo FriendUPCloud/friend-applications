@@ -7,6 +7,6 @@ Application.receiveMessage = function( msg )
 	if( msg.command == 'loadcourse' )
 	{
 		let cr = FUI.getElementByUniqueId( 'course' );
-		cr.setCourse( msg.course );
+		cr.setCourse( msg.courseId, msg.courseSessionId );
 	}
 }

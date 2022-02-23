@@ -133,11 +133,15 @@ switch( $args->args->command )
 		}
 		die( 'fail<!--separate-->{"message":"No page elements found.","response":-1}' );
 		break;
+	// Register element value
+	// TODO: Make sure to add security here! The course session must be active
 	case 'regelementvalue':
 		$d =& $db->database->_link;
 		$o = new dbIO( 'CC_ElementResult', $db->database );
 		$o->ElementID = $d->real_escape_string( $args->args->uniqueName );
 		$o->UserID = intval( $User->ID, 10 );
+		$o->CourseID = intval( $args->args->courseId, 10 );
+		$o->CourseSessionID = intval( $args->args->courseSessionId, 10 );
 		if( !$o->Load() )
 		{
 			$o->DateCreated = date( 'Y-m-d H:i:s' );
@@ -151,12 +155,15 @@ switch( $args->args->command )
 		}
 		die( 'fail<!--separate-->{"response":-1,"message":"Could not store element value."}' );
 		break;
+	// Get element value
 	case 'getelementvalue':
 		if( $row = $db->database->fetchObject( '
 			SELECT * FROM CC_ElementResult
 			WHERE
 				UserID=\'' . intval( $User->ID, 10 ) . '\' AND
-				ElementID=\'' . $db->database->_link->real_escape_string( $args->args->uniqueName ) . '\'
+				ElementID=\'' . $db->database->_link->real_escape_string( $args->args->uniqueName ) . '\' AND
+				CourseID=\'' . intval( $args->args->courseId, 10 ) . '\' AND
+				CourseSessionID=\'' . intval( $args->args->courseSessionId, 10 ) . '\'
 		' ) )
 		{
 			$o = new stdClass();
@@ -167,6 +174,24 @@ switch( $args->args->command )
 			die( 'ok<!--separate-->' . json_encode( $o ) );
 		}
 		die( 'fail<!--separate-->{"response":-1,"message":"Could not retrieve element value."}' );
+		break;
+	// Get / create active course session
+	case 'getcoursesession':
+		$d = new dbIO( 'CC_CourseSession', $db->database );
+		$d->Status = 1;
+		$d->UserID = $User->ID;
+		$d->CourseID = $args->args->courseId;
+		$d->Load();
+		if( $d->ID > 0 ) die( 'ok<!--separate-->{"courseId":' . $d->CourseID . ',"courseSessionId":' . $d->ID . '}' );
+		else
+		{
+			$d->Save();
+			if( $d->ID > 0 )
+			{
+				die( 'ok<!--separate-->{"courseId":' . $d->CourseID . ',"courseSessionId":' . $d->ID . '}' );
+			}
+		}
+		die( 'fail<!--separate-->{"message":"Could not get active course session.","response":-1}' );
 		break;
 }
 die( 'fail<!--separate-->{"message":"Unknown appmodule method.","response":-1}' );

@@ -253,37 +253,67 @@ class Courseviewer
 		let m = new Module( 'system' );
 		m.onExecuted = function( e, d )
 		{
-			if( e != 'ok' )
+			// Get the current course session
+			let j = new Module( 'system' );
+			j.onExecuted = function( je, jd )
 			{
-				Alert( 'Could not load coarse', 'Course was not found on the server.' );
-				return;
-			}
-			let course = JSON.parse( d );
-			if( !course )
-			{
-				Alert( 'Could not load coarse', 'Course was not found on the server.' );
-				return;
-			}
-
-			self.view = new View( {
-				title: 'Taking course: ' + course.Name,
-				width: 1280,
-				height: 700
-			} );
-			self.view.onClose = function()
-			{
-				if( self.view ) self.view = null;
-			}
-			
-			let f = new File( 'Progdir:Assets/course.html' );
-			f.onLoad = function( data )
-			{
-				self.view.setContent( data, function()
+				if( je == 'ok' )
 				{
-					self.view.sendMessage( { command: 'loadcourse', course: course } );
-				} );
+					let courseSession = JSON.parse( jd );
+					
+					if( !courseSession || !courseSession.ID )
+					{
+						Alert( 'No active course session', 'Could not initialize an active course session. Aborting.' );
+						return;
+					}
+					
+					if( e != 'ok' )
+					{
+						Alert( 'Could not load coarse', 'Course was not found on the server.' );
+						return;
+					}
+					let course = JSON.parse( d );
+					if( !course )
+					{
+						Alert( 'Could not load coarse', 'Course was not found on the server.' );
+						return;
+					}
+
+					self.view = new View( {
+						title: 'Taking course: ' + course.Name,
+						width: 1280,
+						height: 700
+					} );
+					self.view.onClose = function()
+					{
+						if( self.view ) self.view = null;
+					}
+					
+					let f = new File( 'Progdir:Assets/course.html' );
+					f.onLoad = function( data )
+					{
+						self.view.setContent( data, function()
+						{
+							self.view.sendMessage( { 
+								command: 'loadcourse', 
+								courseId: course, 
+								courseSessionId: courseSession.ID 
+							} );
+						} );
+					}
+					f.load();
+				}
+				else
+				{
+					Alert( 'No active course session', 'Could not initialize an active course session. Aborting (²).' );
+					return;
+				}
 			}
-			f.load();
+			j.execute( 'appmodule', {
+				appName: 'Courses',
+				command: 'getcoursesession',
+				courseId: courseId
+			} );
 		}
 		m.execute( 'appmodule', {
 			appName: 'Courses',

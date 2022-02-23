@@ -304,7 +304,9 @@ class FUICourseviewer extends FUIElement
     		appName: 'Courses',
     		command: 'regelementvalue',
     		uniqueName: uniqueName,
-    		value: value
+    		value: value,
+    		courseSessionId: this.#courseSessionId,
+    		courseId: this.course.ID
     	} );
     }
     
@@ -441,6 +443,7 @@ class FUICourseviewer extends FUIElement
     /* Private methods ------------------------------------------------------ */
     
     #navbarAdded = false
+    #courseSessionId = 0
     
     #loadCourseStructure( cbk )
     {
