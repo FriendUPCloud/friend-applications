@@ -78,30 +78,12 @@ class FUICourseviewer extends FUIElement
     }
     getMarkup( data )
     {
-    	// Return meta-markup for class instantiation later
-    	
-    	/*let str = '<checkbox {options}/>';
-    	let opts = [];
-    	for( let a in data )
+    	let opts = '';
+    	if( this.options.uniqueId )
     	{
-    		if( a == 'OnChange' )
-    		{
-    			opts.push( 'onchange="' + data[a] + '"' );
-    		}
-    		if( a == 'Value' && data[a] )
-    		{
-    			opts.push( 'checked="checked"' );
-    		}
+    		opts += ' uniqueid="' + this.options.uniqueId + '"';
     	}
-    	if( opts.length )
-    	{
-    		str = str.split( '{options}' ).join( opts.join( ' ' ) );
-    	}
-    	else
-    	{
-    		str = str.split( ' {options}' ).join( '' );
-    	}
-    	return str;*/
+    	return '<courseviewer ' + opts + '/>';
     }
     
     refreshStructure()
