@@ -202,10 +202,12 @@ class Element
         let self = this;
 
         // Confirm delete
-        Confirm("Warning - Permantly delete", "Proceed?", function ( msg ){
+        Confirm( "Warning - Permantly delete", "Do you really want to delete this item? This cannot be undone.", 
+        function ( msg )
+        {
             
             // if the user clicks ok then proceed
-            if (msg.data == false)
+            if( !msg.data )
                 return;
 
             // Remove the element from the domContainer
@@ -226,8 +228,8 @@ class Element
             courseCreator.dbio.call(
                 'deleteRow',
                 {
-                    table: this.classInfo.dbTable,
-                    ID: this.dbId
+                    table: self.classInfo.dbTable,
+                    ID: self.dbId
                 },
                 // all parent renderMain and render index afterwards
                 function( code, data )
@@ -239,7 +241,7 @@ class Element
                 }
             );
 
-        });
+        } );
 
     }
 
