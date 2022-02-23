@@ -20,14 +20,14 @@ CREATE TABLE IF NOT EXISTS CC_Certificate(
     PRIMARY KEY(ID)
 );
 
-CREATE TABLE CC_ElementResult ( 
-	ID bigint(20) NOT NULL auto_increment,
-	ElementType varchar(255) default "", 
-	ElementID varchar(255) default "",
-	UserID bigint(20) NOT NULL,
-	Data text, 
-	DateCreated datetime, 
-	DateUpdated datetime, 
-	PRIMARY KEY (ID) 
+CREATE TABLE IF NOT EXISTS `CC_ElementResult` (
+  `ID` bigint NOT NULL AUTO_INCREMENT,
+  `CourseID` bigint NOT NULL,
+  `CourseSessionID` bigint NOT NULL,
+  `ElementID` varchar(255) DEFAULT '',
+  `UserID` bigint NOT NULL,
+  `Data` text,
+  `DateCreated` datetime DEFAULT NULL,
+  `DateUpdated` datetime DEFAULT NULL,
+  PRIMARY KEY (`ID`)
 );
-
