@@ -430,6 +430,7 @@ class CheckBoxQuestionElement extends Element
                         event: "blur",
                         callBack: function( event ) {
                             self.properties.question = event.target.innerHTML;
+                            courseCreator.manager.saveActivePage();
                         } 
                     }
                 ]
@@ -462,6 +463,7 @@ class CheckBoxQuestionElement extends Element
                                 else {
                                     cbxRow.classList.remove('isAnswer');
                                 }
+                                courseCreator.manager.saveActivePage();
                             }
                         }
                     ]
@@ -482,6 +484,7 @@ class CheckBoxQuestionElement extends Element
                             "event": "blur",
                             "callBack": function ( event ) {
                                 cbx.label = event.target.innerHTML;
+                                courseCreator.manager.saveActivePage();
                             }
                         }
                     ]
@@ -592,6 +595,7 @@ class TextBoxElement extends Element
                     console.log('in blur in text box');
                     // save the content to the data file
                     self.properties.textBox.content = event.target.innerHTML;
+                    courseCreator.manager.saveActivePage();
             }, true);
         }
         
@@ -710,6 +714,7 @@ class ImageElement extends Element
                             triggerFunction: function( items )
                             {
                                 event.target.value = items[0].Path;
+                                courseCreator.manager.saveActivePage();
                             },
                             path: "Mountlist:",
                             type: "load",
@@ -729,6 +734,7 @@ class ImageElement extends Element
                         "event": "click",
                         "callBack": function ( event ) {
                             self.saveEditElement();
+                            courseCreator.manager.saveActivePage();
                         }
                     }
                 ]
@@ -749,6 +755,8 @@ class ImageElement extends Element
         let imageSource = self.domContainer.querySelector('.imageSrc');
         self.properties.image.friendSource = imageSource.value;
 
+		courseCreator.manager.saveActivePage();
+		
         // render main after data is changed
         setTimeout( function(){
             self.renderMain()
