@@ -127,10 +127,11 @@ if( isset( $args->method ) )
             {
                 $uid = intval( $args->userId, 10 );
                 $q = '
-                    SELECT c.*  FROM CC_Certificate c
-                    WHERE c.UserID=' . $uid . '
+                    SELECT cr.*, cl.Name AS ClassName  FROM CC_Certificate AS cr
+                    LEFT JOIN CC_Classroom AS cl
+                        ON cr.ClassID=cl.ID
+                    WHERE cr.UserID=' . $uid . '
                 ';
-                
                 
                 $rows = $courseDb->fetchObjects( $q );
                 /*
@@ -157,8 +158,6 @@ if( isset( $args->method ) )
                 require_once( $d . '/php/friend.php' ); // FriendCall
                 $uid = intval( $args->userId, 10 );
                 $cid = null;
-                if ( isset( $args->classroomId ))
-                    $cid = intval( $args->classroomId, 10 );
                 $to = new dbIO( 'FUser' );
                 $to->Load( $uid );
                 if ( !$to || !isset( $to->UniqueID ))
@@ -284,22 +283,43 @@ if( isset( $args->method ) )
                 }
                 
                 // insert into db
-                $vals = [ 
-                    $uid, 
-                    $cid,
-                    '\'' . $fnm . '.' . $fext . '\'',
-                    '\'' . $fh . '\'', 
-                    '\'' . $fext . '\'', 
-                ];
-                $q = '
-                    INSERT INTO CC_Certificate (
-                        UserID,
-                        ClassID,
-                        CertName,
-                        FileName,
-                        FileExt
-                    ) VALUES (' . implode( ',', $vals ). ')
-                ';
+                if ( isset( $args->classroomId ))
+                {
+                    $cid = intval( $args->classroomId, 10 );
+                    $vals = [ 
+                        $uid, 
+                        $cid,
+                        '\'' . $fnm . '.' . $fext . '\'',
+                        '\'' . $fh . '\'', 
+                        '\'' . $fext . '\'', 
+                    ];
+                    $q = '
+                        INSERT INTO CC_Certificate (
+                            UserID,
+                            ClassID,
+                            CertName,
+                            FileName,
+                            FileExt
+                        ) VALUES (' . implode( ',', $vals ). ')
+                    ';
+                }
+                else
+                {
+                    $vals = [ 
+                        $uid, 
+                        '\'' . $fnm . '.' . $fext . '\'',
+                        '\'' . $fh . '\'', 
+                        '\'' . $fext . '\'', 
+                    ];
+                    $q = '
+                        INSERT INTO CC_Certificate (
+                            UserID,
+                            CertName,
+                            FileName,
+                            FileExt
+                        ) VALUES (' . implode( ',', $vals ). ')
+                    ';
+                }
                 
                 $iok = $courseDb->Query( $q );
                 if ( false == $iok )
@@ -308,6 +328,7 @@ if( isset( $args->method ) )
                     die( 'fail<!--separate-->' . json_encode([
                         'message' => 'db insert failed, reason unknown',
                         'query'   => $q,
+                        'values'  => $vals,
                     ] ));
                 }
                 
@@ -401,6 +422,7 @@ if( isset( $args->method ) )
                         'certId' => $cid,
                     ]));
                 
+                // count file matches
                 $rq = '
                     SELECT count(*) AS roos FROM CC_Certificate c
                     WHERE c.UserID=\''.$uid.'\'
@@ -410,6 +432,8 @@ if( isset( $args->method ) )
                 $fnum = $rrs[0]->roos;
                 $fPath = '';
                 $yep = false;
+                
+                // remove file if cert is the only one
                 if ( 1 == $fnum )
                 {
                     $usr = new dbIO( 'FUser' );
@@ -449,12 +473,14 @@ if( isset( $args->method ) )
                         unlink( $fPath );
                 }
                 
+                // remove cert from db
                 $dq = '
                     DELETE FROM CC_Certificate
                     WHERE ID=' . $c->ID . '
                 ';
                 $dr = $courseDb->Query( $dq );
                 
+                // return happy
                 die( 'ok<!--separate-->' . json_encode( [
                     'uid'   => $uid,
                     'cid'   => $cid,
@@ -470,19 +496,71 @@ if( isset( $args->method ) )
                     'dr'    => $dr,
                 ] ));
                 
-                
-                // find file in storage
-                
-                // delete from storage
-                
-                // delete from db
-                
-                // return happy
-                
             }
             else
             {
                 die( 'fail<!--separate-->' . json_encode( [ 'error' => 'missing args', 'received' => $args ] ) );
+            }
+            break;
+        case 'set_cert_class':
+            if ( isset( $args->certId ) && isset( $args->userId ) && isset( $args->classId ))
+            {
+                $certId = intval( $args->certId, 10 );
+                $userId = intval( $args->userId, 10 );
+                $classId = intval( $args->classId, 10 );
+                $uq = '
+                    UPDATE CC_Certificate 
+                    SET
+                        ClassID = '.$classId.'
+                    WHERE UserID='.$userId.'
+                    AND ID='.$certId.'
+                ';
+                $ok = $courseDb->query( $uq );
+                $rq = '
+                    SELECT * FROM CC_Certificate AS cr
+                    WHERE ID='.$certId.'
+                ';
+                $res = $courseDb->fetchObjects( $rq );
+                die( 'ok<!--separate-->' . json_encode([
+                    'ok' => $ok,
+                    'res' => $res,
+                    'certId'  => $certId,
+                    'classId' => $classId,
+                    'userId'  => $userId,
+                ]));
+            }
+            else
+            {
+                die( 'fail<!--separate-->' . json_encode([
+                    'handler'  => 'set_cert_class',
+                    'message'  => 'missing args',
+                    'args'     => $args,
+                    'required' => [
+                        'certId',
+                        'userId',
+                        'classId',
+                    ],
+                ]));
+            }
+            break;
+        case 'classes_available':
+            if ( isset( $args->userId ))
+            {
+                $inq = '
+                    SELECT uc.ClassrommID FROM CC_UserClassroom AS uc
+                    WHERE uc.UserID=\''.intval( $args->userId ).'\'
+                ';
+                $in = $courseDb->fetchObjects( $inq );
+                
+                die( 'ok<!--separate-->');
+            }
+            else
+            {
+                die( 'fail<!--separate-->' . json_encode( [
+                    'message' => 'missing userid',
+                    'handler' => 'classes_available',
+                    'args'    => $args,
+                ] ));
             }
             break;
         case 'workgroups':

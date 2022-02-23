@@ -294,65 +294,170 @@
                                     if ( s == 'ok' ) {
                                         const dbr = JSON.parse( d );
                                         console.log( 'cert dbr', dbr );
-                                        let len = dbr.length;
-                                        if ( 0 == len )
+                                        let cl = dbr.length;
+                                        if ( 0 == cl )
                                             return;
                                         
-                                        const rws = [];
-                                        for( ;len; )
+                                        const ca = new Module( 'system' );
+                                        ca.onExecuted = ( s, d ) =>
                                         {
-                                            len--;
-                                            const cr = dbr[ len ];
-                                            console.log( 'cert row', cr );
-                                            const cnf = [
+                                            console.log( 'classrooms for assign', [ s, d ] );
+                                            const res = JSON.parse( d );
+                                            console.log( 'classrooms for assign res', res );
+                                            const opts = [];
+                                            const def = {
+                                                value    : 'none',
+                                                text     : '<set classroom>',
+                                                selected : true,
+                                            };
+                                            opts.push( def );
+                                            let rl = res.length;
+                                            if ( rl ) {
+                                                for( ;rl; )
                                                 {
-                                                    type  : 'string',
-                                                    value : cr.CertName,
-                                                },
-                                                {
-                                                    type  : 'string',
-                                                    value : cr.DateAdded,
-                                                },
-                                                {
-                                                    type     : 'checkbox',
-                                                    Value    : true,
-                                                    OnChange : 'cert_valid_onchange_' + cr.ID,
+                                                    rl--;
+                                                    const r = {
+                                                        value    : res[rl].ClassroomID,
+                                                        text     : res[rl].ClassName,
+                                                        selected : false,
+                                                    };
+                                                    opts.push( r );
                                                 }
-                                            ];
-                                            rws.push( cnf );
-                                            
-                                            ccAddCallback( 'cert_valid_onchange_' + cr.ID, ( v ) => 
+                                            }
+                                            console.log( 'opts', opts );
+                                            const rws = [];
+                                            console.log( 'loop?', cl );
+                                            for( ;cl; )
                                             {
-                                                console.log( 'chekcChange', {
-                                                    cid : cr.ID,
-                                                    uid : uid,
-                                                    v   : v,
-                                                });
-                                                if ( true == v )
-                                                    return;
-                                                
-                                                const rem = new Module( 'system' );
-                                                rem.onExecuted = ( s, d ) =>
+                                                cl--;
+                                                const cr = dbr[ cl ];
+                                                console.log( 'cert row', cr );
+                                                let cnf = null;
+                                                if ( null == cr.ClassName )
                                                 {
-                                                    console.log( 'remove cert on exec', [ s, d ]);
-                                                    const res = JSON.parse( d );
-                                                    console.log( 'remove cert', res );
-                                                    Application.submodules.users.editUser( uid );
+                                                    cnf = [
+                                                        {
+                                                            type  : 'string',
+                                                            value : cr.CertName,
+                                                        },
+                                                        {
+                                                            type  : 'string',
+                                                            value : cr.DateAdded,
+                                                        },
+                                                        {
+                                                            type     : 'pulldown',
+                                                            name     : 'add_class',
+                                                            options  : opts,
+                                                            onchange : 'user_cert_set_class_' + cr.ID,
+                                                        },
+                                                        {
+                                                            type     : 'checkbox',
+                                                            Value    : true,
+                                                            OnChange : 'user_cert_set_valid_' + cr.ID,
+                                                        },
+                                                    ];
+                                                    
+                                                    ccAddCallback( 'user_cert_set_class_' + cr.ID, ( o, e ) => {
+                                                        console.log( 'user_cert_set_class_', [ cr.ID, o, e ]);
+                                                        const crId = cr.ID
+                                                        const clId = e.target.value;
+                                                        console.log( 'set classroom for cert', {
+                                                            classroom : clId,
+                                                            cert      : crId,
+                                                            user      : uid,
+                                                        });
+                                                        const sc = new Module( 'system' );
+                                                        sc.onExecuted = ( s, d ) =>
+                                                        {
+                                                            console.log( 'set_cert_class', [ s, d ]);
+                                                            let res = null;
+                                                            try { res = JSON.parse( d ); } catch(e) {}
+                                                            console.log( 'set_cert_class res', res );
+                                                            Application.submodules.users.editUser( uid );
+                                                        }
+                                                        sc.execute( 'appmodule', {
+                                                            appName : 'CourseCreator',
+                                                            command : 'submodule',
+                                                            vars    : {
+                                                                method    : 'set_cert_class',
+                                                                submodule : 'users',
+                                                                userId    : uid,
+                                                                classId   : clId,
+                                                                certId    : crId,
+                                                            },
+                                                        });
+                                                    });
                                                 }
-                                                rem.execute( 'appmodule',
+                                                else
                                                 {
-                                                    appName : 'CourseCreator',
-                                                    command : 'submodule',
-                                                    vars    : {
-                                                        submodule : 'users',
-                                                        method    : 'removecert',
-                                                        userId    : uid,
-                                                        certId    : cr.ID,
-                                                    },
+                                                    cnf = [
+                                                        {
+                                                            type  : 'string',
+                                                            value : cr.CertName,
+                                                        },
+                                                        {
+                                                            type  : 'string',
+                                                            value : cr.DateAdded,
+                                                        },
+                                                        {
+                                                            type  : 'string',
+                                                            value : cr.ClassName,
+                                                        },
+                                                        {
+                                                            type     : 'checkbox',
+                                                            Value    : true,
+                                                            OnChange : 'user_cert_set_valid_' + cr.ID,
+                                                        },
+                                                    ];
+                                                }
+                                                
+                                                console.log( 'cnf', cnf );
+                                                rws.push( cnf );
+                                                
+                                                ccAddCallback( 'user_cert_set_valid_' + cr.ID, ( v ) => 
+                                                {
+                                                    console.log( 'chekcChange', {
+                                                        cid : cr.ID,
+                                                        uid : uid,
+                                                        v   : v,
+                                                    });
+                                                    if ( true == v )
+                                                        return;
+                                                    
+                                                    const rem = new Module( 'system' );
+                                                    rem.onExecuted = ( s, d ) =>
+                                                    {
+                                                        console.log( 'remove cert on exec', [ s, d ]);
+                                                        const res = JSON.parse( d );
+                                                        console.log( 'remove cert', res );
+                                                        Application.submodules.users.editUser( uid );
+                                                    }
+                                                    rem.execute( 'appmodule',
+                                                    {
+                                                        appName : 'CourseCreator',
+                                                        command : 'submodule',
+                                                        vars    : {
+                                                            submodule : 'users',
+                                                            method    : 'removecert',
+                                                            userId    : uid,
+                                                            certId    : cr.ID,
+                                                        },
+                                                    });
                                                 });
-                                            });
+                                            }
+                                            
+                                            console.log( 'setRowData', rws );
+                                            listView.setRowData( rws );
                                         }
-                                        listView.setRowData( rws );
+                                        ca.execute( 'appmodule', {
+                                            appName : 'CourseCreator',
+                                            command : 'submodule',
+                                            vars    : {
+                                                submodule : 'users',
+                                                method    : 'classrooms',
+                                                userId    : uid,
+                                            },
+                                        });
                                     }
                                     
                                     // list
@@ -382,15 +487,44 @@
                                         UserFileName : nfo.Filename
                                     };
                                     // save
-                                    const ca = new Module( 'system' );
-                                    ca.onExecuted = ( s, d ) => {
+                                    const ac = new Module( 'system' );
+                                    ac.onExecuted = ( s, d ) => {
                                         console.log( 'add cert result', [ s, d ]);
                                         
                                         const cr = JSON.parse( d );
-                                        console.log( 'add cert res', cr );
-                                        
                                         const rws = [];
-                                        const cnf = [
+                                        console.log( 'add cert res', cr );
+                                        const ca = new Module( 'system' );
+                                        ca.onExecuted = ( s, d ) =>
+                                        {
+                                            Application.submodules.users.editUser( uid );
+                                            return;
+                                            console.log( 'classrooms for assign', [ s, d ] );
+                                            const res = JSON.parse( d );
+                                            console.log( 'classrooms for assign res', res );
+                                            const opts = [];
+                                            const def = {
+                                                value    : 'none',
+                                                text     : '<set classroom>',
+                                                selected : true,
+                                            };
+                                            opts.push( def );
+                                            let rl = res.length;
+                                            if ( rl ) {
+                                                for( ;rl; )
+                                                {
+                                                    rl--;
+                                                    const r = {
+                                                        value    : res[rl].ClassroomID,
+                                                        text     : res[rl].ClassName,
+                                                        selected : false,
+                                                    };
+                                                    opts.push( r );
+                                                }
+                                            }
+                                            console.log( 'opts', opts );
+                                            
+                                            const cnf = [
                                                 {
                                                     type  : 'string',
                                                     value : cr.CertName,
@@ -400,14 +534,25 @@
                                                     value : cr.DateAdded,
                                                 },
                                                 {
+                                                    type     : 'pulldown',
+                                                    name     : 'add_class',
+                                                    options  : opts,
+                                                    onchange : 'user_cert_set_class_' + cr.ID,
+                                                },
+                                                {
                                                     type     : 'checkbox',
                                                     Value    : true,
-                                                    OnChange : 'cert_valid_onchange_' + cr.ID,
-                                                }
+                                                    OnChange : 'user_cert_set_valid_' + cr.ID,
+                                                },
                                             ];
+                                            
+                                            ccAddCallback( 'user_cert_set_class_' + cr.ID, v => {
+                                                console.log( 'user_cert_set_class_', v );
+                                            });
+                                            
                                             rws.push( cnf );
                                             
-                                            ccAddCallback( 'cert_valid_onchange_' + cr.ID, ( v ) =>
+                                            ccAddCallback( 'user_cert_set_valid_' + cr.ID, ( v ) =>
                                             {
                                                 console.log( 'chekcChange', {
                                                     id : cr.ID,
@@ -437,7 +582,17 @@
                                                 });
                                             });
                                             
-                                        listView.addRowData( rws );
+                                            listView.addRowData( rws );
+                                        }
+                                        ca.execute( 'appmodule', {
+                                            appName : 'CourseCreator',
+                                            command : 'submodule',
+                                            vars    : {
+                                                submodule : 'users',
+                                                method    : 'classrooms',
+                                                userId    : uid,
+                                            },
+                                        });
                                         
                                         return;
                                         
@@ -460,7 +615,8 @@
                                             }
                                         });
                                     }
-                                    ca.execute( 'appmodule', {
+                                    
+                                    ac.execute( 'appmodule', {
                                         appName : 'CourseCreator',
                                         command : 'submodule',
                                         vars    : {
