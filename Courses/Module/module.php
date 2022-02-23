@@ -82,13 +82,22 @@ switch( $args->args->command )
 			die( 'ok<!--separate-->' . json_encode( $row ) );
 		}
 		die( 'fail<!--separate-->{"message":"Could not find this course.","response":-1}' );
+	case 'getcoursebyclassroom':
+		if( $row = $db->database->fetchObject( '
+			SELECT c.* FROM CC_Course c, CC_Classroom cl WHERE cl.ID=\'' . intval( $args->args->courseId, 10 ) . '\' AND c.ID = cl.CourseID
+		' ) )
+		{
+			die( 'ok<!--separate-->' . json_encode( $row ) );
+		}
+		die( 'fail<!--separate-->{"message":"Could not find this course.","response":-1}' );
+		break;
 	// Load the entire course structure
 	case 'loadcoursestructure':
 		if( $rows = $db->database->fetchObjects( '
 			SELECT * FROM
 			(
 				SELECT 
-					p.ID, p.Name, p.DisplayID, p.DateCreated, p.DateUpdated, "Page" as `Type`
+					p.ID, p.Name, p.DisplayID, p.DateCreated, p.DateUpdated, "Page" as `Type`, s.ID as `SectionID`
 				FROM 
 					CC_Page p, CC_Section s
 				WHERE
@@ -98,7 +107,7 @@ switch( $args->args->command )
 			UNION
 			(
 				SELECT 
-					d.ID, d.Name, d.DisplayID, d.DateCreated, d.DateUpdated, "Section" as `Type`
+					d.ID, d.Name, d.DisplayID, d.DateCreated, d.DateUpdated, "Section" as `Type`, 0 as `SectionID`
 				FROM 
 					CC_Section d
 				WHERE
@@ -110,6 +119,55 @@ switch( $args->args->command )
 			die( 'ok<!--separate-->' . json_encode( $rows ) );
 		}
 		die( 'fail<!--separate-->{"message":"Could not find course structure.","response":-1}' );
+	case 'loadpageelements':
+		if( $rows = $db->database->fetchObjects( '
+			SELECT t.Name AS ElementType, e.* FROM
+				CC_Element e, CC_ElementType t
+			WHERE
+				e.ElementTypeID = t.ID AND
+				e.PageID = \'' . intval( $args->args->pageId, 10 ) . '\'
+			ORDER BY e.DisplayID ASC
+		' ) )
+		{
+			die( 'ok<!--separate-->' . json_encode( $rows ) );
+		}
+		die( 'fail<!--separate-->{"message":"No page elements found.","response":-1}' );
+		break;
+	case 'regelementvalue':
+		$d =& $db->database->_link;
+		$o = new dbIO( 'CC_ElementResult', $db->database );
+		$o->ElementID = $d->real_escape_string( $args->args->uniqueName );
+		$o->UserID = intval( $User->ID, 10 );
+		if( !$o->Load() )
+		{
+			$o->DateCreated = date( 'Y-m-d H:i:s' );
+		}
+		$o->Data = $d->real_escape_string( $args->args->value );
+		$o->DateUpdated = date( 'Y-m-d H:i:s' );
+		$o->Save();
+		if( $o->ID > 0 )
+		{
+			die( 'ok<!--separate-->{"response":1,"message":"Stored element value."}' );
+		}
+		die( 'fail<!--separate-->{"response":-1,"message":"Could not store element value."}' );
+		break;
+	case 'getelementvalue':
+		if( $row = $db->database->fetchObject( '
+			SELECT * FROM CC_ElementResult
+			WHERE
+				UserID=\'' . intval( $User->ID, 10 ) . '\' AND
+				ElementID=\'' . $db->database->_link->real_escape_string( $args->args->uniqueName ) . '\'
+		' ) )
+		{
+			$o = new stdClass();
+			$o->Value = $row->Data;
+			$o->UniqueName = $row->ElementID;
+			$o->DateCreated = $row->DateCreated;
+			$o->DateUpdated = $row->DateUpdated;
+			die( 'ok<!--separate-->' . json_encode( $o ) );
+		}
+		die( 'fail<!--separate-->{"response":-1,"message":"Could not retrieve element value."}' );
+		break;
 }
 die( 'fail<!--separate-->{"message":"Unknown appmodule method.","response":-1}' );
 

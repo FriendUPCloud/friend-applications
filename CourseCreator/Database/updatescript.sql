@@ -20,3 +20,24 @@ CREATE TABLE IF NOT EXISTS CC_Certificate(
 );
 
 ALTER TABLE CC_Certificate ADD ClassID BIGINT(20) AFTER UserID;
+
+
+CREATE TABLE IF NOT EXISTS `CC_ElementResult` (
+  `ID` bigint NOT NULL AUTO_INCREMENT,
+  `CourseID` bigint NOT NULL,
+  `CourseSessionID` bigint NOT NULL,
+  `ElementID` varchar(255) DEFAULT '',
+  `UserID` bigint NOT NULL,
+  `Data` text,
+  `DateCreated` datetime DEFAULT NULL,
+  `DateUpdated` datetime DEFAULT NULL,
+  PRIMARY KEY (`ID`)
+);
+
+CREATE TABLE IF NOT EXISTS `CC_CourseSession` (
+  `ID` bigint NOT NULL AUTO_INCREMENT,
+  `UserID` bigint NOT NULL,
+  `CourseID` bigint NOT NULL,
+  `DateCreated` datetime DEFAULT NULL,
+  PRIMARY KEY (`ID`)
+);

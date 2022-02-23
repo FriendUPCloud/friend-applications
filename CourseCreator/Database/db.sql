@@ -229,6 +229,26 @@ CREATE TABLE IF NOT EXISTS CC_Certificate(
     PRIMARY KEY(ID)
 );
 
+CREATE TABLE `CC_ElementResult` (
+  `ID` bigint NOT NULL AUTO_INCREMENT,
+  `CourseID` bigint NOT NULL,
+  `CourseSessionID` bigint NOT NULL,
+  `ElementID` varchar(255) DEFAULT '',
+  `UserID` bigint NOT NULL,
+  `Data` text,
+  `DateCreated` datetime DEFAULT NULL,
+  `DateUpdated` datetime DEFAULT NULL,
+  PRIMARY KEY (`ID`)
+);
+
+CREATE TABLE `CC_CourseSession` (
+  `ID` bigint NOT NULL AUTO_INCREMENT,
+  `UserID` bigint NOT NULL,
+  `CourseID` bigint NOT NULL,
+  `DateCreated` datetime DEFAULT NULL,
+  PRIMARY KEY (`ID`)
+);
+
 
 /* Fill in some dummy values in the database
 *

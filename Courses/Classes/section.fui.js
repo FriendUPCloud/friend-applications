@@ -64,6 +64,7 @@ class FUISection extends FUIElement
         	this.setHeader( this.options.header );
         }
     }
+    
     getMarkup( data )
     {
     	
