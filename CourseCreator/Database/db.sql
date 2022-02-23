@@ -245,6 +245,7 @@ CREATE TABLE `CC_CourseSession` (
   `ID` bigint NOT NULL AUTO_INCREMENT,
   `UserID` bigint NOT NULL,
   `CourseID` bigint NOT NULL,
+  `Status` tinyint NOT NULL DEFAULT '0',
   `DateCreated` datetime DEFAULT NULL,
   PRIMARY KEY (`ID`)
 );
