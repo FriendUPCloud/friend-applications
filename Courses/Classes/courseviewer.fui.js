@@ -434,6 +434,7 @@ class FUICourseviewer extends FUIElement
     	}
     }
     
+    // Set the active course object, and the active course session id
     setCourse( courseStructure, courseSessionId )
     {
     	// TODO: Verify course session id with module call
