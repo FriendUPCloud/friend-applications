@@ -432,9 +432,12 @@ class FUICourseviewer extends FUIElement
     	}
     }
     
-    setCourse( courseStructure )
+    setCourse( courseStructure, courseSessionId )
     {
+    	// TODO: Verify course session id with module call
+    	if( !courseSessionId ) return;
     	this.course = courseStructure;
+    	this.#courseSessionId = courseSessionId;
     	this.canvasHeader.innerHTML = this.course.Name;
     	this.structureUpdated = true;
     	this.refreshDom();
