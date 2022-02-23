@@ -739,7 +739,11 @@
                         
                         ccAddCallback( 'cr_add_user_check_' + res[l].ID, e =>
                         {
-                            console.log( 'cr_add_user_check_', { e : e, uid : uId, crid : crId } );
+                            console.log( 'cr_add_user_check_', { 
+                                e    : e, 
+                                uid  : uId, 
+                                crid : crId 
+                            });
                             if ( !e )
                             {
                                 const r = new Module( 'system' );

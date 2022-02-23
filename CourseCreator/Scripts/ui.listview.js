@@ -210,7 +210,7 @@ class ccListview extends ccGUIElement
     refreshRows()
     {
     	let json = this.rowData;
-    	
+    	console.log( 'listview refreshrows', json );
     	this.clearRows();
     	
     	for( let b = 0; b < json.length; b++ )
@@ -265,10 +265,43 @@ class ccListview extends ccGUIElement
 	                                    obj[ data[ d ].name ][ p ] = data[ d ][ p ];
 	                                }
 	                            }
-	                            window.ccGUI.callbacks[ onclick ]( obj );
+	                            window.ccGUI.callbacks[ onclick ]( obj, e );
 	                        }
 				        }
 				    } )( json[b], col );
+				}
+				
+				const onchange = json[b][z].onchange;
+				if ( onchange )
+				{
+					console.log( 'found onchange for', {
+						json   : json,
+						jsonb  : json[b],
+						jsonbz : json[b][z],
+						col    : col,
+					});
+					const data = json[b];
+					const cnf = json[b][z];
+					const el = col;
+					el.onchange = e =>
+					{
+						console.log( 'onchange', [ cnf, el, e, e.target.value ] );
+						if ( window.ccGUI.callbacks[ onchange ])
+						{
+							let obj = {};
+                            for( let d = 0; d < data.length; d++ )
+                            {
+                                obj[ data[ d ].name ] = {};
+                                for( let p in data[ d ] )
+                                {
+                                    if( p == 'name' ) continue;
+                                    obj[ data[ d ].name ][ p ] = data[ d ][ p ];
+                                }
+                            }
+							window.ccGUI.callbacks[ onchange ]( obj, e );
+						}
+					}
+					
 				}
 				
 				col.innerHTML = str;					
