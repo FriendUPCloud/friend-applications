@@ -185,11 +185,13 @@ switch( $args->args->command )
 		if( $d->ID > 0 ) die( 'ok<!--separate-->{"courseId":' . $d->CourseID . ',"courseSessionId":' . $d->ID . '}' );
 		else
 		{
+			$d->DateCreated = date( 'Y-m-d H:i:s' );
 			$d->Save();
 			if( $d->ID > 0 )
 			{
 				die( 'ok<!--separate-->{"courseId":' . $d->CourseID . ',"courseSessionId":' . $d->ID . '}' );
 			}
+			die( 'fail<!--separate-->{"message":"Could not store active course session.","response":-1}' );
 		}
 		die( 'fail<!--separate-->{"message":"Could not get active course session.","response":-1}' );
 		break;

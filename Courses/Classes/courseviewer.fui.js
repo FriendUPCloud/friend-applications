@@ -387,6 +387,8 @@ class FUICourseviewer extends FUIElement
 							m.execute( 'appmodule', {
 								appName: 'Courses',
 								command: 'getelementvalue',
+								courseSessionId: self.#courseSessionId,
+								courseId: self.course.ID,
 								uniqueName: n
 							} );
 						}
