@@ -261,7 +261,7 @@ class Courseviewer
 				{
 					let courseSession = JSON.parse( jd );
 					
-					if( !courseSession || !courseSession.ID )
+					if( !courseSession || !courseSession.courseSessionId )
 					{
 						Alert( 'No active course session', 'Could not initialize an active course session. Aborting.' );
 						return;
@@ -297,7 +297,7 @@ class Courseviewer
 							self.view.sendMessage( { 
 								command: 'loadcourse', 
 								courseId: course, 
-								courseSessionId: courseSession.ID 
+								courseSessionId: courseSession.courseSessionId
 							} );
 						} );
 					}
