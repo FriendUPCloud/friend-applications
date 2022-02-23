@@ -297,11 +297,24 @@
 		                        ge( 'ClassroomId' ).value = rowId;
 		                        document.body.classList.add( 'Editmode' );
                                 
+                                ccAddCallback( 'cr_users_filter', ( ...args ) => {
+                                    console.log( 'cr_users_filter', [ args, self.usrListMode ]);
+                                    if ( 'auv' == self.usrListMode )
+                                        return;
+                                });
+                                
+                                ccAddCallback( 'cr_add_users_filter', ( ...args ) => {
+                                    console.log( 'cr_add_users_filter', [ args, self.usrListMode ]);
+                                    if ( 'ulv' == self.usrListMode )
+                                        return;
+                                });
+                                
                                 ccAddCallback( 'cr_edit_add_users_btn', lv => 
                                 {
                                     console.log( 'cr_edit_add_users_btn', lv );
                                     self.ulv.hide();
                                     self.auv.show();
+                                    self.usrListMode = 'auv';
                                     self.ulv.clearRows();
                                     Application.submodules.classrooms.populateAddUserList( rowId );
                                 });
@@ -310,6 +323,7 @@
                                 {
                                     console.log( 'cr_edit_list_users', lv );
                                     self.ulv = lv;
+                                    self.usrListMode = 'ulv';
                                     Application.submodules.classrooms.refreshClassroomUsers( lv );
                                 });
                                 
@@ -318,6 +332,7 @@
                                     console.log( 'cr_edit_show_user_list_btn', lv );
                                     self.auv.hide();
                                     self.ulv.show();
+                                    self.usrListMode = 'ulv';
                                     self.auv.clearRows();
                                     Application.submodules.classrooms.refreshClassroomUsers( self.ulv );
                                 });

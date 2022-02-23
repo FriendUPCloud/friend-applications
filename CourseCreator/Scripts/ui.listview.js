@@ -108,6 +108,36 @@ class ccListview extends ccGUIElement
 		        			t.appendChild( b );
 		        		}
 		        	}
+		        	let filters = null;
+		        	if ( ( filters = toolbar.getElementsByTagName( 'listviewfilter' ) ) )
+		        	{
+		        		console.log( 'found filters', [ filters, filters.length ]);
+		        		for( let a = 0; a < filters.length; a++ )
+		        		{
+		        			let b = document.createElement( 'input' );
+		        			//b.classList.add( 'MousePointer' );
+		        			
+		        			let cb = false;
+		        			if( ( cb = filters[a].getAttribute( 'onchange' ) ) )
+		        			{
+		        				console.log( 'found onchange', cb );
+				    			( function( ele, cbk )
+				    			{
+				    				ele.onchange = function( e )
+				    				{
+										// Trigger callback
+										console.log( 'filter onchange triggd', e );
+						                if( window.ccGUI.callbacks[ cbk ] )
+						                {
+						                    // Add structure with current element flags
+						                    window.ccGUI.callbacks[ cbk ]( self, ele.value );
+						                }
+						            }
+								} )( b, cb );
+							}
+		        			t.appendChild( b );
+		        		}
+		        	}
 		        	d.appendChild( t );
 		    	}
             }
@@ -304,7 +334,7 @@ class ccListview extends ccGUIElement
 					
 				}
 				
-				col.innerHTML = str;					
+				col.innerHTML = str;
 				row.appendChild( col );
 			}
 			
