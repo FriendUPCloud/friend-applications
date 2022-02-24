@@ -190,11 +190,10 @@ moduleObject.classrooms = {
 	// Show the classroom details
 	initClassroomDetails( classroomId, listview )
 	{
-		let n = new Module( 'system' );
+		const n = new Module( 'system' );
 		n.onExecuted = function( ee, dd )
 		{
-			let course = JSON.parse( dd );
-			
+			const course = JSON.parse( dd );
 			console.log( 'initclassroomdetails course', [ classroomId, listview, course ]);
 			let section = FUI.getElementByUniqueId( 'classroom_section_1' );
 			const now = Date.now();
@@ -202,7 +201,10 @@ moduleObject.classrooms = {
 			const cEnd = Date.parse( course.ClassEndDate );
 			const started = cStart < now;
 			const ended = cEnd < now;
-			const progress = null; // fill with progress percentage, or leave as null for not started
+			let progress = null;
+			if ( course.Status )
+				progress = course.Status;
+			
 			let btnText = '';
 			let btnDisable = ( !started || ended );
 			if ( progress )
@@ -233,7 +235,7 @@ moduleObject.classrooms = {
 				{
 					let rows = JSON.parse( ed );
 					let out = [];
-					console.log( 'What are the sections?', rows );
+					
 					for( let a = 0; a < rows.length; a++ )
 					{
 						out.push( [ {
