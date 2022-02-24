@@ -21,10 +21,17 @@ $db = new CourseDatabase();
 if( method_exists( $db, $args->args->command ) )
 {
 	$i = false;
-	if( isset( $args->args->vars )) $i =& $args->args->vars;
+	
+	if( isset( $args->args->vars ) )
+	{
+		$i =& $args->args->vars;
+	}
+	
 	$result = $db->{$args->args->command}( $i );
-	die($result);
+	
+	die( $result );
 }
+
 die( 'fail' );
 
 ?>

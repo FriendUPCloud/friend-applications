@@ -190,9 +190,17 @@ moduleObject.classrooms = {
 		{
 			let course = JSON.parse( dd );
 			
+			let btn = 'Start course';
+			if( course.Status > 0 )
+				btn = 'Continue course';
+			
 			let section = FUI.getElementByUniqueId( 'classroom_section_1' );
 			section.setHeader( 'Details for ' + course.Name );
-			section.setContent( '<p>Details are coming.</p><p class="TextRight"><button type="button" onclick="moduleObject.classrooms.courseViewer(' + course.ID +')">Continue course</button></p>' );
+			section.setContent( '<p>Details are coming.</p>' +
+				'<p class="TextRight">' + 
+					'<button type="button" onclick="moduleObject.classrooms.courseViewer(' + course.ID +')">' + btn + '</button>' + 
+				'</p>' 
+			);
 			
 			let list = FUI.getElementByUniqueId( 'classroom_progress' );
 			let m = new Module( 'system' );

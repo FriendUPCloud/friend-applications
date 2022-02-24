@@ -87,6 +87,17 @@ switch( $args->args->command )
 			SELECT c.* FROM CC_Course c, CC_Classroom cl WHERE cl.ID=\'' . intval( $args->args->courseId, 10 ) . '\' AND c.ID = cl.CourseID
 		' ) )
 		{
+			$status = new dbIO( 'CC_CourseSession', $db->database );
+			$status->CourseID = $row->ID;
+			$status->UserID = $User->ID;
+			if( $status->Load() )
+			{
+				$row->Status = $status->Status;
+			}
+			else
+			{
+				$row->Status = 0;
+			}
 			die( 'ok<!--separate-->' . json_encode( $row ) );
 		}
 		die( 'fail<!--separate-->{"message":"Could not find this course.","response":-1}' );
