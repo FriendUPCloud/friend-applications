@@ -118,6 +118,7 @@ moduleObject.classrooms = {
 					return;
 				}
 				let list = JSON.parse( rd );
+				console.log( 'room list', list );
 				let out = [];
 				for( let a = 0; a < list.length; a++ )
 				{
@@ -126,6 +127,10 @@ moduleObject.classrooms = {
 							type: 'string',
 							value: list[a].Name,
 							onclick: 'w_classroom_enter_' + a
+						},
+						{
+							type : 'string',
+							value : list[a].StartDate.split(' ')[0],
 						},
 						{
 							type: 'string',
@@ -137,7 +142,7 @@ moduleObject.classrooms = {
 						},
 						{
 							type: 'string',
-							value: list[a].EndDate
+							value: list[a].EndDate.split(' ')[0],
 						}
 					] );
 					
@@ -190,9 +195,35 @@ moduleObject.classrooms = {
 		{
 			let course = JSON.parse( dd );
 			
+			console.log( 'initclassroomdetails course', [ classroomId, listview, course ]);
 			let section = FUI.getElementByUniqueId( 'classroom_section_1' );
+			const now = Date.now();
+			const cStart = Date.parse( course.ClassStartDate );
+			const cEnd = Date.parse( course.ClassEndDate );
+			const started = cStart < now;
+			const ended = cEnd < now;
+			const progress = null; // fill with progress percentage, or leave as null for not started
+			let btnText = '';
+			let btnDisable = ( !started || ended );
+			if ( progress )
+				btnText = 'Continue course';
+			if ( !started )
+				btnText = 'Not yet available';
+			if ( started && !progress )
+				btnText = 'Start course';
+			if ( ended )
+				btnText = 'Course Ended';
+			console.log( 'date', {
+				now        : now,
+				start      : cStart,
+				end        : cEnd,
+				started    : started,
+				ended      : ended,
+				btnText    : btnText,
+				btnDisable : btnDisable,
+			});
 			section.setHeader( 'Details for ' + course.Name );
-			section.setContent( '<p>Details are coming.</p><p class="TextRight"><button type="button" onclick="moduleObject.classrooms.courseViewer(' + course.ID +')">Continue course</button></p>' );
+			section.setContent( '<p>Details are coming.</p><p class="TextRight"><button ' + ( btnDisable ? 'disabled' : '' ) + ' type="button" onclick="moduleObject.classrooms.courseViewer(' + course.ID +')">' + btnText + '</button></p>' );
 			
 			let list = FUI.getElementByUniqueId( 'classroom_progress' );
 			let m = new Module( 'system' );
