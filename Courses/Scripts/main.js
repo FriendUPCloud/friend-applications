@@ -210,7 +210,7 @@ moduleObject.classrooms = {
 				{
 					let rows = JSON.parse( ed );
 					let out = [];
-					console.log( 'What are the sections?', rows );
+					
 					for( let a = 0; a < rows.length; a++ )
 					{
 						out.push( [ {

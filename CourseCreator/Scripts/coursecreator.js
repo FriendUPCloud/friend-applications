@@ -256,7 +256,7 @@ class PageElement extends Element
         // save page page to database
         let params = {
             table: this.classInfo.dbTable,
-            ID: this.dbId == null ? 0 : this.displayId,
+            ID: this.dbId == null ? 0 : this.dbId,
             DisplayID: this.displayId == null ? 0 : this.displayId,
             Name: this.name == null ? '' : this.name,
             SectionID: this.parent.dbId == null ? 0 : this.parent.dbId,
