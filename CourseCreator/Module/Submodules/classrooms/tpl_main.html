@@ -297,11 +297,30 @@
 		                        ge( 'ClassroomId' ).value = rowId;
 		                        document.body.classList.add( 'Editmode' );
                                 
+                                ccAddCallback( 'cr_users_filter', ( lv, value ) => {
+                                    console.log( 'cr_users_filter', [ lv, value, self.usrListMode ]);
+                                    self.addUsrFilter = value;
+                                    if ( 'auv' == self.usrListMode )
+                                        return;
+                                    
+                                    Application.submodules.classrooms.refreshClassroomUsers( lv );
+                                });
+                                
+                                ccAddCallback( 'cr_add_users_filter', ( lv, value ) => {
+                                    console.log( 'cr_add_users_filter', [ lv, value, self.usrListMode ]);
+                                    self.usrListFilter = value;
+                                    if ( 'ulv' == self.usrListMode )
+                                        return;
+                                    
+                                    Application.submodules.classrooms.populateAddUserList( rowId );
+                                });
+                                
                                 ccAddCallback( 'cr_edit_add_users_btn', lv => 
                                 {
                                     console.log( 'cr_edit_add_users_btn', lv );
                                     self.ulv.hide();
                                     self.auv.show();
+                                    self.usrListMode = 'auv';
                                     self.ulv.clearRows();
                                     Application.submodules.classrooms.populateAddUserList( rowId );
                                 });
@@ -310,6 +329,7 @@
                                 {
                                     console.log( 'cr_edit_list_users', lv );
                                     self.ulv = lv;
+                                    self.usrListMode = 'ulv';
                                     Application.submodules.classrooms.refreshClassroomUsers( lv );
                                 });
                                 
@@ -318,6 +338,7 @@
                                     console.log( 'cr_edit_show_user_list_btn', lv );
                                     self.auv.hide();
                                     self.ulv.show();
+                                    self.usrListMode = 'ulv';
                                     self.auv.clearRows();
                                     Application.submodules.classrooms.refreshClassroomUsers( self.ulv );
                                 });
@@ -489,14 +510,16 @@
                 }
                 */
                 
-                console.log( 'refreshClassroomUsers', [ lv, self.usrLView ]);
-                if ( null != lv )
-                    self.usrLView = lv;
                 if ( null == lv )
-                    lv = self.usrLView;
+                    lv = self.ulv;
+                
                 
                 //let keys = ge( 'userSearch' ).value.length > 0 ? ge( 'userSearch' ).value : false;
                 let keys = null;
+                if ( lv.filters[ 0 ].value )
+                    keys = lv.filters[ 0 ].value;
+                
+                console.log( 'refreshClassroomUsers', [ lv, self.ulv, keys ]);
                 let m = new Module( 'system' );
                 m.onExecuted = function( e, d )
                 {
@@ -706,8 +729,10 @@
             populateAddUserList : function( crId )
             {
                 const self = this;
-                console.log( 'populateAddUserList', [ crId, self.auv ]);
-                const filter = null;
+                console.log( 'populateAddUserList', [ crId, self.auv, self.auv.filters[0].value ]);
+                let filter = null;
+                if ( self.auv.filters[0].value )
+                    filter = self.auv.filters[0].value;
                 const au = new Module( 'system' );
                 au.onExecuted = ( s, d ) => {
                     console.log( 'populateAddUserList on exe', [ s, d ] );
@@ -758,7 +783,7 @@
                                         submodule   : 'classrooms',
                                         method      : 'removeuser',
                                         classroomId : crId,
-                                        userId      : uid,
+                                        userId      : uId,
                                     }
                                 });
                             }

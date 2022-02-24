@@ -61,6 +61,7 @@
                     </listviewheading>
                     <listviewtoolbar>
                         <listviewbutton icon="plus-circle" onclick="cr_edit_add_users_btn"></listviewbutton>
+                        <listviewfilter onchange="cr_users_filter"></listviewfilter>
                     </listviewtoolbar>
                 </listviewhead>
                 <listviewheaders>
@@ -81,6 +82,7 @@
                 <listviewhead>
                     <listviewtoolbar>
                         <listviewbutton icon="arrow-circle-left" onclick="cr_edit_show_user_list_btn"></listviewbutton>
+                        <listviewfilter onchange="cr_add_users_filter"></listviewfilter>
                     </listviewtoolbar>
                     <listviewheading>
                         Add Users
