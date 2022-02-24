@@ -357,8 +357,8 @@
                                                         },
                                                     ];
                                                     
-                                                    ccAddCallback( 'user_cert_set_class_' + cr.ID, ( o, e ) => {
-                                                        console.log( 'user_cert_set_class_', [ cr.ID, o, e ]);
+                                                    ccAddCallback( 'user_cert_set_class_' + cr.ID, ( o, lv, e ) => {
+                                                        console.log( 'user_cert_set_class_', [ cr.ID, o, lv, e ]);
                                                         const crId = cr.ID
                                                         const clId = e.target.value;
                                                         console.log( 'set classroom for cert', {
