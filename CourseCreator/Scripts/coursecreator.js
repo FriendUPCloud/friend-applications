@@ -640,8 +640,6 @@ class RootElement extends Element
 	{
 		let self = this;
 		
-		console.log( 'Fetching index.' );
-		
 		// Courses
 		for( let a = 0; a < this.children.length; a++ )
 		{
@@ -935,8 +933,6 @@ class RootElement extends Element
         }
         function repositionPage( evt )
         {
-        	console.log( 'Reposition page.' );
-        	
         	let dragger = evt.target;
         	let page = dragger.element;
         	
@@ -970,8 +966,7 @@ class RootElement extends Element
 		    		}
         		} );
         	}
-        	// Remove the dragger to begin with
-        	dragger.parentNode.removeChild( dragger );
+        	
         	// Reorder
         	let els = ul.getElementsByClassName( 'PageIndex' );
         	for( let a = 0; a < els.length; a++ )
@@ -983,7 +978,7 @@ class RootElement extends Element
         		}
         		else if( els[a].classList.contains( 'HoveringBelow' ) )
         		{
-        			if( a < els.length - 2 )
+        			if( a < els[a].parentNode.childNodes.length - 2 )
         			{
         				els[a].parentNode.insertBefore( dragger, els[a+1] );
         			}
