@@ -1074,74 +1074,6 @@ class RootElement extends Element
         });
     }
 
-	// TODO: Rendering properties may be deprecated
-    renderProperties = function()
-    {
-        let self = this;
-        
-        /*let f = new File( 'Progdir:Templates/editor_properties.html' );
-        f.onLoad = function( data )
-        {
-        	
-        }
-        f.load();*/
-        
-        
-        /*let deleteButton = ce('button',
-            {
-                "text": "Delete",
-                "attributes": {
-                    "name": "deleteButton"
-                },
-                "classes": [ "IconSmall", "fa-remove" ],
-                "listeners": [{
-                    "event": "click",
-                    "callBack": function (event)
-                    {
-                        //TODO: does not fall back on a particular section
-                        if (event.target.eleRef)
-                        {
-                            event.target.eleRef.delete();
-                            self.renderIndex();
-                            self.renderMain();
-                        }
-                    }
-                }]
-            }
-        );
-        
-        
-        let saveButton = ce('button',
-            {
-                "text": "Save",
-                "attributes": {
-                    "name": "saveButton"
-                },
-                "classes": [ "IconSmall", "fa-save" ],
-                "listeners": [{
-                    "event": "click",
-                    "callBack": function (event) {
-                        console.log("what is event", event.target);
-                        // does not remember the highlighted
-                        if (event.target.eleRef)
-                        {
-                            let name = courseCreator.propertiesView
-                                            .querySelector(
-                                                '[name="propertyName"]'
-                                            ).value;
-                            event.target.eleRef.name = name;
-                            event.target.eleRef.save();
-                            self.renderIndex();
-                        }
-                    }
-                }]
-            }
-        );*/
-        
-
-    }
-
-
     renderIndex = function ()
     {
         let self = this;
@@ -1247,7 +1179,7 @@ class RootElement extends Element
             	{
             		event.stopPropagation();
             		ele.setActive();
-            		showEditProperties( ele, div );
+            		showEditProperties( ele, div, self );
             	}
             }
             
@@ -1400,11 +1332,7 @@ class CourseCreator
         this.manager.renderMain();
 
         // render toolbox
-        this.manager.renderToolbox()
-
-        // render properties
-        this.manager.renderProperties();
-
+        this.manager.renderToolbox();
     }
 
 	// Initializes the course
@@ -1553,7 +1481,8 @@ courseCreator.onReady = function ( loadStatus )
 
 let propsCont = false;
 
-function showEditProperties( element, domNode )
+// Edit Element, domnode and coursecreator
+function showEditProperties( element, domNode, ctx )
 {
 	if( propsCont )
 	{
@@ -1584,12 +1513,37 @@ function showEditProperties( element, domNode )
 		let flick = document.createElement( 'div' );
 		flick.className = 'Flick';
 		d.appendChild( flick );
+		
+		let inp = d.getElementsByTagName( 'input' )[0];
+		inp.value = element.name;
+		
 		d.classList.add( 'Showing' );
+		
+		inp.onchange = function( e )
+		{
+			element.name = inp.value;
+            element.save();
+            ctx.renderIndex();
+            removeEditProperties();
+		}
+		
+		let b = d.getElementsByTagName( 'button' );
+		b[0].onclick = function( e )
+		{
+            element.name = inp.value;
+            element.save();
+            ctx.renderIndex();
+            removeEditProperties();
+		}
+		
+		inp.focus();
+		inp.select();
+		
 	}
 	f.load();
 }
 
-document.body.addEventListener( 'click', function( e )
+function removeEditProperties()
 {
 	if( propsCont )
 	{
@@ -1601,6 +1555,11 @@ document.body.addEventListener( 'click', function( e )
 			document.body.removeChild( p );
 		}, 150 );
 	}
+}
+
+document.body.addEventListener( 'click', function( e )
+{
+	removeEditProperties();
 } ); 
 
 /* Done Properties ---------------------------------------------------------- */
