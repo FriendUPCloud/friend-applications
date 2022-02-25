@@ -669,7 +669,7 @@ class RootElement extends Element
 					                pags[a2].Name
 					            );
 							}
-							console.log( 'Section loaded: ', sect.children, pags );
+							//console.log( 'Section loaded: ', sect.children, pags );
 							// When all is done
 							if( --loadCount == 0 )
 							{
@@ -788,7 +788,7 @@ class RootElement extends Element
             // Sections
             c.children.forEach( s => 
             {
-            	console.log( 'Adding new section: ' + s.name );
+            	//console.log( 'Adding new section: ' + s.name );
             	// Section list
                 let sLi = makeLiElement(s, 'section' );
                 sLi.classList.add( 'SectionIndex' );
@@ -801,7 +801,7 @@ class RootElement extends Element
                 for( let k in s.children )
                 {
                 	let p = s.children[k];
-                	console.log( 'Adding page ' + p.name );
+                	//console.log( 'Adding page ' + p.name );
                     let pLi = makeLiElement( p, 'page' );
                     if (pLi)
                     {
@@ -935,19 +935,21 @@ class RootElement extends Element
         }
         function repositionPage( evt )
         {
+        	console.log( 'Reposition page.' );
+        	
         	let dragger = evt.target;
         	let page = dragger.element;
         	
         	function checkSection( ele )
         	{
-        		while( ele.classList != 'SectionIndex' )
+        		while( ele.classList != 'SectionIndex' && ele != document.body )
         		{
         			ele = ele.parentNode;
         		}
         		
         		// Set page to section
         		let order = [];
-        		let pages = ele.getElementsByTagName( 'PageIndex' );
+        		let pages = ele.getElementsByClassName( 'PageIndex' );
         		for( let a = 0; a < pages.length; a++ )
         		{
         			order.push( pages[a].element.dbId );

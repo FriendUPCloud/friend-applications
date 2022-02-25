@@ -609,10 +609,10 @@ class CourseDatabase
     		$p->Save();
     	}
     	// Reorder all pages
-    	$b = 1;
+    	$b = 0;
     	foreach( $args->pageOrder as $ord )
     	{
-    		$this->database->query( 'UPDATE CC_Page SET DisplayID=\'' . $b . '\' WHERE ID=\'' . intval( $ord, 10 ) . '\' LIMIT 1' );
+    		$this->database->query( 'UPDATE CC_Page SET DisplayID=\'' . strVal( $b ) . '\' WHERE ID=\'' . intval( $ord, 10 ) . '\' LIMIT 1' );
     		$b++;
     	}
     	
