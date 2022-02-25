@@ -118,6 +118,7 @@ moduleObject.classrooms = {
 					return;
 				}
 				let list = JSON.parse( rd );
+				console.log( 'room list', list );
 				let out = [];
 				for( let a = 0; a < list.length; a++ )
 				{
@@ -126,6 +127,10 @@ moduleObject.classrooms = {
 							type: 'string',
 							value: list[a].Name,
 							onclick: 'w_classroom_enter_' + a
+						},
+						{
+							type : 'string',
+							value : list[a].StartDate.split(' ')[0],
 						},
 						{
 							type: 'string',
@@ -137,7 +142,7 @@ moduleObject.classrooms = {
 						},
 						{
 							type: 'string',
-							value: list[a].EndDate
+							value: list[a].EndDate.split(' ')[0],
 						}
 					] );
 					
@@ -185,22 +190,42 @@ moduleObject.classrooms = {
 	// Show the classroom details
 	initClassroomDetails( classroomId, listview )
 	{
-		let n = new Module( 'system' );
+		const n = new Module( 'system' );
 		n.onExecuted = function( ee, dd )
 		{
-			let course = JSON.parse( dd );
-			
-			let btn = 'Start course';
-			if( course.Status > 0 )
-				btn = 'Continue course';
-			
+			const course = JSON.parse( dd );
+			console.log( 'initclassroomdetails course', [ classroomId, listview, course ]);
 			let section = FUI.getElementByUniqueId( 'classroom_section_1' );
+			const now = Date.now();
+			const cStart = Date.parse( course.ClassStartDate );
+			const cEnd = Date.parse( course.ClassEndDate );
+			const started = cStart < now;
+			const ended = cEnd < now;
+			let progress = null;
+			if ( course.Status )
+				progress = course.Status;
+			
+			let btnText = '';
+			let btnDisable = ( !started || ended );
+			if ( progress )
+				btnText = 'Continue course';
+			if ( !started )
+				btnText = 'Not yet available';
+			if ( started && !progress )
+				btnText = 'Start course';
+			if ( ended )
+				btnText = 'Course Ended';
+			console.log( 'date', {
+				now        : now,
+				start      : cStart,
+				end        : cEnd,
+				started    : started,
+				ended      : ended,
+				btnText    : btnText,
+				btnDisable : btnDisable,
+			});
 			section.setHeader( 'Details for ' + course.Name );
-			section.setContent( '<p>Details are coming.</p>' +
-				'<p class="TextRight">' + 
-					'<button type="button" onclick="moduleObject.classrooms.courseViewer(' + course.ID +')">' + btn + '</button>' + 
-				'</p>' 
-			);
+			section.setContent( '<p>Details are coming.</p><p class="TextRight"><button ' + ( btnDisable ? 'disabled' : '' ) + ' type="button" onclick="moduleObject.classrooms.courseViewer(' + course.ID +')">' + btnText + '</button></p>' );
 			
 			let list = FUI.getElementByUniqueId( 'classroom_progress' );
 			let m = new Module( 'system' );
