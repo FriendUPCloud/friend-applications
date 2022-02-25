@@ -244,6 +244,18 @@
 	background: var(--module-background-active);
 }
 
+#index li > div > span > span.Remove
+{
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 0.15s;
+}
+
+#index li.Active > div > span > span.Remove
+{
+	opacity: 1;
+	pointer-events: all;
+}
 
 /* -------------------------------*/
 
@@ -466,3 +478,6 @@
 {
 	margin-right: 0;
 }
+
+
+

@@ -262,7 +262,7 @@ class PageElement extends Element
             SectionID: this.parent.dbId == null ? 0 : this.parent.dbId,
             ElementTypeID: this.classInfo.elementTypeId
         };
-        console.log("Update table ", params);
+        //console.log("Update table ", params);
         courseCreator.dbio.call(
             'updateTable',
             params,
@@ -1074,63 +1074,20 @@ class RootElement extends Element
         });
     }
 
+	// TODO: Rendering properties may be deprecated
     renderProperties = function()
     {
         let self = this;
-
-        // create HTML
-        let div = ce('div', { "classes": ["properties"]});
         
-        // Type of element
-        let typeDiv = ce('div');
-        let typeLabel = ce('label',
-            { 
-                "text": "Type:",
-                "attributes": {
-                    "for": "elementType"
-                }
-            }
-        );
-        let typeField = ce('input',
-            {
-                "attributes": {
-                    "type": "text",
-                    "name": "elementType",
-                    "readonly": "readonly"
-                }
-            }
-        );
-        typeDiv.appendChild(typeLabel);
-        typeDiv.appendChild(typeField);
-        div.appendChild(typeDiv);
-
-        // Name form
-        let nameDiv = ce('div');
-        let nameLabel = ce('label',
-            {
-                "text": "Name:",
-                "attributes": {
-                    "for": "propertyName"
-                }
-            }
-        );
-        let nameInput = ce('input',
-            {
-                "attributes": {
-                    "type": "text",
-                    "name": "propertyName"
-                }
-            }
-        );
-        nameDiv.appendChild(nameLabel);
-        nameDiv.appendChild(nameInput);
-        div.appendChild(nameDiv);
-
-        // buttons
-        let outerDiv = ce('div', { "classes": ["right"]});
-        let buttonDiv = ce('div',{ "classes": ["buttons"]});
-        let buttons = ce('span');
-        let deleteButton = ce('button',
+        /*let f = new File( 'Progdir:Templates/editor_properties.html' );
+        f.onLoad = function( data )
+        {
+        	
+        }
+        f.load();*/
+        
+        
+        /*let deleteButton = ce('button',
             {
                 "text": "Delete",
                 "attributes": {
@@ -1152,6 +1109,8 @@ class RootElement extends Element
                 }]
             }
         );
+        
+        
         let saveButton = ce('button',
             {
                 "text": "Save",
@@ -1177,15 +1136,8 @@ class RootElement extends Element
                     }
                 }]
             }
-        );
-        buttons.appendChild(deleteButton);
-        buttons.appendChild(saveButton);
-        buttonDiv.appendChild(buttons);
-        outerDiv.appendChild(buttonDiv)
-        div.appendChild(outerDiv);
-
-        self.parent.propertiesView.replaceChildren();
-        self.parent.propertiesView.appendChild(div);
+        );*/
+        
 
     }
 
@@ -1242,12 +1194,12 @@ class RootElement extends Element
             let text = ce(
                 "span",
                 { 
-                    "text": ( icon ? '&nbsp;' : '' ) + num + ". " + ele.name,
-                    "classes": [ 'IconSmall', icon ],
-                    "listeners": [
+                    'text': '<span class="IconSmall fa-remove FloatRight Remove MousePointer"></span>' + ( icon ? '&nbsp;' : '' ) + num + '. ' + ele.name,
+                    'classes': [ 'IconSmall', icon ],
+                    'listeners': [
                         {
-                            "event": "click",
-                            "callBack": function ( event ){
+                            'event': 'click',
+                            'callBack': function ( event ){
                                 event.stopPropagation();
                                 ele.setActive();
                                 ele.renderMain();
@@ -1266,6 +1218,26 @@ class RootElement extends Element
             );
             div.appendChild(text);
             li.appendChild(div);
+            
+            // Remove page button
+            let r = text.querySelector( '.Remove' );
+            if( r )
+            {
+            	r.onclick = function( event )
+            	{
+            		console.log( 'Trying to remove' );
+            		if( event.target.eleRef )
+                    {
+                        event.target.eleRef.delete( function()
+                        	{
+			                    self.renderIndex();
+			                    self.renderMain();
+	                        }
+                        );
+                    }
+            	}
+            }
+            
             return li;
         }
 
