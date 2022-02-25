@@ -1,4 +1,5 @@
 <input type="hidden" id="ClassroomId" value="0"/>
+<input type="hidden" id="ClassroomStatus" value="0"/>
 
 <div class="ContentHeader">
     <span class="FloatLeft IconSmall fa-arrow-circle-left MarginTop MarginLeft MarginBottom MousePointer" onclick="document.body.classList.remove('Editmode')"></span>
@@ -43,8 +44,11 @@
     <div class="BlockSpacer"></div>
     
     <div class="HRow">
-        <button type="button" class="FloatRight IconSmall fa-check">
-            Update
+        <button id="cl_edit_save" type="button" class="ccHidden FloatRight IconSmall fa-check" onclick="Application.submodules.classrooms.executeFinalizeTheRoom()">
+            Save
+        </button>
+        <button id="cl_edit_cancel" type="button" class="ccHidden FloatRight IconSmall fa-close" onclick="Application.submodules.classrooms.executeCancelTheRoom()">
+            Cancel
         </button>
     </div>
 </div>

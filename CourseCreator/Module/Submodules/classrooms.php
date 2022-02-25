@@ -150,6 +150,8 @@ if( isset( $args->method ) )
                         $obj = new stdClass();
                         $obj->ID = $row->ID;
                         $obj->Name = $row->Name;
+                        if ( isset( $row->Status ))
+                            $obj->Status = intval( $row->Status, 10 );
                         
                         $o = new dbIO( 'FUser' );
                         $o->Load( $row->OwnerID );
@@ -202,7 +204,9 @@ if( isset( $args->method ) )
                 $n->DateUpdated = date( 'Y-m-d H:i:s' );
                 $n->OwnerID = $User->ID;
                 $n->Name = $args->data->name;
-                $n->CourseID = $args->data->collectionId;
+                $n->CourseID = $args->data->courseId;
+                if ( isset( $args->data->status ))
+                    $n->Status = intval( $args->data->status, 10 );
                 if( !isset( $args->data->startDate ) || !trim( $args->data->startDate ) )
                     $args->data->startDate = date( 'Y-m-d' );
                 $n->StartDate = $args->data->startDate . ' 00:00:00';
@@ -213,7 +217,11 @@ if( isset( $args->method ) )
                 $q = $n->_lastQuery;
                 if( $n->ID > 0 )
                 {
-                    die( 'ok<!--separate-->{"ID":' . $n->ID . '}' );
+                    $rq = '
+                        SELECT cl.* FROM CC_Classroom cl WHERE cl.ID='. $n->ID .'
+                    ';
+                    $cl = $courseDb->fetchObjects( $rq );
+                    die( 'ok<!--separate-->' . json_encode($cl[ 0 ]));
                 }
                 die( 'fail<!--separate-->{"message":"Failed to save classroom."}<!--separate-->' . $q );
             }
@@ -230,6 +238,8 @@ if( isset( $args->method ) )
                 {
                     $cl = new stdClass();
                     $cl->ID = $c->ID;
+                    if ( isset( $c->Status ))
+                        $cl->Status = intval( $c->Status, 10 );
                     $cl->Name = $c->Name;
                     $cl->CourseID = $c->CourseID;
                     $cl->StartDate = explode( ' ', $c->StartDate )[0];

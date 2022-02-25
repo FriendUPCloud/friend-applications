@@ -21,7 +21,6 @@ CREATE TABLE IF NOT EXISTS CC_Certificate(
 
 ALTER TABLE CC_Certificate ADD ClassID BIGINT(20) AFTER UserID;
 
-
 CREATE TABLE IF NOT EXISTS `CC_ElementResult` (
   `ID` bigint NOT NULL AUTO_INCREMENT,
   `CourseID` bigint NOT NULL,
@@ -42,3 +41,6 @@ CREATE TABLE IF NOT EXISTS `CC_CourseSession` (
   `DateCreated` datetime DEFAULT NULL,
   PRIMARY KEY (`ID`)
 );
+
+/* Add Status to classroom table */
+ALTER TABLE CC_Classroom ADD Status INT DEFAULT 0 AFTER ClassRoomCategoryID;
