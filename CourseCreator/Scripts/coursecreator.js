@@ -1243,6 +1243,7 @@ class RootElement extends Element
                                                 pLi.classList.add('PageIndex');
                                                 pUl.appendChild(pLi);
                                                 setActiveClass(pLi);
+                                                showEditProperties( newPage, pLi, self )
                                             }
                                         }
                                     );
