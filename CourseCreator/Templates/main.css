@@ -244,17 +244,65 @@
 	background: var(--module-background-active);
 }
 
-#index li > div > span > span.Remove
+#index li > div > span > span.Remove,
+#index li > div > span > span.Edit
 {
 	opacity: 0;
 	pointer-events: none;
 	transition: opacity 0.15s;
 }
 
-#index li.Active > div > span > span.Remove
+#index li.Active > div > span > span.Remove,
+#index li.Active > div > span > span.Edit
 {
 	opacity: 1;
 	pointer-events: all;
+}
+
+.ElementProperties
+{
+	position: absolute;
+	bottom: 0px;
+	left: 0;
+	width: 100%;
+	height: 90px;
+	background-color: var(--fui-background-foreground);
+	border-radius: var(--fui-border-radius-normal);
+	box-sizing: border-box;
+	padding: var(--fui-padding-normal);
+	box-shadow: var(--fui-box-shadow);
+	pointer-events: none;
+	opacity: 0;
+	transition: opacity 0.15s;
+	border-top: 2px solid var(--fui-module-background);
+}
+
+.ElementProperties.Showing
+{
+	opacity: 1;
+	pointer-events: all;
+}
+
+.ElementProperties > .Flick
+{
+	position: absolute;
+	top: -12px;
+	left: 0;
+	width: 100%;
+	height: 12px;
+	overflow: hidden;
+}
+
+.ElementProperties > .Flick:after
+{
+	content: " ";
+	position: absolute;
+	top: 4px;
+	left: 14px;
+	width: 16px;
+	height: 16px;
+	background-color: var(--fui-module-background);
+	transform: rotate(45deg);
 }
 
 /* -------------------------------*/

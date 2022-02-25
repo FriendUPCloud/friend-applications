@@ -1194,7 +1194,9 @@ class RootElement extends Element
             let text = ce(
                 'span',
                 { 
-                    'text': '<span class="IconSmall fa-remove FloatRight Remove MousePointer"></span>' + ( icon ? '&nbsp;' : '' ) + num + '. ' + ele.name,
+                    'text': '<span class="IconSmall fa-remove FloatRight Remove MousePointer MarginLeft"></span>' +
+                    		'<span class="IconSmall fa-edit FloatRight Edit MousePointer"></span>' +
+                    		( icon ? '&nbsp;' : '' ) + num + '. ' + ele.name,
                     'classes': [ 'IconSmall', icon ],
                     'listeners': [
                         {
@@ -1236,6 +1238,16 @@ class RootElement extends Element
 	                        }
                         );
                     }
+            	}
+            }
+            let ee = text.querySelector( '.Edit' );
+            if( ee )
+            {
+            	ee.onclick = function( event )
+            	{
+            		event.stopPropagation();
+            		ele.setActive();
+            		showEditProperties( ele, div );
             	}
             }
             
@@ -1409,7 +1421,7 @@ class CourseCreator
 
         // set view button event handler
         ge('viewButton').addEventListener(
-            "click",
+            'click',
             function( event ){
                 let v = new View({
                     title: 'Courseviewer',
@@ -1536,6 +1548,62 @@ courseCreator.onReady = function ( loadStatus )
         courseCreator.initialize();
     }
 }
+
+/* Properties --------------------------------------------------------------- */
+
+let propsCont = false;
+
+function showEditProperties( element, domNode )
+{
+	if( propsCont )
+	{
+		document.body.removeChild( propsCont );
+		propsCont = false;
+	}
+	
+	let l = GetElementLeft( domNode );
+	let t = GetElementTop( domNode );
+	let h = GetElementHeight( domNode );
+	let w = GetElementWidth( domNode );
+	
+	let d = document.createElement( 'div' );
+	d.onclick = function( e )
+	{
+		e.stopPropagation( e );
+	}
+	d.style.left = l + 'px';
+	d.style.top = ( t + h ) + 'px';
+	d.style.width = w + 'px';
+	d.className = 'ElementProperties';
+	document.body.appendChild( d );
+	propsCont = d;
+	let f = new File( 'Progdir:Templates/editor_properties.html' );
+	f.onLoad = function( data )
+	{
+		d.innerHTML = data;
+		let flick = document.createElement( 'div' );
+		flick.className = 'Flick';
+		d.appendChild( flick );
+		d.classList.add( 'Showing' );
+	}
+	f.load();
+}
+
+document.body.addEventListener( 'click', function( e )
+{
+	if( propsCont )
+	{
+		let p = propsCont;
+		p.classList.remove( 'Showing' );
+		propsCont = false;
+		setTimeout( function()
+		{
+			document.body.removeChild( p );
+		}, 150 );
+	}
+} ); 
+
+/* Done Properties ---------------------------------------------------------- */
 
 /*
 
