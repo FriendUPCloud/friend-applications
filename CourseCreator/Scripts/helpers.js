@@ -63,9 +63,7 @@ let ce = function(type,
 
 let removeDomChildren = function (domEle)
 {
-    while (domEle.firstChild) {
-        domEle.firstChild.remove();
-    }
+	domEle.innerHTML = '';
 }
 
 let setDomChildren = function (domEle, domChildren)

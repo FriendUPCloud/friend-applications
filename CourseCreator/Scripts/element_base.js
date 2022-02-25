@@ -39,7 +39,7 @@ class Element
         if( !( typeof(this.parent.children) == 'undefined' ) )
         {
             //console.log("adding to parent");
-            this.parent.children.push(this);
+            this.parent.children[ displayId ] = this;
         }
 
         // Initialize element properties
@@ -77,8 +77,17 @@ class Element
         self.parent.activeChild = self;
         if (typeof(self.parent.setActive) != "undefined")
             self.parent.setActive();
-        if (!self.children.includes(self.activeChild))
-            self.activeChild = self.children[0];
+        // Check if we have active child
+        let found = false;
+        for( let a in self.children )
+        {
+        	if( self.children[ a ] == self.activeChild )
+        	{
+        		found = true;
+        		break;
+        	}
+        }
+        if( !found ) self.activeChild = self.children[0];
     }
 
     createDomContainer = function()
@@ -197,7 +206,7 @@ class Element
 
         Delete function for elements (page and section overload this)
     */
-    delete = function () 
+    delete = function ( cbk ) 
     {
         let self = this;
 
@@ -238,6 +247,7 @@ class Element
                         self.parent.sortElements();
                     if (self.elemenType == "page" || self.elementType == "section" )
                         courseCreator.manager.renderIndex();
+                    if( cbk ) cbk();
                 }
             );
 

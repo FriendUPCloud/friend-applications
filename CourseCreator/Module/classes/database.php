@@ -421,6 +421,7 @@ class CourseDatabase
         return 'fail<!--separate-->{"message":"Could delete row","response":-1,"mysql_error":"' . mysqli_error( $this->database->_link ) . '"}';
     }
 
+	// Fetch course and sections
     public function getCourseList( $vars )
     {
         global $User;
@@ -432,25 +433,18 @@ class CourseDatabase
                 c.DisplayID as courseDisplayID,
                 s.ID as sectionID,
                 s.Name as sectionName,
-                s.DisplayID as sectionDisplayID,
-                p.ID as pageID,
-                p.DisplayID as pageDisplayID,
-                p.Name as pageName
+                s.DisplayID as sectionDisplayID
             FROM
                 CC_Course as c
                 LEFT JOIN CC_Section s
                 ON c.ID = s.CourseID
-                LEFT JOIN CC_Page p
-                ON s.ID = p.SectionID
+            WHERE c.ID = \'' . intval( $vars->courseId, 10 ) . '\'
             ORDER BY
                 c.DisplayID,
-                s.DisplayID,
-                p.DisplayID
+                s.DisplayID
         ';
-        //die("ok<!--separate-->" . var_dump($vars));
         if ($rows = $this->database->fetchObjects( $query ))
         {
-            //die("ok<!--separate-->" . var_dump($rows));
             return "ok<!--separate-->" . json_encode($rows);
         }
         return 'fail<!--separate-->{"message":"Could not get CourseList","response":-1,"mysql_error":"' . mysqli_error( $this->database->_link ) . '"}';
@@ -459,7 +453,6 @@ class CourseDatabase
     public function getSectionData( $vars )
     {
         global $User;
-        //die('in get section data ' . var_dump($vars));
         $query =  '
             SELECT
                 s.ID as sectionID,
@@ -489,7 +482,6 @@ class CourseDatabase
                 p.DisplayID,
                 e.DisplayID
         ';
-        //die("ok<!--separate-->" . var_dump($vars));
         if ($rows = $this->database->fetchObjects( $query ))
         {
             $rows = $this->_convertJsonColumns(
@@ -602,6 +594,43 @@ class CourseDatabase
         }
         die( 'fail<!--separate-->{"message":"Could not find submodule ' . $args->submodule . '."}' );
     }
+    
+    // Set page's section by section id and page id
+    public function setpagesection( $args )
+    {
+    	// Assign section
+    	$p = new dbIO( 'CC_Page', $this->database );
+    	$p->Load( $args->pageId );
+    	$s = new dbIO( 'CC_Section', $this->database );
+    	$s->Load( $args->sectionId );
+    	if( $s->ID > 0 && $p->ID > 0 )
+    	{
+    		$p->SectionID = $s->ID;
+    		$p->Save();
+    	}
+    	// Reorder all pages
+    	$b = 0;
+    	foreach( $args->pageOrder as $ord )
+    	{
+    		$this->database->query( 'UPDATE CC_Page SET DisplayID=\'' . strVal( $b ) . '\' WHERE ID=\'' . intval( $ord, 10 ) . '\' LIMIT 1' );
+    		$b++;
+    	}
+    	
+    	die( 'ok<!--separate-->{"message":"All pages reordered."}' );
+    }
+    
+    // Fetch all pages from section
+    public function fetchpagesfromsection( $args )
+    {
+    	if( $rows = $this->database->fetchObjects( '
+    		SELECT * FROM CC_Page WHERE SectionID=\'' . intval( $args->sectionId, 10 ) . '\' ORDER BY DisplayID ASC
+    	' ) )
+    	{
+    		die( 'ok<!--separate-->' . json_encode( $rows ) );
+    	}
+    	die( 'fail<!--separate-->' );
+    }
+    
 }
 
 ?>

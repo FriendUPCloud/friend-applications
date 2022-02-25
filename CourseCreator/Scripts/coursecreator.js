@@ -41,16 +41,6 @@ Application.receiveMessage = function( msg )
         console.log('received message', msg );
         courseCreator.load( msg.courseId );
     }
-
-    if( msg.command == 'loadNewCourse' )
-    {
-        courseCreator.manager.createNewCourse( msg.displayId,
-            function ( data ) {
-                console.log( "return from the save ", data );
-                courseCreator.load( data );
-            }
-        );
-    }
 }
 
 /* IO Classes / this will be section
@@ -113,6 +103,7 @@ class CourseElement extends Element
 }
 
 
+// This element contains page elements
 class SectionElement extends Element 
 {
     constructor( parent, displayId=0, dbId=0, name='' ) 
@@ -143,6 +134,7 @@ class SectionElement extends Element
     }
 }
 
+// This element contains UI elements
 class PageElement extends Element
 {
     constructor(parent, displayId=0, dbId=0, name='')
@@ -262,7 +254,7 @@ class PageElement extends Element
             SectionID: this.parent.dbId == null ? 0 : this.parent.dbId,
             ElementTypeID: this.classInfo.elementTypeId
         };
-        console.log("Update table ", params);
+        //console.log("Update table ", params);
         courseCreator.dbio.call(
             'updateTable',
             params,
@@ -380,390 +372,6 @@ class PageElement extends Element
     // }
 }
 
-class CheckBoxQuestionElement extends Element 
-{
-    constructor( parent, displayId, dbId=0, name='', properties='' ) 
-    {
-        super(parent, "checkBoxQuestion", displayId, dbId, name);
-        if( !properties )
-        {
-            properties = {
-                question: "question",
-                checkBoxes: [
-                    {
-                        label: "alternative 0",
-                        isAnswer: true
-                    },
-                    {
-                        label: "alternative 1",
-                        isAnswer: false
-                    }
-                ]
-            };
-        }
-        this.properties = properties;
-        this.linkDomContainer();
-        this.resetDomContainer();
-        this.domContainer.classList.add("element");
-        this.domContainer.classList.add("list-group-item");
-    }
-
-    renderMain = function()
-    {
-
-        //console.logr("in render main");
-        let self = this;
-
-        this.resetDomContainer();
-       
-        // DOM Elements:
-        
-        // Question:
-        let question = ce(
-            "span",
-            { 
-                "ckEditor": true,
-                "text": this.properties.question,
-                "classes": ["checkBoxQuestion"],
-                "listeners": [
-                    {
-                        event: "blur",
-                        callBack: function( event ) {
-                            self.properties.question = event.target.innerHTML;
-                            courseCreator.manager.saveActivePage();
-                        } 
-                    }
-                ]
-            }
-        );
-        this.domContainer.appendChild(question);
-        
-        // Checkboxes
-        let cbxContainer = ce('div');
-        cbxContainer.classList.add( 'checkboxContainer' );
-        this.properties.checkBoxes.forEach( ( cbx , i ) => {
-            console.log('check box', cbx, "element", this);
-            let cbxRow = ce('span', { "classes": ['checkBoxRow']});
-            // Checkbox input
-            let cbxInput = ce( 
-                "input",
-                {
-                    "attributes": {
-                        "type":"checkBox"
-                    },
-                    "classes": ['checkBoxTick'],
-                    "listeners": [
-                        {
-                            "event": "change",
-                            "callBack": function ( event ) {
-                                cbx.isAnswer = event.target.checked;
-                                if (cbx.isAnswer){
-                                    cbxRow.classList.add('isAnswer');
-                                }
-                                else {
-                                    cbxRow.classList.remove('isAnswer');
-                                }
-                                courseCreator.manager.saveActivePage();
-                            }
-                        }
-                    ]
-                }
-            );
-            if (cbx.isAnswer)
-                cbxInput.checked = true;
-
-            // Checkbox label
-            let cbxLabel = ce(
-                "span",
-                { 
-                    "ckEditor": true,
-                    "text": cbx.label,
-                    "classes": ["checkBoxLabel"],
-                    "listeners": [
-                        {
-                            "event": "blur",
-                            "callBack": function ( event ) {
-                                cbx.label = event.target.innerHTML;
-                                courseCreator.manager.saveActivePage();
-                            }
-                        }
-                    ]
-                }
-            );
-
-            // delete button
-            let cbxDelete = ce("span", { "classes": ["delete"] });
-            let cbxDeleteIcon  = ce("span",
-                { 
-                    "classes" : [ "IconSmall", "fa-times"],
-                    "listeners" : [{
-                        "event": "click",
-                        "callBack": function (event){
-                            self.properties.checkBoxes = (
-                                self.properties.checkBoxes.filter(
-                                    c => c !== cbx
-                                )
-                            );
-                            self.renderMain();
-                        }
-                    }]
-                }
-            );
-            cbxDelete.appendChild(cbxDeleteIcon);
-
-            cbxRow.appendChild(cbxInput);
-            cbxRow.appendChild(cbxLabel);
-            cbxRow.appendChild(cbxDelete);
-            cbxContainer.appendChild(cbxRow);
-        });
-        this.domContainer.appendChild(cbxContainer);
-        
-        // add "new checkbox" button
-        let button = ce('div', { "classes" : ['buttons']});
-        let inner = ce('div', 
-            { 
-                "classes" : [ 'IconSmall', 'fa-plus-circle'],
-                "listeners": [
-                    {
-                        "event": "click",
-                        "callBack": function ( event ) {
-                            self.addCheckBox()
-                        }
-                    }
-                ]
-            }
-        );
-        button.appendChild(inner);
-        this.domContainer.appendChild(button);
-    }
-
-    
-    addCheckBox = function () 
-    {
-        let self = this;
-        this.properties.checkBoxes.push(
-            {
-                "label": "",
-                "isCorrect": false
-            }
-        );
-        this.renderMain();
-    }
-}
-
-
-
-class TextBoxElement extends Element 
-{
-    constructor( parent, displayId, dbId=0, name='', properties='' ) 
-    {
-        super(parent, "textBox", displayId, dbId, name);
-        if (!properties){
-            properties = {
-                "textBox": {
-                    "content": "Start writing something"
-                }
-            };
-        }
-        this.properties = properties;
-        this.linkDomContainer();
-        this.domContainer.classList.add("element");
-        this.domContainer.classList.add("list-group-item");
-    }
-
-    renderMain = function () 
-    {
-        let self = this;
-
-        self.resetDomContainer();
-       
-        if (!self.domContainer.classList.contains("ck"))
-        {
-            let div = ce('div');
-            InlineEditor
-                .create( div )
-                .catch( error => {
-                    console.error( error );
-                } 
-            );
-            div.innerHTML = this.properties.textBox.content;
-            self.domContainer.appendChild(div);
-            console.log(" domcontainer ", self.domContainer);
-            self.domContainer.addEventListener(
-                'blur' , 
-                function ( event ){
-                    console.log('in blur in text box');
-                    // save the content to the data file
-                    self.properties.textBox.content = event.target.innerHTML;
-                    courseCreator.manager.saveActivePage();
-            }, true);
-        }
-        
-    }
-
-    renderEdit = function() 
-    {
-        let self = this;
-    }
-}
-
-
-
-
-class ImageElement extends Element 
-{
-    constructor( parent, displayId = 0, dbId=0, name='', properties='' ) 
-    {
-        super(parent, "image", displayId, dbId, name);
-        if (!properties){
-            properties = {
-                "image": {
-                    "title": "this is a title",
-                    "friendSource": ""
-                }
-            };
-        }
-        this.properties = properties;
-        this.linkDomContainer();
-        this.domContainer.classList.add("element");
-        this.domContainer.classList.add("list-group-item");
-    }
-
-    renderMain = function () 
-    {
-        let self = this;
-        this.domContainer.innerHTML = "";
-
-        self.domContainer.addEventListener(
-            "click",
-            function _clickRenderEdit ( event ) {
-                self.renderEdit();
-                self.domContainer.removeEventListener(
-                    "click",
-                    _clickRenderEdit
-                );
-            }
-        );
-
-        let cdn = new Array();
-
-        cdn.push(ce(
-            'div',
-            {
-                "text" : self.properties.image.title
-            }
-        ));
-        
-        // image
-        cdn.push(ce(
-            'img',
-            {
-                "attributes" : {
-                    "src": getImageUrl(self.properties.image.friendSource),
-                    "data-friend-source": self.properties.image.friendSource
-                }
-            }
-        ));
-        setDomChildren(this.domContainer, cdn);
-    }
-
-    renderEdit = function() 
-    {
-        let self = this;
-        this.domContainer.className = "element";
-        this.domContainer.classList.add("elementEdit");
-        this.domContainer.innerHTML = "";
-
-        let cdn = new Array();
-
-        cdn.push(ce(
-            'span',
-            {
-                "text": "Edit image:"
-            }
-        ));
-                
-        // title
-        cdn.push(ce(
-            'input',
-            {
-                "attributes" : {
-                    "type": "text",
-                    "value": self.properties.image.title
-                },
-                "classes": [
-                    'imageTitle'
-                ]
-            }
-        ));
-
-        cdn.push(ce(
-            'input',
-            {
-                "attributes" : {
-                    "type": "input",
-                    "value": self.properties.image.friendSource
-                },
-                "classes": [
-                    'imageSrc'
-                ],
-                "listeners": [{
-                    "event": "click",
-                    "callBack": function ( event ) {
-                        let d = new Filedialog({
-                            triggerFunction: function( items )
-                            {
-                                event.target.value = items[0].Path;
-                                courseCreator.manager.saveActivePage();
-                            },
-                            path: "Mountlist:",
-                            type: "load",
-                            title: "My file dialog",
-                            filename: ""
-                        });
-                    }
-                }]
-            }
-        ));
-        cdn.push(ce(
-            'button',
-            {
-                "text": "Save",
-                "listeners": [
-                    {
-                        "event": "click",
-                        "callBack": function ( event ) {
-                            self.saveEditElement();
-                            courseCreator.manager.saveActivePage();
-                        }
-                    }
-                ]
-            }
-        ));
-        setDomChildren(this.domContainer, cdn);
-    }
-
-    saveEditElement = function() 
-    {
-        let self = this;
-        
-        // image title
-        let imageTitle = self.domContainer.querySelector('.imageTitle');
-        self.properties.image.title = imageTitle.value;
-
-        // image source
-        let imageSource = self.domContainer.querySelector('.imageSrc');
-        self.properties.image.friendSource = imageSource.value;
-
-		courseCreator.manager.saveActivePage();
-		
-        // render main after data is changed
-        setTimeout( function(){
-            self.renderMain()
-        }, 1);
-    }
-}
-
 class DBIO
 {
     constructor(moduleName, appName, type="appmodule")
@@ -856,7 +464,7 @@ class ElementTypeIO
     }
 }
 
-
+// This element contains section elements
 class RootElement extends Element
 {
     constructor(courseCreator)
@@ -870,7 +478,9 @@ class RootElement extends Element
         let self = this;
         courseCreator.dbio.call(
             'getCourseList',
-            {},
+            {
+            	courseId: courseId
+            },
             function ( code, data )
             {
             	if( data.substr( 0, 1 ) == '{' || data.substr( 0, 1 ) == '[' )
@@ -879,41 +489,6 @@ class RootElement extends Element
                 self.processData(data, courseId);
             }
         );
-    }
-
-    // Creates a new course in the database
-    createNewCourse = function ( displayId = 0, callBack )
-    {
-        let self = this;
-        // Creates a new course that can be saved
-        let course = new CourseElement(self);
-        // Creates a new section element that can be saved
-        let section = new SectionElement(course);
-        // Creates a new page element that can be saved
-        let page = new PageElement(section);
-        // Save course into the database
-        course.save( function( data1 )
-        {
-            console.log( 'Saving course What is it: ', course );
-            course.dbId = data1;
-            course.displayId = displayId;
-            // Save the section in the database
-            section.save( function ( data2 ){
-            	console.log( 'Saving section: ' + data2 );
-                section.dbId = data2; 
-                section.displayId = 0;
-                // Save the page in the database
-                page.save( function ( data3 ){
-                    page.dbId = data3;
-                    page.displayId = 0;
-                    if ( typeof(callBack) == "function" ) {
-                        console.log('after all the callbacks');
-                        callBack();
-                    }
-                });
-            });
-        } );
-        return course;
     }
 
     saveActivePage = function()
@@ -966,8 +541,8 @@ class RootElement extends Element
         try
         {
             let pageRows = JSON.parse(data);
-            console.log( 'Looking at children: ', self.children );
-            pageRows.forEach( r => {
+            pageRows.forEach( r => 
+            {
                 if( r.courseID == courseId )
                 {
                 	// Set project name
@@ -1002,25 +577,8 @@ class RootElement extends Element
 		                );
 		                c.children[r.sectionDisplayID] = s;
 		            }
-		            
-		            // Page
-		            if( s && s.children )
-		            {
-		            	console.log( 'There is a page: ', r );
-				        let p = s.children[r.pageDisplayID];
-				        if( !p && r.pageID != null )
-				        {
-				            p = new PageElement(
-			                    s,
-			                    r.pageDisplayID,
-			                    r.pageID,
-			                    r.pageName
-			                );
-			                s.children[r.pageDisplayID] = p;
-				        }
-				    }
 				}
-            });
+            } );
             courseCreator.loadStatus.finished += 1;
         }
         catch( e )
@@ -1028,7 +586,9 @@ class RootElement extends Element
             console.log( 'Bad error', e );
         }
         if( courseCreator.onReady )
+        {
             courseCreator.onReady( courseCreator.loadStatus );
+        }
     }
 	
 	getElementTypeIcon = function( type )
@@ -1052,202 +612,118 @@ class RootElement extends Element
         let self = this;
         removeDomChildren(courseCreator.toolboxView);
         registeredElements.forEach( ( v, k ) => {
-            if (v.group == "element") {
+            if( v.group == 'element' )
+            {
                 courseCreator.toolboxView.appendChild(ce(
-                    "div",
+                    'div',
                     {
-                        "attributes": {
-                            "data-element-type": v.elementType,
-                            "draggable": "true"
+                        'attributes': {
+                            'data-element-type': v.elementType,
+                            'draggable': 'true'
                         },
-                        "text": '&nbsp;' + v.displayName,
-                        "classes": ["elementType", "IconSmall", "fa-" + this.getElementTypeIcon( v.elementType )],
-                        "listeners": [
+                        'text': '&nbsp;' + v.displayName,
+                        'classes': [ 'elementType', 'IconSmall', 'fa-' + this.getElementTypeIcon( v.elementType )],
+                        'listeners': [
                             {
-                                "event": "dragstart",
-                                "callBack": dragToolbox
+                                'event': 'dragstart',
+                                'callBack': dragToolbox
                             }
                         ]
                     }
-                ));
+                ) );
             }
         });
     }
 
-    renderProperties = function()
-    {
-        let self = this;
+	// Loads index anew!
+	fetchIndex = function()
+	{
+		let self = this;
+		
+		// Courses
+		for( let a = 0; a < this.children.length; a++ )
+		{
+			// Sections
+			let loadCount = this.children[a].children.length;
+			for( let b = 0; b < this.children[a].children.length; b++ )
+			{
+				// Repopulate children
+				( function( sect )
+				{
+					// Reload pages
+					let m = new Module( 'system' );
+					m.onExecuted = function( ee, d )
+					{
+						if( ee == 'ok' )
+						{
+							let pags = JSON.parse( d );
+							sect.children = {};
+							for( let a2 = 0; a2 < pags.length; a2++ )
+							{
+								sect.children[ pags[a2].DisplayID ] = new PageElement(
+					                sect,
+					                pags[a2].DisplayID,
+					                pags[a2].ID,
+					                pags[a2].Name
+					            );
+							}
+							//console.log( 'Section loaded: ', sect.children, pags );
+							// When all is done
+							if( --loadCount == 0 )
+							{
+								self.renderIndex();
+							}
+						}
+					}
+					m.execute( 'appmodule', {
+						appName: 'CourseCreator',
+						command: 'fetchpagesfromsection',
+						vars: {
+							sectionId: sect.dbId
+						}
+					} );
+				} )( this.children[a].children[b] );
+			}
+		}
+	}
 
-        // create HTML
-        let div = ce('div', { "classes": ["properties"]});
-        
-        // Type of element
-        let typeDiv = ce('div');
-        let typeLabel = ce('label',
-            { 
-                "text": "Type:",
-                "attributes": {
-                    "for": "elementType"
-                }
-            }
-        );
-        let typeField = ce('input',
-            {
-                "attributes": {
-                    "type": "text",
-                    "name": "elementType",
-                    "readonly": "readonly"
-                }
-            }
-        );
-        typeDiv.appendChild(typeLabel);
-        typeDiv.appendChild(typeField);
-        div.appendChild(typeDiv);
-
-        // Name form
-        let nameDiv = ce('div');
-        let nameLabel = ce('label',
-            {
-                "text": "Name:",
-                "attributes": {
-                    "for": "propertyName"
-                }
-            }
-        );
-        let nameInput = ce('input',
-            {
-                "attributes": {
-                    "type": "text",
-                    "name": "propertyName"
-                }
-            }
-        );
-        nameDiv.appendChild(nameLabel);
-        nameDiv.appendChild(nameInput);
-        div.appendChild(nameDiv);
-
-        // buttons
-        let outerDiv = ce('div', { "classes": ["right"]});
-        let buttonDiv = ce('div',{ "classes": ["buttons"]});
-        let buttons = ce('span');
-        let deleteButton = ce('button',
-            {
-                "text": "Delete",
-                "attributes": {
-                    "name": "deleteButton"
-                },
-                "classes": [ "IconSmall", "fa-remove" ],
-                "listeners": [{
-                    "event": "click",
-                    "callBack": function (event)
-                    {
-                        //TODO: does not fall back on a particular section
-                        if (event.target.eleRef)
-                        {
-                            event.target.eleRef.delete();
-                            self.renderIndex();
-                            self.renderMain();
-                        }
-                    }
-                }]
-            }
-        );
-        let saveButton = ce('button',
-            {
-                "text": "Save",
-                "attributes": {
-                    "name": "saveButton"
-                },
-                "classes": [ "IconSmall", "fa-save" ],
-                "listeners": [{
-                    "event": "click",
-                    "callBack": function (event) {
-                        console.log("what is event", event.target);
-                        // does not remember the highlighted
-                        if (event.target.eleRef)
-                        {
-                            let name = courseCreator.propertiesView
-                                            .querySelector(
-                                                '[name="propertyName"]'
-                                            ).value;
-                            event.target.eleRef.name = name;
-                            event.target.eleRef.save();
-                            self.renderIndex();
-                        }
-                    }
-                }]
-            }
-        );
-        buttons.appendChild(deleteButton);
-        buttons.appendChild(saveButton);
-        buttonDiv.appendChild(buttons);
-        outerDiv.appendChild(buttonDiv)
-        div.appendChild(outerDiv);
-
-        self.parent.propertiesView.replaceChildren();
-        self.parent.propertiesView.appendChild(div);
-
-    }
-
-
-    renderIndex = function ()
-    {
+	// Just refreshes index
+    renderIndex = function ( redraw )
+    {	
         let self = this;
 
         let setActiveClass = function (domEle)
         {
             // remove all .Active classes
-            let actives = courseCreator.indexView.querySelectorAll('.Active');
+            let actives = courseCreator.indexView.querySelectorAll( '.Active' );
                 Array.from(actives).forEach( e => {
                     e.classList.remove('Active');
                 });
                 domEle.classList.add('Active');
-        }
-        
-        let setProperties = function ( ele )
-        {
-            let elementType = self.parent.propertiesView.querySelector(
-            	'[name="elementType"]'
-            );
-            elementType.value = ele.classInfo.displayName;
-
-            let propertyName = self.parent.propertiesView.querySelector(
-                '[name="propertyName"]'
-            );
-            propertyName.value = ele.name;
-
-            // set the event listener
-            let deleteButton = self.parent.propertiesView.querySelector(
-                '[name="deleteButton"]'
-            );
-            deleteButton.eleRef = ele;
-
-            let saveButton = self.parent.propertiesView.querySelector(
-                '[name="saveButton"]'  
-            );
-            saveButton.eleRef = ele;
         }
 
         // make Li Element
         let makeLiElement = function( ele, type )
         {
         	if( !type ) type = '';
-            let li = ce("li");           
+            let li = ce( 'li' );           
             // element index text
-            let div = ce("div");
+            let div = ce( 'div' );
             let icon = type == 'page' ? 'fa-file-text-o' : ( type == 'section' ? 'fa-bookmark-o' : '' );
             let num = ( parseInt( ele.displayId ) + 1 ) + '';
             if( num.length < 2 )
             	num = '0' + num;
             let text = ce(
-                "span",
+                'span',
                 { 
-                    "text": ( icon ? '&nbsp;' : '' ) + num + ". " + ele.name,
-                    "classes": [ 'IconSmall', icon ],
-                    "listeners": [
+                    'text': '<span class="IconSmall fa-remove FloatRight Remove MousePointer MarginLeft"></span>' +
+                    		'<span class="IconSmall fa-edit FloatRight Edit MousePointer"></span>' +
+                    		( icon ? '&nbsp;' : '' ) + num + '. ' + ele.name,
+                    'classes': [ 'IconSmall', icon ],
+                    'listeners': [
                         {
-                            "event": "click",
-                            "callBack": function ( event ){
+                            'event': 'click',
+                            'callBack': function ( event ){
                                 event.stopPropagation();
                                 ele.setActive();
                                 ele.renderMain();
@@ -1258,7 +734,6 @@ class RootElement extends Element
                                         .parentNode
                                         .parentNode
                                 );
-                                setProperties(ele);
                             }
                         }
                     ]
@@ -1266,48 +741,87 @@ class RootElement extends Element
             );
             div.appendChild(text);
             li.appendChild(div);
+            
+            // Remove page button
+            let r = text.querySelector( '.Remove' );
+            if( r )
+            {
+            	r.onclick = function( event )
+            	{
+            		event.stopPropagation();
+            		ele.setActive();
+            		if( ele.delete )
+                    {
+                        ele.delete( function()
+                        	{
+			                    self.renderIndex();
+			                    self.renderMain();
+	                        }
+                        );
+                    }
+            	}
+            }
+            let ee = text.querySelector( '.Edit' );
+            if( ee )
+            {
+            	ee.onclick = function( event )
+            	{
+            		event.stopPropagation();
+            		ele.setActive();
+            		showEditProperties( ele, div, self );
+            	}
+            }
+            
             return li;
         }
 
         // add to dom
-        removeDomChildren(courseCreator.indexView);
-
-		
+        removeDomChildren( courseCreator.indexView );
 
         // Add Indexes
-        let ul = ce("ul");
+        let ul = ce( 'ul' );
+        
         // Courses
         self.children.forEach( c => {
             // Sections
-            console.log( 'Here is a course: ', c );
-            c.children.forEach( s => {
-            	console.log( 'Here is a section: ', s );
+            c.children.forEach( s => 
+            {
+            	//console.log( 'Adding new section: ' + s.name );
+            	// Section list
                 let sLi = makeLiElement(s, 'section' );
-                sLi.classList.add('SectionIndex');
-                let pUl = ce('ul');
+                sLi.classList.add( 'SectionIndex' );
+                sLi.element = s;
+                
+                // Container
+                let pUl = ce( 'ul' );
+                
                 // Pages
-                s.children.forEach( p => {
-                    let pLi = makeLiElement(p, 'page' );
+                for( let k in s.children )
+                {
+                	let p = s.children[k];
+                	//console.log( 'Adding page ' + p.name );
+                    let pLi = makeLiElement( p, 'page' );
                     if (pLi)
                     {
-                        pLi.classList.add('PageIndex');
-                        pUl.appendChild(pLi);
+                        pLi.classList.add( 'PageIndex' );
+                        pLi.element = p;
+                        pUl.appendChild( pLi );
                     }
-                });
-                sLi.appendChild(pUl);
+                };
+                sLi.appendChild( pUl );
 
-                // add new page in a section
-                let div = ce('div');
-                let buttons = ce('div', { 'classes' : ["buttons"] });
-                div.appendChild(buttons);
-                buttons.appendChild(ce(
+                // Add new page in a section
+                let div = ce( 'div' );
+                let buttons = ce( 'div', { 'classes': [ 'buttons' ] } );
+                div.appendChild( buttons );
+                buttons.appendChild( ce(
                     "span",
                     {
-                        "classes": ['IconSmall', 'fa-plus-circle'],
-                        "listeners": [
+                        'classes': ['IconSmall', 'fa-plus-circle'],
+                        'listeners': [
                             {
-                                "event": "click",
-                                "callBack": function ( event )
+                                'event': 'click',
+                                'callBack': function( event )
                                 {
                                     s.createNewElement(
                                         null,
@@ -1324,8 +838,10 @@ class RootElement extends Element
                                             {
                                                 courseCreator.manager.saveActivePage();
                                                 pLi.classList.add('PageIndex');
+                                                pLi.element = newPage;
                                                 pUl.appendChild(pLi);
                                                 setActiveClass(pLi);
+                                                showEditProperties( newPage, pLi, self )
                                             }
                                         }
                                     );
@@ -1333,12 +849,13 @@ class RootElement extends Element
                             }
                         ]
                     }
-                ));
+                ) );
                 sLi.appendChild(buttons);
+                buttons.setAttribute( 'draggable', true );
                 ul.appendChild(sLi);
-            });
-        });
-        courseCreator.indexView.appendChild(ul);
+            } );
+        } );
+        courseCreator.indexView.appendChild( ul );
 
          // add new section
         let div = ce('div', { 'classes' : ["SectionButton"]});
@@ -1370,12 +887,133 @@ class RootElement extends Element
         span.innerHTML = '&nbsp;New section';
         buttons.appendChild( span );
         div.appendChild(buttons);
+        
+        /* Dragging of pages */
+        function dragIndicator( evt )
+        {
+        	let targ = evt.target;
+        	let els = ul.getElementsByClassName( 'PageIndex' );
+        	for( let a = 0; a < els.length; a++ )
+        	{
+        		let t = targ;
+        		while( t != document.body && t != els[a] )
+        			t = t.parentNode;
+        		
+        		if( t == els[a] )
+        		{
+        			let py = GetElementTop( els[a] );
+        			let ph = GetElementHeight( els[a] );
+        			
+        			if( evt.y <= py + ( ph / 2 ) )
+        			{
+        				els[a].classList.remove( 'HoveringBelow' );
+        				els[a].classList.add( 'HoveringAbove' );
+        			}
+        			else
+        			{
+        				els[a].classList.add( 'HoveringBelow' );
+        				els[a].classList.remove( 'HoveringAbove' );
+        			}
+        		}
+        		else
+        		{
+        			els[a].classList.remove( 'HoveringAbove' );
+        			els[a].classList.remove( 'HoveringBelow' );
+        		}
+        	}
+        }
+        function clearIndicator( evt )
+        {
+        	let els = ul.getElementsByClassName( 'PageIndex' );
+        	for( let a = 0; a < els.length; a++ )
+        	{
+        		els[a].classList.remove( 'HoveringAbove' );
+    			els[a].classList.remove( 'HoveringBelow' );
+        	}
+        }
+        function repositionPage( evt )
+        {
+        	let dragger = evt.target;
+        	let page = dragger.element;
+        	
+        	function checkSection( ele )
+        	{
+        		while( ele.classList != 'SectionIndex' && ele != document.body )
+        		{
+        			ele = ele.parentNode;
+        		}
+        		
+        		// Set page to section
+        		let order = [];
+        		let pages = ele.getElementsByClassName( 'PageIndex' );
+        		for( let a = 0; a < pages.length; a++ )
+        		{
+        			order.push( pages[a].element.dbId );
+        		}
+        		let m = new Module( 'system' );
+        		m.onExecuted = function( re, co )
+        		{
+        			// DONE!
+        			self.fetchIndex();
+        		}
+        		m.execute( 'appmodule', {
+        			appName: 'CourseCreator',
+        			command: 'setpagesection',
+        			vars: {
+		    			pageId: page.dbId,
+		    			pageOrder: order,
+		    			sectionId: ele.element.dbId
+		    		}
+        		} );
+        	}
+        	
+        	// Reorder
+        	let els = ul.getElementsByClassName( 'PageIndex' );
+        	for( let a = 0; a < els.length; a++ )
+        	{
+        		if( els[a].classList.contains( 'HoveringAbove' ) )
+        		{
+        			els[a].parentNode.insertBefore( dragger, els[a] );
+        			checkSection( els[a] );
+        		}
+        		else if( els[a].classList.contains( 'HoveringBelow' ) )
+        		{
+        			if( a < els[a].parentNode.childNodes.length - 2 )
+        			{
+        				els[a].parentNode.insertBefore( dragger, els[a+1] );
+        			}
+        			else
+        			{
+        				els[a].parentNode.appendChild( dragger );
+        			}
+    				checkSection( els[a] );
+        		}
+        	}
+        	clearIndicator();
+        }
+        let eles = ul.getElementsByClassName( 'PageIndex' );
+        for( let a = 0; a < eles.length; a++ )
+        {
+        	eles[a].setAttribute( 'draggable', true );
+        	eles[a].addEventListener( 'dragend', function( evt )
+        	{
+        		evt.stopPropagation();
+        		repositionPage( evt );
+        	} );
+        	eles[a].addEventListener( 'dragover', function( evt )
+        	{
+        		dragIndicator( evt );
+        	} );
+        }
+        /* End dragging of pages */
+        
         courseCreator.indexView.appendChild(div);
     }
 
 }
 
 
+// This element contains Root element
 class CourseCreator
 {
     constructor() 
@@ -1415,54 +1053,53 @@ class CourseCreator
         this.manager.renderMain();
 
         // render toolbox
-        this.manager.renderToolbox()
-
-        // render properties
-        this.manager.renderProperties();
-
+        this.manager.renderToolbox();
     }
 
 	// Initializes the course
     initialize()
     {
-        this.render();
+    	let self = this;
+    	self.manager.fetchIndex( function()
+    	{
+		    self.render();
 
-        // set active to first child
-        let firstPage = this.indexView.querySelector( '.PageIndex' );
-        if( firstPage )
-        {
-            firstPage.classList.add("Active");
-        }
+		    // set active to first child
+		    let firstPage = self.indexView.querySelector( '.PageIndex' );
+		    if( firstPage )
+		    {
+		        firstPage.classList.add("Active");
+		    }
 
-        // set view button event handler
-        ge('viewButton').addEventListener(
-            "click",
-            function( event ){
-                let v = new View({
-                    title: 'Courseviewer',
-                    width: 1000,
-                    height: 700
-                });
-                let f = new File( 'Progdir:Templates/viewer.html' );
-                f.onLoad = function( data ){
-                    v.setContent( data, function(){         
-                        v.sendMessage(
-                            { 
-                                command: 'loadCourse',
-                                courseId: courseCreator.manager.activeChild.dbId
-                            }
-                        );
-                    });
-                }
-                f.load();
-            }
-        );
-
+		    // set view button event handler
+		    ge('viewButton').addEventListener(
+		        'click',
+		        function( event ){
+		            let v = new View({
+		                title: 'Courseviewer',
+		                width: 1000,
+		                height: 700
+		            });
+		            let f = new File( 'Progdir:Templates/viewer.html' );
+		            f.onLoad = function( data ){
+		                v.setContent( data, function(){         
+		                    v.sendMessage(
+		                        { 
+		                            command: 'loadCourse',
+		                            courseId: courseCreator.manager.activeChild.dbId
+		                        }
+		                    );
+		                });
+		            }
+		            f.load();
+		        }
+		    );
+		} );
     }
     
     setActivePanel( panel )
     {
-    	let panels = [ 'SectionsPanel', 'ToolboxPanel', 'PropertiesPanel', 'LibraryPanel' ];
+    	let panels = [ 'SectionsPanel', 'ToolboxPanel', 'LibraryPanel' ];
     	for( let a in panels )
     	{
     		if( panels[ a ] == panel )
@@ -1563,6 +1200,93 @@ courseCreator.onReady = function ( loadStatus )
         courseCreator.initialize();
     }
 }
+
+/* Properties --------------------------------------------------------------- */
+
+let propsCont = false;
+
+// Edit Element, domnode and coursecreator
+function showEditProperties( element, domNode, ctx )
+{
+	if( propsCont )
+	{
+		document.body.removeChild( propsCont );
+		propsCont = false;
+	}
+	
+	let l = GetElementLeft( domNode );
+	let t = GetElementTop( domNode );
+	let h = GetElementHeight( domNode );
+	let w = GetElementWidth( domNode );
+	
+	let d = document.createElement( 'div' );
+	d.onclick = function( e )
+	{
+		e.stopPropagation( e );
+	}
+	d.style.left = l + 'px';
+	d.style.top = ( t + h ) + 'px';
+	d.style.width = w + 'px';
+	d.className = 'ElementProperties';
+	document.body.appendChild( d );
+	propsCont = d;
+	let f = new File( 'Progdir:Templates/editor_properties.html' );
+	f.onLoad = function( data )
+	{
+		d.innerHTML = data;
+		let flick = document.createElement( 'div' );
+		flick.className = 'Flick';
+		d.appendChild( flick );
+		
+		let inp = d.getElementsByTagName( 'input' )[0];
+		inp.value = element.name;
+		
+		d.classList.add( 'Showing' );
+		
+		inp.onchange = function( e )
+		{
+			element.name = inp.value;
+            element.save();
+            ctx.renderIndex();
+            removeEditProperties();
+		}
+		
+		let b = d.getElementsByTagName( 'button' );
+		b[0].onclick = function( e )
+		{
+            element.name = inp.value;
+            element.save();
+            ctx.renderIndex();
+            removeEditProperties();
+		}
+		
+		inp.focus();
+		inp.select();
+		
+	}
+	f.load();
+}
+
+function removeEditProperties()
+{
+	if( propsCont )
+	{
+		let p = propsCont;
+		p.classList.remove( 'Showing' );
+		propsCont = false;
+		setTimeout( function()
+		{
+			document.body.removeChild( p );
+		}, 150 );
+	}
+}
+
+document.body.addEventListener( 'click', function( e )
+{
+	removeEditProperties();
+} ); 
+
+/* Done Properties ---------------------------------------------------------- */
 
 /*
 
