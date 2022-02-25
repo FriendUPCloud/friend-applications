@@ -1435,7 +1435,7 @@ class CourseCreator
     
     setActivePanel( panel )
     {
-    	let panels = [ 'SectionsPanel', 'ToolboxPanel', 'PropertiesPanel', 'LibraryPanel' ];
+    	let panels = [ 'SectionsPanel', 'ToolboxPanel', 'LibraryPanel' ];
     	for( let a in panels )
     	{
     		if( panels[ a ] == panel )
