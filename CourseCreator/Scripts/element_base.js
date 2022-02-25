@@ -197,7 +197,7 @@ class Element
 
         Delete function for elements (page and section overload this)
     */
-    delete = function () 
+    delete = function ( cbk ) 
     {
         let self = this;
 
@@ -238,6 +238,7 @@ class Element
                         self.parent.sortElements();
                     if (self.elemenType == "page" || self.elementType == "section" )
                         courseCreator.manager.renderIndex();
+                    if( cbk ) cbk();
                 }
             );
 

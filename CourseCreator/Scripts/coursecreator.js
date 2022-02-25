@@ -1184,15 +1184,15 @@ class RootElement extends Element
         let makeLiElement = function( ele, type )
         {
         	if( !type ) type = '';
-            let li = ce("li");           
+            let li = ce( 'li' );           
             // element index text
-            let div = ce("div");
+            let div = ce( 'div' );
             let icon = type == 'page' ? 'fa-file-text-o' : ( type == 'section' ? 'fa-bookmark-o' : '' );
             let num = ( parseInt( ele.displayId ) + 1 ) + '';
             if( num.length < 2 )
             	num = '0' + num;
             let text = ce(
-                "span",
+                'span',
                 { 
                     'text': '<span class="IconSmall fa-remove FloatRight Remove MousePointer"></span>' + ( icon ? '&nbsp;' : '' ) + num + '. ' + ele.name,
                     'classes': [ 'IconSmall', icon ],
@@ -1225,10 +1225,11 @@ class RootElement extends Element
             {
             	r.onclick = function( event )
             	{
-            		console.log( 'Trying to remove' );
-            		if( event.target.eleRef )
+            		event.stopPropagation();
+            		ele.setActive();
+            		if( ele.delete )
                     {
-                        event.target.eleRef.delete( function()
+                        ele.delete( function()
                         	{
 			                    self.renderIndex();
 			                    self.renderMain();
