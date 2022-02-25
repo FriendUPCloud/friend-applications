@@ -421,6 +421,7 @@ class CourseDatabase
         return 'fail<!--separate-->{"message":"Could delete row","response":-1,"mysql_error":"' . mysqli_error( $this->database->_link ) . '"}';
     }
 
+	// Fetch course and sections
     public function getCourseList( $vars )
     {
         global $User;
@@ -432,21 +433,15 @@ class CourseDatabase
                 c.DisplayID as courseDisplayID,
                 s.ID as sectionID,
                 s.Name as sectionName,
-                s.DisplayID as sectionDisplayID,
-                p.ID as pageID,
-                p.DisplayID as pageDisplayID,
-                p.Name as pageName
+                s.DisplayID as sectionDisplayID
             FROM
                 CC_Course as c
                 LEFT JOIN CC_Section s
                 ON c.ID = s.CourseID
-                LEFT JOIN CC_Page p
-                ON s.ID = p.SectionID
             WHERE c.ID = \'' . intval( $vars->courseId, 10 ) . '\'
             ORDER BY
                 c.DisplayID,
-                s.DisplayID,
-                p.DisplayID
+                s.DisplayID
         ';
         if ($rows = $this->database->fetchObjects( $query ))
         {
@@ -627,7 +622,7 @@ class CourseDatabase
     // Fetch all pages from section
     public function fetchpagesfromsection( $args )
     {
-    	if( $rows = $this->database->query( '
+    	if( $rows = $this->database->fetchObjects( '
     		SELECT * FROM CC_Page WHERE SectionID=\'' . intval( $args->sectionId, 10 ) . '\' ORDER BY DisplayID ASC
     	' ) )
     	{

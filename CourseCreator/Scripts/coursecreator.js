@@ -541,8 +541,8 @@ class RootElement extends Element
         try
         {
             let pageRows = JSON.parse(data);
-            console.log( 'Looking at children: ', self.children );
-            pageRows.forEach( r => {
+            pageRows.forEach( r => 
+            {
                 if( r.courseID == courseId )
                 {
                 	// Set project name
@@ -577,25 +577,8 @@ class RootElement extends Element
 		                );
 		                c.children[r.sectionDisplayID] = s;
 		            }
-		            
-		            // Page
-		            if( s && s.children )
-		            {
-		            	console.log( 'There is a page: ', r );
-				        let p = s.children[r.pageDisplayID];
-				        if( !p && r.pageID != null )
-				        {
-				            p = new PageElement(
-			                    s,
-			                    r.pageDisplayID,
-			                    r.pageID,
-			                    r.pageName
-			                );
-			                s.children[r.pageDisplayID] = p;
-				        }
-				    }
 				}
-            });
+            } );
             courseCreator.loadStatus.finished += 1;
         }
         catch( e )
@@ -603,7 +586,9 @@ class RootElement extends Element
             console.log( 'Bad error', e );
         }
         if( courseCreator.onReady )
+        {
             courseCreator.onReady( courseCreator.loadStatus );
+        }
     }
 	
 	getElementTypeIcon = function( type )
@@ -655,14 +640,16 @@ class RootElement extends Element
 	{
 		let self = this;
 		
+		console.log( 'Fetching index.' );
+		
 		// Courses
-		for( let a in this.children )
+		for( let a = 0; a < this.children.length; a++ )
 		{
 			// Sections
 			let loadCount = this.children[a].children.length;
-			for( let b in this.children[a].children )
+			for( let b = 0; b < this.children[a].children.length; b++ )
 			{
-				let section = this.children[a].children[b];
+				// Repopulate children
 				( function( sect )
 				{
 					// Reload pages
@@ -672,18 +659,19 @@ class RootElement extends Element
 						if( ee == 'ok' )
 						{
 							let pags = JSON.parse( d );
-							sect.children = [];
+							sect.children = {};
 							for( let a2 = 0; a2 < pags.length; a2++ )
 							{
-								sect.children.push( new PageElement(
+								sect.children[ pags[a2].DisplayID ] = new PageElement(
 					                sect,
 					                pags[a2].DisplayID,
 					                pags[a2].ID,
 					                pags[a2].Name
-					            ) );
+					            );
 							}
+							console.log( 'Section loaded: ', sect.children, pags );
 							// When all is done
-							if( loadCount-- == 0 )
+							if( --loadCount == 0 )
 							{
 								self.renderIndex();
 							}
@@ -696,14 +684,14 @@ class RootElement extends Element
 							sectionId: sect.dbId
 						}
 					} );
-				} );
+				} )( this.children[a].children[b] );
 			}
 		}
 	}
 
 	// Just refreshes index
-    renderIndex = function ()
-    {
+    renderIndex = function ( redraw )
+    {	
         let self = this;
 
         let setActiveClass = function (domEle)
@@ -794,29 +782,37 @@ class RootElement extends Element
 
         // Add Indexes
         let ul = ce( 'ul' );
+        
         // Courses
         self.children.forEach( c => {
             // Sections
-            //console.log( 'Here is a course: ', c );
-            c.children.forEach( s => {
-            	//console.log( 'Here is a section: ', s );
+            c.children.forEach( s => 
+            {
+            	console.log( 'Adding new section: ' + s.name );
+            	// Section list
                 let sLi = makeLiElement(s, 'section' );
-                sLi.classList.add('SectionIndex');
+                sLi.classList.add( 'SectionIndex' );
                 sLi.element = s;
-                let pUl = ce('ul');
+                
+                // Container
+                let pUl = ce( 'ul' );
+                
                 // Pages
-                s.children.forEach( p => {
+                for( let k in s.children )
+                {
+                	let p = s.children[k];
+                	console.log( 'Adding page ' + p.name );
                     let pLi = makeLiElement( p, 'page' );
                     if (pLi)
                     {
                         pLi.classList.add( 'PageIndex' );
                         pLi.element = p;
-                        pUl.appendChild(pLi);
+                        pUl.appendChild( pLi );
                     }
-                });
-                sLi.appendChild(pUl);
+                };
+                sLi.appendChild( pUl );
 
-                // add new page in a section
+                // Add new page in a section
                 let div = ce( 'div' );
                 let buttons = ce( 'div', { 'classes': [ 'buttons' ] } );
                 div.appendChild( buttons );
@@ -1066,39 +1062,42 @@ class CourseCreator
 	// Initializes the course
     initialize()
     {
-        this.render();
+    	let self = this;
+    	self.manager.fetchIndex( function()
+    	{
+		    self.render();
 
-        // set active to first child
-        let firstPage = this.indexView.querySelector( '.PageIndex' );
-        if( firstPage )
-        {
-            firstPage.classList.add("Active");
-        }
+		    // set active to first child
+		    let firstPage = self.indexView.querySelector( '.PageIndex' );
+		    if( firstPage )
+		    {
+		        firstPage.classList.add("Active");
+		    }
 
-        // set view button event handler
-        ge('viewButton').addEventListener(
-            'click',
-            function( event ){
-                let v = new View({
-                    title: 'Courseviewer',
-                    width: 1000,
-                    height: 700
-                });
-                let f = new File( 'Progdir:Templates/viewer.html' );
-                f.onLoad = function( data ){
-                    v.setContent( data, function(){         
-                        v.sendMessage(
-                            { 
-                                command: 'loadCourse',
-                                courseId: courseCreator.manager.activeChild.dbId
-                            }
-                        );
-                    });
-                }
-                f.load();
-            }
-        );
-
+		    // set view button event handler
+		    ge('viewButton').addEventListener(
+		        'click',
+		        function( event ){
+		            let v = new View({
+		                title: 'Courseviewer',
+		                width: 1000,
+		                height: 700
+		            });
+		            let f = new File( 'Progdir:Templates/viewer.html' );
+		            f.onLoad = function( data ){
+		                v.setContent( data, function(){         
+		                    v.sendMessage(
+		                        { 
+		                            command: 'loadCourse',
+		                            courseId: courseCreator.manager.activeChild.dbId
+		                        }
+		                    );
+		                });
+		            }
+		            f.load();
+		        }
+		    );
+		} );
     }
     
     setActivePanel( panel )
