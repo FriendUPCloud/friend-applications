@@ -448,10 +448,8 @@ class CourseDatabase
                 s.DisplayID,
                 p.DisplayID
         ';
-        //die("ok<!--separate-->" . var_dump($vars));
         if ($rows = $this->database->fetchObjects( $query ))
         {
-            //die("ok<!--separate-->" . var_dump($rows));
             return "ok<!--separate-->" . json_encode($rows);
         }
         return 'fail<!--separate-->{"message":"Could not get CourseList","response":-1,"mysql_error":"' . mysqli_error( $this->database->_link ) . '"}';
@@ -460,7 +458,6 @@ class CourseDatabase
     public function getSectionData( $vars )
     {
         global $User;
-        //die('in get section data ' . var_dump($vars));
         $query =  '
             SELECT
                 s.ID as sectionID,
@@ -490,7 +487,6 @@ class CourseDatabase
                 p.DisplayID,
                 e.DisplayID
         ';
-        //die("ok<!--separate-->" . var_dump($vars));
         if ($rows = $this->database->fetchObjects( $query ))
         {
             $rows = $this->_convertJsonColumns(
