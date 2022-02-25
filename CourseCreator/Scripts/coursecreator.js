@@ -41,16 +41,6 @@ Application.receiveMessage = function( msg )
         console.log('received message', msg );
         courseCreator.load( msg.courseId );
     }
-
-    if( msg.command == 'loadNewCourse' )
-    {
-        courseCreator.manager.createNewCourse( msg.displayId,
-            function ( data ) {
-                console.log( "return from the save ", data );
-                courseCreator.load( data );
-            }
-        );
-    }
 }
 
 /* IO Classes / this will be section
@@ -870,7 +860,9 @@ class RootElement extends Element
         let self = this;
         courseCreator.dbio.call(
             'getCourseList',
-            {},
+            {
+            	courseId: courseId
+            },
             function ( code, data )
             {
             	if( data.substr( 0, 1 ) == '{' || data.substr( 0, 1 ) == '[' )
@@ -879,41 +871,6 @@ class RootElement extends Element
                 self.processData(data, courseId);
             }
         );
-    }
-
-    // Creates a new course in the database
-    createNewCourse = function ( displayId = 0, callBack )
-    {
-        let self = this;
-        // Creates a new course that can be saved
-        let course = new CourseElement(self);
-        // Creates a new section element that can be saved
-        let section = new SectionElement(course);
-        // Creates a new page element that can be saved
-        let page = new PageElement(section);
-        // Save course into the database
-        course.save( function( data1 )
-        {
-            console.log( 'Saving course What is it: ', course );
-            course.dbId = data1;
-            course.displayId = displayId;
-            // Save the section in the database
-            section.save( function ( data2 ){
-            	console.log( 'Saving section: ' + data2 );
-                section.dbId = data2; 
-                section.displayId = 0;
-                // Save the page in the database
-                page.save( function ( data3 ){
-                    page.dbId = data3;
-                    page.displayId = 0;
-                    if ( typeof(callBack) == "function" ) {
-                        console.log('after all the callbacks');
-                        callBack();
-                    }
-                });
-            });
-        } );
-        return course;
     }
 
     saveActivePage = function()
@@ -1052,28 +1009,81 @@ class RootElement extends Element
         let self = this;
         removeDomChildren(courseCreator.toolboxView);
         registeredElements.forEach( ( v, k ) => {
-            if (v.group == "element") {
+            if( v.group == 'element' )
+            {
                 courseCreator.toolboxView.appendChild(ce(
-                    "div",
+                    'div',
                     {
-                        "attributes": {
-                            "data-element-type": v.elementType,
-                            "draggable": "true"
+                        'attributes': {
+                            'data-element-type': v.elementType,
+                            'draggable': 'true'
                         },
-                        "text": '&nbsp;' + v.displayName,
-                        "classes": ["elementType", "IconSmall", "fa-" + this.getElementTypeIcon( v.elementType )],
-                        "listeners": [
+                        'text': '&nbsp;' + v.displayName,
+                        'classes': [ 'elementType', 'IconSmall', 'fa-' + this.getElementTypeIcon( v.elementType )],
+                        'listeners': [
                             {
-                                "event": "dragstart",
-                                "callBack": dragToolbox
+                                'event': 'dragstart',
+                                'callBack': dragToolbox
                             }
                         ]
                     }
-                ));
+                ) );
             }
         });
     }
 
+	// Loads index anew!
+	fetchIndex = function()
+	{
+		let self = this;
+		
+		// Courses
+		for( let a in this.children )
+		{
+			// Sections
+			let loadCount = this.children[a].children.length;
+			for( let b in this.children[a].children )
+			{
+				let section = this.children[a].children[b];
+				( function( sect )
+				{
+					// Reload pages
+					let m = new Module( 'system' );
+					m.onExecuted = function( ee, d )
+					{
+						if( ee == 'ok' )
+						{
+							let pags = JSON.parse( d );
+							sect.children = [];
+							for( let a2 = 0; a2 < pags.length; a2++ )
+							{
+								sect.children.push( new PageElement(
+					                sect,
+					                pags[a2].DisplayID,
+					                pags[a2].ID,
+					                pags[a2].Name
+					            ) );
+							}
+							// When all is done
+							if( loadCount-- == 0 )
+							{
+								self.renderIndex();
+							}
+						}
+					}
+					m.execute( 'appmodule', {
+						appName: 'CourseCreator',
+						command: 'fetchpagesfromsection',
+						vars: {
+							sectionId: sect.dbId
+						}
+					} );
+				} );
+			}
+		}
+	}
+
+	// Just refreshes index
     renderIndex = function ()
     {
         let self = this;
@@ -1081,35 +1091,11 @@ class RootElement extends Element
         let setActiveClass = function (domEle)
         {
             // remove all .Active classes
-            let actives = courseCreator.indexView.querySelectorAll('.Active');
+            let actives = courseCreator.indexView.querySelectorAll( '.Active' );
                 Array.from(actives).forEach( e => {
                     e.classList.remove('Active');
                 });
                 domEle.classList.add('Active');
-        }
-        
-        let setProperties = function ( ele )
-        {
-            let elementType = self.parent.propertiesView.querySelector(
-            	'[name="elementType"]'
-            );
-            elementType.value = ele.classInfo.displayName;
-
-            let propertyName = self.parent.propertiesView.querySelector(
-                '[name="propertyName"]'
-            );
-            propertyName.value = ele.name;
-
-            // set the event listener
-            let deleteButton = self.parent.propertiesView.querySelector(
-                '[name="deleteButton"]'
-            );
-            deleteButton.eleRef = ele;
-
-            let saveButton = self.parent.propertiesView.querySelector(
-                '[name="saveButton"]'  
-            );
-            saveButton.eleRef = ele;
         }
 
         // make Li Element
@@ -1144,7 +1130,6 @@ class RootElement extends Element
                                         .parentNode
                                         .parentNode
                                 );
-                                setProperties(ele);
                             }
                         }
                     ]
@@ -1187,44 +1172,44 @@ class RootElement extends Element
         }
 
         // add to dom
-        removeDomChildren(courseCreator.indexView);
-
-		
+        removeDomChildren( courseCreator.indexView );
 
         // Add Indexes
-        let ul = ce("ul");
+        let ul = ce( 'ul' );
         // Courses
         self.children.forEach( c => {
             // Sections
-            console.log( 'Here is a course: ', c );
+            //console.log( 'Here is a course: ', c );
             c.children.forEach( s => {
-            	console.log( 'Here is a section: ', s );
+            	//console.log( 'Here is a section: ', s );
                 let sLi = makeLiElement(s, 'section' );
                 sLi.classList.add('SectionIndex');
+                sLi.element = s;
                 let pUl = ce('ul');
                 // Pages
                 s.children.forEach( p => {
-                    let pLi = makeLiElement(p, 'page' );
+                    let pLi = makeLiElement( p, 'page' );
                     if (pLi)
                     {
-                        pLi.classList.add('PageIndex');
+                        pLi.classList.add( 'PageIndex' );
+                        pLi.element = p;
                         pUl.appendChild(pLi);
                     }
                 });
                 sLi.appendChild(pUl);
 
                 // add new page in a section
-                let div = ce('div');
-                let buttons = ce('div', { 'classes' : ["buttons"] });
-                div.appendChild(buttons);
-                buttons.appendChild(ce(
+                let div = ce( 'div' );
+                let buttons = ce( 'div', { 'classes': [ 'buttons' ] } );
+                div.appendChild( buttons );
+                buttons.appendChild( ce(
                     "span",
                     {
-                        "classes": ['IconSmall', 'fa-plus-circle'],
-                        "listeners": [
+                        'classes': ['IconSmall', 'fa-plus-circle'],
+                        'listeners': [
                             {
-                                "event": "click",
-                                "callBack": function ( event )
+                                'event': 'click',
+                                'callBack': function( event )
                                 {
                                     s.createNewElement(
                                         null,
@@ -1241,6 +1226,7 @@ class RootElement extends Element
                                             {
                                                 courseCreator.manager.saveActivePage();
                                                 pLi.classList.add('PageIndex');
+                                                pLi.element = newPage;
                                                 pUl.appendChild(pLi);
                                                 setActiveClass(pLi);
                                                 showEditProperties( newPage, pLi, self )
@@ -1251,12 +1237,13 @@ class RootElement extends Element
                             }
                         ]
                     }
-                ));
+                ) );
                 sLi.appendChild(buttons);
+                buttons.setAttribute( 'draggable', true );
                 ul.appendChild(sLi);
-            });
-        });
-        courseCreator.indexView.appendChild(ul);
+            } );
+        } );
+        courseCreator.indexView.appendChild( ul );
 
          // add new section
         let div = ce('div', { 'classes' : ["SectionButton"]});
@@ -1288,6 +1275,127 @@ class RootElement extends Element
         span.innerHTML = '&nbsp;New section';
         buttons.appendChild( span );
         div.appendChild(buttons);
+        
+        /* Dragging of pages */
+        function dragIndicator( evt )
+        {
+        	let targ = evt.target;
+        	let els = ul.getElementsByClassName( 'PageIndex' );
+        	for( let a = 0; a < els.length; a++ )
+        	{
+        		let t = targ;
+        		while( t != document.body && t != els[a] )
+        			t = t.parentNode;
+        		
+        		if( t == els[a] )
+        		{
+        			let py = GetElementTop( els[a] );
+        			let ph = GetElementHeight( els[a] );
+        			
+        			if( evt.y <= py + ( ph / 2 ) )
+        			{
+        				els[a].classList.remove( 'HoveringBelow' );
+        				els[a].classList.add( 'HoveringAbove' );
+        			}
+        			else
+        			{
+        				els[a].classList.add( 'HoveringBelow' );
+        				els[a].classList.remove( 'HoveringAbove' );
+        			}
+        		}
+        		else
+        		{
+        			els[a].classList.remove( 'HoveringAbove' );
+        			els[a].classList.remove( 'HoveringBelow' );
+        		}
+        	}
+        }
+        function clearIndicator( evt )
+        {
+        	let els = ul.getElementsByClassName( 'PageIndex' );
+        	for( let a = 0; a < els.length; a++ )
+        	{
+        		els[a].classList.remove( 'HoveringAbove' );
+    			els[a].classList.remove( 'HoveringBelow' );
+        	}
+        }
+        function repositionPage( evt )
+        {
+        	let dragger = evt.target;
+        	let page = dragger.element;
+        	
+        	function checkSection( ele )
+        	{
+        		while( ele.classList != 'SectionIndex' )
+        		{
+        			ele = ele.parentNode;
+        		}
+        		
+        		// Set page to section
+        		let order = [];
+        		let pages = ele.getElementsByTagName( 'PageIndex' );
+        		for( let a = 0; a < pages.length; a++ )
+        		{
+        			order.push( pages[a].element.dbId );
+        		}
+        		let m = new Module( 'system' );
+        		m.onExecuted = function( re, co )
+        		{
+        			// DONE!
+        			self.fetchIndex();
+        		}
+        		m.execute( 'appmodule', {
+        			appName: 'CourseCreator',
+        			command: 'setpagesection',
+        			vars: {
+		    			pageId: page.dbId,
+		    			pageOrder: order,
+		    			sectionId: ele.element.dbId
+		    		}
+        		} );
+        	}
+        	// Remove the dragger to begin with
+        	dragger.parentNode.removeChild( dragger );
+        	// Reorder
+        	let els = ul.getElementsByClassName( 'PageIndex' );
+        	for( let a = 0; a < els.length; a++ )
+        	{
+        		if( els[a].classList.contains( 'HoveringAbove' ) )
+        		{
+        			els[a].parentNode.insertBefore( dragger, els[a] );
+        			checkSection( els[a] );
+        		}
+        		else if( els[a].classList.contains( 'HoveringBelow' ) )
+        		{
+        			if( a < els.length - 2 )
+        			{
+        				els[a].parentNode.insertBefore( dragger, els[a+1] );
+        			}
+        			else
+        			{
+        				els[a].parentNode.appendChild( dragger );
+        			}
+    				checkSection( els[a] );
+        		}
+        	}
+        	clearIndicator();
+        }
+        let eles = ul.getElementsByClassName( 'PageIndex' );
+        for( let a = 0; a < eles.length; a++ )
+        {
+        	eles[a].setAttribute( 'draggable', true );
+        	eles[a].addEventListener( 'dragend', function( evt )
+        	{
+        		evt.stopPropagation();
+        		repositionPage( evt );
+        	} );
+        	eles[a].addEventListener( 'dragover', function( evt )
+        	{
+        		dragIndicator( evt );
+        	} );
+        }
+        /* End dragging of pages */
+        
         courseCreator.indexView.appendChild(div);
     }
 

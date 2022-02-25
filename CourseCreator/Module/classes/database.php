@@ -442,6 +442,7 @@ class CourseDatabase
                 ON c.ID = s.CourseID
                 LEFT JOIN CC_Page p
                 ON s.ID = p.SectionID
+            WHERE c.ID = \'' . intval( $vars->courseId, 10 ) . '\'
             ORDER BY
                 c.DisplayID,
                 s.DisplayID,
@@ -602,6 +603,43 @@ class CourseDatabase
         }
         die( 'fail<!--separate-->{"message":"Could not find submodule ' . $args->submodule . '."}' );
     }
+    
+    // Set page's section by section id and page id
+    public function setpagesection( $args )
+    {
+    	// Assign section
+    	$p = new dbIO( 'CC_Page', $this->database );
+    	$p->Load( $args->pageId );
+    	$s = new dbIO( 'CC_Section', $this->database );
+    	$s->Load( $args->sectionId );
+    	if( $s->ID > 0 && $p->ID > 0 )
+    	{
+    		$p->SectionID = $s->ID;
+    		$p->Save();
+    	}
+    	// Reorder all pages
+    	$b = 1;
+    	foreach( $args->pageOrder as $ord )
+    	{
+    		$this->database->query( 'UPDATE CC_Page SET DisplayID=\'' . $b . '\' WHERE ID=\'' . intval( $ord, 10 ) . '\' LIMIT 1' );
+    		$b++;
+    	}
+    	
+    	die( 'ok<!--separate-->{"message":"All pages reordered."}' );
+    }
+    
+    // Fetch all pages from section
+    public function fetchpagesfromsection( $args )
+    {
+    	if( $rows = $this->database->query( '
+    		SELECT * FROM CC_Page WHERE SectionID=\'' . intval( $args->sectionId, 10 ) . '\' ORDER BY DisplayID ASC
+    	' ) )
+    	{
+    		die( 'ok<!--separate-->' . json_encode( $rows ) );
+    	}
+    	die( 'fail<!--separate-->' );
+    }
+    
 }
 
 ?>

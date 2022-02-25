@@ -173,6 +173,17 @@
 	overflow: hidden;
 }
 
+
+#index .PageIndex.HoveringAbove
+{
+	border-top: 2px solid var(--fui-border-foreground);
+}
+
+#index .PageIndex.HoveringBelow
+{
+	border-bottom: 2px solid var(--fui-border-foreground);
+}
+
 #index .SectionIndex > div > span,
 #index .PageIndex > div > span
 {
