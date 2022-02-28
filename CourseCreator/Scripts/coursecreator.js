@@ -11,15 +11,18 @@
 // general EventListeners
 document.addEventListener('dragover', allowDrop);
 document.addEventListener('drop', drop );
+
 var isCtrl = false;
-document.onkeyup=function(e)
+
+document.onkeyup=function( e )
 {
-    if(e.keyCode == 17) isCtrl=false;
+    if( e.keyCode == 17 ) isCtrl = false;
 }
 document.onkeydown=function(e)
 {
-    if(e.keyCode == 17) isCtrl=true;
-    if(e.keyCode == 83 && isCtrl == true) {
+    if( e.keyCode == 17 ) isCtrl = true;
+    if( e.keyCode == 83 && isCtrl == true ) 
+    {
         courseCreator.manager.saveActivePage();
         return false;
     }
@@ -38,7 +41,7 @@ Application.receiveMessage = function( msg )
 
     if( msg.command == 'loadCourse' )
     {
-        console.log('received message', msg );
+        console.log('received message to load course', msg );
         courseCreator.load( msg.courseId );
     }
 }
@@ -537,21 +540,21 @@ class RootElement extends Element
     {
         //TODO: also add pages here
         let self = this;
+        
+        // Set project name
+        let parsedData = JSON.parse( data );
+        ge( 'ProjectName' ).innerHTML = parsedData[0].courseName;
+        courseCreator.publishState = parsedData[0].courseStatus;
+        
         //console.log( 'Checking data for processing (courseId: ' + courseId + ')', data, '--', self.children );
         try
-        {
+        {	        
             let pageRows = JSON.parse(data);
             pageRows.forEach( r => 
             {
                 if( r.courseID == courseId )
                 {
-                	// Set project name
-		            if( self.children && self.children.length && self.children[0].name )
-		            {
-		            	ge( 'ProjectName' ).innerHTML = self.children[0].name;
-		            }
-		            
-		            // Course
+                	// Course
 		            let c = self.children[r.courseDisplayID];
 		            if ( typeof( c ) == 'undefined' )
 		            {
@@ -610,6 +613,7 @@ class RootElement extends Element
     renderToolbox = function()
     {
         let self = this;
+        
         removeDomChildren(courseCreator.toolboxView);
         registeredElements.forEach( ( v, k ) => {
             if( v.group == 'element' )
@@ -636,11 +640,15 @@ class RootElement extends Element
     }
 
 	// Loads index anew!
-	fetchIndex = function()
+	fetchIndex = function( cbk )
 	{
 		let self = this;
-		
+		console.log( 'Here: ', this.children );
 		// Courses
+		if( !this.children.length )
+		{
+			return cbk( false );
+		}
 		for( let a = 0; a < this.children.length; a++ )
 		{
 			// Sections
@@ -672,6 +680,7 @@ class RootElement extends Element
 							if( --loadCount == 0 )
 							{
 								self.renderIndex();
+								if( cbk ) cbk( true );
 							}
 						}
 					}
@@ -1022,8 +1031,7 @@ class CourseCreator
         this.mainView = ge('main');
         this.indexView = ge('index');
         this.toolboxView = ge('toolbox');
-        this.propertiesView = ge('properties');
-
+        
         // IO class
         this.dbio = new DBIO('system', 'CourseCreator');
         
@@ -1049,26 +1057,29 @@ class CourseCreator
         // render index
         this.manager.renderIndex();
     
+        // render toolbox
+        this.manager.renderToolbox();
+        
         // render main
         this.manager.renderMain();
 
-        // render toolbox
-        this.manager.renderToolbox();
     }
 
 	// Initializes the course
     initialize()
     {
     	let self = this;
+    	console.log( 'We are initializing.' );
     	self.manager.fetchIndex( function()
     	{
+    		console.log( 'All done here.' );
 		    self.render();
 
 		    // set active to first child
 		    let firstPage = self.indexView.querySelector( '.PageIndex' );
 		    if( firstPage )
 		    {
-		        firstPage.classList.add("Active");
+		        firstPage.classList.add( 'Active' );
 		    }
 
 		    // set view button event handler
@@ -1230,10 +1241,45 @@ function showEditProperties( element, domNode, ctx )
 	d.className = 'ElementProperties';
 	document.body.appendChild( d );
 	propsCont = d;
-	let f = new File( 'Progdir:Templates/editor_properties.html' );
+	
+	let propFile = 'Progdir:Templates/editor_properties.html';
+	if( element.type == 'project' )
+	{
+		propFile = 'Progdir:Templates/editor_project_properties.html';
+		d.classList.add( 'Project' );
+		
+		FUI.addCallback( 'project_publish_change', function( ch )
+		{
+			courseCreator.publishState = ch ? 1 : 0;
+			
+			let m = new Module( 'system' );
+			m.execute( 'appmodule', {
+				appName: 'CourseCreator',
+				command: 'submodule',
+				vars: {
+					method: 'publishcourse',
+				    submodule: 'courses',
+				    published: ch,
+				    courseId: courseCreator.manager.children[0].dbId
+				}
+			} );
+		} );
+	}
+	
+	let f = new File( propFile );
 	f.onLoad = function( data )
 	{
 		d.innerHTML = data;
+		
+		FUI.initialize();
+		
+		if( element.type == 'project' )
+		{
+			let ch = FUI.getElementByUniqueId( 'project_publish_checkbox' );
+			ch.checked = courseCreator.publishState == 1 ? true : false;
+			ch.refreshDom();
+		}
+		
 		let flick = document.createElement( 'div' );
 		flick.className = 'Flick';
 		d.appendChild( flick );
@@ -1246,8 +1292,9 @@ function showEditProperties( element, domNode, ctx )
 		inp.onchange = function( e )
 		{
 			element.name = inp.value;
-            element.save();
-            ctx.renderIndex();
+            element.save( inp.value );
+            if( ctx )
+	            ctx.renderIndex();
             removeEditProperties();
 		}
 		
@@ -1255,8 +1302,9 @@ function showEditProperties( element, domNode, ctx )
 		b[0].onclick = function( e )
 		{
             element.name = inp.value;
-            element.save();
-            ctx.renderIndex();
+            element.save( inp.value );
+            if( ctx )
+	            ctx.renderIndex();
             removeEditProperties();
 		}
 		
@@ -1287,6 +1335,30 @@ document.body.addEventListener( 'click', function( e )
 } ); 
 
 /* Done Properties ---------------------------------------------------------- */
+
+function editProject( e )
+{
+	e.stopPropagation();
+	showEditProperties( { 
+		name: ge( 'ProjectName' ).innerText, 
+		type: 'project',
+		save: function( newName ){
+			let m = new Module( 'system' );
+			m.execute( 'appmodule', {
+				appName: 'CourseCreator',
+				command: 'submodule',
+				vars: {
+				    method: 'setcoursename',
+				    submodule: 'courses',
+				    coursename: newName,
+				    courseId: courseCreator.manager.children[0].dbId
+				}
+			} );
+			ge( 'ProjectName' ).innerHTML = newName;
+		} 
+	}, ge( 'ProjectName' ).parentNode, false );
+}
+
 
 /*
 

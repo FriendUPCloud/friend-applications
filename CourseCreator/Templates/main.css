@@ -197,6 +197,12 @@
 	height: 30px;
 }
 
+.PageIndex > div > span
+{
+	white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
 #index .SectionButton
 {
 	height: auto;
@@ -286,6 +292,11 @@
 	opacity: 0;
 	transition: opacity 0.15s;
 	border-top: 2px solid var(--fui-module-background);
+}
+
+.ElementProperties.Project
+{
+	height: 120px;
 }
 
 .ElementProperties.Showing

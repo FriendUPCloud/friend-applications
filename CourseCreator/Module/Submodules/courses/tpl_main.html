@@ -26,55 +26,68 @@
             	// Adding a new course
             	ccAddCallback( 'w_add_course', function( data )
             	{
-            		let v = new View({
-                       title: "Edit course",
-                       width: 800,
-                       height: 900
-                    });
-                    
-                    v.onClose = function()
-                    {
-                    	ccFactory.getElementByUniqueId( 'courses_listview' ).onload();
-                    }
+            		let m = new Module( 'system' );
+            		m.onExecuted = function( e, d )
+            		{
+            			// Bail!
+		        		if( e != 'ok' ) return;
+		        		
+		        		let data = JSON.parse( d );
+		        		
+		        		let v = new View({
+		                   title: "Edit course",
+		                   width: 800,
+		                   height: 900
+		                });
+		                
+		                v.onClose = function()
+		                {
+		                	ccFactory.getElementByUniqueId( 'courses_listview' ).onload();
+		                }
 
-                    // Create a menu
-                    let myMenu = [
-                    {
-                        name: 'File',
-                        items: [
-                            {
-                                name: 'Save',
-                                command: 'save',
-                                scope: 'local'
-                            },
-                            {
-                                name: 'Quit',
-                                command: 'quit'
-                            }
-                        ]
-                    }
-                    ];
+		                // Create a menu
+		                let myMenu = [
+		                {
+		                    name: 'File',
+		                    items: [
+		                        {
+		                            name: 'Save',
+		                            command: 'save',
+		                            scope: 'local'
+		                        },
+		                        {
+		                            name: 'Quit',
+		                            command: 'quit'
+		                        }
+		                    ]
+		                }
+		                ];
 
-                    // Number of courses
-                    let dId = document.querySelectorAll(
-                        '.SubModule .HRow'
-                    ).length
+		                // Number of courses
+		                let dId = document.querySelectorAll(
+		                    '.SubModule .HRow'
+		                ).length;
 
-                    // Add the menu to the view window
-                    v.setMenuItems( myMenu );
-                    
-                    let f = new File('Progdir:Templates/main.html');
-                    f.onLoad = function( data ){
-                        v.setContent( data, function(){         
-                            v.sendMessage(
-                                { 
-                                    command: 'loadNewCourse',
-                                    displayId: dId
-                                } 
-                            );
-                        });
-                    }
-                    f.load();
+		                // Add the menu to the view window
+		                v.setMenuItems( myMenu );
+		                
+		               	let f = new File('Progdir:Templates/main.html');
+		                f.onLoad = function( dd )
+		                {
+		                    v.setContent( dd, function()
+		                    {
+		                        v.sendMessage( { 
+	                                command: 'loadCourse',
+                                    courseId: data.ID
+		                        } );
+		                    } );
+		                }
+		                f.load();
+		            }
+		            m.execute( 'appmodule', {
+		            	appName: 'CourseCreator',
+		            	command: 'newcourse'
+		            } );
             	} );
                 
                 ccAddCallback( 'w_reload_courses', function( listview )

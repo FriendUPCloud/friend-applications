@@ -430,6 +430,7 @@ class CourseDatabase
             SELECT 
                 c.ID as courseID,
                 c.Name as courseName,
+                c.Status as courseStatus,
                 c.DisplayID as courseDisplayID,
                 s.ID as sectionID,
                 s.Name as sectionName,
@@ -617,6 +618,46 @@ class CourseDatabase
     	}
     	
     	die( 'ok<!--separate-->{"message":"All pages reordered."}' );
+    }
+    
+    // Just create a blank course
+    public function newcourse( $args )
+    {
+    	global $User;
+    	
+    	$o = new dbIO( 'CC_Course', $this->database );
+    	$o->DateCreated = date( 'Y-m-d H:i:s' );
+    	$o->DateUpdated = $o->DateCreated;
+    	$o->Name = 'New untitled course';
+    	$o->OwnerID = $User->ID;
+    	$o->Save();
+    	if( $o->ID > 0 )
+    	{
+    		$op = new stdClass();
+    		$op->DateCreated = $o->DateCreated;
+    		$op->DateUpdated = $o->DateUpdated;
+    		$op->ID = $o->ID;
+    		$op->Name = $o->Name;
+    		$op->OwnerID = $o->OwnerID;
+    		
+    		$sect = new dbIO( 'CC_Section', $this->database );
+    		$sect->Name = 'Empty section';
+    		$sect->CourseID = $op->ID;
+    		$sect->OwnerID = $o->OwnerID;
+    		$sect->DateCreated = $o->DateCreated;
+    		$sect->DateUpdated = $o->DateUpdated;
+    		$sect->Save();
+    		
+    		$pag = new dbIO( 'CC_Page', $this->database );
+    		$pag->DateCreated = $o->DateCreated;
+    		$pag->DateUpdated = $o->DateUpdated;
+    		$pag->Name = 'Empty page';
+    		$pag->SectionID = $sect->ID;
+    		$pag->Save();
+    		
+    		die( 'ok<!--separate-->' . json_encode( $op ) );
+    	}
+    	die( 'fail<!--separate-->{"message":"Failed to create new course."}' );
     }
     
     // Fetch all pages from section

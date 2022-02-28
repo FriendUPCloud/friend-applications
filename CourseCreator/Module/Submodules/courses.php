@@ -37,6 +37,18 @@ if( isset( $args->method ) )
     			}
     		}
     		die( 'fail' );
+    	
+    	case 'publishcourse':
+    		$o = new dbIO( 'CC_Course', $courseDb );
+    		if( $o->Load( $args->courseId ) )
+    		{
+    			$o->Status = $args->published ? 1 : 0;
+    			if( $o->Save() )
+    			{
+    				die( 'ok' );
+    			}
+    		}
+    		die( 'fail' );
     		
         case 'courses':
         {

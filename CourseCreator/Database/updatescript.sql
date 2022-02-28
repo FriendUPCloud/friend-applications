@@ -44,3 +44,4 @@ CREATE TABLE IF NOT EXISTS `CC_CourseSession` (
 
 /* Add Status to classroom table */
 ALTER TABLE CC_Classroom ADD Status INT DEFAULT 0 AFTER ClassRoomCategoryID;
+ALTER TABLE CC_Course ADD Status INT DEFAULT 0 AFTER `Name`;
