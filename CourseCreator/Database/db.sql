@@ -38,6 +38,7 @@ CREATE TABLE IF NOT EXISTS CC_Course(
     ID BIGINT(20) auto_increment NOT NULL,
     DisplayID BIGINT(20) NOT NULL,
     Name VARCHAR(60),
+    Status INT DEFAULT 0,
     OwnerID BIGINT(20),
     CourseCollectionID BIGINT(20),
     Version VARCHAR(20),
