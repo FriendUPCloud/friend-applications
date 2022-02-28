@@ -66,6 +66,7 @@
                 let m = new Module( 'system' );
                 m.onExecuted = function( e, d )
                 {
+                    console.log( 'refreshclassrooms', JSON.parse( d ));
                     if( e != 'ok' )
                     {
                         ge( 'ClassroomContent' ).innerHTML = '<p>No classrooms currently found.</p>';
@@ -184,8 +185,6 @@
                 const self = this;
                 console.log( 'classroom create', {
                     ID   : self.ID,
-                    erId : self.editRoomId,
-                    edit : self.edit,
                 });
                 //self.editRoomId = null;
                 this.checkEditPane();
@@ -231,6 +230,22 @@
                         ge( 'cl_edit_cancel' ).classList.toggle( 'ccHidden', false );
                         document.body.classList.add( 'Editmode' );
                         
+                        ccAddCallback( 'cr_edit_list_users', lv =>
+                        {
+                            console.log( 'cr_edit_list_users', lv );
+                            self.ulv = lv;
+                            self.ulv.hide();
+                        });
+                        
+                        ccAddCallback( 'cr_edit_add_users_list', lv =>
+                        {
+                            console.log( 'cr_edit_add_users_list', lv );
+                            self.auv = lv;
+                            self.auv.hide();
+                        });
+                        
+                        ccInitializeGUI();
+                        
                     }
                     cl.execute( 'appmodule', {
                         appName: 'CourseCreator',
@@ -259,8 +274,6 @@
                 console.log( 'editClassroom', {
                     rowId : rowId,
                     ID    : self.ID,
-                    erId  : self.editRoomId,
-                    edit  : self.edit,
                 });
                 this.checkEditPane();
                 
@@ -313,7 +326,9 @@
                                 
 		                        ge( 'ClassroomId' ).value = rowId;
                                 if ( null != data.Status )
-                                    window.parseInt( data.Status );
+                                    dateStatus = window.parseInt( data.Status );
+                                
+                                console.log( 'class room status', data.Status );
                                 
                                 ge( 'ClassroomStatus' ).value = data.Status || 0;
                                     
@@ -356,6 +371,9 @@
                                     console.log( 'cr_edit_list_users', lv );
                                     self.ulv = lv;
                                     self.usrListMode = 'ulv';
+                                    if ( !data.Status )
+                                        self.ulv.hide();
+                                    
                                     Application.submodules.classrooms.refreshClassroomUsers( lv );
                                 });
                                 
@@ -378,6 +396,10 @@
                                 });
                                 
                                 ccInitializeGUI();
+                                
+                                if ( data.Status )
+                                    ge( 'cl_news_bulleting' ).classList.toggle( 'ccHidden', false );
+                                
 		                    }
 		                    p.execute( 'appmodule', {
 		                    	appName: 'CourseCreator',
@@ -458,9 +480,27 @@
                 self.saveTheRoom( 1 );
             },
             
-            executeCancelTheRoom()
+            executeRemoveTheRoom()
             {
-              console.log( 'executeCancelTheRoom' );
+                const rid = ge( 'ClassroomId' ).value;
+                console.log( 'executeRemoveTheRoom', rid );
+                const c = new Module( 'system' );
+                c.onExecuted = ( s, d ) => {
+                    console.log( 'cancel room back', [ s, d ]);
+                    const res = JSON.parse( d );
+                    console.log( 'cancel room res', res );
+                    self.refreshRooms();
+                    document.body.classList.remove( 'Editmode' );
+                };
+                c.execute( 'appmodule', {
+                    appName : 'CourseCreator',
+                    command : 'submodule',
+                    vars    : {
+                        method      : 'removeclassroom',
+                        submodule   : 'classrooms',
+                        classroomId : rid,
+                    },
+                } );
             },
             
             saveTheRoom( status )
@@ -524,10 +564,16 @@
                         
                         let res = JSON.parse( d );
                         console.log( 'saved room', res );
-                        self.editClassroom( res.ID );
-                        return;
-                        ge( 'ClassroomId' ).value = res.ID;
-                        ge( 'ClassroomStatus' ).value = res.Status;
+                        
+                        if ( res.Status != 0 )
+                            self.editClassroom( res.ID );
+                        else
+                        {
+                            ge( 'ClassroomId' ).value = res.ID;
+                            ge( 'ClassroomStatus' ).value = res.Status;
+                        }
+                        
+                        //return;
                         
                     }
                     if( self.savePending )

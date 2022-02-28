@@ -44,10 +44,10 @@
     <div class="BlockSpacer"></div>
     
     <div class="HRow">
-        <button id="cl_edit_save" type="button" class="ccHidden FloatRight IconSmall fa-check" onclick="Application.submodules.classrooms.executeFinalizeTheRoom()">
+        <button id="cl_edit_save" type="button" class="ccHidden MarginLeft FloatRight IconSmall fa-check" onclick="Application.submodules.classrooms.executeFinalizeTheRoom()">
             Save
         </button>
-        <button id="cl_edit_cancel" type="button" class="ccHidden FloatRight IconSmall fa-close" onclick="Application.submodules.classrooms.executeCancelTheRoom()">
+        <button id="cl_edit_cancel" type="button" class="ccHidden FloatRight IconSmall fa-close" onclick="Application.submodules.classrooms.executeRemoveTheRoom()">
             Cancel
         </button>
     </div>
@@ -137,20 +137,22 @@
 
 <div class="BlockSpacer"></div>
 
-<div class="ContentHeader">
-    <h2>
-        News bulletin
-    </h2>
-</div>
-<div class="ContentBlock">
-    <div class="HRow BorderDefault Padding">
-        <div class="FloatLeft HContent80">
-            <textarea class="FullWidth" rows="5"></textarea>
-        </div>
-        <div class="FloatLeft HContent20">
-            <button type="button" class="MarginLeft IconSmall fa-plus">
-                Add
-            </button>
+<div id="cl_news_bulleting" class="ccHidden">
+    <div class="ContentHeader">
+        <h2>
+            News bulletin
+        </h2>
+    </div>
+    <div class="ContentBlock">
+        <div class="HRow BorderDefault Padding">
+            <div class="FloatLeft HContent80">
+                <textarea class="FullWidth" rows="5"></textarea>
+            </div>
+            <div class="FloatLeft HContent20">
+                <button type="button" class="MarginLeft IconSmall fa-plus">
+                    Add
+                </button>
+            </div>
         </div>
     </div>
 </div>

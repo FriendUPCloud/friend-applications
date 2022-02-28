@@ -133,16 +133,18 @@ if( isset( $args->method ) )
         	break;
         case 'refreshrooms':
             {
-                if( $rows = $courseDb->fetchObjects( '
+                $q = '
                     SELECT
                         C.*,
                         count( UC.UserID ) AS Users
                     FROM CC_Classroom AS C
                     LEFT JOIN CC_UserClassroom AS UC
                         ON C.ID = UC.ClassroomID
+                    WHERE ( C.Status!=0 ) OR ( C.Status=0 AND C.OwnerID='.$User->ID.')
                     GROUP BY C.ID
                     ORDER BY C.ID DESC
-                ' ) )
+                ';
+                if( $rows = $courseDb->fetchObjects( $q ) )
                 {
                     $out = [];
                     foreach( $rows as $row )
@@ -173,8 +175,13 @@ if( isset( $args->method ) )
                     }
                     die( 'ok<!--separate-->' . json_encode( $out ) );
                 }
+                else
+                    die( 'fail<!--separate-->'.json_encode([
+                        'message' => 'failed to load classrooms',
+                        'q' => $q,
+                    ]) );
             }
-            die( 'fail<!--separate-->{"message":"Failed to load classrooms."}' );
+            
             break;
         case 'loadtemplate':
             {
@@ -221,6 +228,9 @@ if( isset( $args->method ) )
                         SELECT cl.* FROM CC_Classroom cl WHERE cl.ID='. $n->ID .'
                     ';
                     $cl = $courseDb->fetchObjects( $rq );
+                    if ( isset( $cl[0]->Status ))
+                        $cl[0]->Status = intval( $cl[0]->Status, 10 );
+                    
                     die( 'ok<!--separate-->' . json_encode($cl[ 0 ]));
                 }
                 die( 'fail<!--separate-->{"message":"Failed to save classroom."}<!--separate-->' . $q );
@@ -247,6 +257,26 @@ if( isset( $args->method ) )
                     die( 'ok<!--separate-->' . json_encode( $cl ) );
                 }
                 die( 'fail<!--separate-->{"message":"Could not load classroom by id."}' );
+            }
+            break;
+        case 'removeclassroom':
+            if( isset( $args->classroomId ) )
+            {
+                $rq = '
+                    DELETE FROM CC_Classroom WHERE ID='.intval( $args->classroomId, 10 ).'
+                ';
+                $res = $courseDb->query( $rq );
+                die( 'ok<!--separate-->'.json_encode([
+                    'res' => $res,
+                    'rq'  => $rq,
+                ]));
+            }
+            else
+            {
+                die( 'fail<!--separate-->' . json_encode([
+                    'message' => 'missing classroomId',
+                    'args'    => $args,
+                ]));
             }
             break;
         case 'classroomcourses':
