@@ -544,6 +544,7 @@ class RootElement extends Element
         // Set project name
         let parsedData = JSON.parse( data );
         ge( 'ProjectName' ).innerHTML = parsedData[0].courseName;
+        courseCreator.publishState = parsedData[0].courseStatus;
         
         //console.log( 'Checking data for processing (courseId: ' + courseId + ')', data, '--', self.children );
         try
@@ -1241,10 +1242,44 @@ function showEditProperties( element, domNode, ctx )
 	document.body.appendChild( d );
 	propsCont = d;
 	
-	let f = new File( 'Progdir:Templates/editor_properties.html' );
+	let propFile = 'Progdir:Templates/editor_properties.html';
+	if( element.type == 'project' )
+	{
+		propFile = 'Progdir:Templates/editor_project_properties.html';
+		d.classList.add( 'Project' );
+		
+		FUI.addCallback( 'project_publish_change', function( ch )
+		{
+			courseCreator.publishState = ch ? 1 : 0;
+			
+			let m = new Module( 'system' );
+			m.execute( 'appmodule', {
+				appName: 'CourseCreator',
+				command: 'submodule',
+				vars: {
+					method: 'publishcourse',
+				    submodule: 'courses',
+				    published: ch,
+				    courseId: courseCreator.manager.children[0].dbId
+				}
+			} );
+		} );
+	}
+	
+	let f = new File( propFile );
 	f.onLoad = function( data )
 	{
 		d.innerHTML = data;
+		
+		FUI.initialize();
+		
+		if( element.type == 'project' )
+		{
+			let ch = FUI.getElementByUniqueId( 'project_publish_checkbox' );
+			ch.checked = courseCreator.publishState == 1 ? true : false;
+			ch.refreshDom();
+		}
+		
 		let flick = document.createElement( 'div' );
 		flick.className = 'Flick';
 		d.appendChild( flick );
@@ -1306,6 +1341,7 @@ function editProject( e )
 	e.stopPropagation();
 	showEditProperties( { 
 		name: ge( 'ProjectName' ).innerText, 
+		type: 'project',
 		save: function( newName ){
 			let m = new Module( 'system' );
 			m.execute( 'appmodule', {

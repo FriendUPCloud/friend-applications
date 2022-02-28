@@ -294,6 +294,11 @@
 	border-top: 2px solid var(--fui-module-background);
 }
 
+.ElementProperties.Project
+{
+	height: 120px;
+}
+
 .ElementProperties.Showing
 {
 	opacity: 1;

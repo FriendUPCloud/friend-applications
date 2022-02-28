@@ -430,6 +430,7 @@ class CourseDatabase
             SELECT 
                 c.ID as courseID,
                 c.Name as courseName,
+                c.Status as courseStatus,
                 c.DisplayID as courseDisplayID,
                 s.ID as sectionID,
                 s.Name as sectionName,
