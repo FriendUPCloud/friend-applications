@@ -540,21 +540,20 @@ class RootElement extends Element
     {
         //TODO: also add pages here
         let self = this;
+        
+        // Set project name
+        let parsedData = JSON.parse( data );
+        ge( 'ProjectName' ).innerHTML = parsedData[0].courseName;
+        
         //console.log( 'Checking data for processing (courseId: ' + courseId + ')', data, '--', self.children );
         try
-        {
+        {	        
             let pageRows = JSON.parse(data);
             pageRows.forEach( r => 
             {
                 if( r.courseID == courseId )
                 {
-                	// Set project name
-		            if( self.children && self.children.length && self.children[0].name )
-		            {
-		            	ge( 'ProjectName' ).innerHTML = self.children[0].name;
-		            }
-		            
-		            // Course
+                	// Course
 		            let c = self.children[r.courseDisplayID];
 		            if ( typeof( c ) == 'undefined' )
 		            {
@@ -1241,6 +1240,7 @@ function showEditProperties( element, domNode, ctx )
 	d.className = 'ElementProperties';
 	document.body.appendChild( d );
 	propsCont = d;
+	
 	let f = new File( 'Progdir:Templates/editor_properties.html' );
 	f.onLoad = function( data )
 	{
@@ -1257,8 +1257,9 @@ function showEditProperties( element, domNode, ctx )
 		inp.onchange = function( e )
 		{
 			element.name = inp.value;
-            element.save();
-            ctx.renderIndex();
+            element.save( inp.value );
+            if( ctx )
+	            ctx.renderIndex();
             removeEditProperties();
 		}
 		
@@ -1266,8 +1267,9 @@ function showEditProperties( element, domNode, ctx )
 		b[0].onclick = function( e )
 		{
             element.name = inp.value;
-            element.save();
-            ctx.renderIndex();
+            element.save( inp.value );
+            if( ctx )
+	            ctx.renderIndex();
             removeEditProperties();
 		}
 		
@@ -1298,6 +1300,29 @@ document.body.addEventListener( 'click', function( e )
 } ); 
 
 /* Done Properties ---------------------------------------------------------- */
+
+function editProject( e )
+{
+	e.stopPropagation();
+	showEditProperties( { 
+		name: ge( 'ProjectName' ).innerText, 
+		save: function( newName ){
+			let m = new Module( 'system' );
+			m.execute( 'appmodule', {
+				appName: 'CourseCreator',
+				command: 'submodule',
+				vars: {
+				    method: 'setcoursename',
+				    submodule: 'courses',
+				    coursename: newName,
+				    courseId: courseCreator.manager.children[0].dbId
+				}
+			} );
+			ge( 'ProjectName' ).innerHTML = newName;
+		} 
+	}, ge( 'ProjectName' ).parentNode, false );
+}
+
 
 /*
 
