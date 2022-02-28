@@ -173,15 +173,24 @@
                     ge( 'PanelMain' ).appendChild( d );
                     this.editPane = d;
                 }
+                else
+                {
+                    this.editPane.innerHTML = '';
+                }
             },
             // Create a new classroom
             create()
             {
-                console.log( 'create' );
-                let self = this;
+                const self = this;
+                console.log( 'classroom create', {
+                    ID   : self.ID,
+                    erId : self.editRoomId,
+                    edit : self.edit,
+                });
+                //self.editRoomId = null;
                 this.checkEditPane();
                 
-                let m = new Module( 'system' );
+                const m = new Module( 'system' );
                 m.onExecuted = function( e, d )
                 {
                     if( e != 'ok' )
@@ -218,6 +227,8 @@
                         
                         self.editPane.innerHTML = d;
                         
+                        ge( 'cl_edit_save' ).classList.toggle( 'ccHidden', false );
+                        ge( 'cl_edit_cancel' ).classList.toggle( 'ccHidden', false );
                         document.body.classList.add( 'Editmode' );
                         
                     }
@@ -245,6 +256,12 @@
             editClassroom( rowId )
             {
                 const self = this;
+                console.log( 'editClassroom', {
+                    rowId : rowId,
+                    ID    : self.ID,
+                    erId  : self.editRoomId,
+                    edit  : self.edit,
+                });
                 this.checkEditPane();
                 
                 let u = new Module( 'system' );
@@ -295,6 +312,15 @@
 		                        self.editPane.innerHTML = d;
                                 
 		                        ge( 'ClassroomId' ).value = rowId;
+                                if ( null != data.Status )
+                                    window.parseInt( data.Status );
+                                
+                                ge( 'ClassroomStatus' ).value = data.Status || 0;
+                                    
+                                if ( !data.Status ) {
+                                    ge( 'cl_edit_save' ).classList.toggle( 'ccHidden', false );
+                                    ge( 'cl_edit_cancel' ).classList.toggle( 'ccHidden', false );
+                                }
 		                        document.body.classList.add( 'Editmode' );
                                 
                                 ccAddCallback( 'cr_users_filter', ( lv, value ) => {
@@ -417,9 +443,32 @@
                     }, 750 );
                 }
             },
-            saveTheRoom()
+            
+            executeFinalizeTheRoom()
+            {
+                const self = this;
+                console.log( 'executeFinalizeTheRoom', {
+                    roomid : ge( 'ClassroomId' ).value,
+                    status : ge( 'ClassroomStatus' ).value,
+                });
+                self.setModuleState( 'Editing' );
+                if ( null == self.saver )
+                    clearTimeout( self.saver );
+                
+                self.saveTheRoom( 1 );
+            },
+            
+            executeCancelTheRoom()
+            {
+              console.log( 'executeCancelTheRoom' );
+            },
+            
+            saveTheRoom( status )
             {
                 let self = this;
+                if ( null == status )
+                    status = ge( 'ClassroomStatus' ).value;
+                console.log( 'savetheroom', [ ge( 'ClassroomId' ).value, status ] );
                 const name = ge( 'className' ).value;
                 if ( !name )
                     return;
@@ -430,7 +479,7 @@
                 const ed = ge( 'endDate' ).value;
                 const sa = sd.split( '-' );
                 const ea = ed.split( '-' );
-                console.log( 'saveToRoom, s e', [ sd, ed, sa, ea ]);
+                
                 for( let i = 0; i < sa.length ; )
                 {
                     const s = parseInt( sa[ i ], 10 );
@@ -456,7 +505,14 @@
                     }
                 }
                 
-                console.log( 'date check passed' );
+                console.log( 'saveTheRoom', {
+                    roomid : ge( 'ClassroomId' ).value,
+                    name   : name,
+                    course : ge( 'classCourses' ).value,
+                    start  : sd,
+                    end    : ed,
+                    status : status,
+                });
                 edEl.classList.toggle( 'Alert-Border', false );
                 
                 let m = new Module( 'system' );
@@ -467,8 +523,12 @@
                         self.setModuleState( 'Saved' );
                         
                         let res = JSON.parse( d );
-                        self.ID = res.ID;
+                        console.log( 'saved room', res );
+                        self.editClassroom( res.ID );
+                        return;
                         ge( 'ClassroomId' ).value = res.ID;
+                        ge( 'ClassroomStatus' ).value = res.Status;
+                        
                     }
                     if( self.savePending )
                     {
@@ -482,19 +542,20 @@
                     return;
                 }
                 m.execute( 'appmodule', {
-                    appName: 'CourseCreator',
-                    command: 'submodule',
-                    vars: {
-                        submodule: 'classrooms',
-                        method: 'saveclassroom',
-                        data: {
-                            id: ge( 'ClassroomId' ).value,
-                            name: name,
-                            endDate: ed,
-                            startDate: sd,
-                            collectionId: ge( 'classCourses' ).value
-                        }
-                    }
+                    appName : 'CourseCreator',
+                    command : 'submodule',
+                    vars    : {
+                        submodule : 'classrooms',
+                        method    : 'saveclassroom',
+                        data      : {
+                            id        : ge( 'ClassroomId' ).value,
+                            name      : name,
+                            endDate   : ed,
+                            startDate : sd,
+                            courseId  : ge( 'classCourses' ).value,
+                            status    : ( null != status ) ? status : undefined,
+                        },
+                    },
                 } );
             },
             // Refresh list of users assigned to a classroom
