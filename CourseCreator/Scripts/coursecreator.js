@@ -11,15 +11,18 @@
 // general EventListeners
 document.addEventListener('dragover', allowDrop);
 document.addEventListener('drop', drop );
+
 var isCtrl = false;
-document.onkeyup=function(e)
+
+document.onkeyup=function( e )
 {
-    if(e.keyCode == 17) isCtrl=false;
+    if( e.keyCode == 17 ) isCtrl = false;
 }
 document.onkeydown=function(e)
 {
-    if(e.keyCode == 17) isCtrl=true;
-    if(e.keyCode == 83 && isCtrl == true) {
+    if( e.keyCode == 17 ) isCtrl = true;
+    if( e.keyCode == 83 && isCtrl == true ) 
+    {
         courseCreator.manager.saveActivePage();
         return false;
     }
@@ -38,7 +41,7 @@ Application.receiveMessage = function( msg )
 
     if( msg.command == 'loadCourse' )
     {
-        console.log('received message', msg );
+        console.log('received message to load course', msg );
         courseCreator.load( msg.courseId );
     }
 }
@@ -640,8 +643,12 @@ class RootElement extends Element
 	fetchIndex = function( cbk )
 	{
 		let self = this;
-		
+		console.log( 'Here: ', this.children );
 		// Courses
+		if( !this.children.length )
+		{
+			return cbk( false );
+		}
 		for( let a = 0; a < this.children.length; a++ )
 		{
 			// Sections
@@ -673,7 +680,7 @@ class RootElement extends Element
 							if( --loadCount == 0 )
 							{
 								self.renderIndex();
-								if( cbk ) cbk();
+								if( cbk ) cbk( true );
 							}
 						}
 					}
@@ -1062,15 +1069,17 @@ class CourseCreator
     initialize()
     {
     	let self = this;
+    	console.log( 'We are initializing.' );
     	self.manager.fetchIndex( function()
     	{
+    		console.log( 'All done here.' );
 		    self.render();
 
 		    // set active to first child
 		    let firstPage = self.indexView.querySelector( '.PageIndex' );
 		    if( firstPage )
 		    {
-		        firstPage.classList.add("Active");
+		        firstPage.classList.add( 'Active' );
 		    }
 
 		    // set view button event handler
