@@ -197,6 +197,12 @@
 	height: 30px;
 }
 
+.PageIndex > div > span
+{
+	white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
 #index .SectionButton
 {
 	height: auto;

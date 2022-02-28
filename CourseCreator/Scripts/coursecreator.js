@@ -610,6 +610,7 @@ class RootElement extends Element
     renderToolbox = function()
     {
         let self = this;
+        
         removeDomChildren(courseCreator.toolboxView);
         registeredElements.forEach( ( v, k ) => {
             if( v.group == 'element' )
@@ -636,7 +637,7 @@ class RootElement extends Element
     }
 
 	// Loads index anew!
-	fetchIndex = function()
+	fetchIndex = function( cbk )
 	{
 		let self = this;
 		
@@ -672,6 +673,7 @@ class RootElement extends Element
 							if( --loadCount == 0 )
 							{
 								self.renderIndex();
+								if( cbk ) cbk();
 							}
 						}
 					}
@@ -1022,8 +1024,7 @@ class CourseCreator
         this.mainView = ge('main');
         this.indexView = ge('index');
         this.toolboxView = ge('toolbox');
-        this.propertiesView = ge('properties');
-
+        
         // IO class
         this.dbio = new DBIO('system', 'CourseCreator');
         
@@ -1049,11 +1050,12 @@ class CourseCreator
         // render index
         this.manager.renderIndex();
     
+        // render toolbox
+        this.manager.renderToolbox();
+        
         // render main
         this.manager.renderMain();
 
-        // render toolbox
-        this.manager.renderToolbox();
     }
 
 	// Initializes the course
