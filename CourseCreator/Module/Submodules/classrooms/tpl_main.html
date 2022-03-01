@@ -422,6 +422,7 @@
                        } );
                     }
                 }
+                console.log( 'rowId', rowId );
                 u.execute( 'appmodule', {
                     appName: 'CourseCreator',
                     command: 'submodule',
@@ -436,6 +437,61 @@
             {
                 this.refreshRooms();
             },
+            
+            viewCourse()
+            {
+                const rid = ge( 'ClassroomId' ).value;
+                console.log( 'viewCourse', rid );
+                const gc = new Module( 'system' );
+                gc.onExecuted = ( s, d ) =>
+                {
+                    console.log( 'viewCourse back', [ s, d ]);
+                    let res = null;
+                    try {
+                        res = JSON.parse( d );
+                    } catch( ex ) {
+                        console.log( 'ex', ex );
+                        return;
+                    }
+                    console.log( 'viewCourse res', res );
+                    const v = new View({
+                        title  : 'View Course',
+                        width  : 800,
+                        height : 900,
+                    });
+                    v.onClose = function()
+                    {
+                        console.log( 'viewer closed' );
+                    }
+                    
+                    const f = new File('Progdir:Templates/viewer.html' );
+                    f.onLoad = d =>
+                    {
+                        console.log( 'file loaded', d );
+                        v.setContent( d, () => {
+                            console.log( 'set content done', res.CourseID );
+                            v.sendMessage(
+                                {
+                                    command : 'loadCourse',
+                                    courseId : res.CourseID,
+                                }
+                            )
+                        });
+                    }
+                    f.load();
+                    
+                }
+                gc.execute( 'appmodule', {
+                    appName : 'CourseCreator',
+                    command : 'submodule',
+                    vars    : {
+                        method      : 'getclassroom',
+                        submodule   : 'classrooms',
+                        classroomId : rid,
+                    }
+                } );
+            },
+            
             executeSaveTheRoom()
             {
                 console.log( 'executeSaveTheRoom' );

@@ -258,6 +258,14 @@ if( isset( $args->method ) )
                 }
                 die( 'fail<!--separate-->{"message":"Could not load classroom by id."}' );
             }
+            else
+            {
+                die( 'fail<!--separate-->'.json_encode([
+                    'error'    => 'missing classroomId',
+                    'endpoint' => 'getclassroom',
+                    'args'     => $args,
+                ]));
+            }
             break;
         case 'removeclassroom':
             if( isset( $args->classroomId ) )

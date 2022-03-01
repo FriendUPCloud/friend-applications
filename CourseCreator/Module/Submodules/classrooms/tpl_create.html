@@ -20,11 +20,14 @@
         <div class="HContent15 FloatLeft">
             <strong>Course:</strong>
         </div>
-        <div class="HContent85 FloatLeft">
+        <div class="FloatLeft">
             <select id="classCourses" onchange="Application.submodules.classrooms.executeSaveTheRoom()">
             	{courseList}
             </select>
         </div>
+        <button id="cl_edit_view_course_btn" class="FloatLeft MarginLeft IconSmall fa-eye" onclick="Application.submodules.classrooms.viewCourse()">
+            View Course
+        </button>
     </div>
     <div class="HRow">
         <div class="HContent15 FloatLeft">
