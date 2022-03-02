@@ -14,12 +14,12 @@
         </div>
         <div class="ContentListHeaders">
             <div class="HRow EditRow">
-                <div class="HContent30 Ellipsis FloatLeft">Class name</div>
+                <div class="HContent25 Ellipsis FloatLeft">Class name</div>
                 <div class="HContent10 Ellipsis FloatLeft">Users</div>
-                <div class="HContent5 Ellipsis FloatLeft">Status</div>
+                <div class="HContent15 Ellipsis FloatLeft">Status</div>
                 <div class="HContent20 Ellipsis FloatLeft">Owner</div>
                 <div class="HContent10 Ellipsis FloatLeft">End date</div>
-                <div class="HContent25 Ellipsis FloatLeft">Date created</div>
+                <div class="HContent20 Ellipsis FloatLeft">Date created</div>
             </div>
         </div>
         <div class="ContentBlock">
@@ -78,35 +78,53 @@
                         console.log( 'refreshrooms', ls );
                         for( let a = 0; a < ls.length; a++ )
                         {
+                            console.log( 'room', ls[a]);
+                            let status = '';
                             let users = ls[a].Users || + '0';
-                            let status = 'Planned';
                             let owner = ls[a].Owner ? ls[a].Owner : '-';
-                            let end = ls[a].DateEnd ? ls[a].DateEnd : '-';
+                            let end = ls[a].DateEnd ? ls[a].DateEnd : null;
+                            let start = ls[a].DateStart ? ls[a].DateStart : null;
                             let nam = ls[a].Name ? ls[a].Name : '&nbsp;';
+                            
+                            if ( ls[a].Status == 0 )
+                            {
+                                status = 'Unsaved';
+                            }
+                            else
+                            {
+                                status = 'Planned';
+                                const now = Date.now();
+                                const sd = Date.parse( start );
+                                const ed = Date.parse( end );
+                                if ( now > sd )
+                                    status = 'Active';
+                                if ( now > ed )
+                                    status = 'Closed';
+                            }
                             
                             switch( status )
                             {
+                                case 'Unsaved':
+                                    status = '<span class="Status Unsaved">Unsaved</span>';
+                                    break;
                                 case 'Planned':
-                                    status = '<span class="Status Planned"></span>';
+                                    status = '<span class="Status Planned">Planned</span>';
                                     break;
-                                case 'Completed':
-                                    status = '<span class="Status Completed"></span>';
+                                case 'Closed':
+                                    status = '<span class="Status Closed">Closed</span>';
                                     break;
-                                case 'Started':
-                                    status = '<span class="Status Started"></span>';
-                                    break;
-                                default:
-                                    status = '<span class="Status Default"></span>';
+                                case 'Active':
+                                    status = '<span class="Status Active">Active</span>';
                                     break;
                             }
                             
                             str += '<div class="HRow EditRow" row-id="' + ls[a].ID + '">\
-                                <div class="HContent30 Ellipsis FloatLeft">' + nam + '</div>\
+                                <div class="HContent25 Ellipsis FloatLeft">' + nam + '</div>\
                                 <div class="HContent10 Ellipsis FloatLeft">' + users + '</div>\
-                                <div class="HContent5 Ellipsis FloatLeft TextCenter">' + status + '</div>\
+                                <div class="HContent15 Ellipsis FloatLeft TextCenter">' + status + '</div>\
                                 <div class="HContent20 Ellipsis FloatLeft">' + owner + '</div>\
                                 <div class="HContent10 Ellipsis FloatLeft">' + end + '</div>\
-                                <div class="HContent25 Ellipsis FloatLeft">' + ls[a].DateCreated + '</div>\
+                                <div class="HContent20 Ellipsis FloatLeft">' + ls[a].DateCreated + '</div>\
                             </div>';
                         }
                         ge( 'ClassroomContent' ).innerHTML = str;
@@ -1076,6 +1094,7 @@
         .EditPane:not(.Find) .ClearFind { display: none; }
         .EditPane.Find .FindUsers { display: none; }
         
+        /*
         span.Status,
         span.Payment
         {
@@ -1085,6 +1104,7 @@
             height: 12px;
             border-radius: 100%;
         }
+        */
         
         .ButtonSpace
         {
@@ -1108,6 +1128,7 @@
             color: var(--list-button-color-hover);
         }
         
+        /*
         span.Default
         {
             background-color: #bfbfbf;
@@ -1124,6 +1145,7 @@
         {
             background-color: #009900;
         }
+        */
         
     </style>
 

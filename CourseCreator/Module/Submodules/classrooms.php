@@ -291,7 +291,9 @@ if( isset( $args->method ) )
         	if( isset( $args->classroomId ) )
         	{
         		if( $rows = $courseDb->fetchObjects( '
-        			SELECT * FROM CC_Course WHERE IsDeleted = 0
+        			SELECT * FROM CC_Course 
+                    WHERE IsDeleted=0
+                    AND Status!=0
         			ORDER BY DateCreated DESC
         		' ) )
         		{
@@ -303,6 +305,8 @@ if( isset( $args->method ) )
             {
                 if( $rows = $courseDb->fetchObjects( '
                     SELECT * FROM CC_Course
+                    WHERE IsDeleted=0
+                    AND Status!=0
                     ORDER BY DateCreated DESC
                 ' ) )
                 {
