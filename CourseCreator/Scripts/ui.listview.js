@@ -44,7 +44,7 @@ class ccListview extends ccGUIElement
     {
         super.grabAttributes( domElement );
         
-        let self = this;
+        const self = this;
         
         let header = domElement.getElementsByTagName( 'listviewhead' );
         let headers = domElement.getElementsByTagName( 'listviewheaders' );
@@ -148,6 +148,9 @@ class ccListview extends ccGUIElement
         }
         
         self.headerElements = [];
+        self.cols = {
+        	'_list' : [],
+        };
         
         if( headers )
         {
@@ -168,15 +171,87 @@ class ccListview extends ccGUIElement
             	self.headerElements[ a ].align = headerelements[a].getAttribute( 'align' );
             	self.headerElements[ a ].name = headerelements[a].getAttribute( 'name' ) ? headerelements[a].getAttribute( 'name' ) : headerelements[a].innerText;
             	self.headerElements[ a ].text = headerelements[a].innerText;
+            	self.headerElements[ a ].id = friendUP.tool.uid( 'h' );
+            	self.cols[ self.headerElements[ a ].name ] = [];
+            	self.cols._list[ a ] = self.headerElements[ a ].name;
             	if( !self.headerElements[ a ].align ) self.headerElements[ a ].align = 'left';
-            	let h = document.createElement( 'div' );
+            	const h = document.createElement( 'div' );
             	let alignment = self.headerElements[ a ].align;
             	if( alignment == 'left' ) alignment = ' TextLeft';
             	else if( alignment == 'right' ) alignment = ' TextRight';
             	else if( alignment == 'center' ) alignment = ' TextCenter';
+            	h.id = self.headerElements[ a ].id;
             	h.className = 'HContent' + self.headerElements[ a ].width + ' PaddingSmall Ellipsis FloatLeft' + alignment;
             	h.innerHTML = headerelements[ a ].innerHTML;
             	row.appendChild( h );
+            	const hname = self.headerElements[a].name;
+            	const hidx = a;
+            	h.addEventListener( 'click', e => {
+            		console.log( 'header click', {
+            			name : hname,
+            			i    : hidx,
+            			col  : self.cols[ hname ],
+            			cols : self.cols,
+            			type : self.cols[hname][0].type,
+            		});
+            		if ( 'string' == self.cols[hname][0].type )
+            		{
+            			self.cols[hname].sort(( ra, rb ) =>
+            			{
+            				if ( ra.value == rb.value )
+            					return 0;
+            				if ( self.cols._current == hname )
+            				{
+            					if ( ra.value < rb.value )
+            						return 1;
+            					else
+            						return -1;
+            				}
+            				else
+            				{
+            					if ( ra.value < rb.value )
+            						return -1;
+            					else
+            						return 1;
+            				}
+            			});
+            			
+            			console.log( 'sorted', self.cols[hname]);
+            			const p = ge( self.cols[hname][0].rowId ).parentNode;
+            			for( let i = 0; i < self.cols[hname].length; i++ )
+            			{
+            				p.appendChild( ge( self.cols[hname][i].rowId ));
+            			}
+            			
+            			// change colum header look
+            				// toggle off old ( unless inverted )
+            				// toggle on new
+            			
+            			if ( null == self.cols._current )
+            			{
+            				self.cols._current = hname;
+            				h.classList.toggle( 'red', true );
+            			}
+            			else
+            			{
+            				const curr = self.cols._current.split( '_' )[0];
+            				const cIdx = self.cols._list.indexOf( curr );
+            				const cHeadId = self.headerElements[ cIdx ].id;
+            				const cHEl = ge( cHeadId );
+            				cHEl.classList.toggle( 'red', false );
+            				
+            				h.classList.toggle( 'red', true );
+            				
+	            			if ( self.cols._current == hname )
+	            				self.cols._current = hname + '_inverted';
+	            			else
+	            				self.cols._current = hname;
+            			}
+            			
+            			
+            			return;
+            		}
+            	}, false );
             }
             
             d.appendChild( row );
@@ -241,8 +316,7 @@ class ccListview extends ccGUIElement
     
     refreshRows()
     {
-    	let self = this;
-    	
+    	const self = this;
     	let json = this.rowData;
     	console.log( 'listview refreshrows', json );
     	this.clearRows();
@@ -251,6 +325,7 @@ class ccListview extends ccGUIElement
     	{
     		let row = document.createElement( 'div' );
     		row.className = 'HRow EditRow';
+    		row.id = friendUP.tool.uid( 'r' );
     		let baseWidth = parseInt( 100 / json[b].length );
     		
 			for( let z = 0; z < json[b].length; z++ )
@@ -266,6 +341,9 @@ class ccListview extends ccGUIElement
             	else if( alignment == 'center' ) alignment = ' TextCenter';
 				
 				col.className = 'HContent' + w + ' PaddingRight Ellipsis FloatLeft' + alignment;
+				
+				json[b][z].rowId = row.id;
+				self.cols[ self.cols._list[ z ]][ b ] = json[b][z];
 				
 				// Identify column dataset
 				if( json[b][z].uniqueid )
@@ -399,7 +477,12 @@ class ccListview extends ccGUIElement
     
     clearRows()
     {
+    	const self = this;
     	this.rowContainer.innerHTML = '';
+    	for( let i = 0; i < self.cols._list.length; i++ )
+    	{
+    		self.cols[ self.cols._list[i]] = [];
+    	}
     }
 }
 
