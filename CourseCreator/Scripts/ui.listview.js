@@ -198,18 +198,19 @@ class ccListview extends ccGUIElement
             		{
             			self.cols[hname].sort(( ra, rb ) =>
             			{
-            				if ( ra.value == rb.value )
+            				if ( ra.value.toLowerCase() == rb.value.toLowerCase() )
             					return 0;
+            				
             				if ( self.cols._current == hname )
             				{
-            					if ( ra.value < rb.value )
+            					if ( ra.value.toLowerCase() < rb.value.toLowerCase() )
             						return 1;
             					else
             						return -1;
             				}
             				else
             				{
-            					if ( ra.value < rb.value )
+            					if ( ra.value.toLowerCase() < rb.value.toLowerCase() )
             						return -1;
             					else
             						return 1;
