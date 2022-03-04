@@ -1,4 +1,4 @@
-
+<!--
     <div class="SubModule">
         <div class="ContentHeader">
             <h2>
@@ -7,7 +7,7 @@
             <div class="Left">
                 <div class="Buttons">
                     <div class="HeaderButton IconSmall fa-plus-circle MousePointer" onclick="Application.submodules.classrooms.create()"></div>
-                    <!--<div class="HeaderButton IconSmall fa-navicon MousePointer"></div>-->
+                    <!-<div class="HeaderButton IconSmall fa-navicon MousePointer"></div>->
                 </div>
                 <input type="text" placeholder="Search"/>
             </div>
@@ -26,29 +26,76 @@
             <div id="ClassroomContent"></div>
         </div>
     </div>
+-->
+<group responsive-logic="sidescroll">
+        <columns gap="10px" height="100%">
+            <column scrollable="smooth">
+                <listview>
+                    <listviewhead>
+                        <listviewheading>
+                            Classrooms
+                        </listviewheading>
+                        <listviewtoolbar>
+                            <listviewbutton icon="plus-circle" onclick="cl_add_room"></listviewbutton>
+                        </listviewtoolbar>
+                    </listviehead>
+                    <listviewheaders>
+                        <listviewheader width="25%" sortable="sortable" name="Name">Name</listviewheader>
+                        <listviewheader width="10%" sortable="sortable" name="Users">Username</listviewheader>
+                        <listviewheader width="15%" sortable="sortable" name="Status">Status</listviewheader>
+                        <listviewheader width="15%" sortable="sortable" name="StartDate">Start Date</listviewheader>
+                        <listviewheader width="15%" sortable="sortable" name="EndDate">End Date</listviewheader>
+                        <listviewheader width="20%" sortable="sortable" name="Owner">Owner</listviewheader>
+                    </listviewheaders>
+                    <listviewrows onload="cl_load_rooms">
+                    </listviewrows>
+                </listview>
+            </column>
+            <column scrollable="smooth">
+                <div id="RoomDetails" class="EditPane"></div>
+            </column>
+        </columns>
+    </group>
     
     <script>
         Application.submodules.classrooms = {
             init()
             {
-                let self = this;
-                
+                const self = this;
+                console.log( 'classrooms init', this );
                 let m = new Module( 'system' );
                 m.onExecuted = function( e, d )
                 {
+                    console.log( 'classrooms / classroom', [ e, d, this ]);
+                    
+                    /*
                     if( e != 'ok' )
                     {
-                        ge( 'ClassroomContent' ).innerHTML = '<p>No classrooms currently found.</p>';
-                        ge( 'PanelMain' ).classList.remove( 'SectionLoading' );
+                        //ge( 'ClassroomContent' ).innerHTML = '<p>No classrooms currently found.</p>';
+                        //ge( 'PanelMain' ).classList.remove( 'SectionLoading' );
                         
-                        self.refreshRooms();
+                        //self.refreshRooms();
+                        console.log( 'classroom fail' );
                         return;
                     }
-                    ge( 'ClassroomContent' ).innerHTML = '';
+                    */
+                    //ge( 'ClassroomContent' ).innerHTML = '';
                    
-                    ge( 'PanelMain' ).classList.remove( 'SectionLoading' );
+                    //ge( 'PanelMain' ).classList.remove( 'SectionLoading' );
                     
-                    self.refreshRooms();
+                    //self.refreshRooms();
+                    
+                    ccAddCallback( 'cl_add_room', e =>
+                    {
+                        console.log( 'cl_add_room', [ e, this ]);
+                    });
+                    
+                    ccAddCallback( 'cl_load_rooms', lv =>
+                    {
+                        console.log( 'cl_load_rooms', lv );
+                        self.rooms = lv;
+                        self.refreshRooms();
+                    });
                     
                     ccInitializeGUI();
                 }
@@ -61,21 +108,35 @@
                     }
                 } );
             },
-            refreshRooms( cbk )
+            refreshRooms( lv )
             {
+                const self = this;
+                console.log( 'refreshrooms', [ typeof( lv ), self ]);
+                if ( 'function' == typeof( lv ))
+                    console.trace( 'refreshrooms called with callback!!!!!!!!!??', lv );
+                
+                if ( null == lv ) {
+                    if ( null == self.rooms )
+                        throw new Error( 'lv not inited yet' );
+                    
+                    lv = self.rooms;
+                }
+                
                 let m = new Module( 'system' );
                 m.onExecuted = function( e, d )
                 {
                     console.log( 'refreshclassrooms', JSON.parse( d ));
                     if( e != 'ok' )
                     {
-                        ge( 'ClassroomContent' ).innerHTML = '<p>No classrooms currently found.</p>';
+                        console.log( 'refreshrooms not ok', [ e, d ]);
+                        return;
                     }
                     else
                     {
                         let ls = JSON.parse( d );
                         let str = '';
                         console.log( 'refreshrooms', ls );
+                        const rows = [];
                         for( let a = 0; a < ls.length; a++ )
                         {
                             console.log( 'room', ls[a]);
@@ -102,6 +163,43 @@
                                     status = 'Closed';
                             }
                             
+                            const r = [
+                                {   // room name
+                                    type  : 'string',
+                                    value : nam,
+                                },
+                                {   // # of users
+                                    type  : 'string',
+                                    value : users,
+                                },
+                                {   // Status
+                                    type  : 'string',
+                                    value : status,
+                                },
+                                {   // start date
+                                    type  : 'string',
+                                    value : start,
+                                },
+                                {   // end date
+                                    type  : 'string',
+                                    value : end,
+                                },
+                                {   // owner
+                                    type  : 'string',
+                                    value : owner,
+                                },
+                            ];
+                            
+                            r.onclick = 'cl_edit_room_' + a;
+                            const rId = ls[a].ID;
+                            ccAddCallback( r.onclick, ( ...args ) => {
+                                console.log( 'row onclick handler', [ args, rId ]);
+                                Application.submodules.classrooms.editClassroom( rId );
+                            });
+                            
+                            rows[a] = r;
+                            
+                            /*
                             switch( status )
                             {
                                 case 'Unsaved':
@@ -126,9 +224,13 @@
                                 <div class="HContent10 Ellipsis FloatLeft">' + end + '</div>\
                                 <div class="HContent20 Ellipsis FloatLeft">' + ls[a].DateCreated + '</div>\
                             </div>';
+                            */
                         }
-                        ge( 'ClassroomContent' ).innerHTML = str;
-                        let rows = ge( 'ClassroomContent' ).getElementsByClassName( 'HRow' );
+                        
+                        lv.setRowData( rows );
+                        //ge( 'ClassroomContent' ).innerHTML = str;
+                        //let rows = ge( 'ClassroomContent' ).getElementsByClassName( 'HRow' );
+                        /*
                         for( let a = 0; a < rows.length; a++ )
                         {
                             ( function( r ) {
@@ -138,8 +240,9 @@
                                 }
                             } )( rows[a] );
                         }
+                        */
                     }
-                    if( cbk ) cbk();
+                    //if( cbk ) cbk();
                 }
                 m.execute( 'appmodule', {
                     appName: 'CourseCreator',
@@ -187,10 +290,13 @@
             {
                 if( !this.editPane )
                 {
+                    /*
                     let d = document.createElement( 'div' );
                     d.className = 'EditPane';
                     ge( 'PanelMain' ).appendChild( d );
                     this.editPane = d;
+                    */
+                    this.editPane = ge( 'RoomDetails' );
                 }
                 else
                 {

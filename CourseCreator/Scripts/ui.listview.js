@@ -198,19 +198,38 @@ class ccListview extends ccGUIElement
             		{
             			self.cols[hname].sort(( ra, rb ) =>
             			{
-            				if ( ra.value.toLowerCase() == rb.value.toLowerCase() )
+            				console.log( 'sort', [ ra.value, rb.value ]);
+            				if ( ra.value == null || rb.value == null )
+            				{
+            					if ( self.cols._current == hname )
+            					{
+            						if ( null == ra.value )
+            							return -1;
+            						else
+            							return 1;
+            					}
+            					else
+            					{
+            						if ( null == ra.value )
+            							return 1;
+            						else
+            							return -1;
+            					}
+            				}
+            				
+            				if ( String( ra.value ).toLowerCase() == String( rb.value ).toLowerCase() )
             					return 0;
             				
             				if ( self.cols._current == hname )
             				{
-            					if ( ra.value.toLowerCase() < rb.value.toLowerCase() )
+            					if ( String( ra.value ).toLowerCase() < String( rb.value ).toLowerCase() )
             						return 1;
             					else
             						return -1;
             				}
             				else
             				{
-            					if ( ra.value.toLowerCase() < rb.value.toLowerCase() )
+            					if ( String( ra.value ).toLowerCase() < String( rb.value ).toLowerCase() )
             						return -1;
             					else
             						return 1;
@@ -324,9 +343,21 @@ class ccListview extends ccGUIElement
     	
     	for( let b = 0; b < json.length; b++ )
     	{
+    		console.log( 'refreshrows - row', [ json[b], json[b].onclick ]);
     		let row = document.createElement( 'div' );
     		row.className = 'HRow EditRow';
     		row.id = friendUP.tool.uid( 'r' );
+    		if ( json[b].onclick )
+    		{
+    			const oc = json[b].onclick;
+    			const rd = json[b];
+    			row.addEventListener( 'click', e =>
+    			{
+    				console.log( 'row onclick', oc );
+    				if ( window.ccGUI.callbacks[ oc ])
+    					window.ccGUI.callbacks[ oc ]( rd, self, e );
+    			}, false );
+    		}
     		let baseWidth = parseInt( 100 / json[b].length );
     		
 			for( let z = 0; z < json[b].length; z++ )
