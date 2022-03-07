@@ -54,9 +54,56 @@ class ccListview extends ccGUIElement
         {
         	header = header[0];
             this.options.hasHeader = true;
-            
             let d = document.createElement( 'div' );
             d.className = 'ContentHeader';
+            
+            // check for navigation
+            const headnav = header.getElementsByTagName( 'listviewnavigation' );
+            if ( headnav[0] )
+	        {
+	        	const hn = headnav[0];
+	        	console.log( 'headnav', {
+	        		hn : hn,
+	        		c  : hn.children,
+	        		l  : hn.children.length,
+	        	});
+	        	this.options.hasNavigation = true;
+	        	d.classList.add( 'NavPad' );
+	        	const hnEl = document.createElement( 'div' );
+	        	hnEl.classList.add( 'HeadNav' );
+	        	for ( let i = 0; i < hn.children.length; i++ )
+	        	{
+	        		const n = hn.children[ 0 ];
+	        		console.log( 'n', [ i, n ]);
+	        		if ( 'listviewbutton' == n.localName )
+	        		{
+	        			console.log( 'do button things', n );
+	        			const btn = document.createElement( 'div' );
+	        			btn.classList.add( 'HeaderButton', 'IconSmall', 'MousePointer' );
+	        			const icon = n.getAttribute( 'icon' );
+	        			if ( icon )
+	        			{
+	        				console.log( 'icon', icon );
+	        				btn.classList.add( 'fa-' + icon ); 
+	        			}
+	        			
+	        			const onc = n.getAttribute( 'onclick' )
+	        			if ( onc )
+	        			{
+	        				console.log( 'onclick', onc );
+	        				btn.addEventListener( 'click', e => {
+	        					console.log( 'head nav btn on click', [ e, onc ]);
+	        					if ( window.ccGUI.callbacks[ onc ])
+	        						window.ccGUI.callbacks[ onc ]( self );
+	        				}, true );
+	        			}
+	        			
+	        			hnEl.appendChild( btn );
+	        		}
+	        	}
+	        	
+	        	d.appendChild( hnEl );
+	        }
             
             // Add the heading
             let heading = false;
@@ -149,7 +196,8 @@ class ccListview extends ccGUIElement
         
         self.headerElements = [];
         self.cols = {
-        	'_list' : [],
+        	'_list'    : [],
+        	'_current' : null,
         };
         
         if( headers )
@@ -188,6 +236,8 @@ class ccListview extends ccGUIElement
             	const hidx = a;
             	h.addEventListener( 'click', e => {
             		console.log( 'header click', {
+            			e    : e,
+            			keep : e.keepCurrent,
             			name : hname,
             			i    : hidx,
             			col  : self.cols[ hname ],
@@ -243,10 +293,6 @@ class ccListview extends ccGUIElement
             				p.appendChild( ge( self.cols[hname][i].rowId ));
             			}
             			
-            			// change colum header look
-            				// toggle off old ( unless inverted )
-            				// toggle on new
-            			
             			if ( null == self.cols._current )
             			{
             				self.cols._current = hname;
@@ -267,7 +313,6 @@ class ccListview extends ccGUIElement
 	            			else
 	            				self.cols._current = hname;
             			}
-            			
             			
             			return;
             		}
@@ -460,6 +505,19 @@ class ccListview extends ccGUIElement
 		}
 		
 		ccInitializeGUI();
+		
+		const c = new Event( 'click' );
+		c.keepCurrent = true;
+		const hel = ge( self.headerElements[ 0 ].id );
+		console.log( 'dispatchevent', {
+			c    : c,
+			hel  : hel,
+			cols : self.cols,
+		});
+		if ( null != hel )
+			hel.dispatchEvent( c );
+		
+		
     }
     
     // Edit a row / column by id

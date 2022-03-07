@@ -87,13 +87,15 @@
         <row>
             <listview id="classroom_add_users">
                 <listviewhead>
-                    <listviewtoolbar>
+                    <listviewnavigation>
                         <listviewbutton icon="arrow-circle-left" onclick="cr_edit_show_user_list_btn"></listviewbutton>
-                        <listviewfilter onchange="cr_add_users_filter"></listviewfilter>
-                    </listviewtoolbar>
+                    </listviewnavigation>
                     <listviewheading>
                         Add Users
                     </listviewheading>
+                    <listviewtoolbar>
+                        <listviewfilter onchange="cr_add_users_filter"></listviewfilter>
+                    </listviewtoolbar>
                 </listviewhead>
                 <listviewheaders>
                     <listviewheader width="80%" sortable="sortable" name="Name">Name</listviewheader>

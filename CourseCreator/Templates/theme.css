@@ -156,9 +156,27 @@
     padding-bottom: var(--padding-row);
 }
 
-.ContentHeader .Left
+.ContentHeader.NavPad .Left
+{
+    width: calc( 50% - 16px );
+}
+
+.ContentHeader .Left,
+.ContentHeader .HeadNav
 {
     margin-top: 7px;
+}
+
+.ContentHeader .HeadNav
+{
+    float   : left;
+    display : block;
+    width   : 32px;
+    box-sizing: border-box;
+    padding-right: var(--padding-normal);
+    padding-top: var(--padding-row);
+    padding-left: var(--padding-normal);
+    padding-bottom: var(--padding-row);
 }
 
 .ContentHeader .Left div, 

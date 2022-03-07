@@ -88,6 +88,7 @@
                     ccAddCallback( 'cl_add_room', e =>
                     {
                         console.log( 'cl_add_room', [ e, this ]);
+                        Application.submodules.classrooms.create();
                     });
                     
                     ccAddCallback( 'cl_load_rooms', lv =>
@@ -997,6 +998,7 @@
                     else
                     {
                         console.log( 'no users in classroom i guess' );
+                        lv.setRowData([]);
                         //ge( 'ClassroomUsers' ).innerHTML = '<div class="HRow EditRow"><div class="HContent100 Ellipsis">This classroom has no users.</div></div>';
                     }
                 }
@@ -1025,11 +1027,14 @@
                     console.log( 'populateAddUserList on exe', [ s, d ] );
                     const res = JSON.parse( d );
                     console.log( 'addulist', res );
+                    const rws = [];
                     let l = res.length;
                     if ( !l )
+                    {
+                        self.auv.setRowData( rws );
                         return;
+                    }
                     
-                    const rws = [];
                     
                     for( ;l; )
                     {
