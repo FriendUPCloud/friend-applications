@@ -262,9 +262,17 @@ class ImageElement extends Element
     renderMain = function () 
     {
         let self = this;
-        this.domContainer.innerHTML = "";
+        
+        if( !this.contentContainer )
+        {
+        	this.contentContainer = document.createElement( 'div' );
+        	this.domContainer.appendChild( this.contentContainer );
+        }
+        
+        this.contentContainer.className = 'elementEdit';
+        this.contentContainer.innerHTML = '';
 
-        self.domContainer.addEventListener(
+        self.contentContainer.addEventListener(
             'click',
             function _clickRenderEdit ( event ) {
                 self.renderEdit();
@@ -294,15 +302,15 @@ class ImageElement extends Element
                 }
             }
         ));
-        setDomChildren( this.domContainer, cdn );
+        setDomChildren( this.contentContainer, cdn );
     }
 
     renderEdit = function() 
     {
         let self = this;
-        this.domContainer.className = 'element';
-        this.domContainer.classList.add( 'elementEdit' );
-        this.domContainer.innerHTML = '';
+        
+        this.contentContainer.className = 'elementEdit';
+        this.contentContainer.innerHTML = '';
 
         let cdn = new Array();
 
@@ -370,7 +378,7 @@ class ImageElement extends Element
                 ]
             }
         ));
-        setDomChildren(this.domContainer, cdn);
+        setDomChildren(this.contentContainer, cdn);
     }
 
     saveEditElement = function() 

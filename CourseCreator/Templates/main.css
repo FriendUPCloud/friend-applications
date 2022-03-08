@@ -449,21 +449,25 @@
 
 
 
-.element 
+.element, .elementEdit
 {
 	padding:  5px;
-	border:  thin solid #E0E0E0;
+	border: thin solid #E0E0E0;
 	margin: 5px;
 	display: flex;
 	justify-content: center;
 	align-items: left;
 	flex-direction: column;
 	border-radius: var(--gui-border-radius-normal);
-	box-shadow: var(--gui-box-shadow);
+}
+.element
+{
 	background-color: var(--background);
+	box-shadow: var(--gui-box-shadow);
 }
 
-.element > p {
+.element > p, .elementEdit > p 
+{
 	margin: 0px;
 	maring-block: 0px;
 }
