@@ -46,27 +46,25 @@ class Element
         this.domContainer = false;
         this.children = new Array();
         this.activeChild = false;
-        //console.log("this is self ",this);
     }
 
     resetDomContainer = function()
     {
         // replaces all content except for delete button
-        let buttons = this.domContainer.querySelector(".buttons");
-        let handle = this.domContainer.querySelector(".handle");
+        let buttons = this.domContainer.querySelector( '.buttons' );
+        let handle = this.domContainer.querySelector( '.handle' );
+        
         //console.log("nav items are ", buttons, handle);
         this.domContainer.replaceChildren(buttons, handle);
     }
 
-    linkDomContainer = function(domContainer=false)
+    linkDomContainer = function( domContainer = false )
     {
         let self = this;
         if (!domContainer)
             domContainer = self.createDomContainer(self.elementClass);
         self.domContainer = domContainer;
         self.domContainer.elementRef = self;
-        //console.log("self parent dom", self.parent.domContainer);
-        //console.log("self dom", self.domContainer);
         if (self.parent.domContainer) 
             self.parent.domContainer.appendChild(self.domContainer);
     }
@@ -117,9 +115,9 @@ class Element
                         ]
             }
         );
-         // add handle (float left for now)
+        // add handle (float left for now)
         let handle = ce( 'div', { 'classes': [ 'handle', 'IconSmall', 'fa-arrows-v' ] } );
-        ele.appendChild(handle);
+        ele.appendChild( handle );
 
         // create delete button
         let buttons = ce( 'div', { 'classes' : [ 'buttons', 'right', 'hoover' ] } );
