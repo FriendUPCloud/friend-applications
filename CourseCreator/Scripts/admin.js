@@ -123,9 +123,11 @@ Application.receiveMessage = function( msg )
         {
             if( Application.submodules && Application.submodules[ msg.submodule ] )
             {
+            	console.log( 'Setting on command: ', Application.submodules[ msg.submodule ] );
                 Application.submodules[ msg.submodule ][ msg.command ]( msg.data );
             }
         }
+        return;
     }
 }
 

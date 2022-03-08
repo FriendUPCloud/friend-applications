@@ -256,6 +256,14 @@
 		        } );
 		        
 		        ccInitializeGUI();
+            },
+            setViewTitle( args )
+            {
+            	if( Application.windows[ args.targetView ] )
+            	{
+            		let v = Application.windows[ args.targetView ];
+            		v.setFlag( 'title', 'Edit course - ' + args.name );
+            	}
             }
         };
         Application.submodules.courses.init();

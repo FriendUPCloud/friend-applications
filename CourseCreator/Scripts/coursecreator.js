@@ -1155,6 +1155,14 @@ class CourseCreator
 			{
 				courseCreator.manager.children[0].name = inp.value;
 				courseCreator.manager.children[0].save();
+				Application.sendMessage( {
+					command: 'setViewTitle',
+					submodule: 'courses',
+					data: {
+						name: inp.value,
+						targetView: Application.viewId
+					}
+				} );
 			}
 			// Done properties
 		} );
