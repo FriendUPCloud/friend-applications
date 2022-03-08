@@ -338,11 +338,11 @@ class ccCheckbox extends ccGUIElement
     	for( let a in data )
     	{
             console.log( 'for', a );
-    		if( a == 'OnChange' )
+    		if( a == 'onchange' )
     		{
     			opts.push( 'onchange="' + data[a] + '"' );
     		}
-    		if( a == 'Value' && data[a] )
+    		if( a == 'value' && data[a] )
     		{
     			opts.push( 'checked="checked"' );
     		}
