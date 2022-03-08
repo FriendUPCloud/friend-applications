@@ -84,6 +84,7 @@ class CourseElement extends Element
             DisplayID: this.displayId == null ? 0 : this.displayId,
             CourseCollectionID: 1
         };
+        
         console.log("Update table ", params);
         courseCreator.dbio.call(
             'updateTable',
@@ -114,6 +115,20 @@ class SectionElement extends Element
         super(parent, "section", displayId, dbId, name); 
         this.linkDomContainer( courseCreator.mainView );
     }
+    
+    // Get the next displayId slot
+    getNextDisplayId()
+    {
+    	let disp = 0;
+    	for( let a in this.children )
+    	{
+    		if( this.children[a].displayId > disp )
+    		{
+    			disp = this.children[a].displayId;
+    		}
+    	}
+    	return disp + 1;
+    }
 
     save = function(callBack)
     {
@@ -125,12 +140,11 @@ class SectionElement extends Element
             CourseID: this.parent.dbId == null ? 0 : this.parent.dbId,
             ElementTypeID: this.classInfo.elementTypeId
         };
-        console.log("Update table ", params);
         courseCreator.dbio.call(
             'updateTable',
             params,
             function ( code, data ) {
-                if (callBack)
+                if (callBack && typeof( callBack ) == 'function' )
                     callBack( data );
             }
         );
@@ -257,13 +271,21 @@ class PageElement extends Element
             SectionID: this.parent.dbId == null ? 0 : this.parent.dbId,
             ElementTypeID: this.classInfo.elementTypeId
         };
+        
+        if( params.DisplayID == 0 && params.ID == 0 )
+        {
+        	params.DisplayID = this.parent.getNextDisplayId();
+        	this.displayId = params.DisplayID;
+        }
+
         //console.log("Update table ", params);
         courseCreator.dbio.call(
             'updateTable',
             params,
             function ( code, data ) {
-                if (callBack)
+                if (typeof( callBack ) == 'function' )
                     callBack( data );
+                courseCreator.manager.fetchIndex();
             }
         );
     }
@@ -675,6 +697,7 @@ class RootElement extends Element
 					                pags[a2].Name
 					            );
 							}
+							console.log( 'Fetch - What is our children: ', sect.children );
 							//console.log( 'Section loaded: ', sect.children, pags );
 							// When all is done
 							if( --loadCount == 0 )
