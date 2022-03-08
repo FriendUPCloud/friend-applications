@@ -735,14 +735,14 @@ class RootElement extends Element
         }
 
         // make Li Element
-        let makeLiElement = function( ele, type )
+        let makeLiElement = function( ele, type, number )
         {
         	if( !type ) type = '';
             let li = ce( 'li' );           
             // element index text
             let div = ce( 'div' );
             let icon = type == 'page' ? 'fa-file-text-o' : ( type == 'section' ? 'fa-bookmark-o' : '' );
-            let num = ( parseInt( ele.displayId ) + 1 ) + '';
+            let num = number + '';
             if( num.length < 2 )
             	num = '0' + num;
             let text = ce(
@@ -828,17 +828,19 @@ class RootElement extends Element
                 let pUl = ce( 'ul' );
                 
                 // Pages
+                let n = 1;
                 for( let k in s.children )
                 {
                 	let p = s.children[k];
                 	//console.log( 'Adding page ' + p.name );
-                    let pLi = makeLiElement( p, 'page' );
+                    let pLi = makeLiElement( p, 'page', n );
                     if (pLi)
                     {
                         pLi.classList.add( 'PageIndex' );
                         pLi.element = p;
                         pUl.appendChild( pLi );
                     }
+                    n++;
                 };
                 sLi.appendChild( pUl );
 
