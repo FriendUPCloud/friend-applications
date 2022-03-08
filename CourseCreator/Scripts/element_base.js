@@ -118,18 +118,18 @@ class Element
             }
         );
          // add handle (float left for now)
-        let handle = ce('div',{"classes": [ "handle", "IconSmall", "fa-bars"]});
+        let handle = ce( 'div', { 'classes': [ 'handle', 'IconSmall', 'fa-arrows-v' ] } );
         ele.appendChild(handle);
 
         // create delete button
-        let buttons = ce('div', { "classes" : ['buttons','right','hoover']});
+        let buttons = ce( 'div', { 'classes' : [ 'buttons', 'right', 'hoover' ] } );
         let inner = ce('div', 
             { 
-                "classes" : [ 'IconSmall', 'fa-times'],
-                "listeners": [
+                'classes' : [ 'IconSmall', 'fa-times' ],
+                'listeners': [
                     {
-                        "event": "click",
-                        "callBack": function ( event ) {
+                        'event': 'click',
+                        'callBack': function ( event ){
                             self.delete();
                         }
                     }

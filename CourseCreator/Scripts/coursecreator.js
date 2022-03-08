@@ -156,7 +156,7 @@ class PageElement extends Element
 {
     constructor(parent, displayId=0, dbId=0, name='')
     {
-        super(parent, "page", displayId, dbId, name);
+        super(parent, 'page', displayId, dbId, name);
         
         this.linkDomContainer();
         
@@ -169,7 +169,7 @@ class PageElement extends Element
             animation: 300
         });
         
-        this.domContainer.classList.add('list-group');
+        this.domContainer.classList.add( 'list-group' );
     }
 
     /*    
@@ -187,7 +187,7 @@ class PageElement extends Element
 
         // Get all elements in domContainer
         let domElements = (
-            this.domContainer.getElementsByClassName('element')
+            this.domContainer.getElementsByClassName( 'element' )
         );
 
         // Loop over elements and set displayId
@@ -214,7 +214,7 @@ class PageElement extends Element
         // Reset the domContainer
         self.domContainer.replaceChildren();
 
-		console.log( 'Loading elements. sectionId: ' + self.parent.dbId+ ', pageId: ' + self.dbId );
+		//console.log( 'Loading elements. sectionId: ' + self.parent.dbId+ ', pageId: ' + self.dbId );
 
         // Get the elements on sectionId/pageId
         courseCreator.dbio.call(
