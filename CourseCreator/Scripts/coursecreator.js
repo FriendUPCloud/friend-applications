@@ -84,6 +84,7 @@ class CourseElement extends Element
             DisplayID: this.displayId == null ? 0 : this.displayId,
             CourseCollectionID: 1
         };
+        
         console.log("Update table ", params);
         courseCreator.dbio.call(
             'updateTable',
@@ -114,6 +115,20 @@ class SectionElement extends Element
         super(parent, "section", displayId, dbId, name); 
         this.linkDomContainer( courseCreator.mainView );
     }
+    
+    // Get the next displayId slot
+    getNextDisplayId()
+    {
+    	let disp = 0;
+    	for( let a in this.children )
+    	{
+    		if( this.children[a].displayId > disp )
+    		{
+    			disp = this.children[a].displayId;
+    		}
+    	}
+    	return disp + 1;
+    }
 
     save = function(callBack)
     {
@@ -125,12 +140,11 @@ class SectionElement extends Element
             CourseID: this.parent.dbId == null ? 0 : this.parent.dbId,
             ElementTypeID: this.classInfo.elementTypeId
         };
-        console.log("Update table ", params);
         courseCreator.dbio.call(
             'updateTable',
             params,
             function ( code, data ) {
-                if (callBack)
+                if (callBack && typeof( callBack ) == 'function' )
                     callBack( data );
             }
         );
@@ -142,7 +156,7 @@ class PageElement extends Element
 {
     constructor(parent, displayId=0, dbId=0, name='')
     {
-        super(parent, "page", displayId, dbId, name);
+        super(parent, 'page', displayId, dbId, name);
         
         this.linkDomContainer();
         
@@ -155,7 +169,7 @@ class PageElement extends Element
             animation: 300
         });
         
-        this.domContainer.classList.add('list-group');
+        this.domContainer.classList.add( 'list-group' );
     }
 
     /*    
@@ -173,7 +187,7 @@ class PageElement extends Element
 
         // Get all elements in domContainer
         let domElements = (
-            this.domContainer.getElementsByClassName('element')
+            this.domContainer.getElementsByClassName( 'element' )
         );
 
         // Loop over elements and set displayId
@@ -200,7 +214,7 @@ class PageElement extends Element
         // Reset the domContainer
         self.domContainer.replaceChildren();
 
-		console.log( 'Loading elements. sectionId: ' + self.parent.dbId+ ', pageId: ' + self.dbId );
+		//console.log( 'Loading elements. sectionId: ' + self.parent.dbId+ ', pageId: ' + self.dbId );
 
         // Get the elements on sectionId/pageId
         courseCreator.dbio.call(
@@ -257,13 +271,21 @@ class PageElement extends Element
             SectionID: this.parent.dbId == null ? 0 : this.parent.dbId,
             ElementTypeID: this.classInfo.elementTypeId
         };
+        
+        if( params.DisplayID == 0 && params.ID == 0 )
+        {
+        	params.DisplayID = this.parent.getNextDisplayId();
+        	this.displayId = params.DisplayID;
+        }
+
         //console.log("Update table ", params);
         courseCreator.dbio.call(
             'updateTable',
             params,
             function ( code, data ) {
-                if (callBack)
+                if (typeof( callBack ) == 'function' )
                     callBack( data );
+                courseCreator.manager.fetchIndex();
             }
         );
     }
@@ -675,13 +697,14 @@ class RootElement extends Element
 					                pags[a2].Name
 					            );
 							}
+							console.log( 'Fetch - What is our children: ', sect.children );
 							//console.log( 'Section loaded: ', sect.children, pags );
 							// When all is done
-							if( --loadCount == 0 )
-							{
-								self.renderIndex();
-								if( cbk ) cbk( true );
-							}
+						}
+						if( --loadCount == 0 )
+						{
+							self.renderIndex();
+							if( cbk ) cbk( true );
 						}
 					}
 					m.execute( 'appmodule', {
@@ -712,14 +735,14 @@ class RootElement extends Element
         }
 
         // make Li Element
-        let makeLiElement = function( ele, type )
+        let makeLiElement = function( ele, type, number )
         {
         	if( !type ) type = '';
             let li = ce( 'li' );           
             // element index text
             let div = ce( 'div' );
             let icon = type == 'page' ? 'fa-file-text-o' : ( type == 'section' ? 'fa-bookmark-o' : '' );
-            let num = ( parseInt( ele.displayId ) + 1 ) + '';
+            let num = number + '';
             if( num.length < 2 )
             	num = '0' + num;
             let text = ce(
@@ -805,17 +828,19 @@ class RootElement extends Element
                 let pUl = ce( 'ul' );
                 
                 // Pages
+                let n = 1;
                 for( let k in s.children )
                 {
                 	let p = s.children[k];
                 	//console.log( 'Adding page ' + p.name );
-                    let pLi = makeLiElement( p, 'page' );
+                    let pLi = makeLiElement( p, 'page', n );
                     if (pLi)
                     {
                         pLi.classList.add( 'PageIndex' );
                         pLi.element = p;
                         pUl.appendChild( pLi );
                     }
+                    n++;
                 };
                 sLi.appendChild( pUl );
 
@@ -1105,12 +1130,49 @@ class CourseCreator
 		            f.load();
 		        }
 		    );
+		    
+		    // Set up properties functionality
+		    FUI.addCallback( 'project_publish_change', function( ch )
+			{
+				courseCreator.publishState = ch ? 1 : 0;
+				
+				let m = new Module( 'system' );
+				m.execute( 'appmodule', {
+					appName: 'CourseCreator',
+					command: 'submodule',
+					vars: {
+						method: 'publishcourse',
+						submodule: 'courses',
+						published: ch,
+						courseId: courseCreator.manager.children[0].dbId
+					}
+				} );
+			} );
+			let ch = FUI.getElementByUniqueId( 'project_publish_checkbox' );
+			ch.checked = courseCreator.publishState == 1 ? true : false;
+			ch.refreshDom();
+			let inp = ge( 'PropertiesPanel' ).getElementsByTagName( 'input' )[0];
+			inp.value = courseCreator.manager.children[0].name;
+			ge( 'saveProps' ).onclick = function()
+			{
+				courseCreator.manager.children[0].name = inp.value;
+				courseCreator.manager.children[0].save();
+				Application.sendMessage( {
+					command: 'setViewTitle',
+					submodule: 'courses',
+					data: {
+						name: inp.value,
+						targetView: Application.viewId
+					}
+				} );
+			}
+			// Done properties
 		} );
     }
     
     setActivePanel( panel )
     {
-    	let panels = [ 'SectionsPanel', 'ToolboxPanel', 'LibraryPanel' ];
+    	let panels = [ 'SectionsPanel', 'ToolboxPanel' ]; //, 'LibraryPanel' ];
     	for( let a in panels )
     	{
     		if( panels[ a ] == panel )
@@ -1210,153 +1272,6 @@ courseCreator.onReady = function ( loadStatus )
         console.log("in initialize");
         courseCreator.initialize();
     }
-}
-
-/* Properties --------------------------------------------------------------- */
-
-let propsCont = false;
-
-// Edit Element, domnode and coursecreator
-function showEditProperties( element, domNode, ctx )
-{
-	if( propsCont )
-	{
-		document.body.removeChild( propsCont );
-		propsCont = false;
-	}
-	
-	let l = GetElementLeft( domNode );
-	let t = GetElementTop( domNode );
-	let h = GetElementHeight( domNode );
-	let w = GetElementWidth( domNode );
-	
-	let d = document.createElement( 'div' );
-	d.onclick = function( e )
-	{
-		e.stopPropagation( e );
-	}
-	d.style.left = l + 'px';
-	d.style.top = ( t + h ) + 'px';
-	d.style.width = w + 'px';
-	d.className = 'ElementProperties';
-	document.body.appendChild( d );
-	propsCont = d;
-	
-	let propFile = 'Progdir:Templates/editor_properties.html';
-	if( element.type == 'project' )
-	{
-		propFile = 'Progdir:Templates/editor_project_properties.html';
-		d.classList.add( 'Project' );
-		
-		FUI.addCallback( 'project_publish_change', function( ch )
-		{
-			courseCreator.publishState = ch ? 1 : 0;
-			
-			let m = new Module( 'system' );
-			m.execute( 'appmodule', {
-				appName: 'CourseCreator',
-				command: 'submodule',
-				vars: {
-					method: 'publishcourse',
-				    submodule: 'courses',
-				    published: ch,
-				    courseId: courseCreator.manager.children[0].dbId
-				}
-			} );
-		} );
-	}
-	
-	let f = new File( propFile );
-	f.onLoad = function( data )
-	{
-		d.innerHTML = data;
-		
-		FUI.initialize();
-		
-		if( element.type == 'project' )
-		{
-			let ch = FUI.getElementByUniqueId( 'project_publish_checkbox' );
-			ch.checked = courseCreator.publishState == 1 ? true : false;
-			ch.refreshDom();
-		}
-		
-		let flick = document.createElement( 'div' );
-		flick.className = 'Flick';
-		d.appendChild( flick );
-		
-		let inp = d.getElementsByTagName( 'input' )[0];
-		inp.value = element.name;
-		
-		d.classList.add( 'Showing' );
-		
-		inp.onchange = function( e )
-		{
-			element.name = inp.value;
-            element.save( inp.value );
-            if( ctx )
-	            ctx.renderIndex();
-            removeEditProperties();
-		}
-		
-		let b = d.getElementsByTagName( 'button' );
-		b[0].onclick = function( e )
-		{
-            element.name = inp.value;
-            element.save( inp.value );
-            if( ctx )
-	            ctx.renderIndex();
-            removeEditProperties();
-		}
-		
-		inp.focus();
-		inp.select();
-		
-	}
-	f.load();
-}
-
-function removeEditProperties()
-{
-	if( propsCont )
-	{
-		let p = propsCont;
-		p.classList.remove( 'Showing' );
-		propsCont = false;
-		setTimeout( function()
-		{
-			document.body.removeChild( p );
-		}, 150 );
-	}
-}
-
-document.body.addEventListener( 'click', function( e )
-{
-	removeEditProperties();
-} ); 
-
-/* Done Properties ---------------------------------------------------------- */
-
-function editProject( e )
-{
-	e.stopPropagation();
-	showEditProperties( { 
-		name: ge( 'ProjectName' ).innerText, 
-		type: 'project',
-		save: function( newName ){
-			let m = new Module( 'system' );
-			m.execute( 'appmodule', {
-				appName: 'CourseCreator',
-				command: 'submodule',
-				vars: {
-				    method: 'setcoursename',
-				    submodule: 'courses',
-				    coursename: newName,
-				    courseId: courseCreator.manager.children[0].dbId
-				}
-			} );
-			ge( 'ProjectName' ).innerHTML = newName;
-		} 
-	}, ge( 'ProjectName' ).parentNode, false );
 }
 
 

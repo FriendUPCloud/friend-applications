@@ -35,8 +35,8 @@
 		        		let data = JSON.parse( d );
 		        		
 		        		let v = new View({
-		                   title: "Edit course",
-		                   width: 800,
+		                   title: 'Edit course',
+		                   width: 1200,
 		                   height: 900
 		                });
 		                
@@ -195,8 +195,8 @@
 		                    	ccAddCallback( 'course_click_' + a, function( data )
 		                    	{
 		                    		let v = new View({
-	                                   title: "Edit course",
-	                                   width: 800,
+	                                   title: "Edit course - " + r.Name,
+	                                   width: 1200,
 	                                   height: 900
 	                                });
 
@@ -256,6 +256,14 @@
 		        } );
 		        
 		        ccInitializeGUI();
+            },
+            setViewTitle( args )
+            {
+            	if( Application.windows[ args.targetView ] )
+            	{
+            		let v = Application.windows[ args.targetView ];
+            		v.setFlag( 'title', 'Edit course - ' + args.name );
+            	}
             }
         };
         Application.submodules.courses.init();

@@ -12,7 +12,7 @@
 *
 */
 
-let version = 'v0.2';
+let version = 'v0.3';
 
 Application.mainView = null;
 
