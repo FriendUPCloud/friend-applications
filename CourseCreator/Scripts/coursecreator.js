@@ -1105,6 +1105,35 @@ class CourseCreator
 		            f.load();
 		        }
 		    );
+		    
+		    // Set up properties functionality
+		    FUI.addCallback( 'project_publish_change', function( ch )
+			{
+				courseCreator.publishState = ch ? 1 : 0;
+				
+				let m = new Module( 'system' );
+				m.execute( 'appmodule', {
+					appName: 'CourseCreator',
+					command: 'submodule',
+					vars: {
+						method: 'publishcourse',
+						submodule: 'courses',
+						published: ch,
+						courseId: courseCreator.manager.children[0].dbId
+					}
+				} );
+			} );
+			let ch = FUI.getElementByUniqueId( 'project_publish_checkbox' );
+			ch.checked = courseCreator.publishState == 1 ? true : false;
+			ch.refreshDom();
+			let inp = ge( 'PropertiesPanel' ).getElementsByTagName( 'input' )[0];
+			inp.value = courseCreator.manager.children[0].name;
+			ge( 'saveProps' ).onclick = function()
+			{
+				courseCreator.manager.children[0].name = inp.value;
+				courseCreator.manager.children[0].save();
+			}
+			// Done properties
 		} );
     }
     
