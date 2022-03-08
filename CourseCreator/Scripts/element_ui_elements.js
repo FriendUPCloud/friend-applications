@@ -263,6 +263,8 @@ class ImageElement extends Element
     {
         let self = this;
         
+        self.resetDomContainer();
+        
         if( !this.contentContainer )
         {
         	this.contentContainer = document.createElement( 'div' );

@@ -56,6 +56,8 @@ class Element
         
         //console.log("nav items are ", buttons, handle);
         this.domContainer.replaceChildren(buttons, handle);
+        if( this.contentContainer )
+        	this.domContainer.appendChild( this.contentContainer );
     }
 
     linkDomContainer = function( domContainer = false )
