@@ -700,11 +700,11 @@ class RootElement extends Element
 							console.log( 'Fetch - What is our children: ', sect.children );
 							//console.log( 'Section loaded: ', sect.children, pags );
 							// When all is done
-							if( --loadCount == 0 )
-							{
-								self.renderIndex();
-								if( cbk ) cbk( true );
-							}
+						}
+						if( --loadCount == 0 )
+						{
+							self.renderIndex();
+							if( cbk ) cbk( true );
 						}
 					}
 					m.execute( 'appmodule', {
