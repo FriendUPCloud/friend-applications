@@ -244,19 +244,19 @@ class ImageElement extends Element
 {
     constructor( parent, displayId = 0, dbId=0, name='', properties='' ) 
     {
-        super(parent, "image", displayId, dbId, name);
+        super( parent, 'image', displayId, dbId, name );
         if (!properties){
             properties = {
-                "image": {
-                    "title": "this is a title",
-                    "friendSource": ""
+                'image': {
+                    'title': 'this is a title',
+                    'friendSource': ''
                 }
             };
         }
         this.properties = properties;
         this.linkDomContainer();
-        this.domContainer.classList.add("element");
-        this.domContainer.classList.add("list-group-item");
+        this.domContainer.classList.add( 'element' );
+        this.domContainer.classList.add( 'list-group-item' );
     }
 
     renderMain = function () 
@@ -265,11 +265,11 @@ class ImageElement extends Element
         this.domContainer.innerHTML = "";
 
         self.domContainer.addEventListener(
-            "click",
+            'click',
             function _clickRenderEdit ( event ) {
                 self.renderEdit();
                 self.domContainer.removeEventListener(
-                    "click",
+                    'click',
                     _clickRenderEdit
                 );
             }
@@ -280,7 +280,7 @@ class ImageElement extends Element
         cdn.push(ce(
             'div',
             {
-                "text" : self.properties.image.title
+                'text' : self.properties.image.title
             }
         ));
         
@@ -288,28 +288,28 @@ class ImageElement extends Element
         cdn.push(ce(
             'img',
             {
-                "attributes" : {
-                    "src": getImageUrl(self.properties.image.friendSource),
-                    "data-friend-source": self.properties.image.friendSource
+                'attributes' : {
+                    'src': getImageUrl( self.properties.image.friendSource ),
+                    'data-friend-source': self.properties.image.friendSource
                 }
             }
         ));
-        setDomChildren(this.domContainer, cdn);
+        setDomChildren( this.domContainer, cdn );
     }
 
     renderEdit = function() 
     {
         let self = this;
-        this.domContainer.className = "element";
-        this.domContainer.classList.add("elementEdit");
-        this.domContainer.innerHTML = "";
+        this.domContainer.className = 'element';
+        this.domContainer.classList.add( 'elementEdit' );
+        this.domContainer.innerHTML = '';
 
         let cdn = new Array();
 
         cdn.push(ce(
             'span',
             {
-                "text": "Edit image:"
+                'text': 'Edit image:'
             }
         ));
                 
