@@ -159,7 +159,7 @@
 	border-radius: 4px;
 }
 
-#index .buttons > span
+#index div:not(.Active):not(.SectionButton) .buttons > span
 {
 	opacity: 0;
 	pointer-events: none;
