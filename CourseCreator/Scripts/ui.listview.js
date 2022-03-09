@@ -319,22 +319,33 @@ class ccListview extends ccGUIElement
             			if ( null == self.cols._current )
             			{
             				self.cols._current = header;
-            				hEl.classList.toggle( 'red', true );
+            				hEl.classList.toggle( 'ListDirectionAZ', true );
             			}
             			else
             			{
-            				const curr = self.cols._current.split( '_' )[0];
+            				const cP = self.cols._current.split( '_' );
+            				const curr = cP[0];
+            				const inv = !!cP[1];
             				const cIdx = self.cols._list.indexOf( curr );
             				const cHeadId = self.headerElements[ cIdx ].id;
             				const cHEl = ge( cHeadId );
-            				cHEl.classList.toggle( 'red', false );
+            				if ( inv )
+            					cHEl.classList.toggle( 'ListDirectionZA', false );
+            				else
+            					cHEl.classList.toggle( 'ListDirectionAZ', false );
             				
-            				hEl.classList.toggle( 'red', true );
+            				
             				
 	            			if ( self.cols._current == header )
+	            			{
 	            				self.cols._current = header + '_inverted';
+	            				hEl.classList.toggle( 'ListDirectionZA', true );
+	            			}
 	            			else
+	            			{
 	            				self.cols._current = header;
+	            				hEl.classList.toggle( 'ListDirectionAZ', true );
+	            			}
             			}
             			
             			return;

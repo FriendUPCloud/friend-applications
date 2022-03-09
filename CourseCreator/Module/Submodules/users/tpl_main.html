@@ -29,7 +29,10 @@
                         <listviewheading>
                             Users
                         </listviewheading>
-                    </listviehead>
+                        <listviewtoolbar>
+                            <listviewfilter onchange="users_user_filter"></listviewfilter>
+                        </listviewtoolbar>
+                    </listviewhead>
                     <listviewheaders>
                         <listviewheader width="25%" sortable="sortable" name="Rolename">Name</listviewheader>
                         <listviewheader width="25%" sortable="sortable" name="Username">Username</listviewheader>
@@ -55,20 +58,35 @@
                     
                 this.initialized = true;
                 
+                /*
                 this.refreshUsers( function()
                 {
-                    ge( 'PanelMain' ).classList.remove( 'SectionLoading' );
+                    
                 } );
+                */
+                
+                ccAddCallback( 'w_reload_users', lv => {
+                    console.log( 'w_reload_users', lv );
+                    this.refreshUsers( () => {
+                        ge( 'PanelMain' ).classList.remove( 'SectionLoading' );
+                    }, lv );
+                });
+                
+                ccAddCallback( 'users_user_filter', ( lv, f ) => {
+                    console.log( 'users_user_filter', [ lv, f ] );
+                    this.refreshUsers( null, lv, f );
+                });
                 
                 ccInitializeGUI();
             },
-            refreshUsers( cbk )
+            refreshUsers( cbk, listview, filter )
             {
+                console.log( 'refreshUsers', [ cbk, listview, filter, this.userRefreshCallback ]);
                 if( this.userRefreshCallback )
                 {
                     return;
                 }
-                ccAddCallback( 'w_reload_users', function( listview )
+                else
                 {
                     let self = this;
                     let searchParams;
@@ -78,7 +96,9 @@
                         if( e == 'ok' )
                         {
                             let str = '';
-                            let lst = JSON.parse( d );
+                            const res = JSON.parse( d );
+                            console.log( 'res', res );
+                            let lst = res.frows;
                             let out = [];
                             
                             for( let a = 0; a < lst.length; a++ )
@@ -141,11 +161,12 @@
                         appName: 'CourseCreator',
                         command: 'submodule',
                         vars: {
-                            method: 'listusers',
-                            submodule: 'users',
+                            method    : 'listusers',
+                            submodule : 'users',
+                            filter    : filter ? filter : undefined,
                         }
                     } );
-                } );
+                }
             },
             editUser( uid )
             {
@@ -255,11 +276,11 @@
                                                 },
                                                 {
                                                     type : 'string',
-                                                    value : r.StartDate,
+                                                    value : r.StartDate.split(' ')[0],
                                                 },
                                                 {
                                                     type : 'string',
-                                                    value : r.EndDate,
+                                                    value : r.EndDate.split(' ')[0],
                                                 }
                                             ];
                                             rws.push( cnf );
@@ -339,7 +360,7 @@
                                                         },
                                                         {
                                                             type  : 'string',
-                                                            value : cr.DateAdded,
+                                                            value : cr.DateAdded.split(' ')[0],
                                                         },
                                                         {
                                                             type     : 'pulldown',
@@ -394,7 +415,7 @@
                                                         },
                                                         {
                                                             type  : 'string',
-                                                            value : cr.DateAdded,
+                                                            value : cr.DateAdded.split(' ' )[0],
                                                         },
                                                         {
                                                             type  : 'string',
@@ -528,7 +549,7 @@
                                                 },
                                                 {
                                                     type  : 'string',
-                                                    value : cr.DateAdded,
+                                                    value : cr.DateAdded.split( ' ')[0],
                                                 },
                                                 {
                                                     type     : 'pulldown',
