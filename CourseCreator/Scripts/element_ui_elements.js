@@ -259,11 +259,13 @@ class ImageElement extends Element
         this.domContainer.classList.add( 'list-group-item' );
     }
 
+	// Render in preview mode
     renderMain = function () 
     {
         let self = this;
         
         self.resetDomContainer();
+        
         
         if( !this.contentContainer )
         {
@@ -271,8 +273,8 @@ class ImageElement extends Element
         	this.domContainer.appendChild( this.contentContainer );
         }
         
-        this.contentContainer.className = 'elementEdit';
-        this.contentContainer.innerHTML = '';
+        self.contentContainer.className = 'elementEdit';
+        self.contentContainer.innerHTML = '';
 
         self.contentContainer.addEventListener(
             'click',
@@ -287,7 +289,7 @@ class ImageElement extends Element
 
         let cdn = new Array();
 
-        cdn.push(ce(
+        cdn.push( ce(
             'div',
             {
                 'text' : self.properties.image.title,
@@ -329,9 +331,11 @@ class ImageElement extends Element
             }
         );
         cdn.push( img );
-        setDomChildren( this.contentContainer, cdn );
+        
+        setDomChildren( self.contentContainer, cdn );
     }
 
+	// Render in edit mode
     renderEdit = function() 
     {
         let self = this;
@@ -341,12 +345,12 @@ class ImageElement extends Element
 
         let cdn = new Array();
 
-        cdn.push(ce(
+        cdn.push( ce(
             'span',
             {
                 'text': 'Edit image:'
             }
-        ));
+        ) );
                 
         // Title
         cdn.push( ce(
@@ -409,13 +413,20 @@ class ImageElement extends Element
         	self.saveEditElement();
             courseCreator.manager.saveActivePage();
         }
-        s[1].onclick = function()
+        s[1].onclick = function( event )
         {
+        	event.stopPropagation();
         	self.renderMain();
         }
         cdn.push( block );
         
-        setDomChildren( this.contentContainer, cdn);
+        setDomChildren( self.contentContainer, cdn);
+        
+        let input = self.contentContainer.getElementsByTagName( 'input' );
+        input[0].onclick = function( event )
+        {
+        	event.stopPropagation();
+        }
     }
 
     saveEditElement = function() 
