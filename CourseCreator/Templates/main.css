@@ -459,11 +459,22 @@
 	align-items: left;
 	flex-direction: column;
 	border-radius: var(--gui-border-radius-normal);
+	box-sizing: border-box;
 }
 .element
 {
 	background-color: var(--background);
 	box-shadow: var(--gui-box-shadow);
+}
+
+.elementEdit input
+{
+	box-sizing: border-box;
+	border-radius: var(--gui-border-radius-normal);
+	padding: var(--fui-padding-row);
+	border: 1px solid var(--fui-border-foreground);
+	width: 100%;
+	margin: 0 0 4px 0;
 }
 
 .element > p, .elementEdit > p 
