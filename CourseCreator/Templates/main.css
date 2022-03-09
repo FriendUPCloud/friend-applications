@@ -125,6 +125,20 @@
 	height: 100%;
 }
 
+#index > ul > li.ActiveBlock > ul
+{
+	pointer-events: all;
+	position: relative;
+	opacity: 1;
+}
+
+#index > ul > li:not(.ActiveBlock) > ul
+{
+	pointer-events: none;
+	position: absolute;
+	opacity: 0;
+}
+
 #index > ul > li > span 
 {
 	font-weight: bold;

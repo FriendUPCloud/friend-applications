@@ -718,6 +718,36 @@ class RootElement extends Element
 			}
 		}
 	}
+	
+	checkActiveSectionBlock()
+	{
+		let self = this;
+		
+		let lis = courseCreator.indexView.getElementsByTagName( 'li' );
+		let activeLi = false;
+		for( let a = 0; a < lis.length; a++ )
+		{
+			if( lis[a].classList.contains( 'Active' ) )
+			{
+				activeLi = lis[a];
+				break;
+			}
+		}
+		if( activeLi )
+		{
+			let ul = activeLi;
+			while( !ul.classList.contains( 'SectionIndex' ) )
+			{
+				ul = ul.parentNode;
+			}
+			let uls = courseCreator.indexView.getElementsByTagName( 'li' );
+			for( let a = 0; a < uls.length; a++ )
+			{
+				uls[a].classList.remove( 'ActiveBlock' );
+			}
+			ul.classList.add( 'ActiveBlock' );
+		}
+	}
 
 	// Just refreshes index
     renderIndex = function ( redraw )
@@ -759,6 +789,7 @@ class RootElement extends Element
                                 event.stopPropagation();
                                 ele.setActive();
                                 ele.renderMain();
+                                courseCreator.currentPageId = ele.dbId;
                                 courseCreator.setActivePanel( 'SectionsPanel' );
                                 setActiveClass(
                                     event
@@ -766,6 +797,7 @@ class RootElement extends Element
                                         .parentNode
                                         .parentNode
                                 );
+                                self.checkActiveSectionBlock();
                             }
                         }
                     ]
@@ -773,6 +805,11 @@ class RootElement extends Element
             );
             div.appendChild(text);
             li.appendChild(div);
+            
+            if( ele.dbId == courseCreator.currentPageId )
+            {
+            	li.classList.add( 'Active' );
+            }
             
             // Remove page button
             let r = text.querySelector( '.Remove' );
@@ -856,26 +893,27 @@ class RootElement extends Element
                                 'event': 'click',
                                 'callBack': function( event )
                                 {
+                                    event.preventDefault();
                                     s.createNewElement(
                                         null,
                                         function( newPage )
                                         {
                                             newPage.setActive();
-                                            let sLi = event
+                                            let sLie = event
                                                         .target
                                                         .parentNode
                                                         .parentNode;
-                                            let pUl = sLi.querySelector('ul');
+                                            let pUl = sLie.querySelector('ul');
                                             let pLi = makeLiElement(newPage);
                                             if( pLi )
                                             {
                                                 courseCreator.manager.saveActivePage();
-                                                pLi.classList.add('PageIndex');
+                                                pLi.classList.add( 'PageIndex' );
                                                 pLi.element = newPage;
                                                 pUl.appendChild(pLi);
                                                 setActiveClass(pLi);
                                                 showEditProperties( newPage, pLi, self )
-                                            }
+                                            }                                            
                                         }
                                     );
                                 }
@@ -1041,6 +1079,8 @@ class RootElement extends Element
         /* End dragging of pages */
         
         courseCreator.indexView.appendChild(div);
+        
+        self.checkActiveSectionBlock();
     }
 
 }
@@ -1063,6 +1103,7 @@ class CourseCreator
         this.manager = new RootElement(this);
         
         this.setActivePanel( 'SectionsPanel' )
+        this.currentPageId = false;
     }
 
 	// Loads a source
