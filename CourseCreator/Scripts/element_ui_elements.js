@@ -295,7 +295,7 @@ class ImageElement extends Element
         ));
         
         // image
-        cdn.push(ce(
+        let img = ce(
             'img',
             {
                 'attributes' : {
@@ -303,7 +303,12 @@ class ImageElement extends Element
                     'data-friend-source': self.properties.image.friendSource
                 }
             }
-        ));
+        );
+        img.onerror = function()
+        {
+        	this.src = '';
+        }
+        cdn.push( img );
         setDomChildren( this.contentContainer, cdn );
     }
 
