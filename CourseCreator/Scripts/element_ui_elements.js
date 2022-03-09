@@ -422,18 +422,28 @@ class ImageElement extends Element
         self.properties.image.friendSource = imageSource.value;
 
 		// Convert images to Friend images
-		this.storeFriendImage( self.properties.image.friendSource, function( data )
+		if( self.properties.image.friendSource.indexOf( ':' ) > 0 )
 		{
-			if( data )
+			this.storeFriendImage( self.properties.image.friendSource, function( data )
 			{
-				self.properties.image.friendSource = data.filename;
-				courseCreator.manager.saveActivePage();
-			}				
-		    // render main after data is changed
-		    setTimeout( function(){
-		        self.renderMain()
-		    }, 1 );
-		} );
+				if( data )
+				{
+					self.properties.image.friendSource = data.filename;
+					courseCreator.manager.saveActivePage();
+				}				
+				// render main after data is changed
+				setTimeout( function(){
+				    self.renderMain()
+				}, 1 );
+			} );
+		}
+		else
+		{
+			// render main after data is changed
+			setTimeout( function(){
+			    self.renderMain()
+			}, 1 );
+		}
 		
     }
     
