@@ -125,14 +125,16 @@
 	height: 100%;
 }
 
-#index > ul > li.ActiveBlock > ul
+#index > ul > li.ActiveBlock > ul,
+#index > ul > li.ActiveBlock > div.buttons
 {
 	pointer-events: all;
 	position: relative;
 	opacity: 1;
 }
 
-#index > ul > li:not(.ActiveBlock) > ul
+#index > ul > li:not(.ActiveBlock) > ul,
+#index > ul > li:not(.ActiveBlock) > div.buttons
 {
 	pointer-events: none;
 	position: absolute;
