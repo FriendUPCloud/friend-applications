@@ -20,9 +20,10 @@ if( isset( $args->method ) )
         case 'refreshusers':
             break;
         case 'listusers':
-            $crows = $courseDb->fetchObjects('
+            $q = '
                 SELECT DISTINCT uc.UserID FROM CC_UserClassroom uc
-            ');
+            ';
+            $crows = $courseDb->fetchObjects( $q );
             
             $uids = [];
             foreach( $crows as $u )
@@ -30,7 +31,7 @@ if( isset( $args->method ) )
                 $uids[] = $u->UserID;
             }
             $uidlist = implode( ',', $uids );
-            $frows = $SqlDatabase->fetchObjects('
+            $uq = '
                 SELECT
                     u.ID,
                     u.FullName,
@@ -38,11 +39,20 @@ if( isset( $args->method ) )
                     u.LoginTime,
                     u.Status
                 FROM FUser u
-                WHERE u.ID IN (' . $uidlist . ')
-            ');
+                WHERE u.ID IN (' . $uidlist . ')';
+            
+            if ( isset( $args->filter ))
+            {
+                $uq .= ' AND ( u.FullName LIKE "%'. $args->filter . '%")';
+            }
+            
+            $frows = $SqlDatabase->fetchObjects( $uq );
             
             //$debug = [ $crows, $uids, $uidlist, $frows ];
-            die( 'ok<!--separate-->' . json_encode( $frows ));
+            die( 'ok<!--separate-->' . json_encode( [
+                'frows' => $frows,
+                'uq'    => $uq,
+                 ]));
             break;
         // Load a template
         case 'loadtemplate':

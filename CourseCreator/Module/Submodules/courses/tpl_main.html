@@ -117,7 +117,7 @@
                     			uniqueid: 'courserow_' + a
                         	}, {
                     			type:     'string',
-                    			value:    ls[a].DateCreated,
+                    			value:    ls[a].DateCreated.split( ' ' )[0],
                     			onclick:  'course_click_' + a
                         	},
                         	{

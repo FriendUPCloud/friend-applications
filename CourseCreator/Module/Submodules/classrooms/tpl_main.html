@@ -41,7 +41,7 @@
                     </listviehead>
                     <listviewheaders>
                         <listviewheader width="25%" sortable="sortable" name="Name">Name</listviewheader>
-                        <listviewheader width="10%" sortable="sortable" name="Users">Username</listviewheader>
+                        <listviewheader width="10%" sortable="sortable" name="Users">Users</listviewheader>
                         <listviewheader width="15%" sortable="sortable" name="Status">Status</listviewheader>
                         <listviewheader width="15%" sortable="sortable" name="StartDate">Start Date</listviewheader>
                         <listviewheader width="15%" sortable="sortable" name="EndDate">End Date</listviewheader>
@@ -179,11 +179,11 @@
                                 },
                                 {   // start date
                                     type  : 'string',
-                                    value : start,
+                                    value : start.split(' ')[0],
                                 },
                                 {   // end date
                                     type  : 'string',
-                                    value : end,
+                                    value : end.split(' ')[0],
                                 },
                                 {   // owner
                                     type  : 'string',
@@ -831,7 +831,7 @@
                             if( !payment ) payment = false; else payment = true;
                             console.log( 'payment', payment );
                             let cert = js[l].CertName;
-                            let lastLogin = js[l].LoginTime;
+                            let lastLogin = !!js[l].LoginTime ? js[l].LoginTime.split(' ')[0] : '';
                             
                             const cnf =
                             [
