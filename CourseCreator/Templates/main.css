@@ -481,7 +481,7 @@
 	box-shadow: var(--gui-box-shadow);
 }
 
-.elementEdit input
+.elementEdit input, .elementEdit img
 {
 	box-sizing: border-box;
 	border-radius: var(--gui-border-radius-normal);
@@ -489,6 +489,11 @@
 	border: 1px solid var(--fui-border-foreground);
 	width: 100%;
 	margin: 0 0 4px 0;
+}
+
+.elementEdit img
+{
+	padding: 0;
 }
 
 .element > p, .elementEdit > p 

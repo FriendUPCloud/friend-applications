@@ -299,8 +299,22 @@ class ImageElement extends Element
         let raw = self.properties.image.friendSource;
         if( raw )
         {
-	    	src = raw.indexOf( ':' ) > 0 ? getImageUrl( self.properties.image.friendSource ) : ( 'https://' + raw );
-		    
+	    	src = raw.indexOf( ':' ) > 0 ? getImageUrl( self.properties.image.friendSource ) : false;
+	    	if( !src )
+	    	{
+	    		let urlpart = {
+	    			appName: 'CourseCreator',
+	    			command: 'submodule',
+	    			vars: {
+						method: 'getimage',
+						submodule: 'courses',
+						filename: raw,
+						elementId: self.dbId,
+						courseId: courseCreator.manager.children[0].dbId
+					}
+	    		};
+	    		src = '/system.library/module/?module=system&authid=' + Application.authId + '&command=appmodule&args=' + JSON.stringify( urlpart );
+	    	}
 		}
         
         // image
@@ -408,13 +422,60 @@ class ImageElement extends Element
         self.properties.image.friendSource = imageSource.value;
 
 		// Convert images to Friend images
-		console.log( 'Image source: ' + self.properties.image.friendSource );
-
-		courseCreator.manager.saveActivePage();
+		if( self.properties.image.friendSource.indexOf( ':' ) > 0 )
+		{
+			this.storeFriendImage( self.properties.image.friendSource, function( data )
+			{
+				if( data )
+				{
+					self.properties.image.friendSource = data.filename;
+					courseCreator.manager.saveActivePage();
+				}				
+				// render main after data is changed
+				setTimeout( function(){
+				    self.renderMain()
+				}, 1 );
+			} );
+		}
+		else
+		{
+			// render main after data is changed
+			setTimeout( function(){
+			    self.renderMain()
+			}, 1 );
+		}
 		
-        // render main after data is changed
-        setTimeout( function(){
-            self.renderMain()
-        }, 1 );
+    }
+    
+    // Store Friend image into the Course Creator database
+    storeFriendImage( imagesrc, callback )
+    {
+    	let m = new Module( 'system' );
+    	m.onExecuted = function( e, d )
+    	{
+			// Run callback if it exists
+			if( callback )
+			{
+				if( e == 'ok' )
+				{
+					callback( JSON.parse( d ) );
+				}
+				else
+				{
+					callback( false );
+				}
+			}
+		}
+		m.execute( 'appmodule', {
+			appName: 'CourseCreator',
+			command: 'submodule',
+			vars: {
+				method: 'storeimage',
+				submodule: 'courses',
+				courseId: courseCreator.manager.children[0].dbId,
+				elementId: self.dbId,
+				imageSource: imagesrc
+			}
+		} );
     }
 }

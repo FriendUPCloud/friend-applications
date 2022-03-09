@@ -252,6 +252,16 @@ CREATE TABLE `CC_CourseSession` (
   PRIMARY KEY (`ID`)
 );
 
+CREATE TABLE `CC_File` (
+  `ID` bigint NOT NULL AUTO_INCREMENT,
+  `Filename` varchar(255) DEFAULT NULL,
+  `OriginalFilename` varchar(255) DEFAULT NULL,
+  `ElementID` bigint NOT NULL,
+  `CourseID` bigint NOT NULL,
+  `DateCreated` datetime DEFAULT NULL,
+  PRIMARY KEY (`ID`)
+);
+
 
 /* Fill in some dummy values in the database
 *
