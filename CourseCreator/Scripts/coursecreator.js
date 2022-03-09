@@ -819,7 +819,6 @@ class RootElement extends Element
             let o = 1;
             c.children.forEach( s => 
             {
-            	//console.log( 'Adding new section: ' + s.name );
             	// Section list
                 let sLi = makeLiElement(s, 'section', o++ );
                 sLi.classList.add( 'SectionIndex' );
@@ -833,9 +832,8 @@ class RootElement extends Element
                 for( let k in s.children )
                 {
                 	let p = s.children[k];
-                	//console.log( 'Adding page ' + p.name );
                     let pLi = makeLiElement( p, 'page', n );
-                    if (pLi)
+                    if( pLi )
                     {
                         pLi.classList.add( 'PageIndex' );
                         pLi.element = p;
@@ -892,7 +890,7 @@ class RootElement extends Element
         } );
         courseCreator.indexView.appendChild( ul );
 
-         // add new section
+        // Add new section
         let div = ce('div', { 'classes' : ["SectionButton"]});
         let buttons = ce('div', { 'classes' : ["buttons","Active"] });
         let span = ce(
@@ -1106,6 +1104,8 @@ class CourseCreator
 		    if( firstPage )
 		    {
 		        firstPage.classList.add( 'Active' );
+		        // Activate this firstpage!
+		        firstPage.getElementsByTagName( 'span' )[0].click();
 		    }
 
 		    // set view button event handler
