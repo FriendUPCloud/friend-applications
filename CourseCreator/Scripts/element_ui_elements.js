@@ -228,6 +228,13 @@ class TextBoxElement extends Element
                 .catch( error => {
                     console.error( error );
                 } )
+                .then( ed => {
+                	ed.on( 'keyup', function( event )
+                	{
+                		self.properties.textBox.content = event.target.innerHTML;
+	                    courseCreator.manager.saveActivePage();
+                	} );
+                } )
             ;
             div.innerHTML = this.properties.textBox.content;
             self.domContainer.appendChild(div);
