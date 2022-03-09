@@ -826,8 +826,10 @@
                             let progress = parseInt( js[l].progress );
                             if( isNaN( progress ) ) progress = 0;
                             let status = js[l].Status;
-                            let payment = parseInt( js[l].PaymentStatus );
-                            if( isNaN( payment ) ) payment = 0;
+                            let payment = !!js[l].PaymentStatus;
+                            console.log( 'payment', payment );
+                            if( !payment ) payment = false; else payment = true;
+                            console.log( 'payment', payment );
                             let cert = js[l].CertName;
                             let lastLogin = js[l].LoginTime;
                             
@@ -842,12 +844,9 @@
                                     value : progress
                                 },
                                 {
-                                    type  : 'string',
-                                    value : status,
-                                },
-                                {
-                                    type  : 'string',
-                                    value : payment,
+                                    type     : 'checkbox',
+                                    value    : payment,
+                                    onchange : 'class_user_payment_' + js[l].UserID,
                                 },
                                 {
                                     type      : ( null == cert ) ? 'button'  : 'string',
@@ -861,8 +860,8 @@
                                 },
                                 {
                                     type     : 'checkbox',
-                                    Value    : true,
-                                    OnChange : 'class_user_remove_' + js[l].UserID,
+                                    value    : true,
+                                    onchange : 'class_user_remove_' + js[l].UserID,
                                 }
                             ];
                             
@@ -877,8 +876,10 @@
                         {
                             l--;
                             const uid = js[l].UserID;
+                            
                             if ( null == js[l].CertName )
                             {
+                                
                                 ccAddCallback( 'class_user_add_cert_' + js[l].UserID, ( e ) => {
                                     console.log( 'cert upload for class, user', [ 
                                         ge( 'ClassroomId' ).value,
@@ -919,6 +920,38 @@
                                     });
                                 });
                             }
+                            
+                            ccAddCallback( 'class_user_payment_' + js[l].UserID, v =>
+                            {
+                                console.log( 'class_user_payment_', [ ge( 'ClassroomId' ).value,
+                                    uid,
+                                     v ]);
+                                
+                                let paid = '';
+                                if ( v )
+                                    paid = 'paid';
+                                
+                                const cp = new Module( 'system' );
+                                cp.onExecuted = ( s, d ) =>
+                                {
+                                    console.log( 'paymentstatus back', [ s, d ]);
+                                    const res = JSON.parse( d );
+                                    console.log( 'paymentstatus res', res );
+                                }
+                                
+                                cp.execute( 'appmodule', {
+                                    appName : 'CourseCreator',
+                                    command : 'submodule',
+                                    vars    : {
+                                        method      : 'paymentstatus',
+                                        submodule   : 'classrooms',
+                                        userId      : uid,
+                                        classroomId : ge( 'ClassroomId' ).value,
+                                        payment     : paid,
+                                    },
+                                });
+                            });
+                            
                             
                             ccAddCallback( 'class_user_remove_' + js[l].UserID, ( e ) => {
                                 console.log( 'remove btn for class, user', [
@@ -1047,8 +1080,8 @@
                             },
                             {
                                 type     : 'checkbox',
-                                Value    : false,
-                                OnChange : 'cr_add_user_check_' + res[l].ID
+                                value    : false,
+                                onchange : 'cr_add_user_check_' + res[l].ID
                             },
                         ];
                         

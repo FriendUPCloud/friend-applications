@@ -242,16 +242,39 @@ class ccListview extends ccGUIElement
             			i    : hidx,
             			col  : self.cols[ hname ],
             			cols : self.cols,
-            			type : self.cols[hname][0].type,
+            			//type : self.cols[hname][0].type,
             		});
-            		if ( 'string' == self.cols[hname][0].type )
+            		let header = null;
+            		if ( e.keepCurrent && ( self.cols._current != null ))
             		{
-            			self.cols[hname].sort(( ra, rb ) =>
+            			const parts = self.cols._current.split( '_' );
+            			header = parts[0];
+            			if ( null != parts[ 1 ])
+            				self.cols._current = header;
+            			else
+            				self.cols._current = header + '_inverted';
+            		}
+            		else
+            		{
+            			header = hname;
+            		}
+            		
+            		if ( !self.cols[ header ].length )
+            			return;
+            		
+            		console.log( 'sorting header', [ header, self.cols._current ]);
+            		const hIdx = self.cols._list.indexOf( header );
+            		const headId = self.headerElements[ hIdx ].id;
+            		const hEl = ge( headId );
+            		
+            		if ( 'string' == self.cols[header][0].type )
+            		{
+            			self.cols[header].sort(( ra, rb ) =>
             			{
             				console.log( 'sort', [ ra.value, rb.value ]);
             				if ( ra.value == null || rb.value == null )
             				{
-            					if ( self.cols._current == hname )
+            					if ( self.cols._current == header )
             					{
             						if ( null == ra.value )
             							return -1;
@@ -270,7 +293,7 @@ class ccListview extends ccGUIElement
             				if ( String( ra.value ).toLowerCase() == String( rb.value ).toLowerCase() )
             					return 0;
             				
-            				if ( self.cols._current == hname )
+            				if ( self.cols._current == header )
             				{
             					if ( String( ra.value ).toLowerCase() < String( rb.value ).toLowerCase() )
             						return 1;
@@ -286,17 +309,17 @@ class ccListview extends ccGUIElement
             				}
             			});
             			
-            			console.log( 'sorted', self.cols[hname]);
-            			const p = ge( self.cols[hname][0].rowId ).parentNode;
-            			for( let i = 0; i < self.cols[hname].length; i++ )
+            			console.log( 'sorted', self.cols[ header ]);
+            			const p = ge( self.cols[ header ][ 0 ].rowId ).parentNode;
+            			for( let i = 0; i < self.cols[ header ].length; i++ )
             			{
-            				p.appendChild( ge( self.cols[hname][i].rowId ));
+            				p.appendChild( ge( self.cols[ header ][ i ].rowId ));
             			}
             			
             			if ( null == self.cols._current )
             			{
-            				self.cols._current = hname;
-            				h.classList.toggle( 'red', true );
+            				self.cols._current = header;
+            				hEl.classList.toggle( 'red', true );
             			}
             			else
             			{
@@ -306,12 +329,12 @@ class ccListview extends ccGUIElement
             				const cHEl = ge( cHeadId );
             				cHEl.classList.toggle( 'red', false );
             				
-            				h.classList.toggle( 'red', true );
+            				hEl.classList.toggle( 'red', true );
             				
-	            			if ( self.cols._current == hname )
-	            				self.cols._current = hname + '_inverted';
+	            			if ( self.cols._current == header )
+	            				self.cols._current = header + '_inverted';
 	            			else
-	            				self.cols._current = hname;
+	            				self.cols._current = header;
             			}
             			
             			return;

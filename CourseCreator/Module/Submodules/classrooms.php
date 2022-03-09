@@ -131,6 +131,37 @@ if( isset( $args->method ) )
         	}
         	die( 'ok<!--separate-->{"message":"Classroom user saved.","ClassroomId":"' . $o->ClassroomID . '","UserID":"' . $o->UserID . '"}' );
         	break;
+        case 'paymentstatus':
+            if ( isset( $args->userId) && isset( $args->classroomId ) && isset( $args->payment ))
+            {
+                $q = '
+                    UPDATE CC_UserClassroom uc
+                    SET uc.PaymentStatus=\''.$args->payment.'\'
+                    WHERE uc.UserID='.$args->userId.'
+                    AND uc.ClassroomID='.$args->classroomId.'
+                ';
+                
+                $r = $courseDb->query( $q );
+                $uq = '
+                    SELECT * FROM CC_UserClassroom uc
+                    WHERE uc.UserID='.$args->userId.'
+                    AND uc.ClassroomID='.$args->classroomId.'
+                ';
+                $upd = $courseDb->fetchObjects( $uq )[0];
+                die( 'ok<!--separate-->'.json_encode( $upd ));
+            }
+            else
+            {
+                die( 'fail<!--separate-->' . json_encode(
+                    [
+                        'message'  => 'invalid arguments',
+                        'endpoint' => 'classrooms/paymentstatus',
+                        'args'     => $args,
+                        'expected' => [ 'userId', 'classroomId', 'payment' ],
+                    ]
+                ));
+            }
+            break;
         case 'refreshrooms':
             {
                 $q = '
