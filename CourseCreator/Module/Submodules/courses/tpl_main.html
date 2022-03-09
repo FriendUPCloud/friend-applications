@@ -23,6 +23,9 @@
         Application.submodules.courses = {
             init()
             {
+            	// Views that we display of courses
+            	this.openCourseViews = {};
+            	
             	// Adding a new course
             	ccAddCallback( 'w_add_course', function( data )
             	{
@@ -194,6 +197,13 @@
                         	{
 		                    	ccAddCallback( 'course_click_' + a, function( data )
 		                    	{
+		                    		let courses = Application.submodules.courses;
+		                    		if( courses.openCourseViews[ r.ID ] )
+		                    		{
+		                    			courses.openCourseViews[ r.ID ].activate();
+		                    			return;
+		                    		}
+		                    		
 		                    		let v = new View({
 	                                   title: "Edit course - " + r.Name,
 	                                   width: 1200,
@@ -223,7 +233,10 @@
 	                                v.onClose = function()
 	                                {
 	                                	listview.onload();
+	                                	courses.openCourseViews[ r.ID ] = null;
 	                                }
+	                                
+	                                courses.openCourseViews[ r.ID ] = v;
 	                                
 	                                let f = new File('Progdir:Templates/main.html');
 	                                f.onLoad = function( data ){
