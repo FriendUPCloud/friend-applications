@@ -583,3 +583,23 @@
 	margin-right: 0;
 }
 
+/* Image element */
+
+.ImageEditButtons
+{
+	display: flex;
+	gap: 5px;
+}
+
+.ImageEditButtons > div
+{
+	flex-grow: 1;
+}
+
+.elementEdit .image-title
+{
+	text-align: center;
+	padding: 10px;
+}
+
+

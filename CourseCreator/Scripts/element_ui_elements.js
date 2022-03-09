@@ -290,7 +290,8 @@ class ImageElement extends Element
         cdn.push(ce(
             'div',
             {
-                'text' : self.properties.image.title
+                'text' : self.properties.image.title,
+                'classes': [ 'image-title' ]
             }
         ));
         
@@ -366,7 +367,7 @@ class ImageElement extends Element
             {
                 'attributes' : {
                     'type': 'input',
-                    'value': self.properties.image.friendSource
+                    'value': self.properties.image.friendSource.indexOf( ':' ) > 0 ? self.properties.image.friendSource : 'Click to edit image'
                 },
                 'classes': [
                     'imageSrc'
@@ -379,8 +380,11 @@ class ImageElement extends Element
                         let d = new Filedialog( {
                             triggerFunction: function( items )
                             {
-                                event.target.value = items[0].Path;
-                                courseCreator.manager.saveActivePage();
+                            	if( items && items.length && items[0].Path )
+                            	{
+		                            event.target.value = items[0].Path;
+		                            courseCreator.manager.saveActivePage();
+		                        }
                             },
                             path: 'Mountlist:',
                             type: 'load',
@@ -391,22 +395,27 @@ class ImageElement extends Element
                 } ]
             }
         ) );
-        cdn.push(ce(
-            'button',
-            {
-                "text": "Save",
-                "listeners": [
-                    {
-                        "event": "click",
-                        "callBack": function ( event ) {
-                            self.saveEditElement();
-                            courseCreator.manager.saveActivePage();
-                        }
-                    }
-                ]
-            }
-        ));
-        setDomChildren(this.contentContainer, cdn);
+        
+        let block = document.createElement( 'div' );
+        block.className = 'ImageEditButtons';
+        block.innerHTML = '\
+        	<div><button type="button" class="IconSmall FullWidth fa-save" name="save">Save</button></div>\
+        	<div><button type="button" class="IconSmall FullWidth fa-remove" name="save">Cancel</button></div>\
+        </div>';
+        
+        let s = block.getElementsByTagName( 'button' );
+        s[0].onclick = function()
+        {
+        	self.saveEditElement();
+            courseCreator.manager.saveActivePage();
+        }
+        s[1].onclick = function()
+        {
+        	self.renderMain();
+        }
+        cdn.push( block );
+        
+        setDomChildren( this.contentContainer, cdn);
     }
 
     saveEditElement = function() 
