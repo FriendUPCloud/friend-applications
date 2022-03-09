@@ -470,6 +470,7 @@ class ImageElement extends Element
     // Store Friend image into the Course Creator database
     storeFriendImage( imagesrc, callback )
     {
+		let self = this;    
     	let m = new Module( 'system' );
     	m.onExecuted = function( e, d )
     	{
