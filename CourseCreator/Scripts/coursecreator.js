@@ -1137,6 +1137,10 @@ class CourseCreator
     initialize()
     {
     	let self = this;
+    	
+    	// Prevent the ckeditor from getting wild
+    	document.body.querySelector( '.CcPanels' ).addEventListener( 'scroll', function(){ this.scrollTop = 0; } );
+    	
     	console.log( 'We are initializing.' );
     	self.manager.fetchIndex( function()
     	{

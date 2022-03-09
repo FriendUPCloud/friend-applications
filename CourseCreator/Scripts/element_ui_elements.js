@@ -214,8 +214,8 @@ class TextBoxElement extends Element
                 .create( div )
                 .catch( error => {
                     console.error( error );
-                } 
-            );
+                } )
+            ;
             div.innerHTML = this.properties.textBox.content;
             self.domContainer.appendChild(div);
             console.log(" domcontainer ", self.domContainer);
