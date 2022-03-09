@@ -375,26 +375,7 @@ class PageElement extends Element
 
         // Set the page to active on the section
         self.parent.activeChild = self;
-    }
-
-    /*
-        delete (Page)
-
-    */
-    // delete = function () {
-    //     let self = this;
-
-    //     // Delete from index
-
-
-    //     // Delete from parent dom element
-    //     self.parent.domContainer.removeChild(self.domContainer);
-
-    //     // Delete all children also (in database delete on cascade)
-
-
-
-    // }
+     }
 }
 
 class DBIO
@@ -821,10 +802,27 @@ class RootElement extends Element
             		ele.setActive();
             		if( ele.delete )
                     {
+                    	if( ele.parent.children )
+                    	{
+                    		let prev = false;
+                    		for( let a in ele.parent.children )
+                    		{
+                    			if( ele.parent.children[a] != ele )
+                    			{
+                    				let oth = ele.parent.children[a];
+                					courseCreator.currentPageId = oth.dbId;
+                					oth.setActive();
+                					break;
+                    			}
+                    		}
+                    	}
                         ele.delete( function()
                         	{
-			                    self.renderIndex();
-			                    self.renderMain();
+			                    self.fetchIndex( function()
+			                    {
+					                self.renderIndex();
+					                self.renderMain();
+					            } );
 	                        }
                         );
                     }
