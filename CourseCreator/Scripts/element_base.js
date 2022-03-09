@@ -100,8 +100,7 @@ class Element
                 'attributes': {
                     'data-display-id': this.displayId,
                     'data-db-id': this.dbId,
-                    'data-element-type': this.elementType,
-                    'draggable': 'true'
+                    'data-element-type': this.elementType
                 },
                 'classes' : [
                     this.classInfo.cssClass
@@ -120,6 +119,14 @@ class Element
         // add handle (float left for now)
         let handle = ce( 'div', { 'classes': [ 'handle', 'IconSmall', 'fa-arrows-v' ] } );
         ele.appendChild( handle );
+        handle.onmouseover = function( e )
+        {
+        	ele.setAttribute( 'draggable', 'true' );
+        }
+        handle.onmouseout = function( e )
+        {
+        	ele.removeAttribute( 'draggable' )
+        }
 
         // create delete button
         let buttons = ce( 'div', { 'classes' : [ 'buttons', 'right', 'hoover' ] } );
