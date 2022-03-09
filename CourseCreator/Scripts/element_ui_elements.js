@@ -38,7 +38,7 @@ class CheckBoxQuestionElement extends Element
         this.domContainer.classList.add("list-group-item");
     }
 
-    renderMain = function()
+    renderMain = function( flags )
     {
 
         //console.logr("in render main");
@@ -71,6 +71,7 @@ class CheckBoxQuestionElement extends Element
         // Checkboxes
         let cbxContainer = ce('div');
         cbxContainer.classList.add( 'checkboxContainer' );
+        let last = false;
         this.properties.checkBoxes.forEach( ( cbx , i ) => {
             console.log('check box', cbx, "element", this);
             let cbxRow = ce('span', { "classes": ['checkBoxRow']});
@@ -145,8 +146,20 @@ class CheckBoxQuestionElement extends Element
             cbxRow.appendChild(cbxLabel);
             cbxRow.appendChild(cbxDelete);
             cbxContainer.appendChild(cbxRow);
+            
+            last = cbxLabel;
+            
         });
-        this.domContainer.appendChild(cbxContainer);
+        
+        this.domContainer.appendChild( cbxContainer );
+        
+        if( flags && flags.activate == 'lastEntry' && last )
+        {
+        	setTimeout( function()
+        	{
+        		last.focus();
+        	}, 0 );
+        }
         
         // add "new checkbox" button
         let button = ce('div', { "classes" : ['buttons']});
@@ -177,7 +190,7 @@ class CheckBoxQuestionElement extends Element
                 "isCorrect": false
             }
         );
-        this.renderMain();
+        this.renderMain( { activate: 'lastEntry' } );
     }
 }
 
