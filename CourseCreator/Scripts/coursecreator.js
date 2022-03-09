@@ -816,11 +816,12 @@ class RootElement extends Element
         // Courses
         self.children.forEach( c => {
             // Sections
+            let o = 1;
             c.children.forEach( s => 
             {
             	//console.log( 'Adding new section: ' + s.name );
             	// Section list
-                let sLi = makeLiElement(s, 'section' );
+                let sLi = makeLiElement(s, 'section', o++ );
                 sLi.classList.add( 'SectionIndex' );
                 sLi.element = s;
                 
