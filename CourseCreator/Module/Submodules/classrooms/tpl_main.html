@@ -663,6 +663,7 @@
             
             executeRemoveTheRoom()
             {
+                const self = this;
                 const rid = ge( 'ClassroomId' ).value;
                 console.log( 'executeRemoveTheRoom', rid );
                 const c = new Module( 'system' );
