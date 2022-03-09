@@ -1009,7 +1009,7 @@ class RootElement extends Element
         	
         	function checkSection( ele )
         	{
-        		while( ele.classList != 'SectionIndex' && ele != document.body )
+        		while( !ele.classList.contains( 'SectionIndex' ) && ele != document.body )
         		{
         			ele = ele.parentNode;
         		}
@@ -1027,6 +1027,7 @@ class RootElement extends Element
         			// DONE!
         			self.fetchIndex();
         		}
+        		
         		m.execute( 'appmodule', {
         			appName: 'CourseCreator',
         			command: 'setpagesection',
@@ -1316,120 +1317,3 @@ courseCreator.onReady = function ( loadStatus )
     }
 }
 
-
-/*
-
-TODO:
-
-done
-x 1. read in (coursecollection can wait) and (can wait course list) in course
-x 2. choose a course and instatiate
-x 3. then load data structure in section 
-x.4  update render function on main, section
-x. Update create new element function (including setting css class)
-x. Implement sort elements on element
-x. Implement indexing (order) to keep track of id and order on section
-x 1. implement rendertoolbox
-x 2. re-implement create new elements
-x 3. re-test sort elements
-x 2. create an element manager as the top element so
-x 
-x 5. Implement save function / ie what should the elements have registered on them
-x 5. Bug in index
-x 5. Save all
-x 9. Implement section side with links to page
-x 6. Activate all the elements
-
-x 6. implement the CSS from the design and the layout
-x Save textBox element
-
-
-ElementTypes:
-
-DONE 1. Correct DB instructions / templates are they bothered?
-DONE 2. CSS for the CheckBox Element
-DONE 3. button for new check box
-
-
-Course list
-
-DONE 1. Course of out list of index
-DONE 2. load course on ID
-DONE 3. new section button
-
-DONE 4. new section functionality
-DONE 3. isActive class on the active section/page with visible span for new element
-DONE 3. New page button
-DONE 2. space below divs in main
-DONE BUG: adding double product when first adding a checkbox
-
-
-DONE 4. Recreate the logic on edit with classes (could do this first)
-DONE 5. Use CK Editor fields on text areas (could do this first)
-
-
-Delete elements
-DONE corner checkbox and individual checkbox on hover 
-DONE all elements? generic function for elements
-
-Property Pane
-DONE 1. for Page and Section
-DONE 2. Edit name and see details
-DONE 3. Save and Delete
-
-
-DONE 1. Sortable enable main view
-
-
-DONE. Create view button
-Done. create the function to open a new window
-copy the files:
-DONE new html, css, js, split it into panes as the other one
-DONE. in the. create a new courseViewer object
-DONE with a root class, course, section, page
-DONE create a render view function
-DONE delete button for checkbox question
-
-DONE BUG with delete element (all are gone)
-
-
-
-TODO:
-
-
-
-
-
-ON Cascade delete Page, Section, Element
-
-
-
-DONE 1. Edit course name?
-3. CK Editor Image
-4. Sortable enable for index view
-5. Sortable enable for toolbox drop in
-6. off line for the sortable
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-remember        
-
-
-
-*/
