@@ -663,6 +663,7 @@
             
             executeRemoveTheRoom()
             {
+                const self = this;
                 const rid = ge( 'ClassroomId' ).value;
                 console.log( 'executeRemoveTheRoom', rid );
                 const c = new Module( 'system' );
@@ -689,6 +690,9 @@
                 let self = this;
                 if ( null == status )
                     status = ge( 'ClassroomStatus' ).value;
+                else
+                    ge( 'ClassroomStatus' ).value = status;
+                
                 console.log( 'savetheroom', [ ge( 'ClassroomId' ).value, status ] );
                 const name = ge( 'className' ).value;
                 if ( !name )
@@ -710,7 +714,34 @@
                     {
                         self.setModuleState( 'Editing' );
                         edEl.classList.toggle( 'Alert-Border', true );
-                        alert( 'PH_ALERT - replace with friend native thingie - invalid end date' );
+                        Confirm( 
+                            'Invalid date', 
+                            'End date can not be before Start date', 
+                            ( res ) => {
+                                const choice = res.data;
+                                console.log( 'Confirm back', res, choice );
+                                if ( !choice )
+                                {
+                                    // do nothing
+                                }
+                                if ( true === choice )
+                                {
+                                    // move end date to start date
+                                    ge( 'endDate' ).value = ge( 'startDate' ).value;
+                                }
+                                if ( '???' == choice )
+                                {
+                                    // move start date to end date
+                                    ge( 'startDate' ).value = ge( 'endDate' ).value;
+                                }
+                                
+                                self.saveTheRoom();
+                            }, 
+                            'Move End date', 
+                            'Ok', //confirmCancelText, 
+                            'Move Start date', //thirdButtonText, 
+                            '???', //thirdButtonReturn 
+                        );
                         return;
                     }
                     else
