@@ -50,14 +50,14 @@ class CheckBoxQuestionElement extends Element
         
         // Question:
         let question = ce(
-            "span",
+            'span',
             { 
-                "ckEditor": true,
-                "text": this.properties.question,
-                "classes": ["checkBoxQuestion"],
-                "listeners": [
+                'ckEditor': true,
+                'text': this.properties.question,
+                'classes': [ 'checkBoxQuestion' ],
+                'listeners': [
                     {
-                        event: "blur",
+                        event: 'blur',
                         callBack: function( event ) {
                             self.properties.question = event.target.innerHTML;
                             courseCreator.manager.saveActivePage();
