@@ -50,14 +50,14 @@ class CheckBoxQuestionElement extends Element
         
         // Question:
         let question = ce(
-            "span",
+            'span',
             { 
-                "ckEditor": true,
-                "text": this.properties.question,
-                "classes": ["checkBoxQuestion"],
-                "listeners": [
+                'ckEditor': true,
+                'text': this.properties.question,
+                'classes': [ 'checkBoxQuestion' ],
+                'listeners': [
                     {
-                        event: "blur",
+                        event: 'blur',
                         callBack: function( event ) {
                             self.properties.question = event.target.innerHTML;
                             courseCreator.manager.saveActivePage();
@@ -294,16 +294,26 @@ class ImageElement extends Element
             }
         ));
         
+        // Interpret image
+        let src = '';
+        let raw = self.properties.image.friendSource;
+        if( raw )
+        {
+	    	src = raw.indexOf( ':' ) > 0 ? getImageUrl( self.properties.image.friendSource ) : ( 'https://' + raw );
+		    
+		}
+        
         // image
-        cdn.push(ce(
+        let img = ce(
             'img',
             {
                 'attributes' : {
-                    'src': getImageUrl( self.properties.image.friendSource ),
+                    'src': src,
                     'data-friend-source': self.properties.image.friendSource
                 }
             }
-        ));
+        );
+        cdn.push( img );
         setDomChildren( this.contentContainer, cdn );
     }
 
@@ -323,8 +333,8 @@ class ImageElement extends Element
             }
         ));
                 
-        // title
-        cdn.push(ce(
+        // Title
+        cdn.push( ce(
             'input',
             {
                 "attributes" : {
@@ -335,36 +345,38 @@ class ImageElement extends Element
                     'imageTitle'
                 ]
             }
-        ));
+        ) );
 
-        cdn.push(ce(
+        cdn.push( ce(
             'input',
             {
-                "attributes" : {
-                    "type": "input",
-                    "value": self.properties.image.friendSource
+                'attributes' : {
+                    'type': 'input',
+                    'value': self.properties.image.friendSource
                 },
-                "classes": [
+                'classes': [
                     'imageSrc'
                 ],
-                "listeners": [{
-                    "event": "click",
-                    "callBack": function ( event ) {
-                        let d = new Filedialog({
+                'listeners': [ {
+                    'event': 'click',
+                    'callBack': function ( event ) 
+                    {
+                    	event.stopPropagation();
+                        let d = new Filedialog( {
                             triggerFunction: function( items )
                             {
                                 event.target.value = items[0].Path;
                                 courseCreator.manager.saveActivePage();
                             },
-                            path: "Mountlist:",
-                            type: "load",
-                            title: "My file dialog",
-                            filename: ""
-                        });
+                            path: 'Mountlist:',
+                            type: 'load',
+                            title: 'Load your image',
+                            filename: ''
+                        } );
                     }
-                }]
+                } ]
             }
-        ));
+        ) );
         cdn.push(ce(
             'button',
             {
@@ -395,11 +407,14 @@ class ImageElement extends Element
         let imageSource = self.domContainer.querySelector('.imageSrc');
         self.properties.image.friendSource = imageSource.value;
 
+		// Convert images to Friend images
+		console.log( 'Image source: ' + self.properties.image.friendSource );
+
 		courseCreator.manager.saveActivePage();
 		
         // render main after data is changed
         setTimeout( function(){
             self.renderMain()
-        }, 1);
+        }, 1 );
     }
 }

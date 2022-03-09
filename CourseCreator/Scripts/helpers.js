@@ -132,7 +132,7 @@ function showEditProperties( element, domNode, ctx )
 	}
 	
 	let l = GetElementLeft( domNode );
-	let t = GetElementTop( domNode );
+	let t = GetElementTop( domNode ) - document.querySelector( '.CcPanelSide' ).scrollTop;
 	let h = GetElementHeight( domNode );
 	let w = GetElementWidth( domNode );
 	

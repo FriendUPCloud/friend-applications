@@ -214,26 +214,38 @@ class Element
         Confirm( "Warning - Permantly delete", "Do you really want to delete this item? This cannot be undone.", 
         function ( msg )
         {
-            
             // if the user clicks ok then proceed
             if( !msg.data )
                 return;
 
+            //console.log( 'Test 1' );
+            
             // Remove the element from the domContainer
-            if ( self.elementType != "section")
-                self.parent.domContainer.removeChild(self.domContainer);
+            if ( self.elementType != 'section' )
+            {
+                self.parent.domContainer.removeChild( self.domContainer );
+            }
 
             // Set active child to next item if it exists
             let dId = self.displayId;
-            if (dId >= 1)
+            if( dId >= 1 )
             {
-                self.parent.activeChild = self.parent.children[dId - 1]
+                self.parent.activeChild = self.parent.children[ dId - 1 ];
             }
 
             // Remove the element from parents children
-            self.parent.children = self.parent.children.filter( e => e !== self );
+            try
+            {
+            	self.parent.children = self.parent.children.filter( e => e !== self );
+            }
+            catch( e )
+            {
+		        //console.log( 'Test 3' );
+            }
+            
 
             // Delete from the database table
+            console.log( 'About to delete element: ' + self.classInfo.dbTable + ' with id ' + self.dbId );
             courseCreator.dbio.call(
                 'deleteRow',
                 {
@@ -244,9 +256,13 @@ class Element
                 function( code, data )
                 {
                     if (typeof(self.parent.sortElements) == "function")
+                    {
                         self.parent.sortElements();
+                    }
                     if (self.elemenType == "page" || self.elementType == "section" )
+                    {
                         courseCreator.manager.renderIndex();
+                    }
                     if( cbk ) cbk();
                 }
             );

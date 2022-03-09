@@ -375,26 +375,7 @@ class PageElement extends Element
 
         // Set the page to active on the section
         self.parent.activeChild = self;
-    }
-
-    /*
-        delete (Page)
-
-    */
-    // delete = function () {
-    //     let self = this;
-
-    //     // Delete from index
-
-
-    //     // Delete from parent dom element
-    //     self.parent.domContainer.removeChild(self.domContainer);
-
-    //     // Delete all children also (in database delete on cascade)
-
-
-
-    // }
+     }
 }
 
 class DBIO
@@ -718,6 +699,36 @@ class RootElement extends Element
 			}
 		}
 	}
+	
+	checkActiveSectionBlock()
+	{
+		let self = this;
+		
+		let lis = courseCreator.indexView.getElementsByTagName( 'li' );
+		let activeLi = false;
+		for( let a = 0; a < lis.length; a++ )
+		{
+			if( lis[a].classList.contains( 'Active' ) )
+			{
+				activeLi = lis[a];
+				break;
+			}
+		}
+		if( activeLi )
+		{
+			let ul = activeLi;
+			while( !ul.classList.contains( 'SectionIndex' ) )
+			{
+				ul = ul.parentNode;
+			}
+			let uls = courseCreator.indexView.getElementsByTagName( 'li' );
+			for( let a = 0; a < uls.length; a++ )
+			{
+				uls[a].classList.remove( 'ActiveBlock' );
+			}
+			ul.classList.add( 'ActiveBlock' );
+		}
+	}
 
 	// Just refreshes index
     renderIndex = function ( redraw )
@@ -759,6 +770,7 @@ class RootElement extends Element
                                 event.stopPropagation();
                                 ele.setActive();
                                 ele.renderMain();
+                                courseCreator.currentPageId = ele.dbId;
                                 courseCreator.setActivePanel( 'SectionsPanel' );
                                 setActiveClass(
                                     event
@@ -766,6 +778,7 @@ class RootElement extends Element
                                         .parentNode
                                         .parentNode
                                 );
+                                self.checkActiveSectionBlock();
                             }
                         }
                     ]
@@ -773,6 +786,11 @@ class RootElement extends Element
             );
             div.appendChild(text);
             li.appendChild(div);
+            
+            if( ele.dbId == courseCreator.currentPageId )
+            {
+            	li.classList.add( 'Active' );
+            }
             
             // Remove page button
             let r = text.querySelector( '.Remove' );
@@ -784,10 +802,27 @@ class RootElement extends Element
             		ele.setActive();
             		if( ele.delete )
                     {
+                    	if( ele.parent.children )
+                    	{
+                    		let prev = false;
+                    		for( let a in ele.parent.children )
+                    		{
+                    			if( ele.parent.children[a] != ele )
+                    			{
+                    				let oth = ele.parent.children[a];
+                					courseCreator.currentPageId = oth.dbId;
+                					oth.setActive();
+                					break;
+                    			}
+                    		}
+                    	}
                         ele.delete( function()
                         	{
-			                    self.renderIndex();
-			                    self.renderMain();
+			                    self.fetchIndex( function()
+			                    {
+					                self.renderIndex();
+					                self.renderMain();
+					            } );
 	                        }
                         );
                     }
@@ -816,11 +851,11 @@ class RootElement extends Element
         // Courses
         self.children.forEach( c => {
             // Sections
+            let o = 1;
             c.children.forEach( s => 
             {
-            	//console.log( 'Adding new section: ' + s.name );
             	// Section list
-                let sLi = makeLiElement(s, 'section' );
+                let sLi = makeLiElement(s, 'section', o++ );
                 sLi.classList.add( 'SectionIndex' );
                 sLi.element = s;
                 
@@ -832,9 +867,8 @@ class RootElement extends Element
                 for( let k in s.children )
                 {
                 	let p = s.children[k];
-                	//console.log( 'Adding page ' + p.name );
                     let pLi = makeLiElement( p, 'page', n );
-                    if (pLi)
+                    if( pLi )
                     {
                         pLi.classList.add( 'PageIndex' );
                         pLi.element = p;
@@ -857,26 +891,27 @@ class RootElement extends Element
                                 'event': 'click',
                                 'callBack': function( event )
                                 {
+                                    event.preventDefault();
                                     s.createNewElement(
                                         null,
                                         function( newPage )
                                         {
                                             newPage.setActive();
-                                            let sLi = event
+                                            let sLie = event
                                                         .target
                                                         .parentNode
                                                         .parentNode;
-                                            let pUl = sLi.querySelector('ul');
+                                            let pUl = sLie.querySelector('ul');
                                             let pLi = makeLiElement(newPage);
                                             if( pLi )
                                             {
                                                 courseCreator.manager.saveActivePage();
-                                                pLi.classList.add('PageIndex');
+                                                pLi.classList.add( 'PageIndex' );
                                                 pLi.element = newPage;
                                                 pUl.appendChild(pLi);
                                                 setActiveClass(pLi);
                                                 showEditProperties( newPage, pLi, self )
-                                            }
+                                            }                                            
                                         }
                                     );
                                 }
@@ -891,7 +926,7 @@ class RootElement extends Element
         } );
         courseCreator.indexView.appendChild( ul );
 
-         // add new section
+        // Add new section
         let div = ce('div', { 'classes' : ["SectionButton"]});
         let buttons = ce('div', { 'classes' : ["buttons","Active"] });
         let span = ce(
@@ -972,7 +1007,7 @@ class RootElement extends Element
         	
         	function checkSection( ele )
         	{
-        		while( ele.classList != 'SectionIndex' && ele != document.body )
+        		while( !ele.classList.contains( 'SectionIndex' ) && ele != document.body )
         		{
         			ele = ele.parentNode;
         		}
@@ -990,6 +1025,7 @@ class RootElement extends Element
         			// DONE!
         			self.fetchIndex();
         		}
+        		
         		m.execute( 'appmodule', {
         			appName: 'CourseCreator',
         			command: 'setpagesection',
@@ -1042,6 +1078,8 @@ class RootElement extends Element
         /* End dragging of pages */
         
         courseCreator.indexView.appendChild(div);
+        
+        self.checkActiveSectionBlock();
     }
 
 }
@@ -1064,6 +1102,7 @@ class CourseCreator
         this.manager = new RootElement(this);
         
         this.setActivePanel( 'SectionsPanel' )
+        this.currentPageId = false;
     }
 
 	// Loads a source
@@ -1105,6 +1144,8 @@ class CourseCreator
 		    if( firstPage )
 		    {
 		        firstPage.classList.add( 'Active' );
+		        // Activate this firstpage!
+		        firstPage.getElementsByTagName( 'span' )[0].click();
 		    }
 
 		    // set view button event handler
@@ -1274,120 +1315,3 @@ courseCreator.onReady = function ( loadStatus )
     }
 }
 
-
-/*
-
-TODO:
-
-done
-x 1. read in (coursecollection can wait) and (can wait course list) in course
-x 2. choose a course and instatiate
-x 3. then load data structure in section 
-x.4  update render function on main, section
-x. Update create new element function (including setting css class)
-x. Implement sort elements on element
-x. Implement indexing (order) to keep track of id and order on section
-x 1. implement rendertoolbox
-x 2. re-implement create new elements
-x 3. re-test sort elements
-x 2. create an element manager as the top element so
-x 
-x 5. Implement save function / ie what should the elements have registered on them
-x 5. Bug in index
-x 5. Save all
-x 9. Implement section side with links to page
-x 6. Activate all the elements
-
-x 6. implement the CSS from the design and the layout
-x Save textBox element
-
-
-ElementTypes:
-
-DONE 1. Correct DB instructions / templates are they bothered?
-DONE 2. CSS for the CheckBox Element
-DONE 3. button for new check box
-
-
-Course list
-
-DONE 1. Course of out list of index
-DONE 2. load course on ID
-DONE 3. new section button
-
-DONE 4. new section functionality
-DONE 3. isActive class on the active section/page with visible span for new element
-DONE 3. New page button
-DONE 2. space below divs in main
-DONE BUG: adding double product when first adding a checkbox
-
-
-DONE 4. Recreate the logic on edit with classes (could do this first)
-DONE 5. Use CK Editor fields on text areas (could do this first)
-
-
-Delete elements
-DONE corner checkbox and individual checkbox on hover 
-DONE all elements? generic function for elements
-
-Property Pane
-DONE 1. for Page and Section
-DONE 2. Edit name and see details
-DONE 3. Save and Delete
-
-
-DONE 1. Sortable enable main view
-
-
-DONE. Create view button
-Done. create the function to open a new window
-copy the files:
-DONE new html, css, js, split it into panes as the other one
-DONE. in the. create a new courseViewer object
-DONE with a root class, course, section, page
-DONE create a render view function
-DONE delete button for checkbox question
-
-DONE BUG with delete element (all are gone)
-
-
-
-TODO:
-
-
-
-
-
-ON Cascade delete Page, Section, Element
-
-
-
-DONE 1. Edit course name?
-3. CK Editor Image
-4. Sortable enable for index view
-5. Sortable enable for toolbox drop in
-6. off line for the sortable
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-remember        
-
-
-
-*/
