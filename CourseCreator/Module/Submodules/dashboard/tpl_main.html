@@ -3,16 +3,24 @@
         Welcome {fullname}
     </h2>
     
-    <p>
-        <strong>Active courses:</strong>
-    </p>
+    <div id="dashActiveClassesHead" class="ContentHeader">
+        <h2>
+            Active classrooms:
+        </h2>
+    </div>
+    <div id="dashActiveClasses" class="ContentBlock">
+        <!-- sharts go here -->        
+    </div>
+    
+    <!--
     <div class="BoxContainer">
         ..
     </div>
     
     <hr/>
     
-    <div class="ContentHeader">
+-->
+    <div id="dashStatusHead" class="ContentHeader">
         <h2>
             Status
         </h2>
@@ -23,8 +31,8 @@
             <input type="text" placeholder="Search"/>-->
         </div>
     </div>
-    <div class="ContentBlock">
-        <div id="ClassroomContent"></div>
+    <div id="dashStatus" class="ContentBlock">
+        
     </div>
     
     <p>
@@ -34,3 +42,56 @@
         ...
     </div>
     
+    <script>
+Application.submodules.dashboard = {
+    init()
+    {
+        const self = this;
+        self.classCharts = ge( 'dashActiveClasses' );
+        const cEl = document.createElement( 'div' );
+        self.classCharts.appendChild( cEl );
+        
+        const data = {
+            labels : [
+                'hepp',
+                'hopp',
+                'sopp',
+            ],
+            datasets : [{
+                label : 'test chart label',
+                data  : [ 
+                    44, 
+                    22, 
+                    90 
+                ],
+                backgroundColor : [
+                    'rgb(255, 99, 132)',
+                    'rgb(54, 162, 235)',
+                    'rgb(255, 205, 86)'
+                ],
+            }],
+        };
+        const conf = {
+            type : 'doughnut',
+            data : data,
+        };
+        
+        const cOpts = {
+            containerElement : cEl,
+            chart            : conf,
+        };
+        const c1 = new ccChart( cOpts );
+        console.log( 'dashboard.init', c1 );
+    }
+}
+
+Application.submodules.dashboard.init();
+    </script>
+    <style>
+        .chart-box-test
+        {
+            width : 200px;
+            height: 210px;
+            /*background-color: lightgrey;*/
+        }
+    </style>

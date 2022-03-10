@@ -708,6 +708,42 @@ class ccPicture extends ccGUIElement
 }
 ccFactory.registerClass( 'picture' );
 
+
+/* chart.js UI element
+
+*/
+class ccChart extends ccGUIElement
+{
+    constructor( options )
+    {
+        super( options );
+    }
+    
+    attachDomElement()
+    {
+        const self = this;
+        console.log( 'ccChart', {
+            del : self.domElement,
+            opt : self.options,
+        });
+        super.attachDomElement();
+        const c = document.createElement( 'canvas' );
+        self.domElement.appendChild( c );
+        self.domElement.classList.add( 'chart-box-test' );
+        
+        self.chart = new Chart( c, self.options.chart );
+        console.log( 'shart', self.chart );
+    }
+    
+    grabAttributes()
+    {
+        console.log( 'ccChart.grapAttributes, na m8')
+    }
+    
+}
+ccFactory.registerClass( 'chart' );
+
+
 // Management functions --------------------------------------------------------
 
 // Initialize all gui elements on body
