@@ -79,6 +79,7 @@
 .FUIProgressBarText > span
 {
 	vertical-align: middle;
+	display: block;
 }
 
 
