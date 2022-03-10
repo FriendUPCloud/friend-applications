@@ -424,6 +424,7 @@
 	display: inline-block;
 }
 
+/* Checkboxes */
 
 .checkboxContainer
 {
@@ -469,7 +470,53 @@
 	flex-basis: 5%;
 }
 
+/* Radioboxes */
 
+.radioboxContainer
+{
+	padding: 0 8px 0 8px;
+}
+
+.radioboxContainer input[type=checkbox].radioBoxTick
+{
+	filter: hue-rotate(293deg) brightness(1.2);
+}
+
+.radioBoxQuestion {
+	padding: 2px;
+	margin: 2px;
+	width: calc(100% - 10px);
+	align-items: left;
+	border:  thin solid #E9E9E9;
+}
+
+.radioBoxRow{
+	display: flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+	justify-content: left;
+	align-items: center;
+}
+
+.radioBoxRow .delete {
+	flex-basis: 5%;
+	visibility: hidden;
+}
+
+.radioBoxRow:hover .delete{
+	visibility: visible;
+}
+
+
+.radioBoxLabel{
+	flex-basis: 90%;
+}
+
+.radioBoxTick{
+	flex-basis: 5%;
+}
+
+/* Elements */
 
 .element, .elementEdit
 {
