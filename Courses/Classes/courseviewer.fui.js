@@ -154,6 +154,7 @@ class FUICourseviewer extends FUIElement
     				d.classList.remove( 'Emphasized' );
     			}
     			
+    			// Activate section on click
     			( function( ind )
     			{
 					d.onclick = function()
@@ -297,8 +298,11 @@ class FUICourseviewer extends FUIElement
     	// TODO: Handle no section?
     	if( !self.activeSection ) return;
     	
+    	if( self.renderingElements ) 
+    	{
+    		return;
+    	}
     	
-    	if( self.renderingElements ) return;
     	self.renderingElements = true;
     	
     	if( !self.currentPage )
@@ -321,7 +325,11 @@ class FUICourseviewer extends FUIElement
 			let m = new Module( 'system' );
 			m.onExecuted = function( e, d )
 			{
-				if( e != 'ok' ) return;
+				if( e != 'ok' ) 
+				{
+					self.renderingElements = false;
+					return;
+				}
 				let els = JSON.parse( d );
 				for( let a = 0; a < els.length; a++ )
 				{
@@ -339,6 +347,10 @@ class FUICourseviewer extends FUIElement
 				command: 'loadpageelements',
 				pageId: page.ID
 			} );
+		}
+		else
+		{
+			self.renderingElements = false;
 		}
 		self.redrawNavPanel();
     }
