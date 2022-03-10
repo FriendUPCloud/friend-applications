@@ -254,18 +254,18 @@ class RadioBoxQuestionElement extends Element
         this.domContainer.appendChild(question);
         
         // Checkboxes
-        let cbxContainer = ce('div');
+        let cbxContainer = ce('form');
+        cbxContainer.name = 'rand_' + Math.random() * 1;
         cbxContainer.classList.add( 'radioboxContainer' );
         let last = false;
         this.properties.checkBoxes.forEach( ( cbx , i ) => {
-            console.log('radio box', cbx, "element", this);
             let cbxRow = ce('span', { "classes": ['radioBoxRow']});
             // Checkbox input
             let cbxInput = ce( 
                 "input",
                 {
                     "attributes": {
-                        "type":"radioBox"
+                        "type":"radio"
                     },
                     "classes": ['radioBoxTick'],
                     "listeners": [
@@ -287,6 +287,7 @@ class RadioBoxQuestionElement extends Element
             );
             if (cbx.isAnswer)
                 cbxInput.checked = true;
+			cbxInput.setAttribute( 'name', 'samename' );
 
             // Checkbox label
             let cbxLabel = ce(
