@@ -164,8 +164,8 @@ class FUICourseviewer extends FUIElement
     	} );
     }
     
-    // Get the image from the course module, based on elementId and hash
-    getCourseImage( hash, elementId, callback )
+    // Get the image from the course module, based on elementId
+    getCourseImage( elementId, callback )
     {
     	let m = new Module( 'system' );
     	m.onExecuted = function( ee, dd )
@@ -180,8 +180,7 @@ class FUICourseviewer extends FUIElement
     	m.execute( 'appmodule', {
     		appName: 'Courses',
     		command: 'getcourseimage',
-    		elementId: elementId,
-    		hash: hash
+    		elementId: elementId
     	} );
     }
     
