@@ -194,6 +194,220 @@ class CheckBoxQuestionElement extends Element
     }
 }
 
+// UI Radiobox element
+class RadioBoxQuestionElement extends Element 
+{
+    constructor( parent, displayId, dbId=0, name='', properties='' ) 
+    {
+        super(parent, "radioBoxQuestion", displayId, dbId, name);
+        if( !properties )
+        {
+            properties = {
+                question: "question",
+                radioBoxes: [
+                    {
+                        label: "alternative 0",
+                        isAnswer: true
+                    },
+                    {
+                        label: "alternative 1",
+                        isAnswer: false
+                    }
+                ]
+            };
+        }
+        this.properties = properties;
+        this.linkDomContainer();
+        this.resetDomContainer();
+        this.domContainer.classList.add("element");
+        this.domContainer.classList.add("list-group-item");
+    }
+
+    renderMain = function( flags )
+    {
+
+        //console.logr("in render main");
+        let self = this;
+
+        this.resetDomContainer();
+       
+        // DOM Elements:
+        
+        // Question:
+        let question = ce(
+            'span',
+            { 
+                'ckEditor': true,
+                'text': this.properties.question,
+                'classes': [ 'radioBoxQuestion' ],
+                'listeners': [
+                    {
+                        event: 'blur',
+                        callBack: function( event ) {
+                            self.properties.question = event.target.innerHTML;
+                            courseCreator.manager.saveActivePage();
+                        } 
+                    }
+                ]
+            }
+        );
+        this.domContainer.appendChild(question);
+        
+        // Radioboxes
+        let cbxContainer = ce('form');
+        cbxContainer.name = 'rand_' + Math.random() * 1;
+        cbxContainer.classList.add( 'radioboxContainer' );
+        let last = false;
+        this.properties.radioBoxes.forEach( ( cbx , i ) => {
+            let cbxRow = ce('span', { "classes": ['radioBoxRow']});
+            // Radiobox input
+            let cbxInput = ce( 
+                "input",
+                {
+                    "attributes": {
+                        "type":"radio"
+                    },
+                    "classes": ['radioBoxTick'],
+                    "listeners": [
+                        {
+                            "event": "change",
+                            "callBack": function ( event ) {
+                                cbx.isAnswer = event.target.checked;
+                                if( cbx.isAnswer )
+                                {
+                                    cbxRow.classList.add( 'isAnswer' );
+                                    let inps = cbxRow.parentNode.getElementsByClassName( 'radioBoxRow' );
+                                    for( let a = 0; a < inps.length; a++ )
+                                    {
+                                    	if( inps[a] != cbxRow )
+                                    	{
+                                    		inps[a].classList.remove( 'isAnswer' );
+                                    		
+                                    		// Clear others
+                                    		let checks = inps[a].getElementsByTagName( 'input' );
+                                    		
+                                    		for( let z = 0; z < checks.length; z++ )
+                                    		{
+                                    			if( checks[z].getAttribute( 'type' ) != 'radio' ) continue;
+                                    			if( checks[z] != cbxInput )
+                                    			{
+                                    				
+                                    				checks[z].checked = '';
+                                    			}
+                                    		}
+                                    		for( let z = 0; z < self.properties.radioBoxes.length; z++ )
+                                    		{
+                                    			if( self.properties.radioBoxes[z] != cbx )
+	                                    			self.properties.radioBoxes[z].isAnswer = false;
+                                    		}
+                                    	}
+                                    }
+                                }
+                                else 
+                                {
+                                    cbxRow.classList.remove('isAnswer');
+                                }
+                                courseCreator.manager.saveActivePage();
+                            }
+                        }
+                    ]
+                }
+            );
+            if( cbx.isAnswer )
+                cbxInput.checked = true;
+			cbxInput.setAttribute( 'name', 'samename' );
+
+            // Radiobox label
+            let cbxLabel = ce(
+                "span",
+                { 
+                    "ckEditor": true,
+                    "text": cbx.label,
+                    "classes": ["radioBoxLabel"],
+                    "listeners": [
+                        {
+                            "event": "blur",
+                            "callBack": function ( event ) {
+                                cbx.label = event.target.innerHTML;
+                                courseCreator.manager.saveActivePage();
+                            }
+                        }
+                    ]
+                }
+            );
+
+            // delete button
+            let cbxDelete = ce("span", { "classes": ["delete"] });
+            let cbxDeleteIcon  = ce("span",
+                { 
+                    "classes" : [ "IconSmall", "fa-times"],
+                    "listeners" : [{
+                        "event": "click",
+                        "callBack": function (event){
+                            self.properties.radioBoxes = (
+                                self.properties.radioBoxes.filter(
+                                    c => c !== cbx
+                                )
+                            );
+                            self.renderMain();
+                        }
+                    }]
+                }
+            );
+            cbxDelete.appendChild(cbxDeleteIcon);
+
+            cbxRow.appendChild(cbxInput);
+            cbxRow.appendChild(cbxLabel);
+            cbxRow.appendChild(cbxDelete);
+            cbxContainer.appendChild(cbxRow);
+            
+            last = cbxLabel;
+            
+        });
+        
+        this.domContainer.appendChild( cbxContainer );
+        
+        if( flags && flags.activate == 'lastEntry' && last )
+        {
+        	setTimeout( function()
+        	{
+        		last.focus();
+        	}, 0 );
+        }
+        
+        // add "new radiobox" button
+        let button = ce('div', { "classes" : ['buttons']});
+        let inner = ce('div', 
+            { 
+                "classes" : [ 'IconSmall', 'fa-plus-circle'],
+                "listeners": [
+                    {
+                        "event": "click",
+                        "callBack": function ( event ) {
+                            self.addRadioBox()
+                        }
+                    }
+                ]
+            }
+        );
+        button.appendChild(inner);
+        this.domContainer.appendChild(button);
+    }
+
+    
+    addRadioBox = function () 
+    {
+        let self = this;
+        this.properties.radioBoxes.push(
+            {
+                "label": "",
+                "isCorrect": false
+            }
+        );
+        this.renderMain( { activate: 'lastEntry' } );
+    }
+}
+
 
 // UI Textbox element
 class TextBoxElement extends Element 

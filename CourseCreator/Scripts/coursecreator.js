@@ -606,6 +606,8 @@ class RootElement extends Element
 				return 'image';
 			case 'checkBoxQuestion':
 				return 'check';
+			case 'radioBoxQuestion':
+				return 'circle-o';
 			case 'textBox':
 				return 'align-left';
     	}
@@ -1280,6 +1282,17 @@ const registeredElements = new Map([
                     elementTypeId: 1,
                     elementType: "checkBoxQuestion",
                     displayName: "Checkbox Question",
+                    dbTable: "CC_Element",
+                    group: "element",
+                    cssClass: "element"
+                }
+            ],
+            [
+                'radioBoxQuestion', { 
+                    class: RadioBoxQuestionElement,
+                    elementTypeId: 4,
+                    elementType: "radioBoxQuestion",
+                    displayName: "Radiobox Question",
                     dbTable: "CC_Element",
                     group: "element",
                     cssClass: "element"

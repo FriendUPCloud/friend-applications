@@ -37,7 +37,7 @@
 .FUICourseviewerCanvas
 {
 	position: absolute;
-	top: 0;
+	top: 50px;
 	left: 300px;
 	width: calc(100% - 300px);
 	height: calc(100% - 50px);
@@ -109,7 +109,8 @@
 /* Types */
 
 .FUICourseviewerCanvas .FUICourseTextbox, 
-.FUICourseviewerCanvas .FUICourseCheckbox
+.FUICourseviewerCanvas .FUICourseCheckbox,
+.FUICourseviewerCanvas .FUICourseRadiobox
 {
 	display: block;
 	border: 1px solid var(--fui-border-foreground);
@@ -121,14 +122,16 @@
 	border-radius: var(--fui-border-radius-normal);
 }
 
-.FUICourseCheckbox .FUICBXUL:after
+.FUICourseCheckbox .FUICBXUL:after,
+.FUICourseRadiobox .FUIRADUL:after
 {
 	content: " ";
 	display: block;
 	clear: both;
 }
 
-.FUICourseCheckbox .FUICBXUL .FUICBXLI
+.FUICourseCheckbox .FUICBXUL .FUICBXLI,
+.FUICourseRadiobox .FUIRADUL .FUIRADLI
 {
 	display: block;
 	padding: 0;
@@ -136,7 +139,9 @@
 }
 
 .FUICourseCheckbox .FUICBXUL .FUICBXLI span,
-.FUICourseCheckbox .FUICBXUL .FUICBXLI label
+.FUICourseCheckbox .FUICBXUL .FUICBXLI label,
+.FUICourseRadiobox .FUIRADUL .FUIRADLI span,
+.FUICourseRadiobox .FUIRADUL .FUIRADLI label
 {
 	display: inline-block;
 	width: 30px;
@@ -145,7 +150,8 @@
 	text-align: right;
 }
 
-.FUICourseCheckbox .FUICBXUL .FUICBXLI span+label
+.FUICourseCheckbox .FUICBXUL .FUICBXLI span+label,
+.FUICourseRadiobox .FUIRADUL .FUIRADLI span+label
 {
 	width: calc(50% - 60px);
 	padding: 0;
@@ -158,13 +164,15 @@
 	padding: 0 5px 0 5px;
 }
 
-.FUICourseCheckbox .FUICBXUL .FUICBXLI span+label:hover
+.FUICourseCheckbox .FUICBXUL .FUICBXLI span+label:hover,
+.FUICourseRadiobox .FUIRADUL .FUIRADLI span+label:hover
 {
 	background-color: var(--fui-module-background);
 	color: var(--fui-module-color);
 }
 
-.FUICourseCheckbox .FUICBXUL .FUICBXLI span+label+span
+.FUICourseCheckbox .FUICBXUL .FUICBXLI span+label+span,
+.FUICourseRadiobox .FUIRADUL .FUIRADLI span+label+span
 {
 	width: 30px;
 }
@@ -188,7 +196,7 @@
 .FUICourseviewerNavigation
 {
 	position: absolute;
-	top: calc(100% - 50px);
+	top: 0;
 	left: 300px;
 	width: calc(100% - 300px);
 	height: 50px;
