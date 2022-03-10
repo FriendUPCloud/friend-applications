@@ -84,7 +84,15 @@ switch( $args->args->command )
 		die( 'fail<!--separate-->{"message":"Could not find this course.","response":-1}' );
 	case 'getcoursebyclassroom':
 		if( $row = $db->database->fetchObject( '
-			SELECT c.*, cl.StartDate AS ClassStartDate, cl.EndDate AS ClassEndDate FROM CC_Course c, CC_Classroom cl WHERE cl.ID=\'' . intval( $args->args->courseId, 10 ) . '\' AND c.ID = cl.CourseID
+			SELECT 
+				c.*, 
+				cl.StartDate AS ClassStartDate, 
+				cl.EndDate AS ClassEndDate 
+			FROM 
+				CC_Course c, CC_Classroom cl 
+			WHERE 
+				cl.ID=\'' . intval( $args->args->courseId, 10 ) . '\' AND 
+				c.ID = cl.CourseID
 		' ) )
 		{
 			$status = new dbIO( 'CC_CourseSession', $db->database );
@@ -98,6 +106,7 @@ switch( $args->args->command )
 			{
 				$row->Status = 0;
 			}
+			
 			die( 'ok<!--separate-->' . json_encode( $row ) );
 		}
 		die( 'fail<!--separate-->{"message":"Could not find this course.","response":-1}' );
