@@ -12,6 +12,22 @@
 // Course viewer element
 class FUICourseviewer extends FUIElement
 {
+	/* Synopsis:
+	constructor( options )
+    attachDomElement()
+    grabAttributes( domElement )
+    refreshDom()
+    getMarkup( data )
+    refreshStructure()
+    getCourseImage( elementId, callback )
+    redrawNavPanel()
+    renderElements()
+    addToCanvas( element )
+    registerElementValue( uniqueName, value )
+    setCourse( courseStructure, courseSessionId )
+    #loadCourseStructure( cbk )
+    */
+
     constructor( options )
     {
         super( options );
@@ -226,25 +242,28 @@ class FUICourseviewer extends FUIElement
 		
 		let offset = 0;
 		
-		for( let a = 0; a < sect.pages.length; a++ )
+		if( sect.pages )
 		{
-			let p = document.createElement( 'div' );
-			p.className = 'PageElement';
-			p.style.left = ( ( a * 40 ) - offset ) + 'px';
-			if( self.currentPage == a )
+			for( let a = 0; a < sect.pages.length; a++ )
 			{
-				p.classList.add( 'ActivePage' );
-			}
-			p.innerHTML = '<span>' + ( a + 1 ) + '</span>';
-			( function( pag, num )
-			{
-				pag.onclick = function()
+				let p = document.createElement( 'div' );
+				p.className = 'PageElement';
+				p.style.left = ( ( a * 40 ) - offset ) + 'px';
+				if( self.currentPage == a )
 				{
-					self.currentPage = num;
-					self.renderElements();
+					p.classList.add( 'ActivePage' );
 				}
-			} )( p, a );
-			this.navpanel.querySelector( '.Pages' ).appendChild( p );
+				p.innerHTML = '<span>' + ( a + 1 ) + '</span>';
+				( function( pag, num )
+				{
+					pag.onclick = function()
+					{
+						self.currentPage = num;
+						self.renderElements();
+					}
+				} )( p, a );
+				this.navpanel.querySelector( '.Pages' ).appendChild( p );
+			}
 		}
 		
 		this.navpanel.querySelector( '.Previous' ).onclick = function()
