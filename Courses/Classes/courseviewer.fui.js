@@ -400,7 +400,8 @@ class FUICourseviewer extends FUIElement
     		case 'radioBoxQuestion':
     		{
     			let initializers = [];
-    			let d = document.createElement( 'div' );
+    			let d = document.createElement( 'form' );
+    			d.name = 'random_' + Math.random();
     			d.className = 'FUICourseRadiobox';
     			
     			let bx = document.createElement( 'div' );
@@ -410,15 +411,15 @@ class FUICourseviewer extends FUIElement
     			let ul = document.createElement( 'div' );
     			ul.className = 'FUIRADUL';
     			
-    			for( let b in props.checkBoxes )
+    			for( let b in props.radioBoxes )
     			{
     				let n = document.createElement( 'div' );
     				n.className = 'FUIRADLI';
     				let nam = md5( data.ID + '_' + b );
     				
-    				let l = props.checkBoxes[b].label.split( /\<.*?\>/ ).join( '' );
+    				let l = props.radioBoxes[b].label.split( /\<.*?\>/ ).join( '' );
     				
-    				n.innerHTML = '<span>' + ( parseInt( b ) + 1 ) + '.</span><label for="ch_' + nam + '">' + l + '</label><span><input id="ch_' + nam + '" type="radio"/></span>';
+    				n.innerHTML = '<span>' + ( parseInt( b ) + 1 ) + '.</span><label for="ch_' + nam + '">' + l + '</label><span><input id="ch_' + nam + '" name="n" type="radio"/></span>';
     				ul.appendChild( n );
     				
     				let check = n.getElementsByTagName( 'input' )[0];
@@ -426,6 +427,12 @@ class FUICourseviewer extends FUIElement
     				check.onchange = function( e )
     				{
     					self.registerElementValue( this.nam, this.checked );
+    					let els = ul.getElementsByTagName( 'input' );
+    					for( let c = 0; c < els.length; c++ )
+    					{
+    						if( els[c] != this )
+    							self.registerElementValue( els[c].id.substr( 3, els[c].id.length - 3 ), false );
+    					}
     				}
     				
     				// Restore value
