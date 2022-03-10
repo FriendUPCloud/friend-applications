@@ -376,12 +376,11 @@ class FUICourseviewer extends FUIElement
     	} );
     }
     
+    // Create an element for the course viewer canvas to add
     createElement( type, data )
     {
     	let self = this;
     	let props = JSON.parse( data.Properties );
-    
-	    console.log( 'Props: ', props );
     
     	switch( type )
     	{
