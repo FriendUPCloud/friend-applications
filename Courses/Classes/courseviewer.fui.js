@@ -167,20 +167,35 @@ class FUICourseviewer extends FUIElement
     // Get the image from the course module, based on elementId
     getCourseImage( elementId, callback )
     {
+    	let self = this;
+    	
     	let m = new Module( 'system' );
     	m.onExecuted = function( ee, dd )
     	{
     		if( ee == 'ok' )
     		{
     			if( callback )
-    				callback( JSON.stringify( dd ) );
+    			{
+    				let args = JSON.stringify( {
+    					appName: 'Courses',
+    					command: 'getcourseimage',
+    					mode: 'data',
+    					elementId: elementId,
+    					courseId: self.course.ID
+    				} );
+    				let src = '/system.library/module/?module=system&command=appmodule&authid=' + Application.authId + '&args=' + args;
+    				callback( { src: src } );
+    				return;
+    			}
     		}
     		if( callback ) callback( false );
     	}
     	m.execute( 'appmodule', {
     		appName: 'Courses',
     		command: 'getcourseimage',
-    		elementId: elementId
+    		mode: 'test',
+    		elementId: elementId,
+    		courseId: this.course.ID
     	} );
     }
     
@@ -447,14 +462,10 @@ class FUICourseviewer extends FUIElement
     				if( result )
     				{
 						i.src = result.src;
-						i.onerror = function()
-						{
-							this.parentNode.removeChild( i );
-						}
 					}
 					else
 					{
-						this.parentNode.removeChild( i );
+						im.removeChild( i );
 					}
     			} );
     			im.appendChild( i );

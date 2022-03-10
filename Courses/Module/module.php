@@ -116,15 +116,44 @@ switch( $args->args->command )
 		if( $o = $db->database->fetchObject( '
 			SELECT * FROM CC_File 
 			WHERE 
-				ElementID=\'' . intval( $args->elementId, 10 ) . '\' AND 
-				CourseID=\'' . intval( $args->courseId, 10 ) . '\'
+				ElementID=\'' . intval( $args->args->elementId, 10 ) . '\' AND 
+				CourseID=\'' . intval( $args->args->courseId, 10 ) . '\'
 		' ) )
 		{
-			// 1. Load storage setting
-			// 2. Check if image exists
-			// 3. Return image
+			if( $args->args->mode == 'test' )
+			{
+				die( 'ok<!--separate-->' );
+			}
+			else if( $args->args->mode == 'data' )
+			{
+				// Load storage setting
+				$s = new dbIO( 'FSetting' );
+		        $s->Type = 'CourseCreator';
+		        $s->Key = 'Storage';
+		        if( !$s->Load() )
+		        {
+		            die( 'fail<!--separate-->{"message":"Could not read server setting."}' );
+		        }
+		        $cs = json_decode( $s->Data );
+		        
+		        // Check storage path
+		        $toPath = $Config->FCUpload;
+		        $toPath .= $cs->path;
+		        $ccok = file_exists( $toPath );
+		        if ( !$ccok )
+		        {
+		            die( 'fail<!--separate-->{"message":"Course file database is uninitialized."}' );
+		        }
+				// Check if image exists
+				if( file_exists( $toPath . '/' . $o->Filename ) )
+				{ 			
+					// Return image
+					die( file_get_contents( $toPath .'/' . $o->Filename ) );
+				}
+				die( null );
+			}
 		}
-		die( 'fail<!--separate-->{"message":"Could not get image based on elementId.","response":-1}' );
+		die( 'fail<!--separate-->{"message":"Could not get image based on elementId.","response":-1,}' );
 		break;
 	// Load the entire course structure
 	case 'loadcoursestructure':
