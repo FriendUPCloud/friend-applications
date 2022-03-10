@@ -220,6 +220,13 @@ class ccListview extends ccGUIElement
             	self.headerElements[ a ].name = headerelements[a].getAttribute( 'name' ) ? headerelements[a].getAttribute( 'name' ) : headerelements[a].innerText;
             	self.headerElements[ a ].text = headerelements[a].innerText;
             	self.headerElements[ a ].id = friendUP.tool.uid( 'h' );
+            	if ( headerelements[ a ].getAttribute( 'sortDefault' ) )
+            	{
+            		const so = headerelements[ a ].getAttribute( 'sortOrder' );
+            		if ( 'ZA' == so )
+            			self.sortInvert = true;
+            		self.sortDefault = self.headerElements[ a ].name;
+            	}
             	self.cols[ self.headerElements[ a ].name ] = [];
             	self.cols._list[ a ] = self.headerElements[ a ].name;
             	if( !self.headerElements[ a ].align ) self.headerElements[ a ].align = 'left';
@@ -238,7 +245,11 @@ class ccListview extends ccGUIElement
             		console.log( 'header click', {
             			e    : e,
             			keep : e.keepCurrent,
+            			sortb: e.sortBy,
+            			sd   : self.sortDefault,
+            			si   : self.sortInvert,
             			name : hname,
+            			curr : self.cols._current,
             			i    : hidx,
             			col  : self.cols[ hname ],
             			cols : self.cols,
@@ -256,7 +267,13 @@ class ccListview extends ccGUIElement
             		}
             		else
             		{
-            			header = hname;
+            			if ( e.sortBy )
+            				header = e.sortBy;
+            			else
+            				header = hname;
+            			
+            			if ( self.cols._current == null && self.sortInvert )
+            				self.cols._current = header;
             		}
             		
             		if ( !self.cols[ header ].length )
@@ -541,7 +558,11 @@ class ccListview extends ccGUIElement
 		ccInitializeGUI();
 		
 		const c = new Event( 'click' );
-		c.keepCurrent = true;
+		if ( self.sortDefault && null == self.cols._current )
+			c.sortBy = self.sortDefault;
+		else
+			c.keepCurrent = true;
+		
 		const hel = ge( self.headerElements[ 0 ].id );
 		console.log( 'dispatchevent', {
 			c    : c,
