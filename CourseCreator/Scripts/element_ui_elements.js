@@ -194,6 +194,191 @@ class CheckBoxQuestionElement extends Element
     }
 }
 
+// UI Checkbox element
+class RadioBoxQuestionElement extends Element 
+{
+    constructor( parent, displayId, dbId=0, name='', properties='' ) 
+    {
+        super(parent, "radioBoxQuestion", displayId, dbId, name);
+        if( !properties )
+        {
+            properties = {
+                question: "question",
+                checkBoxes: [
+                    {
+                        label: "alternative 0",
+                        isAnswer: true
+                    },
+                    {
+                        label: "alternative 1",
+                        isAnswer: false
+                    }
+                ]
+            };
+        }
+        this.properties = properties;
+        this.linkDomContainer();
+        this.resetDomContainer();
+        this.domContainer.classList.add("element");
+        this.domContainer.classList.add("list-group-item");
+    }
+
+    renderMain = function( flags )
+    {
+
+        //console.logr("in render main");
+        let self = this;
+
+        this.resetDomContainer();
+       
+        // DOM Elements:
+        
+        // Question:
+        let question = ce(
+            'span',
+            { 
+                'ckEditor': true,
+                'text': this.properties.question,
+                'classes': [ 'radioBoxQuestion' ],
+                'listeners': [
+                    {
+                        event: 'blur',
+                        callBack: function( event ) {
+                            self.properties.question = event.target.innerHTML;
+                            courseCreator.manager.saveActivePage();
+                        } 
+                    }
+                ]
+            }
+        );
+        this.domContainer.appendChild(question);
+        
+        // Checkboxes
+        let cbxContainer = ce('div');
+        cbxContainer.classList.add( 'radioboxContainer' );
+        let last = false;
+        this.properties.checkBoxes.forEach( ( cbx , i ) => {
+            console.log('radio box', cbx, "element", this);
+            let cbxRow = ce('span', { "classes": ['radioBoxRow']});
+            // Checkbox input
+            let cbxInput = ce( 
+                "input",
+                {
+                    "attributes": {
+                        "type":"radioBox"
+                    },
+                    "classes": ['radioBoxTick'],
+                    "listeners": [
+                        {
+                            "event": "change",
+                            "callBack": function ( event ) {
+                                cbx.isAnswer = event.target.checked;
+                                if (cbx.isAnswer){
+                                    cbxRow.classList.add('isAnswer');
+                                }
+                                else {
+                                    cbxRow.classList.remove('isAnswer');
+                                }
+                                courseCreator.manager.saveActivePage();
+                            }
+                        }
+                    ]
+                }
+            );
+            if (cbx.isAnswer)
+                cbxInput.checked = true;
+
+            // Checkbox label
+            let cbxLabel = ce(
+                "span",
+                { 
+                    "ckEditor": true,
+                    "text": cbx.label,
+                    "classes": ["radioBoxLabel"],
+                    "listeners": [
+                        {
+                            "event": "blur",
+                            "callBack": function ( event ) {
+                                cbx.label = event.target.innerHTML;
+                                courseCreator.manager.saveActivePage();
+                            }
+                        }
+                    ]
+                }
+            );
+
+            // delete button
+            let cbxDelete = ce("span", { "classes": ["delete"] });
+            let cbxDeleteIcon  = ce("span",
+                { 
+                    "classes" : [ "IconSmall", "fa-times"],
+                    "listeners" : [{
+                        "event": "click",
+                        "callBack": function (event){
+                            self.properties.checkBoxes = (
+                                self.properties.checkBoxes.filter(
+                                    c => c !== cbx
+                                )
+                            );
+                            self.renderMain();
+                        }
+                    }]
+                }
+            );
+            cbxDelete.appendChild(cbxDeleteIcon);
+
+            cbxRow.appendChild(cbxInput);
+            cbxRow.appendChild(cbxLabel);
+            cbxRow.appendChild(cbxDelete);
+            cbxContainer.appendChild(cbxRow);
+            
+            last = cbxLabel;
+            
+        });
+        
+        this.domContainer.appendChild( cbxContainer );
+        
+        if( flags && flags.activate == 'lastEntry' && last )
+        {
+        	setTimeout( function()
+        	{
+        		last.focus();
+        	}, 0 );
+        }
+        
+        // add "new checkbox" button
+        let button = ce('div', { "classes" : ['buttons']});
+        let inner = ce('div', 
+            { 
+                "classes" : [ 'IconSmall', 'fa-plus-circle'],
+                "listeners": [
+                    {
+                        "event": "click",
+                        "callBack": function ( event ) {
+                            self.addCheckBox()
+                        }
+                    }
+                ]
+            }
+        );
+        button.appendChild(inner);
+        this.domContainer.appendChild(button);
+    }
+
+    
+    addCheckBox = function () 
+    {
+        let self = this;
+        this.properties.checkBoxes.push(
+            {
+                "label": "",
+                "isCorrect": false
+            }
+        );
+        this.renderMain( { activate: 'lastEntry' } );
+    }
+}
+
 
 // UI Textbox element
 class TextBoxElement extends Element 
