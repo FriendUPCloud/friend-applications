@@ -397,6 +397,85 @@ class FUICourseviewer extends FUIElement
     			
     			return d;
     		}
+    		case 'radioBoxQuestion':
+    		{
+    			let initializers = [];
+    			let d = document.createElement( 'div' );
+    			d.className = 'FUICourseRadiobox';
+    			
+    			let bx = document.createElement( 'div' );
+    			bx.className = 'FUIRADContent';
+    			bx.innerHTML = '<strong>' + props.question + '</strong>';
+    			
+    			let ul = document.createElement( 'div' );
+    			ul.className = 'FUIRADUL';
+    			
+    			for( let b in props.checkBoxes )
+    			{
+    				let n = document.createElement( 'div' );
+    				n.className = 'FUIRADLI';
+    				let nam = md5( data.ID + '_' + b );
+    				
+    				let l = props.checkBoxes[b].label.split( /\<.*?\>/ ).join( '' );
+    				
+    				n.innerHTML = '<span>' + ( parseInt( b ) + 1 ) + '.</span><label for="ch_' + nam + '">' + l + '</label><span><input id="ch_' + nam + '" type="radio"/></span>';
+    				ul.appendChild( n );
+    				
+    				let check = n.getElementsByTagName( 'input' )[0];
+    				check.nam = nam;
+    				check.onchange = function( e )
+    				{
+    					self.registerElementValue( this.nam, this.checked );
+    				}
+    				
+    				// Restore value
+    				initializers.push( {
+    					name: nam,
+    					func: function( n )
+						{
+							let chk = ge( 'ch_' + n );
+							let m = new Module( 'system' );
+							m.onExecuted = function( ee, dd )
+							{
+								if( ee == 'ok' )
+								{
+									let v = JSON.parse( dd );
+									if( v.Value )
+									{
+										chk.checked = 'checked';
+									}
+									else
+									{
+										chk.checked = '';
+									}
+								}
+							}
+							m.execute( 'appmodule', {
+								appName: 'Courses',
+								command: 'getelementvalue',
+								courseSessionId: self.#courseSessionId,
+								courseId: self.course.ID,
+								uniqueName: n
+							} );
+						}
+					} );
+    			}
+    			
+    			bx.appendChild( ul );
+    			
+    			d.appendChild( bx );
+    			
+    			d.initializers = initializers;
+    			d.init = function()
+    			{
+					for( let a = 0; a < this.initializers.length; a++ )
+					{
+						this.initializers[ a ].func( this.initializers[ a ].name );
+					}
+				}
+    			
+    			return d;
+    		}
     		case 'checkBoxQuestion':
     		{
     			let initializers = [];
