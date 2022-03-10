@@ -440,8 +440,23 @@ class FUICourseviewer extends FUIElement
     			
     			im.innerHTML = '<h2>' + props.image.title + '</h2>';
     			
+    			// Get image from element id
     			let i = document.createElement( 'img' );
-    			i.src = getImageUrl( props.image.friendSource );
+    			self.getCourseImage( data.ID, function( result )
+    			{
+    				if( result )
+    				{
+						i.src = result.src;
+						i.onerror = function()
+						{
+							this.parentNode.removeChild( i );
+						}
+					}
+					else
+					{
+						this.parentNode.removeChild( i );
+					}
+    			} );
     			im.appendChild( i );
     			
     			d.appendChild( im );
