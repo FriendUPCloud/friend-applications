@@ -103,11 +103,19 @@ if( isset( $args->method ) )
 							fclose( $fp );
 							
 							$io = new dbIO( 'CC_File', $courseDb );
-							$io->Filename = $filename;
-							$io->OriginalFilename = strtolower( $args->imageSource );
 							$io->ElementID = $args->elementId;
 							$io->CourseID = $args->courseId;
-							$io->DateCreated = date('Y-m-d H:i:s' );
+							if( !$io->Load() )
+							{
+								$io->DateCreated = date('Y-m-d H:i:s' );
+							}
+							// Kill original filename
+							else
+							{
+								unlink( $toPath .'/' . $io->Filename );
+							}
+							$io->Filename = $filename;
+							$io->OriginalFilename = strtolower( $args->imageSource );
 							$io->Save();
 							
 							if( $io->ID > 0 )

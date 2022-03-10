@@ -133,3 +133,32 @@
 	border-radius: var(--gui-border-radius-normal);
 }
 
+.ccListview .ContentListHeaders .HRow
+{
+	cursor: pointer;
+}
+
+.ccListview .ContentListHeaders .HRow > div.ListDirectionAZ,
+.ccListview .ContentListHeaders .HRow > div.ListDirectionZA
+{
+	font-weight: bold;
+}
+
+.ccListview .ContentListHeaders .HRow > div.ListDirectionAZ:after
+{
+	content: "\f0d7";
+	font-family: 'FontAwesome';
+	display: inline-block;
+	float: right;
+	margin: 2px 4px 0 0;
+}
+.ccListview .ContentListHeaders .HRow > div.ListDirectionZA:after
+{
+	content: "\f0d8";
+	font-family: 'FontAwesome';
+	display: inline-block;
+	float: right;
+	margin: 2px 4px 0 0;
+}
+
+

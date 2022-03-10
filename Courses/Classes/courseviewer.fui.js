@@ -12,6 +12,22 @@
 // Course viewer element
 class FUICourseviewer extends FUIElement
 {
+	/* Synopsis:
+	constructor( options )
+    attachDomElement()
+    grabAttributes( domElement )
+    refreshDom()
+    getMarkup( data )
+    refreshStructure()
+    getCourseImage( elementId, callback )
+    redrawNavPanel()
+    renderElements()
+    addToCanvas( element )
+    registerElementValue( uniqueName, value )
+    setCourse( courseStructure, courseSessionId )
+    #loadCourseStructure( cbk )
+    */
+
     constructor( options )
     {
         super( options );
@@ -138,6 +154,7 @@ class FUICourseviewer extends FUIElement
     				d.classList.remove( 'Emphasized' );
     			}
     			
+    			// Activate section on click
     			( function( ind )
     			{
 					d.onclick = function()
@@ -161,6 +178,41 @@ class FUICourseviewer extends FUIElement
     		}
     		
     		self.renderElements();
+    	} );
+    }
+    
+    // Get the image from the course module, based on elementId
+    getCourseImage( elementId, callback )
+    {
+    	let self = this;
+    	
+    	let m = new Module( 'system' );
+    	m.onExecuted = function( ee, dd )
+    	{
+    		if( ee == 'ok' )
+    		{
+    			if( callback )
+    			{
+    				let args = JSON.stringify( {
+    					appName: 'Courses',
+    					command: 'getcourseimage',
+    					mode: 'data',
+    					elementId: elementId,
+    					courseId: self.course.ID
+    				} );
+    				let src = '/system.library/module/?module=system&command=appmodule&authid=' + Application.authId + '&args=' + args;
+    				callback( { src: src } );
+    				return;
+    			}
+    		}
+    		if( callback ) callback( false );
+    	}
+    	m.execute( 'appmodule', {
+    		appName: 'Courses',
+    		command: 'getcourseimage',
+    		mode: 'test',
+    		elementId: elementId,
+    		courseId: this.course.ID
     	} );
     }
     
@@ -191,25 +243,28 @@ class FUICourseviewer extends FUIElement
 		
 		let offset = 0;
 		
-		for( let a = 0; a < sect.pages.length; a++ )
+		if( sect.pages )
 		{
-			let p = document.createElement( 'div' );
-			p.className = 'PageElement';
-			p.style.left = ( ( a * 40 ) - offset ) + 'px';
-			if( self.currentPage == a )
+			for( let a = 0; a < sect.pages.length; a++ )
 			{
-				p.classList.add( 'ActivePage' );
-			}
-			p.innerHTML = '<span>' + ( a + 1 ) + '</span>';
-			( function( pag, num )
-			{
-				pag.onclick = function()
+				let p = document.createElement( 'div' );
+				p.className = 'PageElement';
+				p.style.left = ( ( a * 40 ) - offset ) + 'px';
+				if( self.currentPage == a )
 				{
-					self.currentPage = num;
-					self.renderElements();
+					p.classList.add( 'ActivePage' );
 				}
-			} )( p, a );
-			this.navpanel.querySelector( '.Pages' ).appendChild( p );
+				p.innerHTML = '<span>' + ( a + 1 ) + '</span>';
+				( function( pag, num )
+				{
+					pag.onclick = function()
+					{
+						self.currentPage = num;
+						self.renderElements();
+					}
+				} )( p, a );
+				this.navpanel.querySelector( '.Pages' ).appendChild( p );
+			}
 		}
 		
 		this.navpanel.querySelector( '.Previous' ).onclick = function()
@@ -243,8 +298,11 @@ class FUICourseviewer extends FUIElement
     	// TODO: Handle no section?
     	if( !self.activeSection ) return;
     	
+    	if( self.renderingElements ) 
+    	{
+    		return;
+    	}
     	
-    	if( self.renderingElements ) return;
     	self.renderingElements = true;
     	
     	if( !self.currentPage )
@@ -267,7 +325,11 @@ class FUICourseviewer extends FUIElement
 			let m = new Module( 'system' );
 			m.onExecuted = function( e, d )
 			{
-				if( e != 'ok' ) return;
+				if( e != 'ok' ) 
+				{
+					self.renderingElements = false;
+					return;
+				}
 				let els = JSON.parse( d );
 				for( let a = 0; a < els.length; a++ )
 				{
@@ -285,6 +347,10 @@ class FUICourseviewer extends FUIElement
 				command: 'loadpageelements',
 				pageId: page.ID
 			} );
+		}
+		else
+		{
+			self.renderingElements = false;
 		}
 		self.redrawNavPanel();
     }
@@ -420,8 +486,19 @@ class FUICourseviewer extends FUIElement
     			
     			im.innerHTML = '<h2>' + props.image.title + '</h2>';
     			
+    			// Get image from element id
     			let i = document.createElement( 'img' );
-    			i.src = getImageUrl( props.image.friendSource );
+    			self.getCourseImage( data.ID, function( result )
+    			{
+    				if( result )
+    				{
+						i.src = result.src;
+					}
+					else
+					{
+						im.removeChild( i );
+					}
+    			} );
     			im.appendChild( i );
     			
     			d.appendChild( im );

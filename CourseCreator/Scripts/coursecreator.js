@@ -882,7 +882,8 @@ class RootElement extends Element
                 let div = ce( 'div' );
                 let buttons = ce( 'div', { 'classes': [ 'buttons' ] } );
                 div.appendChild( buttons );
-                buttons.appendChild( ce(
+                
+                let span = ce(
                     "span",
                     {
                         'classes': ['IconSmall', 'fa-plus-circle'],
@@ -918,7 +919,10 @@ class RootElement extends Element
                             }
                         ]
                     }
-                ) );
+                );
+                span.innerHTML = '&nbsp;New page';
+                
+                buttons.appendChild( span );
                 sLi.appendChild(buttons);
                 buttons.setAttribute( 'draggable', true );
                 ul.appendChild(sLi);
@@ -932,7 +936,7 @@ class RootElement extends Element
         let span = ce(
             "span",
             {
-                "classes": ['IconSmall', 'fa-plus-circle'],
+                "classes": ['IconSmall', 'fa-plus-square'],
                 "listeners": [
                     {
                         "event": "click",
@@ -1133,6 +1137,10 @@ class CourseCreator
     initialize()
     {
     	let self = this;
+    	
+    	// Prevent the ckeditor from getting wild
+    	document.body.querySelector( '.CcPanels' ).addEventListener( 'scroll', function(){ this.scrollTop = 0; } );
+    	
     	console.log( 'We are initializing.' );
     	self.manager.fetchIndex( function()
     	{

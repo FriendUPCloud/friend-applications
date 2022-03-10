@@ -38,7 +38,7 @@ class CheckBoxQuestionElement extends Element
         this.domContainer.classList.add("list-group-item");
     }
 
-    renderMain = function()
+    renderMain = function( flags )
     {
 
         //console.logr("in render main");
@@ -71,6 +71,7 @@ class CheckBoxQuestionElement extends Element
         // Checkboxes
         let cbxContainer = ce('div');
         cbxContainer.classList.add( 'checkboxContainer' );
+        let last = false;
         this.properties.checkBoxes.forEach( ( cbx , i ) => {
             console.log('check box', cbx, "element", this);
             let cbxRow = ce('span', { "classes": ['checkBoxRow']});
@@ -145,8 +146,20 @@ class CheckBoxQuestionElement extends Element
             cbxRow.appendChild(cbxLabel);
             cbxRow.appendChild(cbxDelete);
             cbxContainer.appendChild(cbxRow);
+            
+            last = cbxLabel;
+            
         });
-        this.domContainer.appendChild(cbxContainer);
+        
+        this.domContainer.appendChild( cbxContainer );
+        
+        if( flags && flags.activate == 'lastEntry' && last )
+        {
+        	setTimeout( function()
+        	{
+        		last.focus();
+        	}, 0 );
+        }
         
         // add "new checkbox" button
         let button = ce('div', { "classes" : ['buttons']});
@@ -177,7 +190,7 @@ class CheckBoxQuestionElement extends Element
                 "isCorrect": false
             }
         );
-        this.renderMain();
+        this.renderMain( { activate: 'lastEntry' } );
     }
 }
 
@@ -214,8 +227,15 @@ class TextBoxElement extends Element
                 .create( div )
                 .catch( error => {
                     console.error( error );
-                } 
-            );
+                } )
+                .then( ed => {
+                	ed.on( 'keyup', function( event )
+                	{
+                		self.properties.textBox.content = event.target.innerHTML;
+	                    courseCreator.manager.saveActivePage();
+                	} );
+                } )
+            ;
             div.innerHTML = this.properties.textBox.content;
             self.domContainer.appendChild(div);
             console.log(" domcontainer ", self.domContainer);
@@ -259,11 +279,13 @@ class ImageElement extends Element
         this.domContainer.classList.add( 'list-group-item' );
     }
 
+	// Render in preview mode
     renderMain = function () 
     {
         let self = this;
         
         self.resetDomContainer();
+        
         
         if( !this.contentContainer )
         {
@@ -271,8 +293,8 @@ class ImageElement extends Element
         	this.domContainer.appendChild( this.contentContainer );
         }
         
-        this.contentContainer.className = 'elementEdit';
-        this.contentContainer.innerHTML = '';
+        self.contentContainer.className = 'elementEdit';
+        self.contentContainer.innerHTML = '';
 
         self.contentContainer.addEventListener(
             'click',
@@ -287,10 +309,11 @@ class ImageElement extends Element
 
         let cdn = new Array();
 
-        cdn.push(ce(
+        cdn.push( ce(
             'div',
             {
-                'text' : self.properties.image.title
+                'text' : self.properties.image.title,
+                'classes': [ 'image-title' ]
             }
         ));
         
@@ -328,9 +351,11 @@ class ImageElement extends Element
             }
         );
         cdn.push( img );
-        setDomChildren( this.contentContainer, cdn );
+        
+        setDomChildren( self.contentContainer, cdn );
     }
 
+	// Render in edit mode
     renderEdit = function() 
     {
         let self = this;
@@ -340,12 +365,12 @@ class ImageElement extends Element
 
         let cdn = new Array();
 
-        cdn.push(ce(
+        cdn.push( ce(
             'span',
             {
                 'text': 'Edit image:'
             }
-        ));
+        ) );
                 
         // Title
         cdn.push( ce(
@@ -366,7 +391,7 @@ class ImageElement extends Element
             {
                 'attributes' : {
                     'type': 'input',
-                    'value': self.properties.image.friendSource
+                    'value': self.properties.image.friendSource.indexOf( ':' ) > 0 ? self.properties.image.friendSource : 'Click to edit image'
                 },
                 'classes': [
                     'imageSrc'
@@ -379,8 +404,11 @@ class ImageElement extends Element
                         let d = new Filedialog( {
                             triggerFunction: function( items )
                             {
-                                event.target.value = items[0].Path;
-                                courseCreator.manager.saveActivePage();
+                            	if( items && items.length && items[0].Path )
+                            	{
+		                            event.target.value = items[0].Path;
+		                            courseCreator.manager.saveActivePage();
+		                        }
                             },
                             path: 'Mountlist:',
                             type: 'load',
@@ -391,22 +419,34 @@ class ImageElement extends Element
                 } ]
             }
         ) );
-        cdn.push(ce(
-            'button',
-            {
-                "text": "Save",
-                "listeners": [
-                    {
-                        "event": "click",
-                        "callBack": function ( event ) {
-                            self.saveEditElement();
-                            courseCreator.manager.saveActivePage();
-                        }
-                    }
-                ]
-            }
-        ));
-        setDomChildren(this.contentContainer, cdn);
+        
+        let block = document.createElement( 'div' );
+        block.className = 'ImageEditButtons';
+        block.innerHTML = '\
+        	<div><button type="button" class="IconSmall FullWidth fa-save" name="save">Save</button></div>\
+        	<div><button type="button" class="IconSmall FullWidth fa-remove" name="save">Cancel</button></div>\
+        </div>';
+        
+        let s = block.getElementsByTagName( 'button' );
+        s[0].onclick = function()
+        {
+        	self.saveEditElement();
+            courseCreator.manager.saveActivePage();
+        }
+        s[1].onclick = function( event )
+        {
+        	event.stopPropagation();
+        	self.renderMain();
+        }
+        cdn.push( block );
+        
+        setDomChildren( self.contentContainer, cdn);
+        
+        let input = self.contentContainer.getElementsByTagName( 'input' );
+        input[0].onclick = function( event )
+        {
+        	event.stopPropagation();
+        }
     }
 
     saveEditElement = function() 
@@ -450,6 +490,7 @@ class ImageElement extends Element
     // Store Friend image into the Course Creator database
     storeFriendImage( imagesrc, callback )
     {
+		let self = this;    
     	let m = new Module( 'system' );
     	m.onExecuted = function( e, d )
     	{

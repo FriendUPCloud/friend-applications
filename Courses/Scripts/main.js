@@ -207,14 +207,18 @@ moduleObject.classrooms = {
 			
 			let btnText = '';
 			let btnDisable = ( !started || ended );
-			if ( progress )
+			
+			console.log( 'when does it start?', course, now );
+			
+			if( progress )
 				btnText = 'Continue course';
-			if ( !started )
+			if( !started )
 				btnText = 'Not yet available';
-			if ( started && !progress )
+			if( started && !progress )
 				btnText = 'Start course';
-			if ( ended )
+			if( ended )
 				btnText = 'Course Ended';
+			
 			console.log( 'date', {
 				now        : now,
 				start      : cStart,

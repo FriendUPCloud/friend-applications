@@ -9,6 +9,7 @@
 	left: 0;
 	width:  100%;
 	height: 100%;
+	overflow: hidden;
 }
 
 .CcPanelSide 
@@ -125,14 +126,16 @@
 	height: 100%;
 }
 
-#index > ul > li.ActiveBlock > ul
+#index > ul > li.ActiveBlock > ul,
+#index > ul > li.ActiveBlock > div.buttons
 {
 	pointer-events: all;
 	position: relative;
 	opacity: 1;
 }
 
-#index > ul > li:not(.ActiveBlock) > ul
+#index > ul > li:not(.ActiveBlock) > ul,
+#index > ul > li:not(.ActiveBlock) > div.buttons
 {
 	pointer-events: none;
 	position: absolute;
@@ -427,6 +430,11 @@
 	padding: 0 8px 0 8px;
 }
 
+.checkboxContainer input[type=checkbox].checkBoxTick
+{
+	filter: hue-rotate(293deg) brightness(1.2);
+}
+
 .checkBoxQuestion {
 	padding: 2px;
 	margin: 2px;
@@ -582,4 +590,24 @@
 {
 	margin-right: 0;
 }
+
+/* Image element */
+
+.ImageEditButtons
+{
+	display: flex;
+	gap: 5px;
+}
+
+.ImageEditButtons > div
+{
+	flex-grow: 1;
+}
+
+.elementEdit .image-title
+{
+	text-align: center;
+	padding: 10px;
+}
+
 

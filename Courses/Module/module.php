@@ -84,7 +84,15 @@ switch( $args->args->command )
 		die( 'fail<!--separate-->{"message":"Could not find this course.","response":-1}' );
 	case 'getcoursebyclassroom':
 		if( $row = $db->database->fetchObject( '
-			SELECT c.*, cl.StartDate AS ClassStartDate, cl.EndDate AS ClassEndDate FROM CC_Course c, CC_Classroom cl WHERE cl.ID=\'' . intval( $args->args->courseId, 10 ) . '\' AND c.ID = cl.CourseID
+			SELECT 
+				c.*, 
+				cl.StartDate AS ClassStartDate, 
+				cl.EndDate AS ClassEndDate 
+			FROM 
+				CC_Course c, CC_Classroom cl 
+			WHERE 
+				cl.ID=\'' . intval( $args->args->courseId, 10 ) . '\' AND 
+				c.ID = cl.CourseID
 		' ) )
 		{
 			$status = new dbIO( 'CC_CourseSession', $db->database );
@@ -98,9 +106,54 @@ switch( $args->args->command )
 			{
 				$row->Status = 0;
 			}
+			
 			die( 'ok<!--separate-->' . json_encode( $row ) );
 		}
 		die( 'fail<!--separate-->{"message":"Could not find this course.","response":-1}' );
+		break;
+	// Get an image based on elementId
+	case 'getcourseimage':
+		if( $o = $db->database->fetchObject( '
+			SELECT * FROM CC_File 
+			WHERE 
+				ElementID=\'' . intval( $args->args->elementId, 10 ) . '\' AND 
+				CourseID=\'' . intval( $args->args->courseId, 10 ) . '\'
+		' ) )
+		{
+			if( $args->args->mode == 'test' )
+			{
+				die( 'ok<!--separate-->' );
+			}
+			else if( $args->args->mode == 'data' )
+			{
+				// Load storage setting
+				$s = new dbIO( 'FSetting' );
+		        $s->Type = 'CourseCreator';
+		        $s->Key = 'Storage';
+		        if( !$s->Load() )
+		        {
+		            die( 'fail<!--separate-->{"message":"Could not read server setting."}' );
+		        }
+		        $cs = json_decode( $s->Data );
+		        
+		        // Check storage path
+		        $toPath = $Config->FCUpload;
+		        $toPath .= $cs->path;
+		        $ccok = file_exists( $toPath );
+		        if ( !$ccok )
+		        {
+		            die( 'fail<!--separate-->{"message":"Course file database is uninitialized."}' );
+		        }
+				// Check if image exists
+				if( file_exists( $toPath . '/' . $o->Filename ) )
+				{ 			
+					// Return image
+					die( file_get_contents( $toPath .'/' . $o->Filename ) );
+				}
+				die( null );
+			}
+		}
+		die( 'fail<!--separate-->{"message":"Could not get image based on elementId.","response":-1,}' );
 		break;
 	// Load the entire course structure
 	case 'loadcoursestructure':
