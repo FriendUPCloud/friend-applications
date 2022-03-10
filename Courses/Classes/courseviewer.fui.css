@@ -10,6 +10,17 @@
 	margin: 0;
 }
 
+.FUICourseviewerCanvasHeader
+{
+	font-size: var(--font-size-medium);
+}
+
+.FUICourseviewerCanvasHeader .fa-chevron-right
+{
+    font-size: 9px;
+    vertical-align: middle;
+}
+
 .FUICourseviewer
 {
 	position: absolute;

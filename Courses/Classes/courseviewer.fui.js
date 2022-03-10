@@ -89,7 +89,7 @@ class FUICourseviewer extends FUIElement
         {
         	this.structureUpdated = false;
         	this.refreshStructure();
-        }
+        }        
         
     }
     getMarkup( data )
@@ -216,6 +216,39 @@ class FUICourseviewer extends FUIElement
     	} );
     }
     
+    // Fetch current section
+    getCurrentSection()
+    {
+    	let self = this;
+    	
+    	for( let a in self.sections )
+		{
+			if( a == self.activeSection )
+				return self.sections[ a ];
+		}
+		return false;
+    }
+    
+    // Fetch current page
+    getCurrentPage()
+    {
+    	let self = this;
+    	
+    	let sect = this.getCurrentSection();
+		if( sect && sect.pages )
+		{
+			for( let a = 0; a < sect.pages.length; a++ )
+			{
+				if( self.currentPage == a )
+				{
+					return sect.pages[a];
+				}
+			}
+		}
+		
+		return false;
+    }
+    
     // Redraw the navigation panel
     redrawNavPanel()
     {
@@ -311,6 +344,8 @@ class FUICourseviewer extends FUIElement
     	}
     	
     	self.canvasContent.innerHTML = '';
+    	
+	    self.canvasHeader.innerHTML = self.course.Name + ' <span class="IconSmall fa-chevron-right"></span> ' + self.getCurrentSection().Name + ' <span class="IconSmall fa-chevron-right"></span> ' + self.getCurrentPage().Name;
     	
     	let act = false;
     	for( let a in self.sections )
@@ -605,7 +640,6 @@ class FUICourseviewer extends FUIElement
     	if( !courseSessionId ) return;
     	this.course = courseStructure;
     	this.#courseSessionId = courseSessionId;
-    	this.canvasHeader.innerHTML = this.course.Name;
     	this.structureUpdated = true;
     	this.refreshDom();
     }
