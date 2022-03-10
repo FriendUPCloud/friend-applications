@@ -111,6 +111,21 @@ switch( $args->args->command )
 		}
 		die( 'fail<!--separate-->{"message":"Could not find this course.","response":-1}' );
 		break;
+	// Get an image based on elementId
+	case 'getcourseimage':
+		if( $o = $db->database->fetchObject( '
+			SELECT * FROM CC_File 
+			WHERE 
+				ElementID=\'' . intval( $args->elementId, 10 ) . '\' AND 
+				CourseID=\'' . intval( $args->courseId, 10 ) . '\'
+		' ) )
+		{
+			// 1. Load storage setting
+			// 2. Check if image exists
+			// 3. Return image
+		}
+		die( 'fail<!--separate-->{"message":"Could not get image based on elementId.","response":-1}' );
+		break;
 	// Load the entire course structure
 	case 'loadcoursestructure':
 		if( $rows = $db->database->fetchObjects( '
