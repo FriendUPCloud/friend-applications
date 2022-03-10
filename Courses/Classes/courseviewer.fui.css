@@ -31,13 +31,7 @@
 	scroll-behavior: smooth;
 	overflow: auto;
 	padding: var(--fui-padding-normal);
-	padding-bottom: 0;
 	box-sizing: border-box;
-}
-
-.FUICourseviewerPanel:last-child
-{
-	padding-bottom: var(--fui-padding-normal);
 }
 
 .FUICourseviewerCanvas
@@ -76,12 +70,14 @@
 	background: var(--fui-background-foreground);
 	color: var(--fui-color);
 	padding: var(--fui-padding-normal);
+	padding-bottom: 0;
 	cursor: pointer;
 	box-sizing: border-box;
 }
 .FUICourseviewerSection:last-child
 {
 	border-radius: 0 0 var(--fui-border-radius-normal) var(--fui-border-radius-normal);
+	padding-bottom: var(--fui-padding-normal);
 }
 
 .FUICourseviewerSection:hover
