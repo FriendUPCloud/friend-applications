@@ -104,7 +104,8 @@ INSERT INTO CC_ElementType
 VALUES
 (0, "checkBoxQuestion", "{}", TRUE),
 (1, "textBox", "{}", FALSE),
-(2, "image", "{}", FALSE);
+(2, "image", "{}", FALSE),
+(3, "radioBoxQuestion", "{}", TRUE);
 
 select "Element Table" as "";
 CREATE TABLE IF NOT EXISTS CC_Element(

@@ -55,3 +55,6 @@ CREATE TABLE IF NOT EXISTS `CC_File` (
 /* Add Status to classroom table */
 ALTER TABLE CC_Classroom ADD Status INT DEFAULT 0 AFTER ClassRoomCategoryID;
 ALTER TABLE CC_Course ADD Status INT DEFAULT 0 AFTER `Name`;
+
+/* Radio box type */
+INSERT INTO CC_ElementType ( ID, DisplayOrder, Name, DateCreated, DateUpdated, Properties, IsQuestion ) VALUES ( 4, 3, "radioBoxQuestion", NOW(), NOW(), '{}', 1 );

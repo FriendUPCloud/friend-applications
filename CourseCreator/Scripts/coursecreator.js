@@ -1290,7 +1290,7 @@ const registeredElements = new Map([
             [
                 'radioBoxQuestion', { 
                     class: RadioBoxQuestionElement,
-                    elementTypeId: 1,
+                    elementTypeId: 4,
                     elementType: "radioBoxQuestion",
                     displayName: "Radiobox Question",
                     dbTable: "CC_Element",
