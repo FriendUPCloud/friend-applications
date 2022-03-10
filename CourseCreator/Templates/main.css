@@ -477,7 +477,7 @@
 	padding: 0 8px 0 8px;
 }
 
-.radioboxContainer input[type=checkbox].radioBoxTick
+.radioboxContainer input[type=radio].radioBoxTick
 {
 	filter: hue-rotate(293deg) brightness(1.2);
 }
