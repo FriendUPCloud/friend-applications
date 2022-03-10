@@ -31,7 +31,13 @@
 	scroll-behavior: smooth;
 	overflow: auto;
 	padding: var(--fui-padding-normal);
+	padding-bottom: 0;
 	box-sizing: border-box;
+}
+
+.FUICourseviewerPanel:last-child
+{
+	padding-bottom: var(--fui-padding-normal);
 }
 
 .FUICourseviewerCanvas
