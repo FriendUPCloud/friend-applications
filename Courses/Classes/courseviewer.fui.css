@@ -57,6 +57,11 @@
 	background: var(--fui-background-foreground);
 }
 
+.FUICourseviewerCanvasContent p
+{
+	margin: 0 0 8px 0;
+}
+
 .FUICourseviewerSection
 {
 	color: black;
