@@ -427,6 +427,8 @@ class FUICourseviewer extends FUIElement
     				check.onchange = function( e )
     				{
     					self.registerElementValue( this.nam, this.checked );
+    					
+    					// Uncheck other elements in db
     					let els = ul.getElementsByTagName( 'input' );
     					for( let c = 0; c < els.length; c++ )
     					{
