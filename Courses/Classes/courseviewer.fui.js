@@ -310,7 +310,7 @@ class FUICourseviewer extends FUIElement
 			}
 			self.renderElements();
 		}
-		
+ 		
 		this.navpanel.querySelector( '.Next' ).onclick = function()
 		{
 			self.currentPage++;

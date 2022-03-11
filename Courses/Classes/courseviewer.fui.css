@@ -10,6 +10,20 @@
 	margin: 0;
 }
 
+.FUICourseviewerSectionHeader
+{
+	border-radius: 0;
+	height: 50px;
+	border-right: 1px solid rgba(0,0,0,0.15);
+	border-top: 1px solid rgba(0,0,0,0.15);
+}
+
+.FUICourseviewerNavigation
+{
+	border-top: 1px solid rgba(0,0,0,0.15);
+	box-sizing: border-box;
+}
+
 .FUICourseviewerCanvasHeader
 {
 	font-size: var(--font-size-medium);
@@ -41,7 +55,7 @@
 	height: 100%;
 	scroll-behavior: smooth;
 	overflow: auto;
-	padding: var(--fui-padding-normal);
+	padding: 0;
 	box-sizing: border-box;
 }
 
