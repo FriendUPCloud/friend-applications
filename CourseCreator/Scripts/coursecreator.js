@@ -110,9 +110,10 @@ class CourseElement extends Element
 // This element contains page elements
 class SectionElement extends Element 
 {
-    constructor( parent, displayId=0, dbId=0, name='' ) 
+    constructor( parent, displayId=0, dbId=0, name='', freenavigation=0 ) 
     {    
         super(parent, "section", displayId, dbId, name); 
+        this.sectionFreeNavigation = freenavigation;
         this.linkDomContainer( courseCreator.mainView );
     }
     
@@ -579,7 +580,8 @@ class RootElement extends Element
 		                    c, 
 		                    r.sectionDisplayID, 
 		                    r.sectionID,
-		                    r.sectionName 
+		                    r.sectionName,
+		                    r.sectionFreeNavigation
 		                );
 		                c.children[r.sectionDisplayID] = s;
 		            }
@@ -1143,7 +1145,6 @@ class CourseCreator
     	// Prevent the ckeditor from getting wild
     	document.body.querySelector( '.CcPanels' ).addEventListener( 'scroll', function(){ this.scrollTop = 0; } );
     	
-    	console.log( 'We are initializing.' );
     	self.manager.fetchIndex( function()
     	{
     		console.log( 'All done here.' );

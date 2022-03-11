@@ -311,7 +311,8 @@
 	border-top: 2px solid var(--fui-module-background);
 }
 
-.ElementProperties.Project
+.ElementProperties.Project, 
+.ElementProperties.Section
 {
 	height: 120px;
 }
