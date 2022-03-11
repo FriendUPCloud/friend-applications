@@ -157,12 +157,15 @@ class FUICourseviewer extends FUIElement
     			// Activate section on click
     			( function( ind )
     			{
-					d.onclick = function()
-					{
-						self.activeSection = ind;
-						self.currentPage = 0;
-						self.refreshStructure();
-						self.renderElements();
+    				if( self.getCurrentSection().Navigation == '1' )
+    				{
+						d.onclick = function()
+						{
+							self.activeSection = ind;
+							self.currentPage = 0;
+							self.refreshStructure();
+							self.renderElements();
+						}
 					}
 				} )( a );
     			
@@ -290,10 +293,13 @@ class FUICourseviewer extends FUIElement
 				p.innerHTML = '<span>' + ( a + 1 ) + '</span>';
 				( function( pag, num )
 				{
-					pag.onclick = function()
-					{
-						self.currentPage = num;
-						self.renderElements();
+					if( self.getCurrentSection().Navigation == '1' )
+    				{
+						pag.onclick = function()
+						{
+							self.currentPage = num;
+							self.renderElements();
+						}
 					}
 				} )( p, a );
 				this.navpanel.querySelector( '.Pages' ).appendChild( p );

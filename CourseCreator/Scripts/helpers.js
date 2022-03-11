@@ -175,7 +175,6 @@ function showEditProperties( element, domNode, ctx )
 	// In sections you can change free navigation flag
 	else if( element.elementType == 'section' )
 	{
-		console.log( 'Using section properties' );
 		propFile = 'Progdir:Templates/editor_section_properties.html';
 		d.classList.add( 'Section' );
 		
