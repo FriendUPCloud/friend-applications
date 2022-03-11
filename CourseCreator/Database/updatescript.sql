@@ -58,3 +58,8 @@ ALTER TABLE CC_Course ADD Status INT DEFAULT 0 AFTER `Name`;
 
 /* Radio box type */
 INSERT INTO CC_ElementType ( ID, DisplayOrder, Name, DateCreated, DateUpdated, Properties, IsQuestion ) VALUES ( 4, 3, "radioBoxQuestion", NOW(), NOW(), '{}', 1 );
+
+/* Add to section */
+
+ALTER TABLE CC_Section ADD FreeNavigation TINYINT(4) default 0 AFTER `OwnerID`;
+

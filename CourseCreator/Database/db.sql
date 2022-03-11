@@ -57,6 +57,7 @@ CREATE TABLE IF NOT EXISTS CC_Section(
     DisplayID BIGINT(20) NOT NULL,
     Name VARCHAR(60),
     OwnerID BIGINT(20),
+    FreeNavigation TINYINT(4) default 0,
     CourseID BIGINT(20),
     SourceID BIGINT(20),
     DateCreated DATETIME DEFAULT CURRENT_TIMESTAMP,
