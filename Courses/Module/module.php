@@ -312,9 +312,9 @@ switch( $args->args->command )
 		$userId = $User->ID;
 		
 		// Only admins can do this
-		if( $level == 'Admin' )
+		if( $level == 'Admin' && isset( $args->args ) && isset( $args->args->userId ) )
 		{
-			$userId = intval( $args->args->userId );
+			$userId = intval( $args->args->userId, 10 );
 		}
 		
 		// Pass through all sessions

@@ -143,6 +143,7 @@ moduleObject.classrooms = {
 					}
 					
 					let out = [];
+					
 					for( let a = 0; a < list.length; a++ )
 					{
 						out.push( [
@@ -161,7 +162,7 @@ moduleObject.classrooms = {
 							},
 							{
 								type: 'string',
-								value: 'testing...'
+								value: typeof( progress[ list[a].CourseID ] ) != 'undefined' ? 'Active' : 'Not started'
 							},
 							{
 								type: 'string',
