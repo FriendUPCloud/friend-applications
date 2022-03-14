@@ -544,6 +544,37 @@ class FUICourseviewer extends FUIElement
 		if( self.pageCompleted() )
 		{
 			this.navpanel.querySelector( '.Next' ).classList.remove( 'Disabled' );
+			
+			// Check if this is the last page, and that the course is completed
+			let lastPage = false;
+			let sect = this.getCurrentSection();
+			if( sect && sect.pages )
+			{
+				for( let a = 0; a < sect.pages.length; a++ )
+				{
+					if( self.currentPage == a )
+					{
+						if( a == sect.pages.length - 1 )
+						{
+							lastPage = true;
+						}
+					}
+				}
+			}
+			let lastSection = false;
+			for( let a in self.sections )
+			{
+				lastSection = false;
+				if( a == self.activeSection )
+				{
+					lastSection = true;
+				}
+			}
+			
+			if( lastSection && lastPage )
+			{
+				this.navpanel.querySelector( '.Next' ).innerHTML = '<span>Finish</span>';
+			}
 		}
 		else
 		{
