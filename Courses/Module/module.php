@@ -273,6 +273,29 @@ switch( $args->args->command )
 	/* ---------------------------------------------------------------------- */
 	/* This part is related to statistics, user progress and so on ---------- */
 	/* ---------------------------------------------------------------------- */
+	// Tell the system that a page has been read
+	case 'setpagestatus':
+		if( isset( $args->args ) && isset( $args->args->pageId ) && isset( $args->args->courseSessionID ) )
+		{
+			$d = new dbIO( 'CC_Page', $db->database );
+			if( !$d->Load( $args->args->pageId ) )
+			{
+				die( 'fail<!--separate-->{"message":"Failed to load page."}' );
+			}
+			$p = new dbIO( 'CC_PageResult', $db->database );
+			$p->PageID = $d->ID;
+			$p->CourseSessionID = $args->args->courseSessionID;
+			if( !$p->Load() )
+			{
+				$p->Status = 1;
+				$p->DateCreated = date( 'Y-m-d H:i:s' );
+				$p->Save();
+				die( 'ok<!--separate-->{"message":"Page result stored."}' );
+			}
+			die( 'fail<!-separate-->{"message":"Page result has already been stored."}' );
+		}
+		die( 'fail<!--separate-->{"message":"Failed to find page id in arguments."}' );
+		break;
 	// Check if a section is done on sectionId and courseSessionId
 	case 'checksectiondone':
 		if( !isset( $args->args ) || !isset( $args->args->sectionId ) || !isset( $args->args->courseSessionID ) )

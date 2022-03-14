@@ -398,7 +398,8 @@ class FUICourseviewer extends FUIElement
 				p.execute( 'appmodule', {
 					appName: 'Courses',
 					command: 'setpagestatus',
-					pageId: page.ID
+					pageId: page.ID,
+					courseSessionId: this.#courseSessionId
 				} );
 			}
 			
