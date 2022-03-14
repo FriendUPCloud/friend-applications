@@ -159,6 +159,9 @@ class FUICourseviewer extends FUIElement
     			}
     			
     			// Activate section on click
+    			// Rules:
+    			// A user can leave current section if:
+    			// a) If the section is complete, and the user requests the next section
     			( function( ind )
     			{
 					d.onclick = function()
@@ -166,16 +169,26 @@ class FUICourseviewer extends FUIElement
 						let s = new Module( 'system' );
 						s.onExecuted = function( se, sd )
 						{
-							if( se == 'ok' || self.getCurrentSection().Navigation == '1' )
+							if( ind == parseInt( self.activeSection ) + 1 )
 							{
-								self.activeSection = ind;
-								self.currentPage = 0;
-								self.refreshStructure();
-								self.renderElements();
+								// If current section is done, 
+								if( se == 'ok' || self.getCurrentSection().Navigation == '1' )
+								{
+									let currentSection = self.activeSection;
+								
+									self.activeSection = ind;
+									self.currentPage = 0;
+									self.refreshStructure();
+									self.renderElements();
+								}
+								else
+								{
+									Alert( 'You can not change section', 'Please visit and examine all pages before leaving this current course section.' );
+								}
 							}
 							else
 							{
-								Alert( 'You can not change section', 'Please visit and examine all pages before leaving this current course section.' );
+								Alert( 'You cannot go back to a previous section', 'You are attempting to select the previous section. This is not allowed.' );
 							}
 						}
 						s.execute( 'appmodule', {
