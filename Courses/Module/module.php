@@ -273,11 +273,50 @@ switch( $args->args->command )
 	/* ---------------------------------------------------------------------- */
 	/* This part is related to statistics, user progress and so on ---------- */
 	/* ---------------------------------------------------------------------- */
+	// Check if a section is done on sectionId and courseSessionId
+	case 'checksectiondone':
+		if( !isset( $args->args ) || !isset( $args->args->sectionId ) || !isset( $args->args->courseSessionID ) )
+		{
+			die( 'fail<!--separate-->{"message":"Missing args for query.","response":-1}' );
+		}
+		// Check if we have any page results
+		if( $page = $db->database->fetchObjectRow( '
+			SELECT p.* FROM CC_PageResult p, CC_Section s, CC_CourseSession cs
+			WHERE
+				s.ID = \'' . intval( $args->args->sectionId, 10 ) . '\' AND
+				cs.ID = \'' . intval( $args->args->courseSessionID, 10 ) . '\' AND
+				cs.CourseID = s.CourseID AND
+				p.CourseSessionID = cs.ID
+			LIMIT 1
+		' ) )
+		{
+			// Check if we have page results that are not "completed status"
+			if( $rows = $db->database->fetchObjectRows( '
+				SELECT p.* FROM CC_PageResult p, CC_Section s, CC_CourseSession cs
+				WHERE
+					s.ID = \'' . intval( $args->args->sectionId, 10 ) . '\' AND
+					cs.ID = \'' . intval( $args->args->courseSessionID, 10 ) . '\' AND
+					cs.CourseID = s.CourseID AND
+					p.CourseSessionID = cs.ID AND
+					p.Status != \'1\'
+			' ) )
+			{
+				die( 'fail<!--separate->{"message":"This section is not complete.","response":-1}' );
+			}
+			// Ok, all are completed status
+			else
+			{
+				die( 'ok<!-separate-->{"message":"This section is complete.","response":1}' );
+			}
+		}
+		// Section hasn't even been started on
+		die( 'fail<!--separate->{"message":"This section is not complete.","response":-1}' );
+		break;
 	// Get progress for you (your user) in a selected class
 	case 'getclassroomprogress':
 		$types = getInteractiveElementTypes( $db );
 		
-		if( isset( $args->args ) && isset( $args->args->courseSessionID ) )
+		if( isset( $args->args ) && isset( $args->args->courseSessionId ) )
 		{
 			$csid = array( intval( $args->args->courseSessionId, 10 ) );
 		}

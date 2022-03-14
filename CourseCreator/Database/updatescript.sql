@@ -63,3 +63,12 @@ INSERT INTO CC_ElementType ( ID, DisplayOrder, Name, DateCreated, DateUpdated, P
 
 ALTER TABLE CC_Section ADD FreeNavigation TINYINT(4) default 0 AFTER `OwnerID`;
 
+/* Track if we have seen a page */
+CREATE TABLE IF NOT EXISTS `CC_PageResult` (
+  `ID` bigint NOT NULL AUTO_INCREMENT,
+  `CourseSessionID` bigint NOT NULL,
+  `Status` tinyint NOT NULL DEFAULT '0',
+  `DateCreated` datetime DEFAULT NULL,
+  PRIMARY KEY (`ID`)
+);
+
