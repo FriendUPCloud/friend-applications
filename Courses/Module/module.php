@@ -292,14 +292,14 @@ switch( $args->args->command )
 				s.CourseID = se.CourseID AND 
 				p.ID = e.PageID AND 
 				e.ElementTypeID IN ( ' . implode( ',', $types ) . ' ) AND 
-				s.ID = ' . ( intval( $args->args->courseSessionId, 10 ) . '
+				s.ID = ' . ( intval( $args->args->courseSessionId, 10 ) ) . '
 		' ) )
 		{
 			$elementCount = $elementCount->CNT;
 			
 			// Get elements that were interacted with
 			if( $registered = $db->database->fetchObject( '
-				SELECT COUNT(ID) AS CNT FROM CC_ElementResult WHERE CourseSessionID = ' . ( intval( $args->args->courseSessionId, 10 ) . '
+				SELECT COUNT(ID) AS CNT FROM CC_ElementResult WHERE CourseSessionID = ' . ( intval( $args->args->courseSessionId, 10 ) ) . '
 			' ) )
 			{
 				$registered = $registered->CNT;
