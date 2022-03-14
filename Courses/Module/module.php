@@ -274,42 +274,87 @@ switch( $args->args->command )
 	/* This part is related to statistics, user progress and so on ---------- */
 	/* ---------------------------------------------------------------------- */
 	// Get progress for you (your user) in a selected class
-	case 'getclassprogress':
+	case 'getclassroomprogress':
 		$types = getInteractiveElementTypes( $db );
 		
-		// Get total element count based on course session
-		if( $elementCount = $db->database->fetchObject( '
-			SELECT COUNT(e.ID) CNT
-			FROM 
-				CC_CourseSession s, 
-				CC_Element e, 
-				CC_Page p, 
-				CC_Section se 
-			WHERE 
-				s.CourseID = s.CourseID AND 
-				s.UserID = \'' . $User->ID . '\' AND 
-				p.SectionID = se.ID AND 
-				s.CourseID = se.CourseID AND 
-				p.ID = e.PageID AND 
-				e.ElementTypeID IN ( ' . implode( ',', $types ) . ' ) AND 
-				s.ID = ' . ( intval( $args->args->courseSessionId, 10 ) ) . '
-		' ) )
+		if( isset( $args->args ) && isset( $args->args->courseSessionID ) )
 		{
-			$elementCount = $elementCount->CNT;
-			
-			// Get elements that were interacted with
-			if( $registered = $db->database->fetchObject( '
-				SELECT COUNT(ID) AS CNT FROM CC_ElementResult WHERE CourseSessionID = ' . ( intval( $args->args->courseSessionId, 10 ) ) . '
+			$csid = array( intval( $args->args->courseSessionId, 10 ) );
+		}
+		// Get active sessions frmo classroom ids
+		else if( isset( $args->args ) && isset( $args->args->classrooms ) )
+		{
+			$classrooms = json_decode( $args->args->classrooms );
+			$csid = array();
+			foreach( $classrooms as $k=>$v )
+			{
+				$classrooms[ $k ] = intval( $v, 10 );
+			}
+			if( $sessions = $db->database->fetchObjects( '
+				SELECT s.* FROM CC_CourseSession s, CC_Classroom c WHERE c.ID IN ( ' . implode( ',', $classrooms ) . ' ) AND s.CourseID = c.CourseID
 			' ) )
 			{
-				$registered = $registered->CNT;
-				
-				// How many percent progress?
-				die( 'ok<!--separate-->{"progress":"' . ( ( $registered / $elementCount ) * 100 ) . '"}' );
+				foreach( $sessions as $sess )
+				{
+					$csid[] = $sess->CourseID;
+				}
 			}
 		}
+		else
+		{
+			die( 'fail<!--separate-->{"message":"Could not find course session or course ids.","response":-1}' );
+		}
+		
+		// Pass through all sessions
+		if( count( $csid ) )
+		{
+			foreach( $csid as $csi )
+			{
+				$out = new stdClass();
+				
+				// Get classroom
+				$cl = new dbIO( 'CC_CourseSession', $db->database );
+				$cl->ID = $csi;
+				if( !$cl->Load() )
+				{
+					continue;
+				}
+				
+				// Get total element count based on course session
+				if( $elementCount = $db->database->fetchObject( '
+					SELECT COUNT(e.ID) CNT
+					FROM 
+						CC_CourseSession s, 
+						CC_Element e, 
+						CC_Page p, 
+						CC_Section se 
+					WHERE 
+						s.CourseID = s.CourseID AND 
+						s.UserID = \'' . $User->ID . '\' AND 
+						p.SectionID = se.ID AND 
+						s.CourseID = se.CourseID AND 
+						p.ID = e.PageID AND 
+						e.ElementTypeID IN ( ' . implode( ',', $types ) . ' ) AND 
+						s.ID = ' . $csi . '
+				' ) )
+				{
+					$elementCount = $elementCount->CNT;
+					
+					// Get elements that were interacted with
+					if( $registered = $db->database->fetchObject( '
+						SELECT COUNT(ID) AS CNT FROM CC_ElementResult WHERE CourseSessionID = ' . ( intval( $args->args->courseSessionId, 10 ) ) . '
+					' ) )
+					{
+						$registered = $registered->CNT;
+						
+						$out[ $cl->CourseID ] = ( ( $registered / $elementCount ) * 100 );
+					}
+				}
+			}
+			die( 'ok<!--separate-->' . json_encode( $out ) );
+		}
 		// Zero progress
-		die( 'ok<!--separate-->{"progress":"0"}' );
+		die( 'fail<!--separate-->{"message":"Could not parse any classroom ids or course session id."}' );
 		break;
 }
 die( 'fail<!--separate-->{"message":"Unknown appmodule method.","response":-1}' );
