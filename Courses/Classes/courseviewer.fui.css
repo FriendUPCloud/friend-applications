@@ -258,6 +258,12 @@
 	background-color: var(--fui-module-background-hover);
 }
 
+.FUICourseviewerNavigation .Previous.Disabled,
+.FUICourseviewerNavigation .Next.Disabled
+{
+	opacity: 0.5;
+}
+
 .FUICourseviewerNavigation .Next
 {
 	position: absolute;

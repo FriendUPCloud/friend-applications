@@ -299,7 +299,26 @@ class FUICourseviewer extends FUIElement
     {
     	let self = this;
     	let pag = self.getCurrentPage();
-    	console.log( 'Page: ', pag );
+    	
+    	// Are the page elements solved?
+    	let solved = true;
+    	
+    	// Get all elements
+    	let eles = self.canvasContent.getElementsByTagName( '*' );
+    	
+    	for( let a = 0; a < eles.length; a++ )
+    	{
+    		// Checking element dummy
+    		if( eles[a].dummy )
+    		{
+    			if( !eles[a].dummy.resolved )
+    			{
+    				solved = false;
+    				break;
+    			}
+    		}
+    	}
+    	return solved;
     }
     
     // Redraw the navigation panel
@@ -386,24 +405,36 @@ class FUICourseviewer extends FUIElement
 		
 		this.navpanel.querySelector( '.Previous' ).onclick = function()
 		{
-			self.currentPage--;
-			if( self.currentPage < 0 ) 
+			if( self.getCurrentSection().Navigation == '1' )
 			{
-				self.currentPage = 0;
-				return;
+				self.currentPage--;
+				if( self.currentPage < 0 ) 
+				{
+					self.currentPage = 0;
+					return;
+				}
+				self.renderElements();
 			}
-			self.renderElements();
 		}
  		
 		this.navpanel.querySelector( '.Next' ).onclick = function()
 		{
-			self.currentPage++;
-			if( self.currentPage >= self.sections[ self.activeSection ].pages.length )
+			if( self.pageCompleted() )
 			{
-				self.currentPage--;
-				return;
+				console.log( 'This page is solved!' );
+				self.currentPage++;
+				if( self.currentPage >= self.sections[ self.activeSection ].pages.length )
+				{
+					self.currentPage--;
+					return;
+				}
+				self.renderElements();
 			}
-			self.renderElements();
+			else
+			{
+				console.log( 'This page is not solved.' );
+			
+			}
 		}
     }
     
@@ -479,6 +510,11 @@ class FUICourseviewer extends FUIElement
 					pageId: page.ID,
 					courseSessionId: csId
 				} );
+				
+				self.redrawNavPanel();
+			
+				// Check which state the buttons are in
+				self.checkNavButtons();
 			}
 			
 			m.execute( 'appmodule', {
@@ -491,7 +527,29 @@ class FUICourseviewer extends FUIElement
 		{
 			self.renderingElements = false;
 		}
-		self.redrawNavPanel();
+    }
+    
+    checkNavButtons()
+    {
+    	let self = this;
+    	
+    	if( self.getCurrentSection().Navigation != '1' )
+		{
+			this.navpanel.querySelector( '.Previous' ).classList.add( 'Disabled' );
+		}
+		else
+		{
+			this.navpanel.querySelector( '.Previous' ).classList.remove( 'Disabled' );
+		}
+		if( self.pageCompleted() )
+		{
+			this.navpanel.querySelector( '.Next' ).classList.remove( 'Disabled' );
+		}
+		else
+		{
+			console.log( 'We are not solved!' );
+			this.navpanel.querySelector( '.Next' ).classList.add( 'Disabled' );
+		}
     }
     
     // Just add an element to the canvas
@@ -513,6 +571,8 @@ class FUICourseviewer extends FUIElement
     		courseSessionId: this.#courseSessionId,
     		courseId: this.course.ID
     	} );
+    	
+    	this.checkNavButtons();
     }
     
     // Create an element for the course viewer canvas to add
@@ -520,6 +580,12 @@ class FUICourseviewer extends FUIElement
     {
     	let self = this;
     	let props = JSON.parse( data.Properties );
+    
+    	// To store the state of the element
+    	let dummyElement = {
+    		type: type,
+    		resolved: false
+    	};
     
     	switch( type )
     	{
@@ -574,7 +640,21 @@ class FUICourseviewer extends FUIElement
     							self.registerElementValue( els[c].id.substr( 3, els[c].id.length - 3 ), false );
     					}
     					
+    					// Check that at least one is checked
+    					dummyElement.resolved = false;
+    					let inps = n.getElementsByTagName( 'input' );
+    					for( let a = 0; a < inps.length; a++ )
+    					{
+    						if( inps[ a ].checked )
+    						{
+    							dummyElement.resolved = true;
+    						}
+    					}
+    					
+    					dummyElement.resolved = true;
+    					
     					self.pageCompleted();
+    					self.checkNavButtons();
     				}
     				
     				// Restore value
@@ -592,11 +672,13 @@ class FUICourseviewer extends FUIElement
 									if( v.Value )
 									{
 										chk.checked = 'checked';
+										dummyElement.resolved = true;
 									}
 									else
 									{
 										chk.checked = '';
 									}
+									self.checkNavButtons();
 								}
 							}
 							m.execute( 'appmodule', {
@@ -613,7 +695,6 @@ class FUICourseviewer extends FUIElement
     			bx.appendChild( ul );
     			
     			d.appendChild( bx );
-    			
     			d.initializers = initializers;
     			d.init = function()
     			{
@@ -622,6 +703,7 @@ class FUICourseviewer extends FUIElement
 						this.initializers[ a ].func( this.initializers[ a ].name );
 					}
 				}
+				d.dummy = dummyElement;
     			
     			return d;
     		}
@@ -654,7 +736,20 @@ class FUICourseviewer extends FUIElement
     				check.onchange = function( e )
     				{
     					self.registerElementValue( this.nam, this.checked );
+    					
+    					// Check that at least one is checked
+    					let inps = n.getElementsByTagName( 'input' );
+    					dummyElement.resolved = false;
+    					for( let a = 0; a < inps.length; a++ )
+    					{
+    						if( inps[ a ].checked )
+    						{
+    							dummyElement.resolved = true;
+    						}
+    					}
+    					
 						self.pageCompleted();
+						self.checkNavButtons();
     				}
     				
     				// Restore value
@@ -672,12 +767,14 @@ class FUICourseviewer extends FUIElement
 									if( v.Value )
 									{
 										chk.checked = 'checked';
+										dummyElement.resolved = true;
 									}
 									else
 									{
 										chk.checked = '';
 									}
 								}
+								self.checkNavButtons();
 							}
 							m.execute( 'appmodule', {
 								appName: 'Courses',
@@ -702,6 +799,8 @@ class FUICourseviewer extends FUIElement
 						this.initializers[ a ].func( this.initializers[ a ].name );
 					}
 				}
+				
+				d.dummy = dummyElement;
     			
     			return d;
     		}
