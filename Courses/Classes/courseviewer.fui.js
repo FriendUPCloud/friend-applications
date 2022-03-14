@@ -358,12 +358,18 @@ class FUICourseviewer extends FUIElement
     	
     	self.canvasContent.innerHTML = '';
     	
-	    self.canvasHeader.innerHTML = self.course.Name + ' <span class="IconSmall fa-chevron-right"></span> ' + self.getCurrentSection().Name + ' <span class="IconSmall fa-chevron-right"></span> ' + self.getCurrentPage().Name;
+	    self.canvasHeader.innerHTML = self.course.Name + 
+	    	' <span class="IconSmall fa-chevron-right"></span> ' + 
+	    	self.getCurrentSection().Name + 
+	    	' <span class="IconSmall fa-chevron-right"></span> ' + 
+	    	self.getCurrentPage().Name;
     	
     	let act = false;
     	for( let a in self.sections )
     		if( a == self.activeSection )
     			act = self.sections[ a ];
+    	
+    	let csId = self.#courseSessionId;
     	
     	if( act && act.pages && act.pages[self.currentPage] )
     	{
@@ -399,7 +405,7 @@ class FUICourseviewer extends FUIElement
 					appName: 'Courses',
 					command: 'setpagestatus',
 					pageId: page.ID,
-					courseSessionId: this.#courseSessionId
+					courseSessionId: csId
 				} );
 			}
 			
