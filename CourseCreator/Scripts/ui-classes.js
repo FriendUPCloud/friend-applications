@@ -708,6 +708,84 @@ class ccPicture extends ccGUIElement
 }
 ccFactory.registerClass( 'picture' );
 
+/* StatBox
+
+*/
+
+class ccStatBox extends ccGUIElement
+{
+    constructor( options )
+    {
+        super( options );
+    }
+    
+    setData( dataSet )
+    {
+        const self = this;
+        // mainStat
+        // mainIcon
+        // mainText
+        
+        // subStat
+        // subText
+        let html = '\
+        <div class="statboxMain">\
+            <div class="statboxMainStat">\
+                {mainNum}\
+            </div>\
+            <div class="statboxMainIcon IconSmall fa-fw {mainIcon}">\
+            </div>\
+        </div>\
+        <div class="statboxMainText">\
+            {mainText}\
+        </div>\
+        <div class="statboxSub">\
+            {subStat} {subText}\
+        </div>\
+        ';
+        
+        if ( null == dataSet.subStat )
+            dataSet.subStat = '';
+        if ( null == dataSet.subText )
+            dataSet.subText = '';
+        const keys = Object.keys( dataSet );
+        console.log( 'inputs', {
+            dataSet : dataSet,
+            keys    : keys,
+        });
+        let l = keys.length;
+        for( ;l; )
+        {
+            l--;
+            html = html.split( '{'+keys[ l ]+'}' ).join( dataSet[ keys[ l ]]);
+        }
+        console.log( 'html', html );
+        self.domElement.innerHTML = html;
+    }
+    
+    attachDomElement()
+    {
+        const self = this;
+        console.log( 'ccStatBox.attachDomElement',{
+            del : self.domElement,
+            opt : self.options,
+        });
+        
+        super.attachDomElement();
+        self.domElement.classList.toggle( 'ccStatBox', true );
+        if ( null != self.options.id )
+            self.domElement.id = self.options.id;
+        if ( null != self.options.bgColor )
+            self.domElement.style.backgroundColor = self.options.bgColor;
+        
+    }
+    
+    grabAttributes()
+    {
+        
+    }
+}
+
 
 /* chart.js UI element
 
@@ -719,6 +797,14 @@ class ccChart extends ccGUIElement
         super( options );
     }
     
+    setData( dataset )
+    {
+        const self = this;
+        self.options.chart = dataset;
+        self.chart = new Chart( self.cEl, self.options.chart );
+        console.log( 'setdata.shart', self.chart );
+    }
+    
     attachDomElement()
     {
         const self = this;
@@ -727,16 +813,20 @@ class ccChart extends ccGUIElement
             opt : self.options,
         });
         super.attachDomElement();
-        const c = document.createElement( 'canvas' );
-        self.domElement.appendChild( c );
-        self.domElement.classList.add( 'chart-box-test' );
+        self.cEl = document.createElement( 'canvas' );
+        self.domElement.appendChild( self.cEl );
+        self.domElement.classList.add( 'klasStatsBox' );
         
-        self.chart = new Chart( c, self.options.chart );
+        if ( !self.options.chart )
+            return;
+        
+        self.chart = new Chart( self.cEl, self.options.chart );
         console.log( 'shart', self.chart );
     }
     
     grabAttributes()
     {
+        const self = this;
         console.log( 'ccChart.grapAttributes, na m8')
     }
     

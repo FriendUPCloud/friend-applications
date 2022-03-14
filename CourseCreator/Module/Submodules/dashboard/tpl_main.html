@@ -24,12 +24,6 @@
         <h2>
             Status
         </h2>
-        <div class="Left">
-            <!--<div class="Buttons">
-                <div class="HeaderButton IconSmall fa-plus-circle MousePointer" onclick="Application.submodules.classrooms.create()"></div>
-            </div>
-            <input type="text" placeholder="Search"/>-->
-        </div>
     </div>
     <div id="dashStatus" class="ContentBlock">
         
@@ -48,50 +42,206 @@ Application.submodules.dashboard = {
     {
         const self = this;
         self.classCharts = ge( 'dashActiveClasses' );
+        self.status = ge( 'dashStatus' );
+        const m = new Module( 'system' );
+        m.onExecuted = ( s, d ) =>
+        {
+            if ( 'ok' == s )
+            {
+                const res = JSON.parse( d );
+                console.log( 'dashboard init activeclasses', res );
+                let l = res.activeclasses.length;
+                for( ;l; )
+                {
+                    l--;
+                    self.addClassStatus( res.activeclasses[l]);
+                }
+            }
+            else
+            {
+                console.log( 'dashboard activeclasses fail', [ s, d ]);
+                console.log( JSON.parse( d ));
+            }
+        }
+        m.execute( 'appmodule', {
+            appName : 'CourseCreator',
+            command : 'submodule',
+            vars    : {
+                method    : 'activeclasses',
+                submodule : 'dashboard'
+            }
+        } );
+        const s = new Module( 'system' );
+        s.onExecuted = ( s, d ) => {
+            if ( 'ok' == s )
+            {
+                console.log( 'dashboard status back', [ s, d ]);
+                const res = JSON.parse( d );
+                console.log( 'status res', res );
+                const studs = res.students || {
+                    mainNum : 12,
+                    mainIcon : 'fa-users',
+                    mainText : 'Students',
+                    subStat  : 5,
+                    subText  : 'currently online',
+                };
+                const sesss = res.sessions || {
+                    mainNum : 4,
+                    mainIcon : 'fa-clock',
+                    mainText : 'Active sessions today',
+                    subStat  : undefined,
+                    subText  : undefined,
+                };
+                const courses = res.courses || {
+                    mainNum : 45,
+                    mainIcon : 'fa-book',
+                    mainText : 'Completed courses',
+                };
+                self.addStatusBox( studs, 'purple' );
+                self.addStatusBox( sesss, 'green' );
+                self.addStatusBox( courses, 'blue' );
+            }
+            else
+            {
+                console.log( 'dashboard status fail', [ s, d ]);
+            }
+        }
+        s.execute( 'appmodule', {
+            appName : 'CourseCreator',
+            command : 'submodule',
+            vars    : {
+                submodule : 'dashboard',
+                method    : 'status',
+            }
+        } );
+    },
+    
+    addClassStatus( klass )
+    {
+        console.log( 'addClassStatus', klass );
+        const self = this;
         const cEl = document.createElement( 'div' );
         self.classCharts.appendChild( cEl );
-        
-        const data = {
-            labels : [
-                'hepp',
-                'hopp',
-                'sopp',
-            ],
-            datasets : [{
-                label : 'test chart label',
-                data  : [ 
-                    44, 
-                    22, 
-                    90 
-                ],
-                backgroundColor : [
-                    'rgb(255, 99, 132)',
-                    'rgb(54, 162, 235)',
-                    'rgb(255, 205, 86)'
-                ],
-            }],
-        };
-        const conf = {
-            type : 'doughnut',
-            data : data,
-        };
-        
         const cOpts = {
             containerElement : cEl,
-            chart            : conf,
+            //chart            : conf,
         };
-        const c1 = new ccChart( cOpts );
-        console.log( 'dashboard.init', c1 );
-    }
+        const c = new ccChart( cOpts );
+        console.log( 'dashboard.addClassStatus', c );
+        const cs = new Module( 'system' );
+        cs.onExecuted = ( s, d ) =>
+        {
+            console.log( 'addClassStatus', [ s, d ] );
+            const res = JSON.parse( d );
+            console.log( 'stats', res );
+            const data = {
+                labels : [
+                    'hepp',
+                    'hopp',
+                    'sopp',
+                ],
+                datasets : [{
+                    label : 'test chart label',
+                    data  : [ 
+                        44, 
+                        22, 
+                        90 
+                    ],
+                    backgroundColor : [
+                        'rgb(255, 99, 132)',
+                        'rgb(54, 162, 235)',
+                        'rgb(255, 205, 86)'
+                    ],
+                }],
+            };
+            
+            const conf = {
+                type : 'doughnut',
+                data : data,
+            };
+            c.setData( conf );
+            
+        }
+        cs.execute( 'appmodule', {
+            appName : 'CourseCreator',
+            command : 'submodule',
+            vars    : {
+                method    : 'classtats',
+                submodule : 'dashboard',
+                classId   : klass.ID,
+            }
+        } );
+    },
+    
+    addStatusBox( data, bgColor )
+    {
+        const self = this;
+        console.log( 'addStatusBox', data );
+        const sEl = document.createElement( 'div' );
+        self.status.appendChild( sEl );
+        const sOpts = {
+            containerElement : sEl,
+            bgColor          : bgColor,
+        };
+        const s = new ccStatBox( sOpts );
+        s.setData( data );
+    },
+    
 }
 
 Application.submodules.dashboard.init();
     </script>
     <style>
-        .chart-box-test
+        #dashStatus,
+        #dashActiveClasses {
+            display         : flex;
+            flex-wrap       : wrap;
+            justify-content : center;
+        }
+        
+        .klasStatsBox
         {
             width : 200px;
             height: 210px;
             /*background-color: lightgrey;*/
+        }
+        
+        #dashStatus
+        {
+            
+        }
+        
+        #dashStatus .ccStatBox
+        {
+            padding      : 0.5em;
+            margin-right : 1em;
+            color        : white;
+        }
+        
+        .ccStatBox
+        {
+            
+        }
+        
+        .statboxMain
+        {
+            display         : flex;
+            font-size       : 3em;
+            justify-content : center;
+        }
+        
+        .statboxMainStat
+        {
+            
+        }
+        
+        .statboxMainText
+        {
+            font-size: 1.5em;
+        }
+        
+        .statboxSub
+        {
+            
         }
     </style>
