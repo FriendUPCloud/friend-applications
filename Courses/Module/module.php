@@ -329,7 +329,7 @@ switch( $args->args->command )
 			}
 			else
 			{
-				die( 'fail<!-separate-->{"message":"Could not find a page count for this section.","response":1}' );
+				die( 'fail<!--separate-->{"message":"Could not find a page count for this section.","response":1}' );
 			}
 			
 			// Check if we have page results that are not "completed status"
@@ -350,11 +350,11 @@ switch( $args->args->command )
 			{
 				if( $pageResultCount == $total )
 				{
-					die( 'ok<!-separate-->{"message":"This section is complete.","response":1}' );
+					die( 'ok<!--separate-->{"message":"This section is complete.","response":1}' );
 				}
 				else
 				{
-					die( 'fail<!-separate-->{"message":"Not all pages were read.","response":-1,"pages":' . $total . ',"readpages":' . $pageResultCount . '}' );
+					die( 'fail<!--separate-->{"message":"Not all pages were read.","response":-1,"pages":' . $total . ',"readpages":' . $pageResultCount . '}' );
 				}
 			}
 		}

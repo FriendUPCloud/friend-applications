@@ -161,32 +161,29 @@ class FUICourseviewer extends FUIElement
     			// Activate section on click
     			( function( ind )
     			{
-					if( self.getCurrentSection().Navigation == '1' )
+					d.onclick = function()
 					{
-						d.onclick = function()
+						let s = new Module( 'system' );
+						s.onExecuted = function( se, sd )
 						{
-							let s = new Module( 'system' );
-							s.onExecuted = function( se, sd )
+							if( se == 'ok' || self.getCurrentSection().Navigation == '1' )
 							{
-								if( se == 'ok' )
-								{
-									self.activeSection = ind;
-									self.currentPage = 0;
-									self.refreshStructure();
-									self.renderElements();
-								}
-								else
-								{
-									console.log( 'Could not navigate section because: ', se, sd );
-								}
+								self.activeSection = ind;
+								self.currentPage = 0;
+								self.refreshStructure();
+								self.renderElements();
 							}
-							s.execute( 'appmodule', {
-								appName: 'Courses',
-								command: 'checksectiondone',
-								sectionId: self.getCurrentSection().ID,
-								courseSessionId: csId
-							} );
+							else
+							{
+								Alert( 'You can not change section', 'Please visit and examine all pages before leaving this current course section.' );
+							}
 						}
+						s.execute( 'appmodule', {
+							appName: 'Courses',
+							command: 'checksectiondone',
+							sectionId: self.getCurrentSection().ID,
+							courseSessionId: csId
+						} );
 					}
 				} )( a );
     			
