@@ -388,6 +388,18 @@ class FUICourseviewer extends FUIElement
 				}
 				FUI.initialize();
 				self.renderingElements = false;
+				
+				// Update page status (tick off the box)
+				let p = new Module( 'system' );
+				p.onExecuted = function( pc, pd )
+				{
+					// nothing
+				}
+				p.execute( 'appmodule', {
+					appName: 'Courses',
+					command: 'setpagestatus',
+					pageId: page.ID
+				} );
 			}
 			
 			m.execute( 'appmodule', {

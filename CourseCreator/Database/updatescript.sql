@@ -65,10 +65,12 @@ ALTER TABLE CC_Section ADD FreeNavigation TINYINT(4) default 0 AFTER `OwnerID`;
 
 /* Track if we have seen a page */
 CREATE TABLE IF NOT EXISTS `CC_PageResult` (
-  `ID` bigint NOT NULL AUTO_INCREMENT,
-  `CourseSessionID` bigint NOT NULL,
-  `Status` tinyint NOT NULL DEFAULT '0',
+  `ID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `CourseSessionID` bigint(20) NOT NULL,
+  `Status` tinyint(4) NOT NULL DEFAULT '0',
   `DateCreated` datetime DEFAULT NULL,
   PRIMARY KEY (`ID`)
 );
+
+ALTER TABLE CC_PageResult ADD PageID bigint(20) NOT NULL AFTER ID;
 

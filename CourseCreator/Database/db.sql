@@ -265,9 +265,10 @@ CREATE TABLE `CC_File` (
 );
 
 CREATE TABLE `CC_PageResult` (
-  `ID` bigint NOT NULL AUTO_INCREMENT,
+  `ID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `PageID` bigint(20) NOT NULL,
   `CourseSessionID` bigint NOT NULL,
-  `Status` tinyint NOT NULL DEFAULT '0',
+  `Status` tinyint(4) NOT NULL DEFAULT '0',
   `DateCreated` datetime DEFAULT NULL,
   PRIMARY KEY (`ID`)
 );
