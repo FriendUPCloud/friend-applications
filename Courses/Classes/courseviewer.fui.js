@@ -248,8 +248,15 @@ class FUICourseviewer extends FUIElement
 				}
 			}
 		}
-		
 		return false;
+    }
+    
+    // Check if page has been completed
+    pageCompleted()
+    {
+    	let self = this;
+    	let pag = self.getCurrentPage();
+    	console.log( 'Page: ', pag );
     }
     
     // Redraw the navigation panel
@@ -475,6 +482,8 @@ class FUICourseviewer extends FUIElement
     						if( els[c] != this )
     							self.registerElementValue( els[c].id.substr( 3, els[c].id.length - 3 ), false );
     					}
+    					
+    					self.pageCompleted();
     				}
     				
     				// Restore value
@@ -554,6 +563,7 @@ class FUICourseviewer extends FUIElement
     				check.onchange = function( e )
     				{
     					self.registerElementValue( this.nam, this.checked );
+						self.pageCompleted();
     				}
     				
     				// Restore value

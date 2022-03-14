@@ -18,6 +18,17 @@ require( __DIR__ . '/../../CourseCreator/Module/classes/database.php' );
 // Instance our class!
 $db = new CourseDatabase();
 
+// Just get the element types (ID's)
+function getInteractiveElementTypes( $db )
+{
+	$ids = $db->database->fetchObjects( '
+		SELECT ID FROM CC_ElementType WHERE `Name` IN ( \'checkBoxQuestion\', \'radioBoxQuestion\' )
+	' );
+	$out = [];
+	foreach( $ids as $i ) $out[] = $i->ID;
+	return $out;
+}
+
 // Check calls
 switch( $args->args->command )
 {
@@ -258,6 +269,47 @@ switch( $args->args->command )
 			die( 'fail<!--separate-->{"message":"Could not store active course session.","response":-1}' );
 		}
 		die( 'fail<!--separate-->{"message":"Could not get active course session.","response":-1}' );
+		break;
+	/* ---------------------------------------------------------------------- */
+	/* This part is related to statistics, user progress and so on ---------- */
+	/* ---------------------------------------------------------------------- */
+	// Get progress for you (your user) in a selected class
+	case 'getclassprogress':
+		$types = getInteractiveElementTypes( $db );
+		
+		// Get total element count based on course session
+		if( $elementCount = $db->database->fetchObject( '
+			SELECT COUNT(e.ID) CNT
+			FROM 
+				CC_CourseSession s, 
+				CC_Element e, 
+				CC_Page p, 
+				CC_Section se 
+			WHERE 
+				s.CourseID = s.CourseID AND 
+				s.UserID = \'' . $User->ID . '\' AND 
+				p.SectionID = se.ID AND 
+				s.CourseID = se.CourseID AND 
+				p.ID = e.PageID AND 
+				e.ElementTypeID IN ( ' . implode( ',', $types ) . ' ) AND 
+				s.ID = ' . ( intval( $args->args->courseSessionId, 10 ) . '
+		' ) )
+		{
+			$elementCount = $elementCount->CNT;
+			
+			// Get elements that were interacted with
+			if( $registered = $db->database->fetchObject( '
+				SELECT COUNT(ID) AS CNT FROM CC_ElementResult WHERE CourseSessionID = ' . ( intval( $args->args->courseSessionId, 10 ) . '
+			' ) )
+			{
+				$registered = $registered->CNT;
+				
+				// How many percent progress?
+				die( 'ok<!--separate-->{"progress":"' . ( ( $registered / $elementCount ) * 100 ) . '"}' );
+			}
+		}
+		// Zero progress
+		die( 'ok<!--separate-->{"progress":"0"}' );
 		break;
 }
 die( 'fail<!--separate-->{"message":"Unknown appmodule method.","response":-1}' );
