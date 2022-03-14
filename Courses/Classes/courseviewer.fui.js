@@ -140,6 +140,20 @@ class FUICourseviewer extends FUIElement
     		
     		let csId = self.#courseSessionId;
     		
+    		// First pass, check current section
+    		if( !self.activeSection )
+    		{
+				for( let a in self.sections )
+				{
+					if( self.sections[ a ].ID == self.storedActiveSection )
+					{
+						self.activeSection = a;
+						break;
+					}
+				}
+			}
+    		
+    		// Render sections
     		for( let a in self.sections )
     		{
     			let row = self.sections[a];
@@ -147,12 +161,7 @@ class FUICourseviewer extends FUIElement
     			d.className = 'FUICourseviewerSection';
     			d.innerHTML = '<div class="Name">' + row.Name + '</div><div class="Progress"><progressbar progress="0%"/></div><div class="Pages"></div>';
     			
-    			if( !self.activeSection )
-    			{
-    				self.activeSection = a;
-    				d.classList.add( 'Emphasized' );
-    			}
-    			else if( self.activeSection == a )
+    			if( self.activeSection == a )
     			{
     				d.classList.add( 'Emphasized' );
     			}
@@ -322,6 +331,17 @@ class FUICourseviewer extends FUIElement
 		
 		if( sect.pages )
 		{
+			// First pass, check active page
+			if( !self.currentPage )
+			{
+				for( let a = 0; a < sect.pages.length; a++ )
+				{
+					if( sect.pages[a].ID == self.storedActivePage )
+					{
+						self.currentPage = a;
+					}
+				}
+			}
 			for( let a = 0; a < sect.pages.length; a++ )
 			{
 				let p = document.createElement( 'div' );

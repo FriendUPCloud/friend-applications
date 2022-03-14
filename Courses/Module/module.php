@@ -259,7 +259,7 @@ switch( $args->args->command )
 				UserID=\'' . $User->ID . '\'
 		' ) )
 		{
-			die( 'ok<!--separate-->' . json_stringify( $row ) );
+			die( 'ok<!--separate-->' . json_encode( $row ) );
 		}
 		die( 'fail<!--separate-->{"message":"Could not get session information.","response":-1}' );
 		break;
