@@ -34,6 +34,10 @@ class FUICourseviewer extends FUIElement
         // Do stuff
     }
     
+    // Some public vars
+    storedActivePage = -1
+    storedActiveSection = -1
+    
     attachDomElement()
     {
         super.attachDomElement();
@@ -724,6 +728,10 @@ class FUICourseviewer extends FUIElement
     	
     	let self = this;
     	
+    	// Set this before anything
+    	this.#courseSessionId = courseSessionId;
+    	
+    	// Read information before starting
     	let m = new Module( 'system' );
     	m.onExecuted = function( me, md )
     	{
@@ -737,8 +745,9 @@ class FUICourseviewer extends FUIElement
     		if( information && information.ID )
     		{
 				self.course = courseStructure;
-				self.#courseSessionId = courseSessionId;
 				self.structureUpdated = true;
+				self.storedActivePage = information.CurrentPage;
+				self.storedActiveSection = information.CurrentSection;
 				self.refreshDom();
 			}
 		}

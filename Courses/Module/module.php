@@ -250,6 +250,19 @@ switch( $args->args->command )
 		}
 		die( 'fail<!--separate-->{"response":-1,"message":"Could not retrieve element value."}' );
 		break;
+	// Get full information about session
+	case 'getsessioninfo':
+		if( $row = $db->database->fetchObject( '
+			SELECT * FROM CC_CourseSession
+			WHERE
+				ID=\'' . intval( $args->args->courseSessionId, 10 ) . '\' AND
+				UserID=\'' . $User->ID . '\'
+		' ) )
+		{
+			die( 'ok<!--separate-->' . json_stringify( $row ) );
+		}
+		die( 'fail<!--separate-->{"message":"Could not get session information.","response":-1}' );
+		break;
 	// Get / create active course session
 	case 'getcoursesession':
 		$d = new dbIO( 'CC_CourseSession', $db->database );
