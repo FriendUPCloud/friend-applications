@@ -250,6 +250,8 @@ CREATE TABLE `CC_CourseSession` (
   `UserID` bigint NOT NULL,
   `CourseID` bigint NOT NULL,
   `Status` tinyint NOT NULL DEFAULT '0',
+  `CurrentSection` bigint DEFAULT '0',
+  `CurrentPage` bigint DEFAULT '0',
   `DateCreated` datetime DEFAULT NULL,
   PRIMARY KEY (`ID`)
 );

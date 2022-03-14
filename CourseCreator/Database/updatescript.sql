@@ -74,3 +74,5 @@ CREATE TABLE IF NOT EXISTS `CC_PageResult` (
 
 ALTER TABLE CC_PageResult ADD PageID bigint(20) NOT NULL AFTER ID;
 
+ALTER TABLE CC_CourseSession ADD CurrentPage bigint(20) default 0 AFTER Status;
+ALTER TABLE CC_CourseSession ADD CurrentSection bigint(20) default 0 AFTER Status;
