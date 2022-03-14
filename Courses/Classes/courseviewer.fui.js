@@ -721,10 +721,32 @@ class FUICourseviewer extends FUIElement
     {
     	// TODO: Verify course session id with module call
     	if( !courseSessionId ) return;
-    	this.course = courseStructure;
-    	this.#courseSessionId = courseSessionId;
-    	this.structureUpdated = true;
-    	this.refreshDom();
+    	
+    	let self = this;
+    	
+    	let m = new Module( 'system' );
+    	m.onExecuted = function( me, md )
+    	{
+    		if( me != 'ok' )
+    		{
+    			Alert( 'Can not load course session', 'Something is broken with your current course session.' );
+    			return;
+    		}
+    		
+    		let information = JSON.parse( md );
+    		if( information && information.ID )
+    		{
+				self.course = courseStructure;
+				self.#courseSessionId = courseSessionId;
+				self.structureUpdated = true;
+				self.refreshDom();
+			}
+		}
+		m.execute( 'appmodule', {
+			appName: 'Courses',
+			command: 'getsessioninfo',
+			courseSessionId: courseSessionId
+		} );
     }
     
     /* Private methods ------------------------------------------------------ */
