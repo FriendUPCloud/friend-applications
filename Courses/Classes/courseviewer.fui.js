@@ -133,12 +133,16 @@ class FUICourseviewer extends FUIElement
     		}
     		
     		self.panel.innerHTML = '<h1 class="FUICourseviewerSectionHeader">Course navigation</h1>';
+    		
+    		let csId = self.#courseSessionId;
+    		
     		for( let a in self.sections )
     		{
     			let row = self.sections[a];
     			let d = document.createElement( 'div' );
     			d.className = 'FUICourseviewerSection';
     			d.innerHTML = '<div class="Name">' + row.Name + '</div><div class="Progress"><progressbar progress="0%"/></div><div class="Pages"></div>';
+    			
     			
     			if( !self.activeSection )
     			{
@@ -157,14 +161,31 @@ class FUICourseviewer extends FUIElement
     			// Activate section on click
     			( function( ind )
     			{
-    				if( self.getCurrentSection().Navigation == '1' )
-    				{
+					if( self.getCurrentSection().Navigation == '1' )
+					{
 						d.onclick = function()
 						{
-							self.activeSection = ind;
-							self.currentPage = 0;
-							self.refreshStructure();
-							self.renderElements();
+							let s = new Module( 'system' );
+							s.onExecuted = function( se, sd )
+							{
+								if( se == 'ok' )
+								{
+									self.activeSection = ind;
+									self.currentPage = 0;
+									self.refreshStructure();
+									self.renderElements();
+								}
+								else
+								{
+									console.log( 'Could not navigate section because: ', se, sd );
+								}
+							}
+							s.execute( 'appmodule', {
+								appName: 'Courses',
+								command: 'checksectiondone',
+								sectionId: self.getCurrentSection().ID,
+								courseSessionId: csId
+							} );
 						}
 					}
 				} )( a );

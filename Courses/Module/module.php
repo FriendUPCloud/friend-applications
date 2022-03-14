@@ -303,18 +303,37 @@ switch( $args->args->command )
 			die( 'fail<!--separate-->{"message":"Missing args for query.","response":-1}' );
 		}
 		// Check if we have any page results
-		if( $page = $db->database->fetchObjectRow( '
-			SELECT p.* FROM CC_PageResult p, CC_Section s, CC_CourseSession cs
+		if( $page = $db->database->fetchObject( '
+			SELECT COUNT(p.ID) AS CNT FROM CC_PageResult p, CC_Section s, CC_CourseSession cs
 			WHERE
 				s.ID = \'' . intval( $args->args->sectionId, 10 ) . '\' AND
 				cs.ID = \'' . intval( $args->args->courseSessionId, 10 ) . '\' AND
 				cs.CourseID = s.CourseID AND
 				p.CourseSessionID = cs.ID
-			LIMIT 1
 		' ) )
 		{
+			// The amount of pages that were viewed
+			$pageResultCount = $page->CNT;
+			
+			$total = 0;
+			if( $total = $db->database->fetchObject( '
+				SELECT COUNT(p.ID) AS CNT FROM CC_Page p, CC_Section s, CC_CourseSession cs
+				WHERE
+					p.SectionID = \'' . intval( $args->args->sectionId, 10 ) . '\' AND
+					s.ID = p.SectionID AND
+					s.CourseID = cs.CourseID AND
+					cs.ID = \'' . intval( $args->args->courseSessionId, 10 ) . '\'
+			' ) )
+			{
+				$total = $total->CNT;
+			}
+			else
+			{
+				die( 'fail<!-separate-->{"message":"Could not find a page count for this section.","response":1}' );
+			}
+			
 			// Check if we have page results that are not "completed status"
-			if( $rows = $db->database->fetchObjectRows( '
+			if( $rows = $db->database->fetchObjects( '
 				SELECT p.* FROM CC_PageResult p, CC_Section s, CC_CourseSession cs
 				WHERE
 					s.ID = \'' . intval( $args->args->sectionId, 10 ) . '\' AND
@@ -324,12 +343,19 @@ switch( $args->args->command )
 					p.Status != \'1\'
 			' ) )
 			{
-				die( 'fail<!--separate->{"message":"This section is not complete.","response":-1}' );
+				die( 'fail<!--separate->{"message":"This section is not complete because of unread pages.","response":-1}' );
 			}
 			// Ok, all are completed status
 			else
 			{
-				die( 'ok<!-separate-->{"message":"This section is complete.","response":1}' );
+				if( $pageResultCount == $total )
+				{
+					die( 'ok<!-separate-->{"message":"This section is complete.","response":1}' );
+				}
+				else
+				{
+					die( 'fail<!-separate-->{"message":"Not all pages were read.","response":-1,"pages":' . $total . ',"readpages":' . $pageResultCount . '}' );
+				}
 			}
 		}
 		// Section hasn't even been started on
