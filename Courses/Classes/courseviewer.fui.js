@@ -400,6 +400,7 @@ class FUICourseviewer extends FUIElement
 				p.onExecuted = function( pc, pd )
 				{
 					// nothing
+					console.log( 'What result of page status: ', pc, pd );
 				}
 				p.execute( 'appmodule', {
 					appName: 'Courses',

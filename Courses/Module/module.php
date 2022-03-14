@@ -275,7 +275,7 @@ switch( $args->args->command )
 	/* ---------------------------------------------------------------------- */
 	// Tell the system that a page has been read
 	case 'setpagestatus':
-		if( isset( $args->args ) && isset( $args->args->pageId ) && isset( $args->args->courseSessionID ) )
+		if( isset( $args->args ) && isset( $args->args->pageId ) && isset( $args->args->courseSessionId ) )
 		{
 			$d = new dbIO( 'CC_Page', $db->database );
 			if( !$d->Load( $args->args->pageId ) )
@@ -284,7 +284,7 @@ switch( $args->args->command )
 			}
 			$p = new dbIO( 'CC_PageResult', $db->database );
 			$p->PageID = $d->ID;
-			$p->CourseSessionID = $args->args->courseSessionID;
+			$p->CourseSessionID = $args->args->courseSessionId;
 			if( !$p->Load() )
 			{
 				$p->Status = 1;
@@ -298,7 +298,7 @@ switch( $args->args->command )
 		break;
 	// Check if a section is done on sectionId and courseSessionId
 	case 'checksectiondone':
-		if( !isset( $args->args ) || !isset( $args->args->sectionId ) || !isset( $args->args->courseSessionID ) )
+		if( !isset( $args->args ) || !isset( $args->args->sectionId ) || !isset( $args->args->courseSessionId ) )
 		{
 			die( 'fail<!--separate-->{"message":"Missing args for query.","response":-1}' );
 		}
@@ -307,7 +307,7 @@ switch( $args->args->command )
 			SELECT p.* FROM CC_PageResult p, CC_Section s, CC_CourseSession cs
 			WHERE
 				s.ID = \'' . intval( $args->args->sectionId, 10 ) . '\' AND
-				cs.ID = \'' . intval( $args->args->courseSessionID, 10 ) . '\' AND
+				cs.ID = \'' . intval( $args->args->courseSessionId, 10 ) . '\' AND
 				cs.CourseID = s.CourseID AND
 				p.CourseSessionID = cs.ID
 			LIMIT 1
@@ -318,7 +318,7 @@ switch( $args->args->command )
 				SELECT p.* FROM CC_PageResult p, CC_Section s, CC_CourseSession cs
 				WHERE
 					s.ID = \'' . intval( $args->args->sectionId, 10 ) . '\' AND
-					cs.ID = \'' . intval( $args->args->courseSessionID, 10 ) . '\' AND
+					cs.ID = \'' . intval( $args->args->courseSessionId, 10 ) . '\' AND
 					cs.CourseID = s.CourseID AND
 					p.CourseSessionID = cs.ID AND
 					p.Status != \'1\'
