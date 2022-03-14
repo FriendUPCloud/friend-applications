@@ -309,6 +309,14 @@ switch( $args->args->command )
 			die( 'fail<!--separate-->{"message":"Could not find course session or course ids.","response":-1}' );
 		}
 		
+		$userId = $User->ID;
+		
+		// Only admins can do this
+		if( $level == 'Admin' )
+		{
+			$userId = intval( $args->args->userId );
+		}
+		
 		// Pass through all sessions
 		if( count( $csid ) )
 		{
@@ -336,7 +344,7 @@ switch( $args->args->command )
 						CC_Section se 
 					WHERE 
 						s.CourseID = s.CourseID AND 
-						s.UserID = \'' . $User->ID . '\' AND 
+						s.UserID = \'' . $userId . '\' AND 
 						p.SectionID = se.ID AND 
 						s.CourseID = se.CourseID AND 
 						p.ID = e.PageID AND 
