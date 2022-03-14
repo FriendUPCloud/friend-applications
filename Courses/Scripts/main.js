@@ -122,7 +122,7 @@ moduleObject.classrooms = {
 				
 				// Get classroom ids
 				let cids = [];
-				for( let a in list ) cids.push( list[a].ID );
+				for( let a in list ) cids.push( parseInt( list[a].ID ) );
 				
 				// Get progress on all classrooms
 				let cl = new Module( 'system' );
@@ -157,7 +157,7 @@ moduleObject.classrooms = {
 							},
 							{
 								type: 'string',
-								value: '<progressbar progress="' + ( progress[ list[a].ID ] ? progress[ list[a].ID ] : '0%' ) + '"/>'
+								value: '<progressbar progress="' + ( progress[ list[a].CourseID ] ? progress[ list[a].CourseID ] : '0%' ) + '"/>'
 							},
 							{
 								type: 'string',

@@ -284,7 +284,7 @@ switch( $args->args->command )
 		// Get active sessions frmo classroom ids
 		else if( isset( $args->args ) && isset( $args->args->classrooms ) )
 		{
-			$classrooms = json_decode( $args->args->classrooms );
+			$classrooms = $args->args->classrooms;
 			$csid = array();
 			foreach( $classrooms as $k=>$v )
 			{
@@ -299,6 +299,10 @@ switch( $args->args->command )
 					$csid[] = $sess->CourseID;
 				}
 			}
+			else
+			{
+				die( 'fail<!--separate-->SELECT s.* FROM CC_CourseSession s, CC_Classroom c WHERE c.ID IN ( ' . implode( ',', $classrooms ) . ' ) AND s.CourseID = c.CourseID' );
+			}
 		}
 		else
 		{
@@ -308,13 +312,15 @@ switch( $args->args->command )
 		// Pass through all sessions
 		if( count( $csid ) )
 		{
+			// Output progress based on course
+			$out = new stdClass();
 			foreach( $csid as $csi )
 			{
-				$out = new stdClass();
 				
 				// Get classroom
 				$cl = new dbIO( 'CC_CourseSession', $db->database );
-				$cl->ID = $csi;
+				$cl->CourseID = $csi;
+				$cl->Status = 1;
 				if( !$cl->Load() )
 				{
 					continue;
@@ -335,19 +341,19 @@ switch( $args->args->command )
 						s.CourseID = se.CourseID AND 
 						p.ID = e.PageID AND 
 						e.ElementTypeID IN ( ' . implode( ',', $types ) . ' ) AND 
-						s.ID = ' . $csi . '
+						s.ID = ' . $cl->ID . '
 				' ) )
 				{
 					$elementCount = $elementCount->CNT;
 					
 					// Get elements that were interacted with
 					if( $registered = $db->database->fetchObject( '
-						SELECT COUNT(ID) AS CNT FROM CC_ElementResult WHERE CourseSessionID = ' . ( intval( $args->args->courseSessionId, 10 ) ) . '
+						SELECT COUNT(ID) AS CNT FROM CC_ElementResult WHERE CourseSessionID = ' . $cl->ID . '
 					' ) )
 					{
 						$registered = $registered->CNT;
 						
-						$out[ $cl->CourseID ] = ( ( $registered / $elementCount ) * 100 );
+						$out->{$cl->CourseID} = ( ( $registered / $elementCount ) * 100 );
 					}
 				}
 			}
