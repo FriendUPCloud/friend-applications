@@ -57,6 +57,7 @@ CREATE TABLE IF NOT EXISTS CC_Section(
     DisplayID BIGINT(20) NOT NULL,
     Name VARCHAR(60),
     OwnerID BIGINT(20),
+    FreeNavigation TINYINT(4) default 0,
     CourseID BIGINT(20),
     SourceID BIGINT(20),
     DateCreated DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -249,6 +250,8 @@ CREATE TABLE `CC_CourseSession` (
   `UserID` bigint NOT NULL,
   `CourseID` bigint NOT NULL,
   `Status` tinyint NOT NULL DEFAULT '0',
+  `CurrentSection` bigint DEFAULT '0',
+  `CurrentPage` bigint DEFAULT '0',
   `DateCreated` datetime DEFAULT NULL,
   PRIMARY KEY (`ID`)
 );
@@ -259,6 +262,15 @@ CREATE TABLE `CC_File` (
   `OriginalFilename` varchar(255) DEFAULT NULL,
   `ElementID` bigint NOT NULL,
   `CourseID` bigint NOT NULL,
+  `DateCreated` datetime DEFAULT NULL,
+  PRIMARY KEY (`ID`)
+);
+
+CREATE TABLE `CC_PageResult` (
+  `ID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `PageID` bigint(20) NOT NULL,
+  `CourseSessionID` bigint NOT NULL,
+  `Status` tinyint(4) NOT NULL DEFAULT '0',
   `DateCreated` datetime DEFAULT NULL,
   PRIMARY KEY (`ID`)
 );

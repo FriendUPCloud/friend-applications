@@ -34,6 +34,10 @@ class FUICourseviewer extends FUIElement
         // Do stuff
     }
     
+    // Some public vars
+    storedActivePage = -1
+    storedActiveSection = -1
+    
     attachDomElement()
     {
         super.attachDomElement();
@@ -89,7 +93,7 @@ class FUICourseviewer extends FUIElement
         {
         	this.structureUpdated = false;
         	this.refreshStructure();
-        }
+        }        
         
     }
     getMarkup( data )
@@ -133,6 +137,23 @@ class FUICourseviewer extends FUIElement
     		}
     		
     		self.panel.innerHTML = '<h1 class="FUICourseviewerSectionHeader">Course navigation</h1>';
+    		
+    		let csId = self.#courseSessionId;
+    		
+    		// First pass, check current section
+    		if( !self.activeSection )
+    		{
+				for( let a in self.sections )
+				{
+					if( self.sections[ a ].ID == self.storedActiveSection )
+					{
+						self.activeSection = a;
+						break;
+					}
+				}
+			}
+    		
+    		// Render sections
     		for( let a in self.sections )
     		{
     			let row = self.sections[a];
@@ -140,12 +161,7 @@ class FUICourseviewer extends FUIElement
     			d.className = 'FUICourseviewerSection';
     			d.innerHTML = '<div class="Name">' + row.Name + '</div><div class="Progress"><progressbar progress="0%"/></div><div class="Pages"></div>';
     			
-    			if( !self.activeSection )
-    			{
-    				self.activeSection = a;
-    				d.classList.add( 'Emphasized' );
-    			}
-    			else if( self.activeSection == a )
+    			if( self.activeSection == a )
     			{
     				d.classList.add( 'Emphasized' );
     			}
@@ -155,25 +171,55 @@ class FUICourseviewer extends FUIElement
     			}
     			
     			// Activate section on click
+    			// Rules:
+    			// A user can leave current section if:
+    			// a) If the section is complete, and the user requests the next section
     			( function( ind )
     			{
 					d.onclick = function()
 					{
-						self.activeSection = ind;
-						self.currentPage = 0;
-						self.refreshStructure();
-						self.renderElements();
+						let s = new Module( 'system' );
+						s.onExecuted = function( se, sd )
+						{
+							if( ind == parseInt( self.activeSection ) + 1 )
+							{
+								// If current section is done, 
+								if( se == 'ok' || self.getCurrentSection().Navigation == '1' )
+								{
+									let currentSection = self.activeSection;
+								
+									self.activeSection = ind;
+									self.currentPage = 0;
+									self.refreshStructure();
+									self.renderElements();
+								}
+								else
+								{
+									Alert( 'You can not change section', 'Please visit and examine all pages before leaving this current course section.' );
+								}
+							}
+							else
+							{
+								Alert( 'You cannot go back to a previous section', 'You are attempting to select the previous section. This is not allowed.' );
+							}
+						}
+						s.execute( 'appmodule', {
+							appName: 'Courses',
+							command: 'checksectiondone',
+							sectionId: self.getCurrentSection().ID,
+							courseSessionId: csId
+						} );
 					}
 				} )( a );
-    			
-    			/*let pages = d.querySelector( '.FUICourseviewerPages' );
-    			for( let b = 0; b < row.pages.length; b++ )
-    			{
-    				let p = document.createElement( 'div' );
-    				p.className = 'FUICourseviewerPage';
-    				p.innerHTML = row.pages[b].Name;
-    				pages.appendChild( p );
-    			}*/
+				
+				// Set active section
+				let m = new Module( 'system' );
+				m.execute( 'appmodule', {
+					appName: 'Courses',
+					command: 'setsessioninfo',
+					currentSectionId: self.getCurrentSection().ID
+				} );
+				
     			self.panel.appendChild( d );
     		}
     		
@@ -216,6 +262,46 @@ class FUICourseviewer extends FUIElement
     	} );
     }
     
+    // Fetch current section
+    getCurrentSection()
+    {
+    	let self = this;
+    	
+    	for( let a in self.sections )
+		{
+			if( a == self.activeSection )
+				return self.sections[ a ];
+		}
+		return false;
+    }
+    
+    // Fetch current page
+    getCurrentPage()
+    {
+    	let self = this;
+    	
+    	let sect = this.getCurrentSection();
+		if( sect && sect.pages )
+		{
+			for( let a = 0; a < sect.pages.length; a++ )
+			{
+				if( self.currentPage == a )
+				{
+					return sect.pages[a];
+				}
+			}
+		}
+		return false;
+    }
+    
+    // Check if page has been completed
+    pageCompleted()
+    {
+    	let self = this;
+    	let pag = self.getCurrentPage();
+    	console.log( 'Page: ', pag );
+    }
+    
     // Redraw the navigation panel
     redrawNavPanel()
     {
@@ -245,6 +331,17 @@ class FUICourseviewer extends FUIElement
 		
 		if( sect.pages )
 		{
+			// First pass, check active page
+			if( !self.currentPage )
+			{
+				for( let a = 0; a < sect.pages.length; a++ )
+				{
+					if( sect.pages[a].ID == self.storedActivePage )
+					{
+						self.currentPage = a;
+					}
+				}
+			}
 			for( let a = 0; a < sect.pages.length; a++ )
 			{
 				let p = document.createElement( 'div' );
@@ -257,15 +354,35 @@ class FUICourseviewer extends FUIElement
 				p.innerHTML = '<span>' + ( a + 1 ) + '</span>';
 				( function( pag, num )
 				{
-					pag.onclick = function()
-					{
-						self.currentPage = num;
-						self.renderElements();
+					if( self.getCurrentSection().Navigation == '1' )
+    				{
+						pag.onclick = function()
+						{
+							self.currentPage = num;
+							self.renderElements();
+						}
 					}
 				} )( p, a );
 				this.navpanel.querySelector( '.Pages' ).appendChild( p );
 			}
+			// Set active page
+			let m = new Module( 'system' );
+			m.execute( 'appmodule', {
+				appName: 'Courses',
+				command: 'setsessioninfo',
+				currentPageId: sect.pages[ self.currentPage ].ID,
+				courseSessionId: this.#courseSessionId
+			} );
 		}
+		
+		// Set active section
+		let m = new Module( 'system' );
+		m.execute( 'appmodule', {
+			appName: 'Courses',
+			command: 'setsessioninfo',
+			currentSectionId: self.getCurrentSection().ID,
+			courseSessionId: this.#courseSessionId
+		} );
 		
 		this.navpanel.querySelector( '.Previous' ).onclick = function()
 		{
@@ -277,7 +394,7 @@ class FUICourseviewer extends FUIElement
 			}
 			self.renderElements();
 		}
-		
+ 		
 		this.navpanel.querySelector( '.Next' ).onclick = function()
 		{
 			self.currentPage++;
@@ -312,10 +429,18 @@ class FUICourseviewer extends FUIElement
     	
     	self.canvasContent.innerHTML = '';
     	
+	    self.canvasHeader.innerHTML = self.course.Name + 
+	    	' <span class="IconSmall fa-chevron-right"></span> ' + 
+	    	self.getCurrentSection().Name + 
+	    	' <span class="IconSmall fa-chevron-right"></span> ' + 
+	    	self.getCurrentPage().Name;
+    	
     	let act = false;
     	for( let a in self.sections )
     		if( a == self.activeSection )
     			act = self.sections[ a ];
+    	
+    	let csId = self.#courseSessionId;
     	
     	if( act && act.pages && act.pages[self.currentPage] )
     	{
@@ -340,6 +465,20 @@ class FUICourseviewer extends FUIElement
 				}
 				FUI.initialize();
 				self.renderingElements = false;
+				
+				// Update page status (tick off the box)
+				let p = new Module( 'system' );
+				p.onExecuted = function( pc, pd )
+				{
+					// nothing
+					console.log( 'What result of page status: ', pc, pd );
+				}
+				p.execute( 'appmodule', {
+					appName: 'Courses',
+					command: 'setpagestatus',
+					pageId: page.ID,
+					courseSessionId: csId
+				} );
 			}
 			
 			m.execute( 'appmodule', {
@@ -434,6 +573,8 @@ class FUICourseviewer extends FUIElement
     						if( els[c] != this )
     							self.registerElementValue( els[c].id.substr( 3, els[c].id.length - 3 ), false );
     					}
+    					
+    					self.pageCompleted();
     				}
     				
     				// Restore value
@@ -513,6 +654,7 @@ class FUICourseviewer extends FUIElement
     				check.onchange = function( e )
     				{
     					self.registerElementValue( this.nam, this.checked );
+						self.pageCompleted();
     				}
     				
     				// Restore value
@@ -603,11 +745,37 @@ class FUICourseviewer extends FUIElement
     {
     	// TODO: Verify course session id with module call
     	if( !courseSessionId ) return;
-    	this.course = courseStructure;
+    	
+    	let self = this;
+    	
+    	// Set this before anything
     	this.#courseSessionId = courseSessionId;
-    	this.canvasHeader.innerHTML = this.course.Name;
-    	this.structureUpdated = true;
-    	this.refreshDom();
+    	
+    	// Read information before starting
+    	let m = new Module( 'system' );
+    	m.onExecuted = function( me, md )
+    	{
+    		if( me != 'ok' )
+    		{
+    			Alert( 'Can not load course session', 'Something is broken with your current course session.' );
+    			return;
+    		}
+    		
+    		let information = JSON.parse( md );
+    		if( information && information.ID )
+    		{
+				self.course = courseStructure;
+				self.structureUpdated = true;
+				self.storedActivePage = information.CurrentPage;
+				self.storedActiveSection = information.CurrentSection;
+				self.refreshDom();
+			}
+		}
+		m.execute( 'appmodule', {
+			appName: 'Courses',
+			command: 'getsessioninfo',
+			courseSessionId: courseSessionId
+		} );
     }
     
     /* Private methods ------------------------------------------------------ */

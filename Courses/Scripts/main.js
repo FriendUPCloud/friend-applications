@@ -117,69 +117,106 @@ moduleObject.classrooms = {
 					ls.clearRows();
 					return;
 				}
-				let list = JSON.parse( rd );
-				console.log( 'room list', list );
-				let out = [];
-				for( let a = 0; a < list.length; a++ )
-				{
-					out.push( [
-						{
-							type: 'string',
-							value: list[a].Name,
-							onclick: 'w_classroom_enter_' + a
-						},
-						{
-							type : 'string',
-							value : list[a].StartDate.split(' ')[0],
-						},
-						{
-							type: 'string',
-							value: '<progressbar progress="' + Math.floor( Math.random() * 100 ) + '"/>'
-						},
-						{
-							type: 'string',
-							value: 'tesing...'
-						},
-						{
-							type: 'string',
-							value: list[a].EndDate.split(' ')[0],
-						}
-					] );
-					
-					// Enter classroom overview
-					( function( classroomId )
-					{
-						FUI.addCallback( 'w_classroom_enter_' + a, function( ls )
-						{
-							let m = new Module( 'system' );
-							m.onExecuted = function( mc, md )
-							{
-								if( mc != 'ok' )
-								{
-									console.log( 'Could not load classroom.' );
-									return;
-								}
-								moduleObject.moduleView.setSubModuleContent( 
-									'classroom', 
-									'classroom_details', 
-									md, 
-									function()
-									{
-										moduleObject.classrooms.initClassroomDetails( classroomId );
-									} 
-								);
-							}
-							m.execute( 'appmodule', {
-								appName: 'Courses',
-								command: 'gettemplate',
-								moduleName: 'classrooms',
-								template: 'classroom'
-							} );
-						} );
-					} )( list[ a ].ID );
-				}				
 				
-				ls.setRowData( out );
+				let list = JSON.parse( rd );
+				
+				// Get classroom ids
+				let cids = [];
+				for( let a in list ) cids.push( parseInt( list[a].ID ) );
+				
+				// Get progress on all classrooms
+				let cl = new Module( 'system' );
+				cl.onExecuted = function( ce, cd )
+				{
+					let progress = {};
+					if( ce == 'ok' )
+					{
+						try
+						{
+							progress = JSON.parse( cd );
+						}
+						catch( e )
+						{
+							progress = {};
+						}
+					}
+					
+					let out = [];
+					
+					for( let a = 0; a < list.length; a++ )
+					{
+						let exStatus = false;
+						let endTime = ( new Date( list[a].EndDate ) ).getTime();
+						let now = ( new Date() ).getTime();
+						if( now >= endTime )
+						{
+							exStatus = 'Closed';
+						}
+					
+						out.push( [
+							{
+								type: 'string',
+								value: list[a].Name,
+								onclick: 'w_classroom_enter_' + a
+							},
+							{
+								type : 'string',
+								value : list[a].StartDate.split(' ')[0],
+							},
+							{
+								type: 'string',
+								value: '<progressbar progress="' + ( progress[ list[a].CourseID ] ? progress[ list[a].CourseID ] : '0%' ) + '"/>'
+							},
+							{
+								type: 'string',
+								value: ( exStatus ? exStatus : ( typeof( progress[ list[a].CourseID ] ) != 'undefined' ) ? 'Active' : 'Not started' )
+							},
+							{
+								type: 'string',
+								value: list[a].EndDate.split(' ')[0],
+							}
+						] );
+						
+						// Enter classroom overview
+						( function( classroomId )
+						{
+							FUI.addCallback( 'w_classroom_enter_' + a, function( ls )
+							{
+								let m = new Module( 'system' );
+								m.onExecuted = function( mc, md )
+								{
+									if( mc != 'ok' )
+									{
+										console.log( 'Could not load classroom.' );
+										return;
+									}
+									moduleObject.moduleView.setSubModuleContent( 
+										'classroom', 
+										'classroom_details', 
+										md, 
+										function()
+										{
+											moduleObject.classrooms.initClassroomDetails( classroomId );
+										} 
+									);
+								}
+								m.execute( 'appmodule', {
+									appName: 'Courses',
+									command: 'gettemplate',
+									moduleName: 'classrooms',
+									template: 'classroom'
+								} );
+							} );
+						} )( list[ a ].ID );
+					}				
+					
+					ls.setRowData( out );
+				}
+				cl.execute( 'appmodule', {
+					appName: 'Courses',
+					command: 'getclassroomprogress',
+					classrooms: cids
+				} );
 			}
 			m.execute( 'appmodule', {
 				appName: 'Courses',
@@ -210,14 +247,28 @@ moduleObject.classrooms = {
 			
 			console.log( 'when does it start?', course, now );
 			
+			// Button icon
+			let classText = 'fa-play-circle-o';
+			
 			if( progress )
+			{
 				btnText = 'Continue course';
+				classText = 'fa-arrow-circle-right';
+			}
 			if( !started )
+			{
 				btnText = 'Not yet available';
+				classText = 'fa-warning';
+			}
 			if( started && !progress )
+			{
 				btnText = 'Start course';
+			}
 			if( ended )
+			{
 				btnText = 'Course Ended';
+				classText = 'fa-warning';
+			}
 			
 			console.log( 'date', {
 				now        : now,
@@ -228,8 +279,9 @@ moduleObject.classrooms = {
 				btnText    : btnText,
 				btnDisable : btnDisable,
 			});
+			
 			section.setHeader( 'Details for ' + course.Name );
-			section.setContent( '<p>Details are coming.</p><p class="TextRight"><button ' + ( btnDisable ? 'disabled' : '' ) + ' type="button" onclick="moduleObject.classrooms.courseViewer(' + course.ID +')">' + btnText + '</button></p>' );
+			section.setContent( '<p>Details are coming.</p><p class="TextRight"><button ' + ( btnDisable ? 'disabled' : '' ) + ' type="button" class="IconSmall ' + classText + '" onclick="moduleObject.classrooms.courseViewer(' + course.ID +')">' + btnText + '</button></p>' );
 			
 			let list = FUI.getElementByUniqueId( 'classroom_progress' );
 			let m = new Module( 'system' );

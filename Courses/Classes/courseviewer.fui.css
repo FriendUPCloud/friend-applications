@@ -10,6 +10,31 @@
 	margin: 0;
 }
 
+.FUICourseviewerSectionHeader
+{
+	border-radius: 0;
+	height: 50px;
+	border-right: 1px solid rgba(0,0,0,0.15);
+	border-top: 1px solid rgba(0,0,0,0.15);
+}
+
+.FUICourseviewerNavigation
+{
+	border-top: 1px solid rgba(0,0,0,0.15);
+	box-sizing: border-box;
+}
+
+.FUICourseviewerCanvasHeader
+{
+	font-size: var(--font-size-medium);
+}
+
+.FUICourseviewerCanvasHeader .fa-chevron-right
+{
+    font-size: 9px;
+    vertical-align: middle;
+}
+
 .FUICourseviewer
 {
 	position: absolute;
@@ -30,7 +55,7 @@
 	height: 100%;
 	scroll-behavior: smooth;
 	overflow: auto;
-	padding: var(--fui-padding-normal);
+	padding: 0;
 	box-sizing: border-box;
 }
 
@@ -57,20 +82,26 @@
 	background: var(--fui-background-foreground);
 }
 
+.FUICourseviewerCanvasContent p
+{
+	margin: 0 0 8px 0;
+}
+
 .FUICourseviewerSection
 {
 	color: black;
 	display: block;
-	font-size: var(--font-size-large);
 	background: var(--fui-background-foreground);
 	color: var(--fui-color);
 	padding: var(--fui-padding-normal);
+	padding-bottom: 0;
 	cursor: pointer;
 	box-sizing: border-box;
 }
 .FUICourseviewerSection:last-child
 {
 	border-radius: 0 0 var(--fui-border-radius-normal) var(--fui-border-radius-normal);
+	padding-bottom: var(--fui-padding-normal);
 }
 
 .FUICourseviewerSection:hover

@@ -434,7 +434,8 @@ class CourseDatabase
                 c.DisplayID as courseDisplayID,
                 s.ID as sectionID,
                 s.Name as sectionName,
-                s.DisplayID as sectionDisplayID
+                s.DisplayID as sectionDisplayID,
+                s.FreeNavigation as sectionFreeNavigation
             FROM
                 CC_Course as c
                 LEFT JOIN CC_Section s
@@ -459,6 +460,7 @@ class CourseDatabase
                 s.ID as sectionID,
                 s.Name as sectionName,
                 s.DisplayID as sectionDisplayID,
+                s.FreeNavigation as sectionFreeNavigation,
                 p.ID as pageID,
                 p.Name as pageName,
                 p.DisplayID as pageDisplayID,

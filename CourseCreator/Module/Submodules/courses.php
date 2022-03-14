@@ -134,7 +134,19 @@ if( isset( $args->method ) )
 			}
 			die( 'fail<!--separate-->{"message":"Could not get file.","error":-1,"patherror":"' . $toPath . '"}' );
     		break;
-    	
+    	case 'setsectionnavigation':
+    		// Load section
+    		$sect = new dbIO( 'CC_Section', $courseDb );
+    		if( $sect->Load( $args->elementId ) )
+    		{
+    			$sect->FreeNavigation = $args->freeNavigation;
+    			if( $sect->Save() )
+    			{
+    				die( 'ok<!--separate-->{"message":"Free navigation flag set.","response":1}' );
+    			}
+    		}
+    		die( 'fail<!--separate-->{"message":"Could not set navigation flag.","error":-1}' );
+    		break;
     	case 'publishcourse':
     		$o = new dbIO( 'CC_Course', $courseDb );
     		if( $o->Load( $args->courseId ) )

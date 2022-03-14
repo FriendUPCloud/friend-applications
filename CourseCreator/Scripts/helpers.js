@@ -149,6 +149,7 @@ function showEditProperties( element, domNode, ctx )
 	propsCont = d;
 	
 	let propFile = 'Progdir:Templates/editor_properties.html';
+	
 	if( element.type == 'project' )
 	{
 		propFile = 'Progdir:Templates/editor_project_properties.html';
@@ -171,6 +172,29 @@ function showEditProperties( element, domNode, ctx )
 			} );
 		} );
 	}
+	// In sections you can change free navigation flag
+	else if( element.elementType == 'section' )
+	{
+		propFile = 'Progdir:Templates/editor_section_properties.html';
+		d.classList.add( 'Section' );
+		
+		FUI.addCallback( 'project_section_nav_change', function( ch )
+		{
+			element.sectionFreeNavigation = ch ? 1 : 0;
+			
+			let m = new Module( 'system' );
+			m.execute( 'appmodule', {
+				appName: 'CourseCreator',
+				command: 'submodule',
+				vars: {
+					method: 'setsectionnavigation',
+				    submodule: 'courses',
+				    freeNavigation: ch,
+				    elementId: element.dbId
+				}
+			} );
+		} );
+	}
 	
 	let f = new File( propFile );
 	f.onLoad = function( data )
@@ -179,10 +203,18 @@ function showEditProperties( element, domNode, ctx )
 		
 		FUI.initialize();
 		
+		console.log( 'Lets look at element: ', element );
+		
 		if( element.type == 'project' )
 		{
 			let ch = FUI.getElementByUniqueId( 'project_publish_checkbox' );
 			ch.checked = courseCreator.publishState == 1 ? true : false;
+			ch.refreshDom();
+		}
+		else if( element.elementType == 'section' )
+		{
+			let ch = FUI.getElementByUniqueId( 'project_section_nav_change' );
+			ch.checked = element.sectionFreeNavigation == 1 ? true : false;
 			ch.refreshDom();
 		}
 		
