@@ -143,7 +143,6 @@ class FUICourseviewer extends FUIElement
     			d.className = 'FUICourseviewerSection';
     			d.innerHTML = '<div class="Name">' + row.Name + '</div><div class="Progress"><progressbar progress="0%"/></div><div class="Pages"></div>';
     			
-    			
     			if( !self.activeSection )
     			{
     				self.activeSection = a;
@@ -199,15 +198,15 @@ class FUICourseviewer extends FUIElement
 						} );
 					}
 				} )( a );
-    			
-    			/*let pages = d.querySelector( '.FUICourseviewerPages' );
-    			for( let b = 0; b < row.pages.length; b++ )
-    			{
-    				let p = document.createElement( 'div' );
-    				p.className = 'FUICourseviewerPage';
-    				p.innerHTML = row.pages[b].Name;
-    				pages.appendChild( p );
-    			}*/
+				
+				// Set active section
+				let m = new Module( 'system' );
+				m.execute( 'appmodule', {
+					appName: 'Courses',
+					command: 'setsessioninfo',
+					currentSectionId: self.getCurrentSection().ID
+				} );
+				
     			self.panel.appendChild( d );
     		}
     		
@@ -342,7 +341,24 @@ class FUICourseviewer extends FUIElement
 				} )( p, a );
 				this.navpanel.querySelector( '.Pages' ).appendChild( p );
 			}
+			// Set active page
+			let m = new Module( 'system' );
+			m.execute( 'appmodule', {
+				appName: 'Courses',
+				command: 'setsessioninfo',
+				currentPageId: sect.pages[ self.currentPage ].ID,
+				courseSessionId: this.#courseSessionId
+			} );
 		}
+		
+		// Set active section
+		let m = new Module( 'system' );
+		m.execute( 'appmodule', {
+			appName: 'Courses',
+			command: 'setsessioninfo',
+			currentSectionId: self.getCurrentSection().ID,
+			courseSessionId: this.#courseSessionId
+		} );
 		
 		this.navpanel.querySelector( '.Previous' ).onclick = function()
 		{

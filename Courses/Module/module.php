@@ -270,6 +270,24 @@ switch( $args->args->command )
 		}
 		die( 'fail<!--separate-->{"message":"Could not get active course session.","response":-1}' );
 		break;
+	// Set information regarding current session
+	case 'setsessioninfo':
+		$sess = new dbIO( 'CC_CourseSession', $db->database );
+		if( $sess->Load( $args->args->courseSessionId ) )
+		{
+			if( isset( $args->args->currentSectionId ) )
+			{
+				$sess->CurrentSection = $args->args->currentSectionId;
+			}
+			if( isset( $args->args->currentPageId ) )
+			{
+				$sess->CurrentPage = $args->args->currentPageId;
+			}
+			$sess->Save();
+			die( 'ok<!--separate-->{"message":"Session information saved.","response":1}' );
+		}
+		die( 'fail<!--separate-->{"message":"No such session.","response":-1}' );
+		break;
 	/* ---------------------------------------------------------------------- */
 	/* This part is related to statistics, user progress and so on ---------- */
 	/* ---------------------------------------------------------------------- */

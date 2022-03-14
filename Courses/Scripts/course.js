@@ -10,3 +10,4 @@ Application.receiveMessage = function( msg )
 		cr.setCourse( msg.courseId, msg.courseSessionId );
 	}
 }
+
