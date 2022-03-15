@@ -396,6 +396,7 @@ switch( $args->args->command )
 	case 'getclassroomprogress':
 		$types = getInteractiveElementTypes( $db );
 		
+		// Get only one item based on course session id
 		if( isset( $args->args ) && isset( $args->args->courseSessionId ) )
 		{
 			$csid = array( intval( $args->args->courseSessionId, 10 ) );
@@ -483,7 +484,7 @@ switch( $args->args->command )
 					
 					// Get elements that were interacted with
 					if( $registered = $db->database->fetchObject( '
-						SELECT COUNT(ID) AS CNT FROM CC_ElementResult WHERE CourseSessionID = ' . $cl->ID . '
+						SELECT COUNT(ID) AS CNT FROM CC_ElementResult WHERE `Data` AND CourseSessionID = ' . $cl->ID . '
 					' ) )
 					{
 						$registered = $registered->CNT;
