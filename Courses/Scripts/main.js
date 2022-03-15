@@ -328,23 +328,44 @@ moduleObject.classrooms = {
 					let rows = JSON.parse( ed );
 					let out = [];
 					
+					let sections = [];
 					for( let a = 0; a < rows.length; a++ )
 					{
-						out.push( [ {
-							type: 'string',
-							value: rows[a].Name
-						}, {
-							type: 'string',
-							value: '<progressbar progress="20%"/>',
-						}, {
-							type: 'string',
-							value: 'Pending',
-						}, {
-							type: 'string',
-							value: rows[a].DateUpdated
-						} ] );
-					};
-					list.setRowData( out );
+						sections.push( rows[a].ID );
+					}
+					let sm = new Module( 'system' );
+					sm.onExecuted = function( se, sd )
+					{
+						let sectionProgress = false;
+						if( se == 'ok' )
+						{
+							sectionProgress = JSON.parse( sd );
+						}
+						for( let a = 0; a < rows.length; a++ )
+						{
+							// Get section progress
+							let sprog = sectionProgress ? ( sectionProgress[ rows[a].ID ] ? sectionProgress[ rows[a].ID ] : '0%' ) : '0%';
+							out.push( [ {
+								type: 'string',
+								value: rows[a].Name
+							}, {
+								type: 'string',
+								value: '<progressbar progress="' + sprog + '"/>',
+							}, {
+								type: 'string',
+								value: 'Pending',
+							}, {
+								type: 'string',
+								value: rows[a].DateUpdated
+							} ] );
+						};
+						list.setRowData( out );
+					}
+					sm.execute( 'appmodule', {
+						appName: 'Courses',
+						command: 'getsectionprogress',
+						sections: sections
+					} );
 				}
 			}
 			m.execute( 'appmodule', {
