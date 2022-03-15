@@ -144,13 +144,16 @@ class FUICourseviewer extends FUIElement
     		// First pass, check current section
     		if( !self.activeSection )
     		{
+    			let b = 0;
 				for( let a in self.sections )
 				{
-					if( self.sections[ a ].ID == self.storedActiveSection )
+					if( self.sections[ a ].ID == self.storedActiveSection || ( self.storedActiveSection == -1 && b == 0 ) )
 					{
+						console.log( 'Found section ' + a + ' on ' + b + '.' );
 						self.activeSection = a;
 						break;
 					}
+					b++;
 				}
 			}
     		
@@ -226,6 +229,8 @@ class FUICourseviewer extends FUIElement
     		}
     		
     		self.renderElements();
+    		
+    		Application.sendMessage( { command: 'refreshcourses' } );
     	} );
     }
     
@@ -357,9 +362,10 @@ class FUICourseviewer extends FUIElement
 			{
 				for( let a = 0; a < sect.pages.length; a++ )
 				{
-					if( sect.pages[a].ID == self.storedActivePage )
+					if( sect.pages[a].ID == self.storedActivePage || ( self.storedActivePage == -1 && a == 0 ) )
 					{
 						self.currentPage = a;
+						console.log( 'Found current page ' + a );
 					}
 				}
 			}
@@ -641,7 +647,7 @@ class FUICourseviewer extends FUIElement
     }
     
     // Register the value of the element
-    registerElementValue( uniqueName, value )
+    registerElementValue( uniqueName, value, elementId )
     {
     	let m = new Module( 'system' );
     	m.onExecuted = function( e, d ){}
@@ -649,6 +655,7 @@ class FUICourseviewer extends FUIElement
     		appName: 'Courses',
     		command: 'regelementvalue',
     		uniqueName: uniqueName,
+    		elementId: elementId,
     		value: value,
     		courseSessionId: this.#courseSessionId,
     		courseId: this.course.ID
@@ -705,21 +712,21 @@ class FUICourseviewer extends FUIElement
     				
     				let l = props.radioBoxes[b].label.split( /\<.*?\>/ ).join( '' );
     				
-    				n.innerHTML = '<span>' + ( parseInt( b ) + 1 ) + '.</span><label for="ch_' + nam + '">' + l + '</label><span><input id="ch_' + nam + '" name="n" type="radio"/></span>';
+    				n.innerHTML = '<span>' + ( parseInt( b ) + 1 ) + '.</span><label for="ch_' + nam + '">' + l + '</label><span><input id="ch_' + nam + '" elementid="' + data.ID + '" name="n" type="radio"/></span>';
     				ul.appendChild( n );
     				
     				let check = n.getElementsByTagName( 'input' )[0];
     				check.nam = nam;
     				check.onchange = function( e )
     				{
-    					self.registerElementValue( this.nam, this.checked );
+    					self.registerElementValue( this.nam, this.checked, this.getAttribute( 'elementid' ) );
     					
     					// Uncheck other elements in db
     					let els = ul.getElementsByTagName( 'input' );
     					for( let c = 0; c < els.length; c++ )
     					{
     						if( els[c] != this )
-    							self.registerElementValue( els[c].id.substr( 3, els[c].id.length - 3 ), false );
+    							self.registerElementValue( els[c].id.substr( 3, els[c].id.length - 3 ), false, els[c].getAttribute( 'elementid' ) );
     					}
     					
     					// Check that at least one is checked
@@ -810,14 +817,14 @@ class FUICourseviewer extends FUIElement
     				
     				let l = props.checkBoxes[b].label.split( /\<.*?\>/ ).join( '' );
     				
-    				n.innerHTML = '<span>' + ( parseInt( b ) + 1 ) + '.</span><label for="ch_' + nam + '">' + l + '</label><span><input id="ch_' + nam + '" type="checkbox"/></span>';
+    				n.innerHTML = '<span>' + ( parseInt( b ) + 1 ) + '.</span><label for="ch_' + nam + '">' + l + '</label><span><input id="ch_' + nam + '" elementid="' + data.ID + '" type="checkbox"/></span>';
     				ul.appendChild( n );
     				
     				let check = n.getElementsByTagName( 'input' )[0];
     				check.nam = nam;
     				check.onchange = function( e )
     				{
-    					self.registerElementValue( this.nam, this.checked );
+    					self.registerElementValue( this.nam, this.checked, this.getAttribute( 'elementid' ) );
     					
     					// Check that at least one is checked
     					let inps = n.getElementsByTagName( 'input' );

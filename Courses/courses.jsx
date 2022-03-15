@@ -33,3 +33,12 @@ Application.run = function( msg )
 }
 
 
+Application.receiveMessage = function( msg )
+{
+	switch( msg.command )
+	{
+		case 'refreshcourses':
+			this.mainView.sendMessage( msg );
+			break;
+	}
+}

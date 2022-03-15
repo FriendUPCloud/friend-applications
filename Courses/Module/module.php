@@ -462,6 +462,12 @@ switch( $args->args->command )
 				$entry =& $out->{$cl->CourseID};
 				$entry->status = $cl->Status;
 				
+				$sectionSpecific = '';
+				if( isset( $args->args->sectionId ) )
+				{
+					$sectionSpecific = 'se.ID = \'' . intval( $args->args->sectionId, 10 ) . '\' AND ';
+				}
+				
 				// Get total element count based on course session
 				if( $elementCount = $db->database->fetchObject( '
 					SELECT COUNT(e.ID) CNT
@@ -474,7 +480,7 @@ switch( $args->args->command )
 						s.CourseID = s.CourseID AND 
 						s.UserID = \'' . $userId . '\' AND 
 						p.SectionID = se.ID AND 
-						s.CourseID = se.CourseID AND 
+						s.CourseID = se.CourseID AND ' . $sectionSpecific . '
 						p.ID = e.PageID AND 
 						e.ElementTypeID IN ( ' . implode( ',', $types ) . ' ) AND 
 						s.ID = ' . $cl->ID . '
@@ -483,9 +489,21 @@ switch( $args->args->command )
 					$elementCount = $elementCount->CNT;
 					
 					// Get elements that were interacted with
-					if( $registered = $db->database->fetchObject( '
-						SELECT COUNT(ID) AS CNT FROM CC_ElementResult WHERE `Data` AND CourseSessionID = ' . $cl->ID . '
-					' ) )
+					$regged = 'SELECT COUNT(ID) AS CNT FROM CC_ElementResult WHERE `Data` AND CourseSessionID = ' . $cl->ID;
+					
+					if( isset( $args->args->sectionId ) )
+					{
+						$regged = '
+							SELECT 
+								COUNT(ID) AS CNT 
+							FROM 
+								CC_ElementResult 
+							WHERE 
+								`Data` AND CourseSessionID = ' . $cl->ID;
+					}
+					
+					
+					if( $registered = $db->database->fetchObject( $regged ) )
 					{
 						$registered = $registered->CNT;
 						

@@ -238,6 +238,7 @@ CREATE TABLE `CC_ElementResult` (
   `CourseID` bigint NOT NULL,
   `CourseSessionID` bigint NOT NULL,
   `ElementID` varchar(255) DEFAULT '',
+  `OriginalElementID` bigint NOT NULL,
   `UserID` bigint NOT NULL,
   `Data` text,
   `DateCreated` datetime DEFAULT NULL,

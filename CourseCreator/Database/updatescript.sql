@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS `CC_ElementResult` (
   `CourseID` bigint NOT NULL,
   `CourseSessionID` bigint NOT NULL,
   `ElementID` varchar(255) DEFAULT '',
+  `OriginalElementID` bigint NOT NULL,
   `UserID` bigint NOT NULL,
   `Data` text,
   `DateCreated` datetime DEFAULT NULL,
@@ -76,3 +77,7 @@ ALTER TABLE CC_PageResult ADD PageID bigint(20) NOT NULL AFTER ID;
 
 ALTER TABLE CC_CourseSession ADD CurrentPage bigint(20) default 0 AFTER Status;
 ALTER TABLE CC_CourseSession ADD CurrentSection bigint(20) default 0 AFTER Status;
+
+/* In case this is missing */
+ALTER TABLE CC_ElementResult ADD OriginalElementID bigint(20) NOT NULL AFTER ElementID;
+

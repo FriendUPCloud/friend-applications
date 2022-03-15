@@ -50,6 +50,16 @@ Application.run = function( msg )
 	}
 }
 
+Application.receiveMessage = function( msg )
+{
+	switch( msg.command )
+	{
+		case 'refreshcourses':
+			moduleObject.classrooms.iniClassroomDetails();
+			break;
+	}
+}
+
 // Just get a template
 Application.getTemplate = function( module, template, callback )
 {
@@ -155,7 +165,7 @@ moduleObject.classrooms = {
 						{
 							exStatus = 'Expired';
 						}
-						else if( prog.status == 9 )
+						else if( prog && prog.status == 9 )
 						{
 							exStatus = 'Completed';
 						}
@@ -176,7 +186,7 @@ moduleObject.classrooms = {
 							},
 							{
 								type: 'string',
-								value: ( exStatus ? exStatus : ( typeof( prog ) != 'undefined' ) ? 'Active' : 'Not started' )
+								value: ( exStatus ? exStatus : ( typeof( prog ) != 'undefined' ) ? 'Active' : 'Available' )
 							},
 							{
 								type: 'string',
@@ -234,6 +244,26 @@ moduleObject.classrooms = {
 	// Show the classroom details
 	initClassroomDetails( classroomId, listview )
 	{
+		// If we have no arguments, we are doing a refresh
+		if( !classroomId )
+		{
+			if( this.currentClassroomId )
+			{
+				classroomId = this.currentClassroomId;
+				listview = this.currentListview;
+			}
+			else
+			{
+				return;
+			}
+		}
+		// Store the args for later
+		else
+		{
+			this.currentClassroomId = classroomId;
+			this.currentListview = listview;
+		}
+		
 		const n = new Module( 'system' );
 		n.onExecuted = function( ee, dd )
 		{
