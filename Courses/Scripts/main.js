@@ -153,7 +153,7 @@ moduleObject.classrooms = {
 						
 						if( now >= endTime )
 						{
-							exStatus = 'Closed';
+							exStatus = 'Expired';
 						}
 						else if( prog.status == 9 )
 						{
