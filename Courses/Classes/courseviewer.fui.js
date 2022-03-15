@@ -629,6 +629,7 @@ class FUICourseviewer extends FUIElement
     		setTimeout( function(){
     			self.canvasContent.classList.remove( 'Loading' );
     		}, 250 );
+    		Application.sendMessage( { command: 'refreshcourses' } );
     	}
     	f.load();
     }
