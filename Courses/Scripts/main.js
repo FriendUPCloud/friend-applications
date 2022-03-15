@@ -50,6 +50,16 @@ Application.run = function( msg )
 	}
 }
 
+Application.receiveMessage = function( msg )
+{
+	switch( msg.command )
+	{
+		case 'refreshcourses':
+			moduleObject.classrooms.initClassroomDetails();
+			break;
+	}
+}
+
 // Just get a template
 Application.getTemplate = function( module, template, callback )
 {
@@ -148,9 +158,16 @@ moduleObject.classrooms = {
 						let exStatus = false;
 						let endTime = ( new Date( list[a].EndDate ) ).getTime();
 						let now = ( new Date() ).getTime();
+						
+						let prog = progress[ list[a].CourseID ];
+						
 						if( now >= endTime )
 						{
-							exStatus = 'Closed';
+							exStatus = 'Expired';
+						}
+						else if( prog && prog.status == 9 )
+						{
+							exStatus = 'Completed';
 						}
 					
 						out.push( [
@@ -165,11 +182,11 @@ moduleObject.classrooms = {
 							},
 							{
 								type: 'string',
-								value: '<progressbar progress="' + ( progress[ list[a].CourseID ] ? progress[ list[a].CourseID ] : '0%' ) + '"/>'
+								value: '<progressbar progress="' + ( prog ? prog.progress : '0%' ) + '"/>'
 							},
 							{
 								type: 'string',
-								value: ( exStatus ? exStatus : ( typeof( progress[ list[a].CourseID ] ) != 'undefined' ) ? 'Active' : 'Not started' )
+								value: ( exStatus ? exStatus : ( typeof( prog ) != 'undefined' ) ? 'Active' : 'Available' )
 							},
 							{
 								type: 'string',
@@ -227,6 +244,26 @@ moduleObject.classrooms = {
 	// Show the classroom details
 	initClassroomDetails( classroomId, listview )
 	{
+		// If we have no arguments, we are doing a refresh
+		if( !classroomId )
+		{
+			if( this.currentClassroomId )
+			{
+				classroomId = this.currentClassroomId;
+				listview = this.currentListview;
+			}
+			else
+			{
+				return;
+			}
+		}
+		// Store the args for later
+		else
+		{
+			this.currentClassroomId = classroomId;
+			this.currentListview = listview;
+		}
+		
 		const n = new Module( 'system' );
 		n.onExecuted = function( ee, dd )
 		{
@@ -270,18 +307,17 @@ moduleObject.classrooms = {
 				classText = 'fa-warning';
 			}
 			
-			console.log( 'date', {
-				now        : now,
-				start      : cStart,
-				end        : cEnd,
-				started    : started,
-				ended      : ended,
-				btnText    : btnText,
-				btnDisable : btnDisable,
-			});
+			let btnClick = 'moduleObject.classrooms.courseViewer(' + course.ID +')';
+			
+			if( parseInt( progress ) == 9 )
+			{
+				btnText = 'Course completed';
+				classText = 'fa-check Disabled';
+				btnClick = '';
+			}
 			
 			section.setHeader( 'Details for ' + course.Name );
-			section.setContent( '<p>Details are coming.</p><p class="TextRight"><button ' + ( btnDisable ? 'disabled' : '' ) + ' type="button" class="IconSmall ' + classText + '" onclick="moduleObject.classrooms.courseViewer(' + course.ID +')">' + btnText + '</button></p>' );
+			section.setContent( '<p>Details are coming.</p><p class="TextRight"><button ' + ( btnDisable ? 'disabled' : '' ) + ' type="button" class="IconSmall ' + classText + '" onclick="' + btnClick + '">' + btnText + '</button></p>' );
 			
 			let list = FUI.getElementByUniqueId( 'classroom_progress' );
 			let m = new Module( 'system' );
@@ -300,9 +336,6 @@ moduleObject.classrooms = {
 						}, {
 							type: 'string',
 							value: '<progressbar progress="20%"/>',
-						}, {
-							type: 'string',
-							value: '..',
 						}, {
 							type: 'string',
 							value: 'Pending',

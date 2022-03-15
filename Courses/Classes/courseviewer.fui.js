@@ -35,6 +35,7 @@ class FUICourseviewer extends FUIElement
     }
     
     // Some public vars
+    completed = false
     storedActivePage = -1
     storedActiveSection = -1
     
@@ -143,13 +144,16 @@ class FUICourseviewer extends FUIElement
     		// First pass, check current section
     		if( !self.activeSection )
     		{
+    			let b = 0;
 				for( let a in self.sections )
 				{
-					if( self.sections[ a ].ID == self.storedActiveSection )
+					if( self.sections[ a ].ID == self.storedActiveSection || ( self.storedActiveSection == -1 && b == 0 ) )
 					{
+						console.log( 'Found section ' + a + ' on ' + b + '.' );
 						self.activeSection = a;
 						break;
 					}
+					b++;
 				}
 			}
     		
@@ -178,6 +182,7 @@ class FUICourseviewer extends FUIElement
     			{
 					d.onclick = function()
 					{
+						if( self.completed ) return;
 						let s = new Module( 'system' );
 						s.onExecuted = function( se, sd )
 						{
@@ -224,6 +229,8 @@ class FUICourseviewer extends FUIElement
     		}
     		
     		self.renderElements();
+    		
+    		Application.sendMessage( { command: 'refreshcourses' } );
     	} );
     }
     
@@ -299,7 +306,26 @@ class FUICourseviewer extends FUIElement
     {
     	let self = this;
     	let pag = self.getCurrentPage();
-    	console.log( 'Page: ', pag );
+    	
+    	// Are the page elements solved?
+    	let solved = true;
+    	
+    	// Get all elements
+    	let eles = self.canvasContent.getElementsByTagName( '*' );
+    	
+    	for( let a = 0; a < eles.length; a++ )
+    	{
+    		// Checking element dummy
+    		if( eles[a].dummy )
+    		{
+    			if( !eles[a].dummy.resolved )
+    			{
+    				solved = false;
+    				break;
+    			}
+    		}
+    	}
+    	return solved;
     }
     
     // Redraw the navigation panel
@@ -336,9 +362,10 @@ class FUICourseviewer extends FUIElement
 			{
 				for( let a = 0; a < sect.pages.length; a++ )
 				{
-					if( sect.pages[a].ID == self.storedActivePage )
+					if( sect.pages[a].ID == self.storedActivePage || ( self.storedActivePage == -1 && a == 0 ) )
 					{
 						self.currentPage = a;
+						console.log( 'Found current page ' + a );
 					}
 				}
 			}
@@ -358,6 +385,7 @@ class FUICourseviewer extends FUIElement
     				{
 						pag.onclick = function()
 						{
+							if( self.completed ) return;
 							self.currentPage = num;
 							self.renderElements();
 						}
@@ -386,24 +414,37 @@ class FUICourseviewer extends FUIElement
 		
 		this.navpanel.querySelector( '.Previous' ).onclick = function()
 		{
-			self.currentPage--;
-			if( self.currentPage < 0 ) 
+			if( self.completed ) return;
+			if( self.getCurrentSection().Navigation == '1' )
 			{
-				self.currentPage = 0;
-				return;
+				self.currentPage--;
+				if( self.currentPage < 0 ) 
+				{
+					self.currentPage = 0;
+					return;
+				}
+				self.renderElements();
 			}
-			self.renderElements();
 		}
  		
 		this.navpanel.querySelector( '.Next' ).onclick = function()
 		{
-			self.currentPage++;
-			if( self.currentPage >= self.sections[ self.activeSection ].pages.length )
+			if( self.completed ) return;
+			if( self.pageCompleted() )
 			{
-				self.currentPage--;
-				return;
+				self.currentPage++;
+				if( self.currentPage >= self.sections[ self.activeSection ].pages.length )
+				{
+					self.currentPage--;
+					return;
+				}
+				self.renderElements();
 			}
-			self.renderElements();
+			else
+			{
+				console.log( 'This page is not solved.' );
+			
+			}
 		}
     }
     
@@ -479,6 +520,11 @@ class FUICourseviewer extends FUIElement
 					pageId: page.ID,
 					courseSessionId: csId
 				} );
+				
+				self.redrawNavPanel();
+			
+				// Check which state the buttons are in
+				self.checkNavButtons();
 			}
 			
 			m.execute( 'appmodule', {
@@ -491,7 +537,107 @@ class FUICourseviewer extends FUIElement
 		{
 			self.renderingElements = false;
 		}
-		self.redrawNavPanel();
+    }
+    
+    checkNavButtons()
+    {
+    	let self = this;
+    	
+    	if( self.getCurrentSection().Navigation != '1' )
+		{
+			this.navpanel.querySelector( '.Previous' ).classList.add( 'Disabled' );
+		}
+		else
+		{
+			this.navpanel.querySelector( '.Previous' ).classList.remove( 'Disabled' );
+		}
+		if( self.pageCompleted() )
+		{
+			this.navpanel.querySelector( '.Next' ).classList.remove( 'Disabled' );
+			
+			// Check if this is the last page, and that the course is completed
+			let lastPage = false;
+			let sect = this.getCurrentSection();
+			if( sect && sect.pages )
+			{
+				for( let a = 0; a < sect.pages.length; a++ )
+				{
+					if( self.currentPage == a )
+					{
+						if( a == sect.pages.length - 1 )
+						{
+							lastPage = true;
+						}
+					}
+				}
+			}
+			let lastSection = false;
+			for( let a in self.sections )
+			{
+				lastSection = false;
+				if( a == self.activeSection )
+				{
+					lastSection = true;
+				}
+			}
+			
+			let next = this.navpanel.querySelector( '.Next' );
+			// This allows the user to complete the course
+			if( lastSection && lastPage )
+			{
+				next.innerHTML = '<span>Finish</span>';
+				if( !next.oldonclick )
+					next.oldonclick = next.onclick;
+				let csid = this.#courseSessionId;
+				next.onclick = function( e )
+				{
+					let m = new Module( 'system' );
+					m.onExecuted = function( me, md )
+					{
+						if( me == 'ok' )
+						{
+							self.showCompletedState();
+						}
+						else
+						{
+							Alert( 'Could not complete course', 'There\'s some issue with completing this course. Please ask your administrator.' );
+						}
+					}
+					m.execute( 'appmodule', {
+						appName: 'Courses',
+						command: 'complete',
+						courseSessionId: csid
+					} );
+				}
+			}
+			// Reset if possible
+			else if( next.oldonclick )
+			{
+				next.onclick = next.oldonclick;
+			}
+		}
+		else
+		{
+			this.navpanel.querySelector( '.Next' ).classList.add( 'Disabled' );
+		}
+    }
+    
+    // What happens when the course is completed
+    showCompletedState()
+    {
+    	let self = this;
+    	let f = new File( 'Progdir:Assets/completed.html' );
+    	self.completed = true;
+    	self.canvasContent.classList.add( 'Loading' );
+    	f.onLoad = function( data )
+    	{
+    		self.canvasContent.innerHTML = data;
+    		setTimeout( function(){
+    			self.canvasContent.classList.remove( 'Loading' );
+    		}, 250 );
+    		Application.sendMessage( { command: 'refreshcourses' } );
+    	}
+    	f.load();
     }
     
     // Just add an element to the canvas
@@ -501,7 +647,7 @@ class FUICourseviewer extends FUIElement
     }
     
     // Register the value of the element
-    registerElementValue( uniqueName, value )
+    registerElementValue( uniqueName, value, elementId )
     {
     	let m = new Module( 'system' );
     	m.onExecuted = function( e, d ){}
@@ -509,10 +655,13 @@ class FUICourseviewer extends FUIElement
     		appName: 'Courses',
     		command: 'regelementvalue',
     		uniqueName: uniqueName,
+    		elementId: elementId,
     		value: value,
     		courseSessionId: this.#courseSessionId,
     		courseId: this.course.ID
     	} );
+    	
+    	this.checkNavButtons();
     }
     
     // Create an element for the course viewer canvas to add
@@ -520,6 +669,12 @@ class FUICourseviewer extends FUIElement
     {
     	let self = this;
     	let props = JSON.parse( data.Properties );
+    
+    	// To store the state of the element
+    	let dummyElement = {
+    		type: type,
+    		resolved: false
+    	};
     
     	switch( type )
     	{
@@ -557,24 +712,38 @@ class FUICourseviewer extends FUIElement
     				
     				let l = props.radioBoxes[b].label.split( /\<.*?\>/ ).join( '' );
     				
-    				n.innerHTML = '<span>' + ( parseInt( b ) + 1 ) + '.</span><label for="ch_' + nam + '">' + l + '</label><span><input id="ch_' + nam + '" name="n" type="radio"/></span>';
+    				n.innerHTML = '<span>' + ( parseInt( b ) + 1 ) + '.</span><label for="ch_' + nam + '">' + l + '</label><span><input id="ch_' + nam + '" elementid="' + data.ID + '" name="n" type="radio"/></span>';
     				ul.appendChild( n );
     				
     				let check = n.getElementsByTagName( 'input' )[0];
     				check.nam = nam;
     				check.onchange = function( e )
     				{
-    					self.registerElementValue( this.nam, this.checked );
+    					self.registerElementValue( this.nam, this.checked, this.getAttribute( 'elementid' ) );
     					
     					// Uncheck other elements in db
     					let els = ul.getElementsByTagName( 'input' );
     					for( let c = 0; c < els.length; c++ )
     					{
     						if( els[c] != this )
-    							self.registerElementValue( els[c].id.substr( 3, els[c].id.length - 3 ), false );
+    							self.registerElementValue( els[c].id.substr( 3, els[c].id.length - 3 ), false, els[c].getAttribute( 'elementid' ) );
     					}
     					
+    					// Check that at least one is checked
+    					dummyElement.resolved = false;
+    					let inps = n.getElementsByTagName( 'input' );
+    					for( let a = 0; a < inps.length; a++ )
+    					{
+    						if( inps[ a ].checked )
+    						{
+    							dummyElement.resolved = true;
+    						}
+    					}
+    					
+    					dummyElement.resolved = true;
+    					
     					self.pageCompleted();
+    					self.checkNavButtons();
     				}
     				
     				// Restore value
@@ -592,11 +761,13 @@ class FUICourseviewer extends FUIElement
 									if( v.Value )
 									{
 										chk.checked = 'checked';
+										dummyElement.resolved = true;
 									}
 									else
 									{
 										chk.checked = '';
 									}
+									self.checkNavButtons();
 								}
 							}
 							m.execute( 'appmodule', {
@@ -613,7 +784,6 @@ class FUICourseviewer extends FUIElement
     			bx.appendChild( ul );
     			
     			d.appendChild( bx );
-    			
     			d.initializers = initializers;
     			d.init = function()
     			{
@@ -622,6 +792,7 @@ class FUICourseviewer extends FUIElement
 						this.initializers[ a ].func( this.initializers[ a ].name );
 					}
 				}
+				d.dummy = dummyElement;
     			
     			return d;
     		}
@@ -646,15 +817,28 @@ class FUICourseviewer extends FUIElement
     				
     				let l = props.checkBoxes[b].label.split( /\<.*?\>/ ).join( '' );
     				
-    				n.innerHTML = '<span>' + ( parseInt( b ) + 1 ) + '.</span><label for="ch_' + nam + '">' + l + '</label><span><input id="ch_' + nam + '" type="checkbox"/></span>';
+    				n.innerHTML = '<span>' + ( parseInt( b ) + 1 ) + '.</span><label for="ch_' + nam + '">' + l + '</label><span><input id="ch_' + nam + '" elementid="' + data.ID + '" type="checkbox"/></span>';
     				ul.appendChild( n );
     				
     				let check = n.getElementsByTagName( 'input' )[0];
     				check.nam = nam;
     				check.onchange = function( e )
     				{
-    					self.registerElementValue( this.nam, this.checked );
+    					self.registerElementValue( this.nam, this.checked, this.getAttribute( 'elementid' ) );
+    					
+    					// Check that at least one is checked
+    					let inps = n.getElementsByTagName( 'input' );
+    					dummyElement.resolved = false;
+    					for( let a = 0; a < inps.length; a++ )
+    					{
+    						if( inps[ a ].checked )
+    						{
+    							dummyElement.resolved = true;
+    						}
+    					}
+    					
 						self.pageCompleted();
+						self.checkNavButtons();
     				}
     				
     				// Restore value
@@ -672,12 +856,14 @@ class FUICourseviewer extends FUIElement
 									if( v.Value )
 									{
 										chk.checked = 'checked';
+										dummyElement.resolved = true;
 									}
 									else
 									{
 										chk.checked = '';
 									}
 								}
+								self.checkNavButtons();
 							}
 							m.execute( 'appmodule', {
 								appName: 'Courses',
@@ -702,6 +888,8 @@ class FUICourseviewer extends FUIElement
 						this.initializers[ a ].func( this.initializers[ a ].name );
 					}
 				}
+				
+				d.dummy = dummyElement;
     			
     			return d;
     		}
@@ -768,6 +956,13 @@ class FUICourseviewer extends FUIElement
 				self.structureUpdated = true;
 				self.storedActivePage = information.CurrentPage;
 				self.storedActiveSection = information.CurrentSection;
+				
+				// If it's zero, it's not set yet
+				if( self.storedActivePage == 0 && self.storedActiveSection == 0 )
+				{
+					self.storedActivePage = -1;
+					self.storedActiveSection = -1;
+				}
 				self.refreshDom();
 			}
 		}

@@ -214,6 +214,7 @@ switch( $args->args->command )
 		$d =& $db->database->_link;
 		$o = new dbIO( 'CC_ElementResult', $db->database );
 		$o->ElementID = $d->real_escape_string( $args->args->uniqueName );
+		$o->OriginalElementID = intval( $args->args->elementId, 10 );
 		$o->UserID = intval( $User->ID, 10 );
 		$o->CourseID = intval( $args->args->courseId, 10 );
 		$o->CourseSessionID = intval( $args->args->courseSessionId, 10 );
@@ -221,6 +222,8 @@ switch( $args->args->command )
 		{
 			$o->DateCreated = date( 'Y-m-d H:i:s' );
 		}
+		if( !$args->args->value )
+			die( 'fail<!--separate-->{"response":-1,"message":"No value to store for element."}' );
 		$o->Data = $d->real_escape_string( $args->args->value );
 		$o->DateUpdated = date( 'Y-m-d H:i:s' );
 		$o->Save();
@@ -396,6 +399,7 @@ switch( $args->args->command )
 	case 'getclassroomprogress':
 		$types = getInteractiveElementTypes( $db );
 		
+		// Get only one item based on course session id
 		if( isset( $args->args ) && isset( $args->args->courseSessionId ) )
 		{
 			$csid = array( intval( $args->args->courseSessionId, 10 ) );
@@ -450,7 +454,21 @@ switch( $args->args->command )
 				$cl->Status = 1;
 				if( !$cl->Load() )
 				{
-					continue;
+					$cl->Status = 9;
+					if( !$cl->Load() )
+					{
+						continue;
+					}
+				}
+				
+				$out->{$cl->CourseID} = new stdClass();
+				$entry =& $out->{$cl->CourseID};
+				$entry->status = $cl->Status;
+				
+				$sectionSpecific = '';
+				if( isset( $args->args->sectionId ) )
+				{
+					$sectionSpecific = 'se.ID = \'' . intval( $args->args->sectionId, 10 ) . '\' AND ';
 				}
 				
 				// Get total element count based on course session
@@ -465,22 +483,39 @@ switch( $args->args->command )
 						s.CourseID = s.CourseID AND 
 						s.UserID = \'' . $userId . '\' AND 
 						p.SectionID = se.ID AND 
-						s.CourseID = se.CourseID AND 
+						s.CourseID = se.CourseID AND ' . $sectionSpecific . '
 						p.ID = e.PageID AND 
 						e.ElementTypeID IN ( ' . implode( ',', $types ) . ' ) AND 
-						s.ID = ' . $cl->ID . '
+						s.ID = \'' . $cl->ID . '\'
 				' ) )
 				{
 					$elementCount = $elementCount->CNT;
 					
 					// Get elements that were interacted with
-					if( $registered = $db->database->fetchObject( '
-						SELECT COUNT(ID) AS CNT FROM CC_ElementResult WHERE CourseSessionID = ' . $cl->ID . '
-					' ) )
+					$regged = 'SELECT COUNT(ID) AS CNT FROM CC_ElementResult WHERE `Data` AND CourseSessionID = \'' . $cl->ID . '\'';
+					
+					if( isset( $args->args->sectionId ) )
+					{
+						$regged = '
+							SELECT 
+								COUNT(r.ID) AS CNT 
+							FROM 
+								CC_ElementResult r, CC_Element e, CC_Page p, CC_Section s
+							WHERE 
+								r.Data AND 
+								r.OriginalElementId = e.ID AND
+								e.PageID = p.ID AND
+								p.SectionID = s.ID AND
+								s.ID = \'' . intval( $args->args->sectionId, 10 ) . '\' AND
+								r.CourseSessionID = \'' . $cl->ID . '\'';
+					}
+					
+					
+					if( $registered = $db->database->fetchObject( $regged ) )
 					{
 						$registered = $registered->CNT;
 						
-						$out->{$cl->CourseID} = ( ( $registered / $elementCount ) * 100 );
+						$entry->progress = ( ( $registered / $elementCount ) * 100 );
 					}
 				}
 			}
@@ -488,6 +523,19 @@ switch( $args->args->command )
 		}
 		// Zero progress
 		die( 'fail<!--separate-->{"message":"Could not parse any classroom ids or course session id."}' );
+		break;
+	// Just complete the course
+	case 'complete':
+		$courseSession = new dbIO( 'CC_CourseSession', $db->database );
+		$courseSession->UserID = $User->ID;
+		$courseSession->ID = intval( $args->args->courseSessionId, 10 );
+		if( $courseSession->Load() )
+		{
+			$courseSession->Status = 9; // Completed
+			$courseSession->Save();
+			die( 'ok<!--separate-->{"response":1,"message":"Your course have been completed."}' );
+		}
+		die( 'fail<!--separate-->{"response":-1,"message":"You could not complete this course."}' );
 		break;
 }
 die( 'fail<!--separate-->{"message":"Unknown appmodule method.","response":-1}' );

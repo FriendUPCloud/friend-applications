@@ -72,6 +72,11 @@
 	box-sizing: border-box;
 }
 
+.FUICourseviewerCanvas .Completed
+{
+	color: var(--fui-color);
+}
+
 .FUICourseviewerCanvasContent
 {
 	border-radius: 0 0 var(--fui-border-radius-normal) var(--fui-border-radius-normal);
@@ -256,6 +261,12 @@
 .FUICourseviewerNavigation .Next:hover
 {
 	background-color: var(--fui-module-background-hover);
+}
+
+.FUICourseviewerNavigation .Previous.Disabled,
+.FUICourseviewerNavigation .Next.Disabled
+{
+	opacity: 0.5;
 }
 
 .FUICourseviewerNavigation .Next
