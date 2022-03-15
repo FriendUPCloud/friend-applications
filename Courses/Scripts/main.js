@@ -148,9 +148,16 @@ moduleObject.classrooms = {
 						let exStatus = false;
 						let endTime = ( new Date( list[a].EndDate ) ).getTime();
 						let now = ( new Date() ).getTime();
+						
+						let prog = progress[ list[a].CourseID ];
+						
 						if( now >= endTime )
 						{
 							exStatus = 'Closed';
+						}
+						else if( prog.status == 9 )
+						{
+							exStatus = 'Completed';
 						}
 					
 						out.push( [
@@ -165,11 +172,11 @@ moduleObject.classrooms = {
 							},
 							{
 								type: 'string',
-								value: '<progressbar progress="' + ( progress[ list[a].CourseID ] ? progress[ list[a].CourseID ] : '0%' ) + '"/>'
+								value: '<progressbar progress="' + ( prog ? prog.progress : '0%' ) + '"/>'
 							},
 							{
 								type: 'string',
-								value: ( exStatus ? exStatus : ( typeof( progress[ list[a].CourseID ] ) != 'undefined' ) ? 'Active' : 'Not started' )
+								value: ( exStatus ? exStatus : ( typeof( prog ) != 'undefined' ) ? 'Active' : 'Not started' )
 							},
 							{
 								type: 'string',

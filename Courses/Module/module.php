@@ -450,8 +450,16 @@ switch( $args->args->command )
 				$cl->Status = 1;
 				if( !$cl->Load() )
 				{
-					continue;
+					$cl->Status = 9;
+					if( !$cl->Load() )
+					{
+						continue;
+					}
 				}
+				
+				$out->{$cl->CourseID} = new stdClass();
+				$entry =& $out->{$cl->CourseID};
+				$entry->status = $cl->Status;
 				
 				// Get total element count based on course session
 				if( $elementCount = $db->database->fetchObject( '
@@ -480,7 +488,7 @@ switch( $args->args->command )
 					{
 						$registered = $registered->CNT;
 						
-						$out->{$cl->CourseID} = ( ( $registered / $elementCount ) * 100 );
+						$entry->progress = ( ( $registered / $elementCount ) * 100 );
 					}
 				}
 			}
