@@ -956,6 +956,13 @@ class FUICourseviewer extends FUIElement
 				self.structureUpdated = true;
 				self.storedActivePage = information.CurrentPage;
 				self.storedActiveSection = information.CurrentSection;
+				
+				// If it's zero, it's not set yet
+				if( self.storedActivePage == 0 && self.storedActiveSection == 0 )
+				{
+					self.storedActivePage = -1;
+					self.storedActiveSection = -1;
+				}
 				self.refreshDom();
 			}
 		}
