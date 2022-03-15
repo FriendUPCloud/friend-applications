@@ -55,7 +55,7 @@ Application.receiveMessage = function( msg )
 	switch( msg.command )
 	{
 		case 'refreshcourses':
-			moduleObject.classrooms.iniClassroomDetails();
+			moduleObject.classrooms.initClassroomDetails();
 			break;
 	}
 }

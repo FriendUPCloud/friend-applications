@@ -214,6 +214,7 @@ switch( $args->args->command )
 		$d =& $db->database->_link;
 		$o = new dbIO( 'CC_ElementResult', $db->database );
 		$o->ElementID = $d->real_escape_string( $args->args->uniqueName );
+		$o->OriginalElementID = intval( $args->args->elementId, 10 );
 		$o->UserID = intval( $User->ID, 10 );
 		$o->CourseID = intval( $args->args->courseId, 10 );
 		$o->CourseSessionID = intval( $args->args->courseSessionId, 10 );
@@ -221,6 +222,8 @@ switch( $args->args->command )
 		{
 			$o->DateCreated = date( 'Y-m-d H:i:s' );
 		}
+		if( !$args->args->value )
+			die( 'fail<!--separate-->{"response":-1,"message":"No value to store for element."}' );
 		$o->Data = $d->real_escape_string( $args->args->value );
 		$o->DateUpdated = date( 'Y-m-d H:i:s' );
 		$o->Save();
