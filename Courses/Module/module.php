@@ -489,6 +489,19 @@ switch( $args->args->command )
 		// Zero progress
 		die( 'fail<!--separate-->{"message":"Could not parse any classroom ids or course session id."}' );
 		break;
+	// Just complete the course
+	case 'complete':
+		$courseSession = new dbIO( 'CC_CourseSession', $db->database );
+		$courseSession->UserID = $User->ID;
+		$courseSession->ID = intval( $args->args->courseSessionId, 10 );
+		if( $courseSession->Load() )
+		{
+			$courseSession->Status = 9; // Completed
+			$courseSession->Save();
+			die( 'ok<!--separate-->{"response":1,"message":"Your course have been completed."}' );
+		}
+		die( 'fail<!--separate-->{"response":-1,"message":"You could not complete this course."}' );
+		break;
 }
 die( 'fail<!--separate-->{"message":"Unknown appmodule method.","response":-1}' );
 

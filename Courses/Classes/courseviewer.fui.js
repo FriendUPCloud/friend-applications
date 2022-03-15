@@ -571,9 +571,39 @@ class FUICourseviewer extends FUIElement
 				}
 			}
 			
+			let next = this.navpanel.querySelector( '.Next' );
+			// This allows the user to complete the course
 			if( lastSection && lastPage )
 			{
-				this.navpanel.querySelector( '.Next' ).innerHTML = '<span>Finish</span>';
+				next.innerHTML = '<span>Finish</span>';
+				if( !next.oldonclick )
+					next.oldonclick = next.onclick;
+				let csid = this.#courseSessionId;
+				next.onclick = function( e )
+				{
+					let m = new Module( 'system' );
+					m.onExecuted = function( me, md )
+					{
+						if( me == 'ok' )
+						{
+							self.showCompletedState();
+						}
+						else
+						{
+							Alert( 'Could not complete course', 'There\'s some issue with completing this course. Please ask your administrator.' );
+						}
+					}
+					m.execute( 'appmodule', {
+						appName: 'Courses',
+						command: 'complete',
+						courseSessionId: csid
+					} );
+				}
+			}
+			// Reset if possible
+			else if( next.oldonclick )
+			{
+				next.onclick = next.oldonclick;
 			}
 		}
 		else
@@ -581,6 +611,12 @@ class FUICourseviewer extends FUIElement
 			console.log( 'We are not solved!' );
 			this.navpanel.querySelector( '.Next' ).classList.add( 'Disabled' );
 		}
+    }
+    
+    // What happens when the course is completed
+    showCompletedState()
+    {
+    	
     }
     
     // Just add an element to the canvas
