@@ -486,23 +486,28 @@ switch( $args->args->command )
 						s.CourseID = se.CourseID AND ' . $sectionSpecific . '
 						p.ID = e.PageID AND 
 						e.ElementTypeID IN ( ' . implode( ',', $types ) . ' ) AND 
-						s.ID = ' . $cl->ID . '
+						s.ID = \'' . $cl->ID . '\'
 				' ) )
 				{
 					$elementCount = $elementCount->CNT;
 					
 					// Get elements that were interacted with
-					$regged = 'SELECT COUNT(ID) AS CNT FROM CC_ElementResult WHERE `Data` AND CourseSessionID = ' . $cl->ID;
+					$regged = 'SELECT COUNT(ID) AS CNT FROM CC_ElementResult WHERE `Data` AND CourseSessionID = \'' . $cl->ID . '\'';
 					
 					if( isset( $args->args->sectionId ) )
 					{
 						$regged = '
 							SELECT 
-								COUNT(ID) AS CNT 
+								COUNT(r.ID) AS CNT 
 							FROM 
-								CC_ElementResult 
+								CC_ElementResult r, CC_Element e, CC_Page p, CC_Section s
 							WHERE 
-								`Data` AND CourseSessionID = ' . $cl->ID;
+								r.Data AND 
+								r.OriginalElementId = e.ID AND
+								e.PageID = p.ID AND
+								p.SectionID = s.ID AND
+								s.ID = \'' . intval( $args->args->sectionId, 10 ) . '\' AND
+								r.CourseSessionID = \'' . $cl->ID . '\'';
 					}
 					
 					
