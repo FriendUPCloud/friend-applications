@@ -797,12 +797,19 @@ class ccChart extends ccGUIElement
         super( options );
     }
     
-    setData( dataset )
+    setData( dataset, description )
     {
         const self = this;
         self.options.chart = dataset;
         self.chart = new Chart( self.cEl, self.options.chart );
         console.log( 'setdata.shart', self.chart );
+        const l1 = self.domElement.children[1];
+        const l2 = self.domElement.children[2];
+        const pr = self.domElement.children[3];
+        console.log( 'setData l1, l2', [ l1, l2 ]);
+        l1.innerHTML = description.label1 || 'label1';
+        l2.innerHTML = description.label2 || 'label2';
+        pr.innerHTML = description.progress || '92%';
     }
     
     attachDomElement()
@@ -816,6 +823,12 @@ class ccChart extends ccGUIElement
         self.cEl = document.createElement( 'canvas' );
         self.domElement.appendChild( self.cEl );
         self.domElement.classList.add( 'klasStatsBox' );
+        const l1 = document.createElement( 'div' );
+        const l2 = document.createElement( 'div' );
+        const pr = document.createElement( 'div' );
+        self.domElement.appendChild( l1 );
+        self.domElement.appendChild( l2 );
+        self.domElement.appendChild( pr );
         
         if ( !self.options.chart )
             return;
