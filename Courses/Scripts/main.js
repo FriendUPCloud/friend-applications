@@ -270,18 +270,17 @@ moduleObject.classrooms = {
 				classText = 'fa-warning';
 			}
 			
-			console.log( 'date', {
-				now        : now,
-				start      : cStart,
-				end        : cEnd,
-				started    : started,
-				ended      : ended,
-				btnText    : btnText,
-				btnDisable : btnDisable,
-			});
+			let btnClick = 'moduleObject.classrooms.courseViewer(' + course.ID +')';
+			
+			if( parseInt( progress ) == 9 )
+			{
+				btnText = 'Course completed';
+				classText = 'fa-check Disabled';
+				btnClick = '';
+			}
 			
 			section.setHeader( 'Details for ' + course.Name );
-			section.setContent( '<p>Details are coming.</p><p class="TextRight"><button ' + ( btnDisable ? 'disabled' : '' ) + ' type="button" class="IconSmall ' + classText + '" onclick="moduleObject.classrooms.courseViewer(' + course.ID +')">' + btnText + '</button></p>' );
+			section.setContent( '<p>Details are coming.</p><p class="TextRight"><button ' + ( btnDisable ? 'disabled' : '' ) + ' type="button" class="IconSmall ' + classText + '" onclick="' + btnClick + '">' + btnText + '</button></p>' );
 			
 			let list = FUI.getElementByUniqueId( 'classroom_progress' );
 			let m = new Module( 'system' );
