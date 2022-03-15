@@ -72,6 +72,11 @@
 	box-sizing: border-box;
 }
 
+.FUICourseviewerCanvas .Completed
+{
+	color: var(--fui-color);
+}
+
 .FUICourseviewerCanvasContent
 {
 	border-radius: 0 0 var(--fui-border-radius-normal) var(--fui-border-radius-normal);

@@ -35,6 +35,7 @@ class FUICourseviewer extends FUIElement
     }
     
     // Some public vars
+    completed = false
     storedActivePage = -1
     storedActiveSection = -1
     
@@ -178,6 +179,7 @@ class FUICourseviewer extends FUIElement
     			{
 					d.onclick = function()
 					{
+						if( self.completed ) return;
 						let s = new Module( 'system' );
 						s.onExecuted = function( se, sd )
 						{
@@ -377,6 +379,7 @@ class FUICourseviewer extends FUIElement
     				{
 						pag.onclick = function()
 						{
+							if( self.completed ) return;
 							self.currentPage = num;
 							self.renderElements();
 						}
@@ -405,6 +408,7 @@ class FUICourseviewer extends FUIElement
 		
 		this.navpanel.querySelector( '.Previous' ).onclick = function()
 		{
+			if( self.completed ) return;
 			if( self.getCurrentSection().Navigation == '1' )
 			{
 				self.currentPage--;
@@ -419,9 +423,9 @@ class FUICourseviewer extends FUIElement
  		
 		this.navpanel.querySelector( '.Next' ).onclick = function()
 		{
+			if( self.completed ) return;
 			if( self.pageCompleted() )
 			{
-				console.log( 'This page is solved!' );
 				self.currentPage++;
 				if( self.currentPage >= self.sections[ self.activeSection ].pages.length )
 				{
@@ -608,7 +612,6 @@ class FUICourseviewer extends FUIElement
 		}
 		else
 		{
-			console.log( 'We are not solved!' );
 			this.navpanel.querySelector( '.Next' ).classList.add( 'Disabled' );
 		}
     }
@@ -616,7 +619,18 @@ class FUICourseviewer extends FUIElement
     // What happens when the course is completed
     showCompletedState()
     {
-    	
+    	let self = this;
+    	let f = new File( 'Progdir:Assets/completed.html' );
+    	self.completed = true;
+    	self.canvasContent.classList.add( 'Loading' );
+    	f.onLoad = function( data )
+    	{
+    		self.canvasContent.innerHTML = data;
+    		setTimeout( function(){
+    			self.canvasContent.classList.remove( 'Loading' );
+    		}, 250 );
+    	}
+    	f.load();
     }
     
     // Just add an element to the canvas
