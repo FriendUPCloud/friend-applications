@@ -268,7 +268,7 @@ moduleObject.classrooms = {
 		n.onExecuted = function( ee, dd )
 		{
 			const course = JSON.parse( dd );
-			console.log( 'initclassroomdetails course', [ classroomId, listview, course ]);
+			//console.log( 'initclassroomdetails course', [ classroomId, listview, course ]);
 			let section = FUI.getElementByUniqueId( 'classroom_section_1' );
 			const now = Date.now();
 			const cStart = Date.parse( course.ClassStartDate );
@@ -282,7 +282,7 @@ moduleObject.classrooms = {
 			let btnText = '';
 			let btnDisable = ( !started || ended );
 			
-			console.log( 'when does it start?', course, now );
+			//console.log( 'when does it start?', course, now );
 			
 			// Button icon
 			let classText = 'fa-play-circle-o';
@@ -317,7 +317,7 @@ moduleObject.classrooms = {
 			}
 			
 			section.setHeader( 'Details for ' + course.Name );
-			section.setContent( '<p>Details are coming.</p><p class="TextRight"><button ' + ( btnDisable ? 'disabled' : '' ) + ' type="button" class="IconSmall ' + classText + '" onclick="' + btnClick + '">' + btnText + '</button></p>' );
+			section.setContent( '<p class="TextRight"><button ' + ( btnDisable ? 'disabled' : '' ) + ' type="button" class="IconSmall ' + classText + '" onclick="' + btnClick + '">' + btnText + '</button></p>' );
 			
 			let list = FUI.getElementByUniqueId( 'classroom_progress' );
 			let m = new Module( 'system' );
@@ -341,7 +341,7 @@ moduleObject.classrooms = {
 							value: 'Pending',
 						}, {
 							type: 'string',
-							value: 'date'
+							value: rows[a].DateUpdated
 						} ] );
 					};
 					list.setRowData( out );
