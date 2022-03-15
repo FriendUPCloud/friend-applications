@@ -190,7 +190,7 @@ moduleObject.classrooms = {
 							},
 							{
 								type: 'string',
-								value: list[a].EndDate.split(' ')[0],
+								value: friendUP.tool.ucfirst( friendUP.tool.getChatTime( ( new Date( list[a].EndDate ) ).getTime() ) ),
 							}
 						] );
 						
@@ -323,9 +323,17 @@ moduleObject.classrooms = {
 			let m = new Module( 'system' );
 			m.onExecuted = function( ee, ed )
 			{
-				if( ee == 'ok' )
+				if( ee == 'ok' && ed.length )
 				{
-					let rows = JSON.parse( ed );
+					let rows = false
+					try
+					{
+						rows = JSON.parse( ed );
+					}
+					catch( e )
+					{
+						return;
+					}
 					let out = [];
 					
 					let sections = [];
@@ -339,12 +347,19 @@ moduleObject.classrooms = {
 						let sectionProgress = false;
 						if( se == 'ok' )
 						{
-							sectionProgress = JSON.parse( sd );
+							try
+							{
+								sectionProgress = JSON.parse( sd );
+							}
+							catch( e )
+							{
+								sectionProgress = false;
+							}
 						}
 						for( let a = 0; a < rows.length; a++ )
 						{
 							// Get section progress
-							let sprog = sectionProgress ? ( sectionProgress[ rows[a].ID ] ? sectionProgress[ rows[a].ID ] : '0%' ) : '0%';
+							let sprog = sectionProgress ? ( sectionProgress[ rows[a].ID ] ? sectionProgress[ rows[a].ID ].progress : '0%' ) : '0%';
 							out.push( [ {
 								type: 'string',
 								value: rows[a].Name
@@ -353,10 +368,10 @@ moduleObject.classrooms = {
 								value: '<progressbar progress="' + sprog + '"/>',
 							}, {
 								type: 'string',
-								value: 'Pending',
+								value: sprog == '100%' ? 'Completed' : 'Not completed',
 							}, {
 								type: 'string',
-								value: rows[a].DateUpdated
+								value: friendUP.tool.ucfirst( friendUP.tool.getChatTime( ( new Date( rows[a].DateUpdated ) ).getTime() ) )
 							} ] );
 						};
 						list.setRowData( out );
@@ -364,7 +379,8 @@ moduleObject.classrooms = {
 					sm.execute( 'appmodule', {
 						appName: 'Courses',
 						command: 'getsectionprogress',
-						sections: sections
+						sections: sections,
+						courseId: course.ID
 					} );
 				}
 			}
