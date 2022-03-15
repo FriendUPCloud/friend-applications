@@ -338,9 +338,6 @@ moduleObject.classrooms = {
 							value: '<progressbar progress="20%"/>',
 						}, {
 							type: 'string',
-							value: '..',
-						}, {
-							type: 'string',
 							value: 'Pending',
 						}, {
 							type: 'string',
