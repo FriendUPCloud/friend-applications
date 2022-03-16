@@ -12,7 +12,7 @@
 
 global $User, $SqlDatabase;
 
-require_once( 'classrooms/classroom_helpers.php' );
+require_once( __DIR__ . '/classrooms/helpers.php' );
 
 if( isset( $args->method ) )
 {
@@ -273,24 +273,52 @@ if( isset( $args->method ) )
                 $n->OwnerID = $User->ID;
                 $n->Name = $args->data->name;
                 
+                $clone = false;
+                
                 // Course have changed! Delete everything related to previous course
                 if( $n->CourseID > 0 && $n->CourseID != $args->data->courseId )
                 {
-                	if( removeCourseDataFromClassroom( $n->CourseID, $n->ID ) )
+                	$course = new dbIO( 'CC_Course', $courseDb );
+                	if( $course->Load( $n->CourseID ) )
                 	{
-		            	// Also copy the new course
-		            	if( !copyCourseDataToClassroom( $args->data->courseId, $n->ID ) )
+		            	// Only remove course data from clones
+		            	if( $course->ParentID > 0 )
 		            	{
-		            		die( 'fail<!--separate-->{"message":"Could not clone template for connected course.","response":-1}' );
-		            	}
-		            }
-		            else
-		            {
-		            	die( 'fail<!--separate-->{"message":"Could not clone template for connected course.","response":-1}' );
-		            }
+				        	if( removeCourseDataFromClassroom( $n->CourseID, $n->ID ) )
+				        	{
+						    	// Also copy the new course
+						    	if( !( $clone = copyCourseDataToClassroom( $args->data->courseId, $n->ID ) ) )
+						    	{
+						    		die( 'fail<!--separate-->{"message":"Could not clone template for connected course.","response":-1}' );
+						    	}
+						    }
+						    else
+						    {
+						    	die( 'fail<!--separate-->{"message":"Could not remove clone for connected course.","response":-1}' );
+						    }
+						}
+						// Copy the new course from template
+						else if( !( $clone = copyCourseDataToClassroom( $args->data->courseId, $n->ID ) ) )
+				    	{
+				    		die( 'fail<!--separate-->{"message":"Could not clone template for connected course.","response":-1}' );
+				    	}
+				    	else
+						{
+							die( 'fail<!--separate-->{"message":"Could not clone template.","response":-1}' );
+						}
+				    }
+				    else
+				    {
+				    	die( 'fail<!--separate-->{"message":"Could not load previously connected course.","response":-1}' );
+				    }
                 }
                 
-                $n->CourseID = $args->data->courseId;
+                if( !$clone )
+                {
+                	die( 'fail<!--separate-->{"message":"Failed to make clone of course template.","response":-1}' );
+                }
+                
+                $n->CourseID = $clone->ID;
                 
                 if ( isset( $args->data->status ))
                     $n->Status = intval( $args->data->status, 10 );

@@ -152,7 +152,7 @@ function copyCourseDataToClassroom( $courseId, $classroomId )
 									}
 								}
 								// All done! Successfully cloned course template, sections, pages and elements
-								return true;
+								return $courseCopy;
 							}
 							else
 							{
