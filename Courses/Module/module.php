@@ -305,8 +305,10 @@ switch( $args->args->command )
 			}
 			if( $inf )
 			{
-				$sess->Save();	
-				die( 'ok<!--separate-->{"message":"Session information saved.","response":1' . $inf . '}' );
+				if( $sess->Save() )
+				{
+					die( 'ok<!--separate-->{"message":"Session information saved.","response":1' . $inf . '}' );
+				}
 			}
 		}
 		die( 'fail<!--separate-->{"message":"No such session.","response":-1}' );
