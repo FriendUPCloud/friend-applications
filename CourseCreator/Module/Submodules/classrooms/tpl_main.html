@@ -897,6 +897,22 @@
                         //return;
                         
                     }
+                    else
+                    {
+                    	// Put back the course
+                    	let opts = ge( 'classCourses' ).getElementsByTagName( 'option' );
+                    	for( let v = 0; v < opts.length; v++ )
+                    	{
+                    		if( opts[v].value == 0 )
+                    		{
+                    			opts[v].selected = 'selected';
+                    		}
+                    		else
+                    		{
+                    			opts[v].selected = '';
+                    		}
+                    	}
+                    }
                     if( self.savePending )
                     {
                         self.savePending = null;

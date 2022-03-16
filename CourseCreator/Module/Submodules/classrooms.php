@@ -12,6 +12,10 @@
 
 global $User, $SqlDatabase;
 
+$GLOBALS[ 'courseDb' ] =& $courseDb;
+
+require_once( __DIR__ . '/classrooms/helpers.php' );
+
 if( isset( $args->method ) )
 {
     switch( $args->method )
@@ -270,7 +274,63 @@ if( isset( $args->method ) )
                 $n->DateUpdated = date( 'Y-m-d H:i:s' );
                 $n->OwnerID = $User->ID;
                 $n->Name = $args->data->name;
-                $n->CourseID = $args->data->courseId;
+                
+                $clone = false;
+                
+                // Course have changed! Delete everything related to previous course
+                if( $n->CourseID > 0 && $n->CourseID != $args->data->courseId )
+                {
+                	$course = new dbIO( 'CC_Course', $courseDb );
+                	if( $course->Load( $n->CourseID ) )
+                	{
+		            	// Only remove course data from clones
+		            	if( $course->ParentID > 0 )
+		            	{
+				        	if( removeCourseDataFromClassroom( $n->CourseID, $n->ID ) )
+				        	{
+						    	// Also copy the new course
+						    	if( !( $clone = copyCourseDataToClassroom( $args->data->courseId, $n->ID ) ) )
+						    	{
+						    		die( 'fail<!--separate-->{"message":"Could not clone template for connected course.","response":-1}' );
+						    	}
+						    }
+						    else
+						    {
+						    	die( 'fail<!--separate-->{"message":"Could not remove clone for connected course.","response":-1}' );
+						    }
+						}
+						// Copy the new course from template
+						else if( !( $clone = copyCourseDataToClassroom( $args->data->courseId, $n->ID ) ) )
+				    	{
+				    		die( 'fail<!--separate-->{"message":"Could not clone template for connected course.","response":-1}' );
+				    	}
+				    	else
+						{
+							die( 'fail<!--separate-->{"message":"Could not clone template.","response":-1}' );
+						}
+				    }
+				    else
+				    {
+				    	die( 'fail<!--separate-->{"message":"Could not load previously connected course.","response":-1}' );
+				    }
+                }
+                // We are adding a course for the first time
+                else if( $n->CourseID == 0 )
+                {
+                	// Also copy the new course
+			    	if( !( $clone = copyCourseDataToClassroom( $args->data->courseId, $n->ID ) ) )
+			    	{
+			    		die( 'fail<!--separate-->{"message":"Could not clone template for connected course, on top of empty slot.","response":-1}' );
+			    	}
+                }
+                
+                if( !$clone )
+                {
+                	die( 'fail<!--separate-->{"message":"Failed to make clone of course template.","response":-1}' );
+                }
+                
+                $n->CourseID = $clone->ID;
+                
                 if ( isset( $args->data->status ))
                     $n->Status = intval( $args->data->status, 10 );
                 if( !isset( $args->data->startDate ) || !trim( $args->data->startDate ) )
@@ -361,16 +421,44 @@ if( isset( $args->method ) )
         case 'classroomcourses':
         	if( isset( $args->classroomId ) )
         	{
-        		if( $rows = $courseDb->fetchObjects( '
-        			SELECT * FROM CC_Course 
-                    WHERE IsDeleted=0
-                    AND Status!=0
-        			ORDER BY DateCreated DESC
-        		' ) )
+        		$classroom = new dbIO( 'CC_Classroom', $courseDb );
+        		if( $classroom->Load( $args->classroomId ) )
         		{
-        			die( 'ok<!--separate-->' . json_encode( $rows ) );
-        		}
-        		die( 'fail<!--separate-->{"message":"No classrooms available."}' );
+        			// Not course template of clone
+        			if( $classroom->CourseID )
+        			{
+        				$currentCourse = new dbIO( 'CC_Course', $courseDb );
+        				if( $currentCourse->Load( $classroom->CourseID ) )
+        				{
+		    				if( $rows = $courseDb->fetchObjects( '
+		    					SELECT * FROM CC_Course 
+						        WHERE IsDeleted=0
+						        AND Status!=0
+						        AND ( ParentID=0 OR ParentID=\'' . $currentCourse->ParentID . '\' )
+						        AND ID NOT IN ( \'' . $currentCourse->ParentID . '\' )
+								ORDER BY DateCreated DESC
+		    				' ) )
+		    				{
+		    					die( 'ok<!--separate-->' . json_encode( $rows ) );
+		    				}
+		    			}
+        			}
+        			// All available course templates
+        			else
+        			{
+						if( $rows = $courseDb->fetchObjects( '
+							SELECT * FROM CC_Course 
+				            WHERE IsDeleted=0
+				            AND Status!=0
+				            AND ParentID=0
+							ORDER BY DateCreated DESC
+						' ) )
+						{
+							die( 'ok<!--separate-->' . json_encode( $rows ) );
+						}
+					}
+		    	}
+	    		die( 'fail<!--separate-->{"message":"No classrooms available."}' );
         	}
             else
             {

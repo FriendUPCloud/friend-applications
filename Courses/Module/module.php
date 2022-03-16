@@ -207,7 +207,7 @@ switch( $args->args->command )
 		{
 			die( 'ok<!--separate-->' . json_encode( $rows ) );
 		}
-		die( 'fail<!--separate-->{"message":"No page elements found.","response":-1}' );
+		die( 'fail<!--separate-->{"message":"No page elements found.","response":-1,"pageId":' . $args->args->pageId . '}' );
 		break;
 	// Register element value
 	// TODO: Make sure to add security here! The course session must be active
@@ -289,38 +289,41 @@ switch( $args->args->command )
 		break;
 	// Set information regarding current session
 	case 'setsessioninfo':
-		$sess = new dbIO( 'CC_CourseSession', $db->database );
-		if( $sess->Load( $args->args->courseSessionId ) )
+		if( isset( $args->args->courseSessionId ) )
 		{
-			$inf = false;
-			if( isset( $args->args->currentSectionId ) )
+			$sess = new dbIO( 'CC_CourseSession', $db->database );
+			if( $sess->Load( $args->args->courseSessionId ) )
 			{
-				$sess->CurrentSection = $args->args->currentSectionId;
-				$inf = ',"Change":"Section","Value":"' . $sess->CurrentSection . '"';
-				$field = 'CurrentSection';
-				$value = $sess->CurrentSection;
-			}
-			if( isset( $args->args->currentPageId ) )
-			{
-				$sess->CurrentPage = $args->args->currentPageId;
-				$inf = ',"Change":"Page","Value":"' . $sess->CurrentPage . '"';
-				$field = 'CurrentPage';
-				$value = $sess->CurrentPage;
-			}
-			if( $inf )
-			{
-				if( $sess->Save() )
+				$inf = false;
+				if( isset( $args->args->currentSectionId ) )
 				{
-					// Double check!
-					$sess = new dbIO( 'CC_CourseSession', $db->database );
-					$sess->Load( $args->args->courseSessionId );
-					if( $sess->{$field} == $value )
+					$sess->CurrentSection = $args->args->currentSectionId;
+					$inf = ',"Change":"Section","Value":"' . $sess->CurrentSection . '"';
+					$field = 'CurrentSection';
+					$value = $sess->CurrentSection;
+				}
+				if( isset( $args->args->currentPageId ) )
+				{
+					$sess->CurrentPage = $args->args->currentPageId;
+					$inf = ',"Change":"Page","Value":"' . $sess->CurrentPage . '"';
+					$field = 'CurrentPage';
+					$value = $sess->CurrentPage;
+				}
+				if( $inf )
+				{
+					if( $sess->Save() )
 					{
-						die( 'ok<!--separate-->{"message":"Session information saved.","response":1' . $inf . '}' );
-					}
-					else
-					{
-						die( 'fail<!--separate-->{"message":"Session information could not save.","response":-1}' );
+						// Double check!
+						$sess = new dbIO( 'CC_CourseSession', $db->database );
+						$sess->Load( $args->args->courseSessionId );
+						if( $sess->{$field} == $value )
+						{
+							die( 'ok<!--separate-->{"message":"Session information saved.","response":1' . $inf . '}' );
+						}
+						else
+						{
+							die( 'fail<!--separate-->{"message":"Session information could not save.","response":-1}' );
+						}
 					}
 				}
 			}

@@ -534,6 +534,12 @@ class FUICourseviewer extends FUIElement
 				let els = JSON.parse( d );
 				for( let a = 0; a < els.length; a++ )
 				{
+					// Convert from BASE64
+					if( els[a].Properties.substr && els[a].Properties.substr( 0, 7 ) == 'BASE64:' )
+					{
+						els[a].Properties = Base64.decode( els[a].Properties.substr( 7, els[a].Properties.length - 7 ) );
+					}
+					
 					let ele = self.createElement( els[a].ElementType, els[a] );
 					self.addToCanvas( ele );
 					if( ele.init )
