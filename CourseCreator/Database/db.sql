@@ -36,6 +36,7 @@ VALUES
 select "Course Table" as "";
 CREATE TABLE IF NOT EXISTS CC_Course(
     ID BIGINT(20) auto_increment NOT NULL,
+    ParentID BIGINT(20) DEFAULT 0,
     DisplayID BIGINT(20) NOT NULL,
     Name VARCHAR(60),
     Status INT DEFAULT 0,
@@ -273,6 +274,16 @@ CREATE TABLE `CC_PageResult` (
   `CourseSessionID` bigint NOT NULL,
   `Status` tinyint(4) NOT NULL DEFAULT '0',
   `DateCreated` datetime DEFAULT NULL,
+  PRIMARY KEY (`ID`)
+);
+
+CREATE TABLE `CC_NewsBulletin` (
+  `ID` bigint NOT NULL AUTO_INCREMENT,
+  `UserID` bigint NOT NULL,
+  `Message` varchar(255) DEFAULT NULL,
+  `ClassroomID` bigint NOT NULL,
+  `DateCreated` datetime DEFAULT NULL,
+  `DateUpdated` datetime DEFAULT NULL,
   PRIMARY KEY (`ID`)
 );
 

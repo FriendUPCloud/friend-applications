@@ -156,15 +156,18 @@
         </h2>
     </div>
     <div class="ContentBlock">
-        <div class="HRow BorderDefault Padding">
+        <div class="HRow BorderDefault Padding MarginBottom">
             <div class="FloatLeft HContent80">
-                <textarea class="FullWidth" rows="5"></textarea>
+                <textarea class="FullWidth" rows="5" id="NewsMessage"></textarea>
             </div>
             <div class="FloatLeft HContent20">
-                <button type="button" class="MarginLeft IconSmall fa-plus">
+                <button type="button" class="MarginLeft IconSmall fa-plus" onclick="Application.submodules.classrooms.addNews();">
                     Add
                 </button>
             </div>
+        </div>
+        <div class="Padding MarginTop BorderTop" id="NewsMessages">
+        	
         </div>
     </div>
 </div>

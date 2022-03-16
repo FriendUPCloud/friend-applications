@@ -109,6 +109,78 @@
                     }
                 } );
             },
+            // Add a news item to the classroom
+            addNews()
+            {
+            	let self = this;
+            	if( ge( 'ClassroomId' ) && ge( 'NewsMessage' ).value.length )
+            	{
+            		const rid = ge( 'ClassroomId' ).value;
+            		
+		        	let m = new Module( 'system' );
+		        	m.onExecuted = function( me, md )
+		        	{
+		        		ge( 'NewsMessage' ).value = '';
+		        		self.refreshNewsItems();
+		        	}
+		        	m.execute( 'appmodule', {
+		        		appName: 'CourseCreator',
+		        		command: 'submodule',
+		        		vars: {
+		        			method: 'addnews',
+		        			submodule: 'classrooms',
+		        			message: ge( 'NewsMessage' ).value,
+		        			classroomId: rid
+		        		}
+		        	} );
+		        }
+            },
+            // Get the list of newsitems for the classroom and list them
+            refreshNewsItems()
+            {
+            	if( !ge( 'ClassroomId' ) )
+            	{
+            		return;
+            	}
+        		const rid = ge( 'ClassroomId' ).value;
+        		
+        		let m = new Module( 'system' );
+        		m.onExecuted = function( me, md )
+        		{
+        			if( me != 'ok' ) 
+        			{
+        				ge( 'NewsMessages' ).innerHTML = '<p>There are no news messages for this classroom.</p>';
+        				return;
+        			}
+        			let messages = JSON.parse( md );
+        			
+        			// Clean shop
+        			let nm = ge( 'NewsMessages' );
+        			nm.innerHTML = '';
+        			
+        			for( let a = 0; a < messages.length; a++ )
+        			{
+        				let ms = document.createElement( 'div' ); ms.className = 'NewsContainer';
+        				let dt = document.createElement( 'div' ); dt.className = 'NewsData';
+        				let cn = document.createElement( 'div' ); cn.className = 'NewsContent';
+        				dt.innerHTML = friendUP.tool.getChatTime( messages[a].DateUpdated );
+        				cn.innerHTML = messages[a].Message;
+        				
+        				ms.appendChild( dt );
+        				ms.appendChild( cn );
+        				nm.appendChild( ms );
+        			}
+        		}
+        		m.execute( 'appmodule', {
+        			appName: 'CourseCreator',
+        			command: 'submodule',
+        			vars: {
+        				method: 'getnews',
+        				submodule: 'classrooms',
+        				classroomId: rid
+        			}
+        		} );
+            },
             refreshRooms( lv )
             {
                 const self = this;
@@ -524,6 +596,8 @@
                                 
                                 if ( data.Status )
                                     ge( 'cl_news_bulleting' ).classList.toggle( 'ccHidden', false );
+                                   
+                                self.refreshNewsItems();
                                 
 		                    }
 		                    p.execute( 'appmodule', {

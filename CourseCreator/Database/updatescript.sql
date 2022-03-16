@@ -81,3 +81,18 @@ ALTER TABLE CC_CourseSession ADD CurrentSection bigint(20) default 0 AFTER Statu
 /* In case this is missing */
 ALTER TABLE CC_ElementResult ADD OriginalElementID bigint(20) NOT NULL AFTER ElementID;
 
+/* News bulletin */
+CREATE TABLE IF NOT EXISTS `CC_NewsBulletin` (
+  `ID` bigint NOT NULL AUTO_INCREMENT,
+  `UserID` bigint NOT NULL,
+  `Message` varchar(255) DEFAULT NULL,
+  `ClassroomID` bigint NOT NULL,
+  `DateCreated` datetime DEFAULT NULL,
+  `DateUpdated` datetime DEFAULT NULL,
+  PRIMARY KEY (`ID`)
+);
+
+/* Active courses are children of template courses */
+ALTER TABLE CC_Course ADD ParentID bigint DEFAULT 0 AFTER ID;
+
+
