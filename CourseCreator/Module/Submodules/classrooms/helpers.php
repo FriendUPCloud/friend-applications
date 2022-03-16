@@ -57,7 +57,7 @@ function flushCourseAndData( $courseId )
 					$courseDb->query( 'DELETE FROM CC_PageResult WHERE PageID=\'' . $page->ID . '\'' );
 					$courseDb->query( 'DELETE FROM CC_ElementResult r WHERE r.ID IN ( SELECT e.ID FROM CC_Element e WHERE e.PageID=\'' . $page->ID . '\'' );
 					// Remove all elements
-					$courseDb->query( 'DELETE FROM CC_Element WHERE e.PageID=\'' . $page->ID . '\'' );
+					$courseDb->query( 'DELETE FROM CC_Element WHERE PageID=\'' . $page->ID . '\'' );
 				}
 				// Remove pages
 				$courseDb->query( 'DELETE FROM CC_Page WHERE SectionID=\'' . $sect->ID . '\'' );
@@ -156,14 +156,22 @@ function copyCourseDataToClassroom( $courseId, $classroomId )
 									$eleCopy->Load( $el->ID );
 									$eleCopy->ID = 0;
 									$eleCopy->PageID = $pageCopy->ID;
+									if( $eleCopy->Properties )
+									{
+										$props = json_decode( $eleCopy->Properties );
+										foreach( $props as $k=>$v )
+										{
+											$props->$k = addslashes( $v );
+										}
+										$eleCopy->Properties = json_encode( $props );
+									}
 									if( !$eleCopy->Save() )
 									{
 										flushCourseAndData( $courseCopy->ID );
 										return false;
 									}
 								}
-								// All done! Successfully cloned course template, sections, pages and elements
-								return $courseCopy;
+								// Successfully cloned course template, sections, pages and elements
 							}
 							else
 							{
@@ -179,6 +187,8 @@ function copyCourseDataToClassroom( $courseId, $classroomId )
 					}
 				}
 			}
+			// Success
+			return $courseCopy;
 		}
 	}
 	return false;
