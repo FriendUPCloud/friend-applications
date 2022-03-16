@@ -14,12 +14,61 @@
 function removeCourseDataFromClassroom( $courseId, $classroomId )
 {
 	global $courseDb;
+	
+	$o = new dbIO( 'CC_Course', $courseDb );
+	$o->ClassroomID = $classroomId;
+	$o->ID = $courseId;
+	if( $o->Load() )
+	{
+		if( $o->ParentID > 0 )
+		{
+			return flushCourseAndData( $o->ID );
+		}
+	}
+	return false;
 }
 
 // Destroy a course and all its data!
 function flushCourseAndData( $courseId )
 {
 	global $courseDb;
+	
+	$course = new dbIO( 'CC_Course', $courseDb );
+	if( !$course->Load( $courseId ) )
+	{
+		return false;
+	}
+	// Find sections
+	if( $sects = $courseDb->fetchObjects( '
+		SELECT * FROM CC_Section WHERE CourseID=\'' . $course->ID . '\'
+	' ) )
+	{
+		foreach( $sects as $sect )
+		{
+			// Fetch pages
+			if( $pages = $courseDb->fetchObjects( '
+				SELECT * FROM CC_Page WHERE SectionID=\'' . $sect->ID . '\'
+			' ) )
+			{
+				// Now flush!
+				foreach( $pages as $page )
+				{
+					// Remove results if any
+					$courseDb->query( 'DELETE FROM CC_PageResult WHERE PageID=\'' . $page->ID . '\'' );
+					$courseDb->query( 'DELETE FROM CC_ElementResult r WHERE r.ID IN ( SELECT e.ID FROM CC_Element e WHERE e.PageID=\'' . $page->ID . '\'' );
+					// Remove all elements
+					$courseDb->query( 'DELETE FROM CC_Element WHERE e.PageID=\'' . $page->ID . '\'' );
+				}
+				// Remove pages
+				$courseDb->query( 'DELETE FROM CC_Page WHERE SectionID=\'' . $sect->ID . '\'' );
+			}
+		}
+		// Remove sections
+		$courseDb->query( 'DELETE FROM CC_Section WHERE CourseID=\'' . $course->ID . '\'' );
+	}
+	// Remove course
+	$course->Delete();
+	return true;
 }
 
 // Copies all required data from a course to this classroom
@@ -102,6 +151,7 @@ function copyCourseDataToClassroom( $courseId, $classroomId )
 										return false;
 									}
 								}
+								// All done! Successfully cloned course template, sections, pages and elements
 								return true;
 							}
 							else
