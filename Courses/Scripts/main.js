@@ -190,7 +190,7 @@ moduleObject.classrooms = {
 							},
 							{
 								type: 'string',
-								value: list[a].EndDate.split(' ')[0],
+								value: friendUP.tool.ucfirst( friendUP.tool.getChatTime( ( new Date( list[a].EndDate ) ).getTime() ) ),
 							}
 						] );
 						
@@ -268,7 +268,7 @@ moduleObject.classrooms = {
 		n.onExecuted = function( ee, dd )
 		{
 			const course = JSON.parse( dd );
-			console.log( 'initclassroomdetails course', [ classroomId, listview, course ]);
+			//console.log( 'initclassroomdetails course', [ classroomId, listview, course ]);
 			let section = FUI.getElementByUniqueId( 'classroom_section_1' );
 			const now = Date.now();
 			const cStart = Date.parse( course.ClassStartDate );
@@ -282,7 +282,7 @@ moduleObject.classrooms = {
 			let btnText = '';
 			let btnDisable = ( !started || ended );
 			
-			console.log( 'when does it start?', course, now );
+			//console.log( 'when does it start?', course, now );
 			
 			// Button icon
 			let classText = 'fa-play-circle-o';
@@ -317,34 +317,71 @@ moduleObject.classrooms = {
 			}
 			
 			section.setHeader( 'Details for ' + course.Name );
-			section.setContent( '<p>Details are coming.</p><p class="TextRight"><button ' + ( btnDisable ? 'disabled' : '' ) + ' type="button" class="IconSmall ' + classText + '" onclick="' + btnClick + '">' + btnText + '</button></p>' );
+			section.setContent( '<p class="TextRight"><button ' + ( btnDisable ? 'disabled' : '' ) + ' type="button" class="IconSmall ' + classText + '" onclick="' + btnClick + '">' + btnText + '</button></p>' );
 			
 			let list = FUI.getElementByUniqueId( 'classroom_progress' );
 			let m = new Module( 'system' );
 			m.onExecuted = function( ee, ed )
 			{
-				if( ee == 'ok' )
+				if( ee == 'ok' && ed.length )
 				{
-					let rows = JSON.parse( ed );
+					let rows = false
+					try
+					{
+						rows = JSON.parse( ed );
+					}
+					catch( e )
+					{
+						return;
+					}
 					let out = [];
 					
+					let sections = [];
 					for( let a = 0; a < rows.length; a++ )
 					{
-						out.push( [ {
-							type: 'string',
-							value: rows[a].Name
-						}, {
-							type: 'string',
-							value: '<progressbar progress="20%"/>',
-						}, {
-							type: 'string',
-							value: 'Pending',
-						}, {
-							type: 'string',
-							value: 'date'
-						} ] );
-					};
-					list.setRowData( out );
+						sections.push( rows[a].ID );
+					}
+					let sm = new Module( 'system' );
+					sm.onExecuted = function( se, sd )
+					{
+						let sectionProgress = false;
+						if( se == 'ok' )
+						{
+							try
+							{
+								sectionProgress = JSON.parse( sd );
+							}
+							catch( e )
+							{
+								sectionProgress = false;
+							}
+						}
+						for( let a = 0; a < rows.length; a++ )
+						{
+							// Get section progress
+							let sprog = sectionProgress ? ( sectionProgress[ rows[a].ID ] ? sectionProgress[ rows[a].ID ].progress : '0%' ) : '0%';
+							out.push( [ {
+								type: 'string',
+								value: rows[a].Name
+							}, {
+								type: 'string',
+								value: '<progressbar progress="' + sprog + '"/>',
+							}, {
+								type: 'string',
+								value: sprog == '100%' ? 'Completed' : 'Not completed',
+							}, {
+								type: 'string',
+								value: friendUP.tool.ucfirst( friendUP.tool.getChatTime( ( new Date( rows[a].DateUpdated ) ).getTime() ) )
+							} ] );
+						};
+						list.setRowData( out );
+					}
+					sm.execute( 'appmodule', {
+						appName: 'Courses',
+						command: 'getsectionprogress',
+						sections: sections,
+						courseId: course.ID
+					} );
 				}
 			}
 			m.execute( 'appmodule', {

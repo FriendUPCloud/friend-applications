@@ -307,6 +307,108 @@ switch( $args->args->command )
 	/* ---------------------------------------------------------------------- */
 	/* This part is related to statistics, user progress and so on ---------- */
 	/* ---------------------------------------------------------------------- */
+	// Get the progress status on sections
+	case 'getsectionprogress':
+	
+		// Get types
+		$types = $db->database->fetchObjects( 'SELECT * FROM CC_ElementType WHERE IsQuestion' );
+		$typeOut = [];
+		$response = new stdClass();
+		if( $types )
+		{
+			foreach( $types as $ty )
+			{
+				$typeOut[] = intval( $ty->ID, 10 );
+			}
+		}
+		
+		// Get session
+		$sess = $db->database->fetchObject( '
+			SELECT * FROM 
+			CC_CourseSession s 
+			WHERE 
+				( s.Status = 9 OR s.Status = 1 ) AND 
+				s.CourseID = \'' . intval( $args->args->courseId, 10 ) . '\'
+			ORDER BY ID DESC LIMIT 1
+		' );
+		
+		// Validate that we have our information
+		if( count( $typeOut ) > 0 && $sess->ID )
+		{
+			if( isset( $args->args ) && isset( $args->args->sections ) )
+			{
+				$found = 0;
+				foreach( $args->args->sections as $secId )
+				{
+					// Get all elements on this section
+					if( $elementC = $db->database->fetchObject( $q = ( '
+						SELECT COUNT(e.ID) AS CNT FROM CC_Element e, CC_Section s, CC_Page p
+						WHERE
+							p.SectionID = s.ID AND
+							e.PageID = p.ID AND s.ID = \'' . intval( $secId, 10 ) . '\' AND
+							e.ElementTypeID IN ( ' . implode( ', ', $typeOut ) . ' )
+					' ) ) )
+					{
+						$elementC = $elementC->CNT;
+						
+						if( $elementFilled = $db->database->fetchObject( '
+							SELECT COUNT(e.ID) AS CNT FROM CC_ElementResult e, CC_CourseSession s
+							WHERE
+								s.ID = \'' . $sess->ID . '\' AND e.CourseSessionID = s.ID AND e.Data
+						' ) )
+						{
+							$elementFilled = $elementFilled->CNT;
+							
+							$response->{$secId} = new stdClass();
+							if( $elementC > 0 && $elementFilled > 0 )
+							{
+								$response->{$secId}->progress = floor( $elementFilled / $elementC * 100 ) . '%';
+							}
+							else
+							{
+								// Check if page is complete
+								if( $d = $db->database->fetchObject( ( $q = '
+									SELECT pr.Status FROM CC_PageResult pr, CC_Section s, CC_Page p
+									WHERE
+										s.ID=\'' . intval( $secId, 10 ) . '\' AND 
+										pr.PageID = p.ID AND
+										p.SectionID = s.ID AND
+										pr.CourseSessionID = \'' . $sess->ID . '\'
+									ORDER BY pr.ID DESC
+									LIMIT 1
+								' ) ) )
+								{
+									// Non-interactive (no interactive elements)
+									if( $elementC == 0 )
+									{
+										// Check if the page is complete
+										$response->{$secId}->progress = ( $d && $d->Status == 1 ) ? '100%' : '0%';
+									}
+									// No interactive element is completed
+									else
+									{
+										$response->{$secId}->progress = '0%';
+									}
+								}
+								// The page of the element is not complete
+								else
+								{
+									$response->{$secId}->progress = '0%';
+								}
+							}
+							$found++;
+						}
+					}
+				}
+				if( $found > 0 )
+				{
+					die( 'ok<!--separate-->' . json_encode( $response ) );
+				}
+				die( 'fail<!--separate-->{"message":"Could not find progress on elements or results.","response":-1}<!--separate-->' . $q );
+			}
+		}
+		die( 'fail<!--separate-->{"message":"Could not find progress.","response":-1}' );
+		break;
 	// Tell the system that a page has been read
 	case 'setpagestatus':
 		if( isset( $args->args ) && isset( $args->args->pageId ) && isset( $args->args->courseSessionId ) )
