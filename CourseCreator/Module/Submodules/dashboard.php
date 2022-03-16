@@ -79,11 +79,11 @@ if ( isset( $args->method ))
 				]));
 			}
 		case 'status':
-			// students total / online
+			// students total
 			$aq = '
 				SELECT uc.UserID FROM CC_UserClassroom AS uc GROUP BY uc.UserID;
 			';
-			$allUIDs = $courseDb->fetchObjects( $aq );
+			$all = $courseDb->fetchObjects( $aq );
 			// online
 			$d = getcwd();
             require_once( $d . '/php/friend.php' ); // FriendCall
@@ -95,12 +95,19 @@ if ( isset( $args->method ))
                 'servertoken' => $User->ServerToken,
             ];
             
-            $online = 0;
+            $online = [];
             $fres = FriendCall( $getonline, null, $op );
             if ( $fres )
             {
             	$o = json_decode( $fres );
-            	$online = count( $o->userlist );
+            	foreach( $o->userlist AS $fu )
+            	{
+            		foreach( $all AS $u )
+            		{
+            			if ( $fu->ID == $u->UserID )
+            				$online[] = $u->UserID;
+            		}
+            	}
             }
 			
 			// active sessions today
@@ -112,14 +119,14 @@ if ( isset( $args->method ))
 				'endpoint'         => 'status',
 				'args'             => $args,
 				'aq'               => $aq,
-				'allUIDs'          => $allUIDs,
+				'all'              => $all,
 				'getonline'        => $getonline,
 				'op'               => $op,
 				'fres'             => $fres,
 				'o'                => $o,
 				'online'           => $online,
-				'usersTotal'       => count( $allUIDs ),
-				'usersOnline'      => 8,
+				'usersTotal'       => count( $all ),
+				'usersOnline'      => count( $online ),
 				'activeSessions'   => 3,
 				'completedCourses' => 26,
 			]));
