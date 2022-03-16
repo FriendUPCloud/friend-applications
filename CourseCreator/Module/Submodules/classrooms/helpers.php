@@ -154,14 +154,22 @@ function copyCourseDataToClassroom( $courseId, $classroomId )
 								{
 									if( $oldElement = $courseDb->fetchObject( 'SELECT * FROM CC_Element WHERE ID=\'' . $el->ID . '\'' ) )
 									{
-										// Base64 encode properties because of JSON error
-										//$eleCopy->Properties = 'BASE64:' . base64_encode( $eleCopy->Properties );
 										$eleCopy = new dbIO( 'CC_Element', $courseDb );
 										foreach( $oldElement as $k=>$v )
 										{
 											if( $k == 'ID' ) continue;
-											$eleCopy->$k = $v;
+											
+											// Base64 encode properties because of JSON error
+											if( $k == 'Properties' )
+											{
+												$eleCopy->$k = 'BASE64:' . base64_encode( $v );
+											}
+											else
+											{
+												$eleCopy->$k = $v;
+											}
 										}
+										$eleCopy->PageID = $pageCopy->ID;
 										
 										if( !$eleCopy->Save() )
 										{

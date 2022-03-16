@@ -207,7 +207,7 @@ switch( $args->args->command )
 		{
 			die( 'ok<!--separate-->' . json_encode( $rows ) );
 		}
-		die( 'fail<!--separate-->{"message":"No page elements found.","response":-1}' );
+		die( 'fail<!--separate-->{"message":"No page elements found.","response":-1,"pageId":' . $args->args->pageId . '}' );
 		break;
 	// Register element value
 	// TODO: Make sure to add security here! The course session must be active
