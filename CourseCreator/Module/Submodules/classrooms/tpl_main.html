@@ -617,6 +617,41 @@
                 } );
             },
             
+            moveToTrash()
+            {
+            	const rid = ge( 'ClassroomId' ).value;
+            	let self = this;
+            	
+            	Confirm( 'Are you sure?', 'This will put this classroom in trash, and it will be invisible to users.', function( result )
+            	{
+            		if( result.data == true )
+            		{
+            			let m = new Module( 'system' );
+            			m.onExecuted = function( me, md )
+            			{
+            				if( me == 'ok' )
+            				{
+		        				document.body.classList.remove( 'Editmode' );
+		        				self.refreshRooms();
+		        			}
+		        			else
+		        			{
+		        				Alert( 'Failed to move to trash', 'The course could not be moved to trash.' );
+		        			}
+            			}
+            			m.execute( 'appmodule', {
+            				appName: 'CourseCreator',
+            				comand: 'submodule',
+            				vars: {
+            					method: 'movetotrash',
+            					submodule: 'classrooms',
+            					classroomId: rid
+            				}
+            			} );
+            		}
+            	} );
+            },
+            
             executeSaveTheRoom()
             {
                 console.log( 'executeSaveTheRoom' );

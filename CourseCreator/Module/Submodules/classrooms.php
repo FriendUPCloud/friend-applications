@@ -318,6 +318,18 @@ if( isset( $args->method ) )
                 ]));
             }
             break;
+        case 'movetotrash':
+        	if( isset( $args->classroomId ) )
+        	{
+        		$d = new dbIO( 'CC_Classroom', $courseDb );
+        		if( $d->Load( $args->classroomId ) )
+        		{
+        			$d->Status = 3;
+        			$d->Save();
+        			die( 'ok<!--separate-->{"message":"Classroom saved, moved to trash.","response":1}' );
+        		}
+        	}
+        	die( 'fail<!--separate-->{"message":"Could not move classroom to trash.","response":-1}' );
         case 'classroomcourses':
         	if( isset( $args->classroomId ) )
         	{
