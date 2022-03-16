@@ -12,7 +12,7 @@
 
 global $User, $SqlDatabase;
 
-require_once( 'classroom_helpers.php' );
+require_once( 'classrooms/classroom_helpers.php' );
 
 if( isset( $args->method ) )
 {
