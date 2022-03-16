@@ -155,6 +155,7 @@ function copyCourseDataToClassroom( $courseId, $classroomId )
 									if( $oldElement = $courseDb->fetchObject( 'SELECT * FROM CC_Element WHERE ID=\'' . $el->ID . '\'' ) )
 									{
 										$eleCopy = new dbIO( 'CC_Element', $courseDb );
+										
 										foreach( $oldElement as $k=>$v )
 										{
 											if( $k == 'ID' ) continue;
@@ -169,6 +170,7 @@ function copyCourseDataToClassroom( $courseId, $classroomId )
 												$eleCopy->$k = $v;
 											}
 										}
+										
 										$eleCopy->PageID = $pageCopy->ID;
 										
 										if( !$eleCopy->Save() )
