@@ -62,7 +62,7 @@ Application.submodules.dashboard = {
                 let cl = new Module( 'system' );
                 cl.onExecuted = function( s, d )
                 {
-                    console.log( 'classroom completedness', [ s, d ] );
+                    console.log( 'classroom progress', [ s, d ] );
                     if ( 'fail' == s || !d )
                     {
                         let l = res.activeclasses.length;
@@ -125,22 +125,22 @@ Application.submodules.dashboard = {
                 console.log( 'dashboard status back', [ s, d ]);
                 const res = JSON.parse( d );
                 console.log( 'status res', res );
-                const studs = res.students || {
-                    mainNum : 12,
+                const studs = {
+                    mainNum  : res.usersTotal,
                     mainIcon : 'fa-users',
                     mainText : 'Students',
-                    subStat  : 5,
+                    subStat  : res.usersOnline,
                     subText  : 'currently online',
                 };
-                const sesss = res.sessions || {
-                    mainNum : 4,
+                const sesss = {
+                    mainNum  : res.activeSessions,
                     mainIcon : 'fa-clock-o',
                     mainText : 'Active sessions today',
                     subStat  : undefined,
                     subText  : undefined,
                 };
-                const courses = res.courses || {
-                    mainNum : 45,
+                const courses = {
+                    mainNum  : res.completedCourses,
                     mainIcon : 'fa-book',
                     mainText : 'Completed courses',
                 };
@@ -175,16 +175,69 @@ Application.submodules.dashboard = {
         };
         const c = new ccChart( cOpts );
         console.log( 'dashboard.addClassStatus', c );
+        
+        if ( null == klass.Progress )
+            klass.Progress = Math.floor( Math.random() * 100 );
+        
+        console.log( 'prog', klass.Progress );
+        let pColor = '#25bbaf';
+        if ( null != klass.Progress )
+        {
+            if ( klass.Progress > 35 )
+                pColor = '#27bcaf';
+            if ( klass.Progress > 75 )
+                pColor = '#ff7363';
+            if ( klass.Progress > 91 )
+                pColor = '#d85c4f'
+        }
+        
+        const data = {
+            labels : [
+                'complete',
+                '',
+            ],
+            datasets : [{
+                label : 'test chart label',
+                data  : [ 
+                    klass.Progress, 
+                    ( 100 - klass.Progress ),
+                ],
+                backgroundColor : [
+                    pColor,
+                    'rgb(230, 230, 230 )',
+                ],
+            }],
+        };
+        
+        const conf = {
+            type    : 'doughnut',
+            data    : data,
+            options : {
+                plugins : {
+                    legend : {
+                        display : false,
+                    },
+                },
+                cutout : '80%',
+            },
+        };
+        console.log( 'C', c );
+        c.setData( conf, {
+            label1: klass.Name || 'Classname',
+            label2: ( klass.Users ? klass.Users + ' Users' : 'no u' ),
+            progress : klass.Progress + '%',
+        } );
+        
+        /*
         const cs = new Module( 'system' );
         cs.onExecuted = ( s, d ) =>
         {
             console.log( 'addClassStatus', [ s, d ] );
             const res = JSON.parse( d );
             console.log( 'stats', res );
+            //klass.Users = res.total;
             if ( null == klass.Progress )
                 klass.Progress = Math.floor( Math.random() * 100 );
-            if( null == klass.Users )
-                klass.Users = Math.floor( Math.random() * 30 );
             
             console.log( 'prog', klass.Progress );
             let pColor = '#25bbaf';
@@ -245,6 +298,7 @@ Application.submodules.dashboard = {
                 classId   : klass.ID,
             }
         } );
+        */
     },
     
     addStatusBox( data, bgColor )
@@ -273,7 +327,7 @@ Application.submodules.dashboard.init();
             justify-content : center;
         }
         
-        .klasStatsBox
+        .chartBox
         {
             position: relative;
             width : 150px;
@@ -283,12 +337,12 @@ Application.submodules.dashboard.init();
             text-align: center;
         }
         
-        .klasStatsBox > div:nth-child(3)
+        .chartBox > div:nth-child(3)
         {
             font-weight: bold;
         }
         
-        .klasStatsBox > div:nth-child(4)
+        .chartBox > div:nth-child(4)
         {
             position: absolute;
             top : 50px;
@@ -304,10 +358,11 @@ Application.submodules.dashboard.init();
         
         #dashStatus .ccStatBox
         {
-            padding      : 0.5em;
-            margin-right : 1em;
-            color        : white;
-            height       : 7em;
+            padding       : 0.5em;
+            margin-right  : 1em;
+            color         : white;
+            height        : 7em;
+            border-radius : 4px;
         }
         
         .ccStatBox

@@ -163,9 +163,9 @@ if( isset( $args->method ) )
         case 'addcert':
             if( isset( $args->userId ) && isset( $args->cert ) )
             {
-                // collect inputs
                 $d = getcwd();
                 require_once( $d . '/php/friend.php' ); // FriendCall
+                // collect inputs
                 $uid = intval( $args->userId, 10 );
                 $cid = null;
                 $to = new dbIO( 'FUser' );

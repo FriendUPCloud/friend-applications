@@ -822,7 +822,7 @@ class ccChart extends ccGUIElement
         super.attachDomElement();
         self.cEl = document.createElement( 'canvas' );
         self.domElement.appendChild( self.cEl );
-        self.domElement.classList.add( 'klasStatsBox' );
+        self.domElement.classList.add( 'chartBox' );
         const l1 = document.createElement( 'div' );
         const l2 = document.createElement( 'div' );
         const pr = document.createElement( 'div' );

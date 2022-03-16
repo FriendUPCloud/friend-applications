@@ -19,9 +19,13 @@ if ( isset( $args->method ))
 	{
 		case 'activeclasses':
 			$q = '
-				SELECT cl.ID, cl.Name, cl.CourseID FROM CC_Classroom AS cl
+				SELECT cl.ID, cl.Name, cl.CourseID, count( uc.UserID ) AS Users 
+				FROM CC_Classroom AS cl
+				LEFT JOIN CC_UserClassroom AS uc
+					ON cl.ID=uc.ClassroomID
 				WHERE ( cl.StartDate < NOW() )
 				AND ( cl.EndDate > NOW() )
+				GROUP BY cl.ID
 			';
 			$res = $courseDb->fetchObjects( $q );
 			die( 'ok<!--separate-->'.json_encode([
@@ -79,8 +83,25 @@ if ( isset( $args->method ))
 			$aq = '
 				SELECT uc.UserID FROM CC_UserClassroom AS uc GROUP BY uc.UserID;
 			';
-			$allUIDS = $courseDb->fetchObjects( $aq );
-				 // online ???
+			$allUIDs = $courseDb->fetchObjects( $aq );
+			// online
+			$d = getcwd();
+            require_once( $d . '/php/friend.php' ); // FriendCall
+            
+            $getonline = ( $Config->SSLEnable ? 'https://' : 'http://' ) .
+            	$Config->FCHost . ':' . $Config->FCPort . '/system.library/user/activewslist';
+            	
+            $op = [
+                'servertoken' => $User->ServerToken,
+            ];
+            
+            $online = 0;
+            $fres = FriendCall( $getonline, null, $op );
+            if ( $fres )
+            {
+            	$o = json_decode( $fres );
+            	$online = count( $o->userlist );
+            }
 			
 			// active sessions today
 			
@@ -88,10 +109,19 @@ if ( isset( $args->method ))
 			// completed courses
 			
 			die( 'ok<!--separate-->'.json_encode([
-				'endpoint' => 'status',
-				'args'     => $args,
-				'aq'       => $aq,
-				'allUIDS'  => $allUIDS,
+				'endpoint'         => 'status',
+				'args'             => $args,
+				'aq'               => $aq,
+				'allUIDs'          => $allUIDs,
+				'getonline'        => $getonline,
+				'op'               => $op,
+				'fres'             => $fres,
+				'o'                => $o,
+				'online'           => $online,
+				'usersTotal'       => count( $allUIDs ),
+				'usersOnline'      => 8,
+				'activeSessions'   => 3,
+				'completedCourses' => 26,
 			]));
 		die( 'fail<!--separate-->'.json_encode( [
 			'error' => 'no endpoint found',
