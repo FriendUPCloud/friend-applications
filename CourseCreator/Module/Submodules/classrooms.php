@@ -12,6 +12,8 @@
 
 global $User, $SqlDatabase;
 
+require_once( 'classroom_helpers.php' );
+
 if( isset( $args->method ) )
 {
     switch( $args->method )
@@ -270,7 +272,18 @@ if( isset( $args->method ) )
                 $n->DateUpdated = date( 'Y-m-d H:i:s' );
                 $n->OwnerID = $User->ID;
                 $n->Name = $args->data->name;
+                
+                // Course have changed! Delete everything related to previous course
+                if( $n->CourseID > 0 && $n->CourseID != $args->data->courseId )
+                {
+                	removeCourseDataFromClassroom( $n->CourseID, $n->ID );
+                	
+                	// Also copy the new course
+                	copyCourseDataToClassroom( $args->data->courseId, $n->ID );
+                }
+                
                 $n->CourseID = $args->data->courseId;
+                
                 if ( isset( $args->data->status ))
                     $n->Status = intval( $args->data->status, 10 );
                 if( !isset( $args->data->startDate ) || !trim( $args->data->startDate ) )
