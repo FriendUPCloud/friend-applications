@@ -404,18 +404,21 @@ class FUICourseviewer extends FUIElement
 			let pid = sect.pages[ self.currentPage ].ID;
 			
 			console.log( 'Setting current page: ', self.currentPage + ' ' + pid );
+			
 			// Set active page
-			let m = new Module( 'system' );
-			m.onExecuted = function( me, md )
+			let csid = this.#courseSessionId;
+			
+			// Workaround on saving issue..
+			setTimeout( function()
 			{
-				console.log( 'Result: ', me, md );
-			}
-			m.execute( 'appmodule', {
-				appName: 'Courses',
-				command: 'setsessioninfo',
-				currentPageId: pid,
-				courseSessionId: this.#courseSessionId
-			} );
+				let mo = new Module( 'system' );
+				mo.execute( 'appmodule', {
+					appName: 'Courses',
+					command: 'setsessioninfo',
+					currentPageId: pid,
+					courseSessionId: csid
+				} );
+			}, 250 );
 		}
 		
 		// Set active section

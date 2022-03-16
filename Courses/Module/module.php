@@ -297,17 +297,31 @@ switch( $args->args->command )
 			{
 				$sess->CurrentSection = $args->args->currentSectionId;
 				$inf = ',"Change":"Section","Value":"' . $sess->CurrentSection . '"';
+				$field = 'CurrentSection';
+				$value = $sess->CurrentSection;
 			}
 			if( isset( $args->args->currentPageId ) )
 			{
 				$sess->CurrentPage = $args->args->currentPageId;
 				$inf = ',"Change":"Page","Value":"' . $sess->CurrentPage . '"';
+				$field = 'CurrentPage';
+				$value = $sess->CurrentPage;
 			}
 			if( $inf )
 			{
 				if( $sess->Save() )
 				{
-					die( 'ok<!--separate-->{"message":"Session information saved.","response":1' . $inf . '}' );
+					// Double check!
+					$sess = new dbIO( 'CC_CourseSession', $db->database );
+					$sess->Load( $args->args->courseSessionId );
+					if( $sess->{$field} == $value )
+					{
+						die( 'ok<!--separate-->{"message":"Session information saved.","response":1' . $inf . '}' );
+					}
+					else
+					{
+						die( 'fail<!--separate-->{"message":"Session information could not save.","response":-1}' );
+					}
 				}
 			}
 		}
