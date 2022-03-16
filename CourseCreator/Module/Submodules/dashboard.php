@@ -110,8 +110,12 @@ if ( isset( $args->method ))
             	}
             }
 			
-			// active sessions today
-			
+			// sessions
+			$sq = '
+				SELECT cs.ID, cs.DateCreated FROM CC_CourseSession AS cs
+				WHERE DATE( cs.DateCreated ) = CURDATE()
+			';
+			$sess = $courseDb->fetchObjects( $sq );
 			
 			// completed courses
 			
@@ -125,10 +129,11 @@ if ( isset( $args->method ))
 				'fres'             => $fres,
 				'o'                => $o,
 				'online'           => $online,
+				'sess'             => $sess,
 				'usersTotal'       => count( $all ),
 				'usersOnline'      => count( $online ),
-				'activeSessions'   => 3,
-				'completedCourses' => 26,
+				'activeSessions'   => count( $sess ),
+				'completedCourses' => 'NYI',
 			]));
 		die( 'fail<!--separate-->'.json_encode( [
 			'error' => 'no endpoint found',
