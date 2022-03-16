@@ -292,16 +292,22 @@ switch( $args->args->command )
 		$sess = new dbIO( 'CC_CourseSession', $db->database );
 		if( $sess->Load( $args->args->courseSessionId ) )
 		{
+			$inf = false;
 			if( isset( $args->args->currentSectionId ) )
 			{
 				$sess->CurrentSection = $args->args->currentSectionId;
+				$inf = ',"Change":"Section","Value":"' . $sess->CurrentSection . '"';
 			}
 			if( isset( $args->args->currentPageId ) )
 			{
 				$sess->CurrentPage = $args->args->currentPageId;
+				$inf = ',"Change":"Page","Value":"' . $sess->CurrentPage . '"';
 			}
-			$sess->Save();
-			die( 'ok<!--separate-->{"message":"Session information saved.","response":1}' );
+			if( $inf )
+			{
+				$sess->Save();	
+				die( 'ok<!--separate-->{"message":"Session information saved.","response":1' . $inf . '}' );
+			}
 		}
 		die( 'fail<!--separate-->{"message":"No such session.","response":-1}' );
 		break;

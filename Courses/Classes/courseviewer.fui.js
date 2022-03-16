@@ -183,6 +183,13 @@ class FUICourseviewer extends FUIElement
 					d.onclick = function()
 					{
 						if( self.completed ) return;
+						
+						if( self.currentPage < self.sections[ self.activeSection ].pages.length - 1 )
+						{
+							Alert( 'You cannot skip to the next section', 'You need to navigate to the last page of this section before skipping to the next one.' );
+							return;
+						}
+						
 						let s = new Module( 'system' );
 						s.onExecuted = function( se, sd )
 						{
@@ -365,7 +372,7 @@ class FUICourseviewer extends FUIElement
 					if( sect.pages[a].ID == self.storedActivePage || ( self.storedActivePage == -1 && a == 0 ) )
 					{
 						self.currentPage = a;
-						console.log( 'Found current page ' + a );
+						//console.log( 'Found current page ' + a + ' where stored is ' + self.storedActivePage + ' and this page is ' +  sect.pages[a].ID );
 					}
 				}
 			}
@@ -393,12 +400,20 @@ class FUICourseviewer extends FUIElement
 				} )( p, a );
 				this.navpanel.querySelector( '.Pages' ).appendChild( p );
 			}
+			
+			let pid = sect.pages[ self.currentPage ].ID;
+			
+			console.log( 'Setting current page: ', self.currentPage + ' ' + pid );
 			// Set active page
 			let m = new Module( 'system' );
+			m.onExecuted = function( me, md )
+			{
+				console.log( 'Result: ', me, md );
+			}
 			m.execute( 'appmodule', {
 				appName: 'Courses',
 				command: 'setsessioninfo',
-				currentPageId: sect.pages[ self.currentPage ].ID,
+				currentPageId: pid,
 				courseSessionId: this.#courseSessionId
 			} );
 		}
