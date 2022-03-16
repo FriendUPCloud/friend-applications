@@ -645,6 +645,7 @@ switch( $args->args->command )
 				}
 			}
 			die( 'ok<!--separate-->' . json_encode( $out ) );
+
 		}
 		// Zero progress
 		die( 'fail<!--separate-->{"message":"Could not parse any classroom ids or course session id."}' );
