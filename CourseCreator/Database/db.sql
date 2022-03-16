@@ -276,6 +276,16 @@ CREATE TABLE `CC_PageResult` (
   PRIMARY KEY (`ID`)
 );
 
+CREATE TABLE `CC_NewsBulletin` (
+  `ID` bigint NOT NULL AUTO_INCREMENT,
+  `UserID` bigint NOT NULL,
+  `Message` varchar(255) DEFAULT NULL,
+  `ClassroomID` bigint NOT NULL,
+  `DateCreated` datetime DEFAULT NULL,
+  `DateUpdated` datetime DEFAULT NULL,
+  PRIMARY KEY (`ID`)
+);
+
 
 /* Fill in some dummy values in the database
 *
