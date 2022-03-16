@@ -20,10 +20,18 @@
         <div class="HContent15 FloatLeft">
             <strong>Course:</strong>
         </div>
-        <div class="FloatLeft">
+        <div class="HContent35 FloatLeft">
             <select id="classCourses" onchange="Application.submodules.classrooms.executeSaveTheRoom()">
             	{courseList}
             </select>
+        </div>
+        <div class="HContent15 FloatLeft">
+            <strong>Disable:</strong>
+        </div>
+        <div class="HContent35 FloatLeft">
+            <button type="button" class="IconSmall fa-trash" onclick="Application.submodules.classrooms.moveToTrash()">
+            	Move to trash
+            </button>
         </div>
         <!--<button id="cl_edit_view_course_btn" class="FloatLeft MarginLeft IconSmall fa-eye" onclick="Application.submodules.classrooms.viewCourse()">
             View Course

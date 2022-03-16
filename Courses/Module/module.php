@@ -67,7 +67,8 @@ switch( $args->args->command )
 				CC_Classroom cr 
 			WHERE 
 				uc.ClassroomID = cr.ID AND 
-				uc.UserID=\'' . intval( $User->ID, 10 ) . '\'
+				uc.UserID=\'' . intval( $User->ID, 10 ) . '\' AND 
+				cr.Status != 3
 			ORDER BY 
 				cr.StartDate DESC
 		' ) )
@@ -291,16 +292,38 @@ switch( $args->args->command )
 		$sess = new dbIO( 'CC_CourseSession', $db->database );
 		if( $sess->Load( $args->args->courseSessionId ) )
 		{
+			$inf = false;
 			if( isset( $args->args->currentSectionId ) )
 			{
 				$sess->CurrentSection = $args->args->currentSectionId;
+				$inf = ',"Change":"Section","Value":"' . $sess->CurrentSection . '"';
+				$field = 'CurrentSection';
+				$value = $sess->CurrentSection;
 			}
 			if( isset( $args->args->currentPageId ) )
 			{
 				$sess->CurrentPage = $args->args->currentPageId;
+				$inf = ',"Change":"Page","Value":"' . $sess->CurrentPage . '"';
+				$field = 'CurrentPage';
+				$value = $sess->CurrentPage;
 			}
-			$sess->Save();
-			die( 'ok<!--separate-->{"message":"Session information saved.","response":1}' );
+			if( $inf )
+			{
+				if( $sess->Save() )
+				{
+					// Double check!
+					$sess = new dbIO( 'CC_CourseSession', $db->database );
+					$sess->Load( $args->args->courseSessionId );
+					if( $sess->{$field} == $value )
+					{
+						die( 'ok<!--separate-->{"message":"Session information saved.","response":1' . $inf . '}' );
+					}
+					else
+					{
+						die( 'fail<!--separate-->{"message":"Session information could not save.","response":-1}' );
+					}
+				}
+			}
 		}
 		die( 'fail<!--separate-->{"message":"No such session.","response":-1}' );
 		break;

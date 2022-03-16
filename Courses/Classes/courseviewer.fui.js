@@ -183,6 +183,13 @@ class FUICourseviewer extends FUIElement
 					d.onclick = function()
 					{
 						if( self.completed ) return;
+						
+						if( self.currentPage < self.sections[ self.activeSection ].pages.length - 1 )
+						{
+							Alert( 'You cannot skip to the next section', 'You need to navigate to the last page of this section before skipping to the next one.' );
+							return;
+						}
+						
 						let s = new Module( 'system' );
 						s.onExecuted = function( se, sd )
 						{
@@ -365,7 +372,7 @@ class FUICourseviewer extends FUIElement
 					if( sect.pages[a].ID == self.storedActivePage || ( self.storedActivePage == -1 && a == 0 ) )
 					{
 						self.currentPage = a;
-						console.log( 'Found current page ' + a );
+						//console.log( 'Found current page ' + a + ' where stored is ' + self.storedActivePage + ' and this page is ' +  sect.pages[a].ID );
 					}
 				}
 			}
@@ -393,14 +400,25 @@ class FUICourseviewer extends FUIElement
 				} )( p, a );
 				this.navpanel.querySelector( '.Pages' ).appendChild( p );
 			}
+			
+			let pid = sect.pages[ self.currentPage ].ID;
+			
+			console.log( 'Setting current page: ', self.currentPage + ' ' + pid );
+			
 			// Set active page
-			let m = new Module( 'system' );
-			m.execute( 'appmodule', {
-				appName: 'Courses',
-				command: 'setsessioninfo',
-				currentPageId: sect.pages[ self.currentPage ].ID,
-				courseSessionId: this.#courseSessionId
-			} );
+			let csid = this.#courseSessionId;
+			
+			// Workaround on saving issue..
+			setTimeout( function()
+			{
+				let mo = new Module( 'system' );
+				mo.execute( 'appmodule', {
+					appName: 'Courses',
+					command: 'setsessioninfo',
+					currentPageId: pid,
+					courseSessionId: csid
+				} );
+			}, 250 );
 		}
 		
 		// Set active section
@@ -435,6 +453,23 @@ class FUICourseviewer extends FUIElement
 				self.currentPage++;
 				if( self.currentPage >= self.sections[ self.activeSection ].pages.length )
 				{
+					// Check if there's a next section'
+					let b = 0;
+					let current = 0;
+					for( let a in self.sections )
+					{
+						if( a == self.activeSection )
+							current = b;
+						// This is the next section
+						if( b == current + 1 )
+						{
+							self.activeSection = a;
+							self.currentPage = 0;
+							self.refreshStructure();
+							return;
+						}
+						b++;
+					}
 					self.currentPage--;
 					return;
 				}
