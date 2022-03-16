@@ -92,4 +92,7 @@ CREATE TABLE IF NOT EXISTS `CC_NewsBulletin` (
   PRIMARY KEY (`ID`)
 );
 
+/* Active courses are children of template courses */
+ALTER TABLE CC_Course ADD ParentID bigint DEFAULT 0 AFTER ID;
+
 

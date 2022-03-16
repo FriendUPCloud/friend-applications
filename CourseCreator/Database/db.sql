@@ -36,6 +36,7 @@ VALUES
 select "Course Table" as "";
 CREATE TABLE IF NOT EXISTS CC_Course(
     ID BIGINT(20) auto_increment NOT NULL,
+    ParentID BIGINT(20) DEFAULT 0,
     DisplayID BIGINT(20) NOT NULL,
     Name VARCHAR(60),
     Status INT DEFAULT 0,
