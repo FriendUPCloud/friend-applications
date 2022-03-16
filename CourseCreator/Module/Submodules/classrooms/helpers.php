@@ -152,24 +152,24 @@ function copyCourseDataToClassroom( $courseId, $classroomId )
 								// Go through all elements
 								foreach( $elements as $el )
 								{
-									$eleCopy = new dbIO( 'CC_Element', $courseDb );
-									$eleCopy->Load( $el->ID );
-									$eleCopy->ID = 0;
-									$eleCopy->PageID = $pageCopy->ID;
-									if( $eleCopy->Properties )
+									if( $oldElement = $courseDb->fetchObject( 'SELECT * FROM CC_Element WHERE ID=\'' . $el->ID . '\'' ) )
 									{
-										$props = json_decode( $eleCopy->Properties );
-										foreach( $props as $k=>$v )
+										// Base64 encode properties because of JSON error
+										//$eleCopy->Properties = 'BASE64:' . base64_encode( $eleCopy->Properties );
+										$eleCopy = new dbIO( 'CC_Element', $courseDb );
+										foreach( $oldElement as $k=>$v )
 										{
-											$props->$k = addslashes( $v );
+											if( $k == 'ID' ) continue;
+											$eleCopy->$k = $v;
 										}
-										$eleCopy->Properties = json_encode( $props );
+										
+										if( !$eleCopy->Save() )
+										{
+											flushCourseAndData( $courseCopy->ID );
+											return false;
+										}
 									}
-									if( !$eleCopy->Save() )
-									{
-										flushCourseAndData( $courseCopy->ID );
-										return false;
-									}
+									
 								}
 								// Successfully cloned course template, sections, pages and elements
 							}
