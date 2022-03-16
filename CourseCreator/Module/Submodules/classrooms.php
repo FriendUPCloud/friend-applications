@@ -276,10 +276,18 @@ if( isset( $args->method ) )
                 // Course have changed! Delete everything related to previous course
                 if( $n->CourseID > 0 && $n->CourseID != $args->data->courseId )
                 {
-                	removeCourseDataFromClassroom( $n->CourseID, $n->ID );
-                	
-                	// Also copy the new course
-                	copyCourseDataToClassroom( $args->data->courseId, $n->ID );
+                	if( removeCourseDataFromClassroom( $n->CourseID, $n->ID ) )
+                	{
+		            	// Also copy the new course
+		            	if( !copyCourseDataToClassroom( $args->data->courseId, $n->ID ) )
+		            	{
+		            		die( 'fail<!--separate-->{"message":"Could not clone template for connected course.","response":-1}' );
+		            	}
+		            }
+		            else
+		            {
+		            	die( 'fail<!--separate-->{"message":"Could not clone template for connected course.","response":-1}' );
+		            }
                 }
                 
                 $n->CourseID = $args->data->courseId;
