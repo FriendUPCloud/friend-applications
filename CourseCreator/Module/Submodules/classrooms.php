@@ -312,6 +312,15 @@ if( isset( $args->method ) )
 				    	die( 'fail<!--separate-->{"message":"Could not load previously connected course.","response":-1}' );
 				    }
                 }
+                // We are adding a course for the first time
+                else if( $n->CourseID == 0 )
+                {
+                	// Also copy the new course
+			    	if( !( $clone = copyCourseDataToClassroom( $args->data->courseId, $n->ID ) ) )
+			    	{
+			    		die( 'fail<!--separate-->{"message":"Could not clone template for connected course, on top of empty slot.","response":-1}' );
+			    	}
+                }
                 
                 if( !$clone )
                 {
