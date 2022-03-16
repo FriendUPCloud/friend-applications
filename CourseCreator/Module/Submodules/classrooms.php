@@ -171,7 +171,7 @@ if( isset( $args->method ) )
                     FROM CC_Classroom AS C
                     LEFT JOIN CC_UserClassroom AS UC
                         ON C.ID = UC.ClassroomID
-                    WHERE ( C.Status!=0 ) OR ( C.Status=0 AND C.OwnerID='.$User->ID.')
+                    WHERE ( ( C.Status !=0 ) OR ( C.Status=0 AND C.OwnerID='.$User->ID.' ) ) AND C.Status != 3
                     GROUP BY C.ID
                     ORDER BY C.ID DESC
                 ';

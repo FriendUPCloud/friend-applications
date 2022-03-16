@@ -67,7 +67,8 @@ switch( $args->args->command )
 				CC_Classroom cr 
 			WHERE 
 				uc.ClassroomID = cr.ID AND 
-				uc.UserID=\'' . intval( $User->ID, 10 ) . '\'
+				uc.UserID=\'' . intval( $User->ID, 10 ) . '\' AND 
+				cr.Status != 3
 			ORDER BY 
 				cr.StartDate DESC
 		' ) )
