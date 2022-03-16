@@ -161,7 +161,7 @@ if( isset( $args->method ) )
     		
         case 'courses':
         {
-            if( $rows = $courseDb->fetchObjects( 'SELECT * FROM CC_Course WHERE IsDeleted = 0 ORDER BY ID DESC' ) )
+            if( $rows = $courseDb->fetchObjects( 'SELECT * FROM CC_Course WHERE IsDeleted = 0 AND ParentID = 0 ORDER BY ID DESC' ) )
             {
                 die( 'ok<!--separate-->' . json_encode( $rows ) );
             }
