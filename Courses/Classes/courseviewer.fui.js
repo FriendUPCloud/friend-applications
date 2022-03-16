@@ -534,16 +534,10 @@ class FUICourseviewer extends FUIElement
 				let els = JSON.parse( d );
 				for( let a = 0; a < els.length; a++ )
 				{
-					console.log( 'Cool element: ', els[a] );
 					// Convert from BASE64
 					if( els[a].Properties.substr && els[a].Properties.substr( 0, 7 ) == 'BASE64:' )
 					{
-						console.log( 'This element has weird properties!', els[a].Properties );
 						els[a].Properties = Base64.decode( els[a].Properties.substr( 7, els[a].Properties.length - 7 ) );
-					}
-					else
-					{
-						console.log( 'This element has normal properties!', els[a].Properties );
 					}
 					
 					let ele = self.createElement( els[a].ElementType, els[a] );
