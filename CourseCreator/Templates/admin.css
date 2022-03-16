@@ -229,3 +229,28 @@ body.Saved .Module.Active p > span:before
 {
     /*background-color: goldenrod;*/
 }
+
+/* News items */
+
+.NewsContainer
+{
+	box-sizing: border-box;
+	border: 1px solid rgba(0,0,0,0.4);
+	padding: 8px;
+	border-radius: 3px;
+	margin: 0 0 10px 0;
+}
+
+.NewsContainer > .NewsData
+{
+	font-weight: bold;
+	margin: 0 0 10px 20px;
+	float: right;
+}
+
+div > .NewsContainer:last-child
+{
+	margin: 0;
+}
+
+

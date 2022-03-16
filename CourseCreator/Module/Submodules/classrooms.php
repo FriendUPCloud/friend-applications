@@ -162,6 +162,34 @@ if( isset( $args->method ) )
                 ));
             }
             break;
+        case 'addnews':
+        	if( isset( $args->classroomId ) && isset( $args->message ) )
+        	{
+		    	$n = new dbIO( 'CC_NewsBulletin', $courseDb );
+		    	$n->UserID = $User->ID;
+		    	$n->DateCreated = date( 'Y-m-d H:i:s' );
+		    	$n->DateUpdated = $n->DateCreated;
+		    	$n->ClassroomID = $args->classroomId;
+		    	$n->Message = $args->message;
+		    	if( $n->Save() )
+		    	{
+		    		die( 'ok<!--separate-->{"message":"News message saved.","response":1}' );
+		    	}
+		    }
+		    die( 'fail<!--separate-->{"message":"Could not add news message.","response":-1}' );
+	        break;
+        case 'getnews':
+        	if( isset( $args->classroomId ) ) 
+        	{
+        		if( $rows = $courseDb->fetchObjects( '
+        			SELECT * FROM CC_NewsBulletin WHERE ClassroomID=\'' . $args->classroomId . '\' ORDER BY DateCreated DESC
+        		' ) )
+        		{
+        			die( 'ok<!--separate-->' . json_encode( $rows ) );
+        		}
+        	}
+        	die( 'fail<!--separate-->{"message":"No news.","response":-1}' );
+        	break;
         case 'refreshrooms':
             {
                 $q = '
