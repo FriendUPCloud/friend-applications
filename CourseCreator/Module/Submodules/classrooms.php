@@ -12,6 +12,8 @@
 
 global $User, $SqlDatabase;
 
+$GLOBALS[ 'courseDb' ] =& $courseDb;
+
 require_once( __DIR__ . '/classrooms/helpers.php' );
 
 if( isset( $args->method ) )
@@ -419,16 +421,44 @@ if( isset( $args->method ) )
         case 'classroomcourses':
         	if( isset( $args->classroomId ) )
         	{
-        		if( $rows = $courseDb->fetchObjects( '
-        			SELECT * FROM CC_Course 
-                    WHERE IsDeleted=0
-                    AND Status!=0
-        			ORDER BY DateCreated DESC
-        		' ) )
+        		$classroom = new dbIO( 'CC_Classroom', $courseDb );
+        		if( $classroom->Load( $args->classroomId ) )
         		{
-        			die( 'ok<!--separate-->' . json_encode( $rows ) );
-        		}
-        		die( 'fail<!--separate-->{"message":"No classrooms available."}' );
+        			// Not course template of clone
+        			if( $classroom->CourseID )
+        			{
+        				$currentCourse = new dbIO( 'CC_Course', $courseDb );
+        				if( $currentCourse->Load( $classroom->CourseID ) )
+        				{
+		    				if( $rows = $courseDb->fetchObjects( '
+		    					SELECT * FROM CC_Course 
+						        WHERE IsDeleted=0
+						        AND Status!=0
+						        AND ( ParentID=0 OR ParentID=\'' . $currentCourse->ParentID . '\' )
+						        AND ID NOT IN ( \'' . $currentCourse->ParentID . '\' )
+								ORDER BY DateCreated DESC
+		    				' ) )
+		    				{
+		    					die( 'ok<!--separate-->' . json_encode( $rows ) );
+		    				}
+		    			}
+        			}
+        			// All available course templates
+        			else
+        			{
+						if( $rows = $courseDb->fetchObjects( '
+							SELECT * FROM CC_Course 
+				            WHERE IsDeleted=0
+				            AND Status!=0
+				            AND ParentID=0
+							ORDER BY DateCreated DESC
+						' ) )
+						{
+							die( 'ok<!--separate-->' . json_encode( $rows ) );
+						}
+					}
+		    	}
+	    		die( 'fail<!--separate-->{"message":"No classrooms available."}' );
         	}
             else
             {

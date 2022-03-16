@@ -76,18 +76,29 @@ function copyCourseDataToClassroom( $courseId, $classroomId )
 {
 	global $courseDb;
 	
+	if( !$courseDb )
+	{
+		die( 'fail<!--separate-->{"message":"No database.","response":-1}' );
+	}
+	
 	// Load course template
 	$course = new dbIO( 'CC_Course', $courseDb );
 	if( $course->Load( $courseId ) )
 	{
 		// We cannot use a course copy as a template
-		if( $course->ParentID > 0 ) return false;
+		if( $course->ParentID > 0 ) 
+		{
+			return false;
+		}
 		
 		// Create copy course
 		$courseCopy = new dbIO( 'CC_Course', $courseDb );
 		
 		// Make sure we load the original
-		if( !$courseCopy->Load( $courseId ) ) return false;
+		if( !$courseCopy->Load( $courseId ) ) 
+		{
+			return false;
+		}
 		$courseCopy->ID = 0;
 		$courseCopy->ParentID = $course->ID;
 		
@@ -141,7 +152,7 @@ function copyCourseDataToClassroom( $courseId, $classroomId )
 								// Go through all elements
 								foreach( $elements as $el )
 								{
-									$eleCopy = new dbIO( 'CC_Element' );
+									$eleCopy = new dbIO( 'CC_Element', $courseDb );
 									$eleCopy->Load( $el->ID );
 									$eleCopy->ID = 0;
 									$eleCopy->PageID = $pageCopy->ID;
