@@ -228,6 +228,10 @@ switch( $args->args->command )
 		$o->Data = $d->real_escape_string( $args->args->value );
 		$o->DateUpdated = date( 'Y-m-d H:i:s' );
 		$o->Save();
+		
+		// Remove older element results
+		$db->database->query( 'DELETE FROM CC_ElementResult WHERE ID != \'' . $o->ID . '\' AND OriginalElementID=\'' . $o->OriginalElementID . '\'' );
+		
 		if( $o->ID > 0 )
 		{
 			die( 'ok<!--separate-->{"response":1,"message":"Stored element value."}' );
