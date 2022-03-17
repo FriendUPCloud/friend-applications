@@ -923,6 +923,9 @@
                     self.setModuleState( false );
                     return;
                 }
+                
+                const courseId = ge( 'classCourses' ).value;
+                
                 m.execute( 'appmodule', {
                     appName : 'CourseCreator',
                     command : 'submodule',
@@ -934,7 +937,7 @@
                             name      : name,
                             endDate   : ed,
                             startDate : sd,
-                            courseId  : ge( 'classCourses' ).value,
+                            courseId  : courseId,
                             status    : ( null != status ) ? status : undefined,
                         },
                     },

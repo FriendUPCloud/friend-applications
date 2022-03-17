@@ -278,7 +278,7 @@ if( isset( $args->method ) )
                 $clone = false;
                 
                 // Course have changed! Delete everything related to previous course
-                if( $n->CourseID > 0 && $n->CourseID != $args->data->courseId )
+                if( $n->CourseID > 0 && $n->CourseID != $args->data->courseId && $args->data->courseId > 0 )
                 {
                 	$course = new dbIO( 'CC_Course', $courseDb );
                 	if( $course->Load( $n->CourseID ) )
@@ -328,8 +328,10 @@ if( isset( $args->method ) )
                 {
                 	die( 'fail<!--separate-->{"message":"Failed to make clone of course template.","response":-1}' );
                 }
-                
-                $n->CourseID = $clone->ID;
+                else
+                {
+	                $n->CourseID = $clone->ID;
+	            }
                 
                 if ( isset( $args->data->status ))
                     $n->Status = intval( $args->data->status, 10 );
