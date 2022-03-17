@@ -103,8 +103,10 @@ if ( isset( $args->method ))
 						WHERE cl.ID='.$cid.'
 					';
 					$qts[] = $qt;
-					$prog = $courseDb->fetchObjects( $qt );
-					$progs[] = $prog;
+					
+					$tot = $courseDb->fetchObjects( $qt );
+					$total = $tot->el;
+					$progs[] = $total;
 				}
 				
 				

@@ -101,11 +101,90 @@ function setModule( mv, mod )
 /* Dashboard */
 
 moduleObject.dashboard = {
+	preload()
+	{
+		const self = this;
+		console.log( 'dash preload' );
+		
+	},
 	initialize( moduleView )
 	{
+		const self = this;
+		console.log( 'dash init', moduleView, self );
 		let cont = moduleView.moduleContainer.domNode;
-		cont.getElementsByTagName( 'h1' )[0].innerHTML = 'Velkommen ' + Application.fullName + '!';
-	}
+		ge( 'dashWelcome' ).innerHTML = 'Welcome ' + Application.fullName + '!';
+		self.prog = ge( 'dashProgress' );
+		self.status = ge( 'dashStatus' );
+		const cl = new Module( 'system' );
+		cl.onExecuted = ( s , d ) => {
+			console.log( 'dash list cl', [ s, d ]);
+			if ( 'ok' == s )
+			{
+				const rs = JSON.parse( d );
+				console.log( 'rooms', rs );
+				const clIds = [];
+				let l = rs.length;
+				for ( ;l; )
+				{
+					l--;
+					const r = rs[l];
+					clIds[l] = r.ID;
+				}
+				
+				console.log( 'class ids', clIds );
+				const p = new Module( 'system' );
+				p.onExecuted = ( s, d ) => {
+					console.log( 'classroom progress back', [ s, d ]);
+					if ( 'ok' == s )
+					{
+						const res = JSON.parse( d );
+						console.log( 'getclassroomprogress res', res );
+					}
+					else
+					{
+						console.log( 'getclassroomprogress failed', [ s, d ]);
+					}
+				}
+				p.execute( 'appmodule', {
+					appName    : 'Courses',
+					command    : 'getclassroomprogress',
+					classrooms : clIds,
+				});
+			
+			}
+			else
+			{
+				console.log( 'listclassrooms failed', d );
+			}
+		}
+		
+		cl.execute( 'appmodule', {
+			appName : 'Courses',
+			command : 'listclassrooms',
+			status  : false,
+			active  : 'active',
+		});
+		
+		const s = new Module( 'system' );
+		s.onExecuted = ( s, d ) => {
+			console.log( 'getstats back', [ s, d ]);
+			if ( 'ok' == s )
+			{
+				const res = JSON.parse( d );
+				console.log( 'getstats res', res );
+			}
+			else
+			{
+				console.log( 'dash getstats failed', [ s, d ]);
+			}
+		}
+		s.execute( 'appmodule', {
+			appName : 'Courses',
+			command : 'getstats',
+		});
+			
+			
+	},
 };
 
 /* Classrooms */

@@ -1,0 +1,46 @@
+.chartBox
+{
+    position: relative;
+    width : 150px;
+    height: 200px;
+    /*background-color: lightgrey;*/
+    margin-right : 1em;
+    text-align: center;
+}
+
+.chartBox > div:nth-child(3)
+{
+    font-weight: bold;
+}
+
+.chartBox > div:nth-child(4)
+{
+    position: absolute;
+    top : 50px;
+    width: 100%;
+    font-size: 2.5em;
+    font-weight: bold;
+}
+
+
+.statboxMain
+{
+    display         : flex;
+    font-size       : 3em;
+    justify-content : center;
+}
+
+.statboxMainStat
+{
+    
+}
+
+.statboxMainText
+{
+    font-size: 1.5em;
+}
+
+.statboxSub
+{
+    line-height: 1.3em;
+}
