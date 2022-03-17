@@ -671,6 +671,7 @@ class CourseDatabase
     	{
     		// Check if we need transform on max 500 pages
     		$fix = false;
+    		$existing = new stdClass();
     		foreach( $rows as $k=>$v )
     		{
     			if( $v->DisplayID > 500 )
@@ -678,6 +679,12 @@ class CourseDatabase
     				$fix = true;
     				break;
     			}
+    			if( isset( $existing->{$v->DisplayID} ) )
+    			{
+    				$fix = true;
+    				break;
+    			}
+    			$existing->{$v->DisplayID} = true;
     		}
     		if( $fix )
     		{
