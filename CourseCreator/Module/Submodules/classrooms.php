@@ -10,7 +10,7 @@
 *                                                                              *
 *****************************************************************************©*/
 
-global $User, $SqlDatabase;
+global $User, $SqlDatabase, $level;
 
 $GLOBALS[ 'courseDb' ] =& $courseDb;
 
@@ -166,6 +166,19 @@ if( isset( $args->method ) )
                 ));
             }
             break;
+        // Remove news item
+        case 'removenews':
+        	if( $level == 'Admin' )
+        	{
+		    	$n = new dbIO( 'CC_NewsBulletin', $courseDb );
+		    	if( $n->Load( $args->newsId ) )
+		    	{
+		    		$n->Delete();
+		    		die( 'ok<!--separate-->' );
+		    	}
+		    }
+		    die( 'fail<!--separate-->' );
+			break;
         case 'addnews':
         	if( isset( $args->classroomId ) && isset( $args->message ) )
         	{
@@ -278,7 +291,7 @@ if( isset( $args->method ) )
                 $clone = false;
                 
                 // Course have changed! Delete everything related to previous course
-                if( $n->CourseID > 0 && $n->CourseID != $args->data->courseId )
+                if( $n->CourseID > 0 && $n->CourseID != $args->data->courseId && $args->data->courseId > 0 )
                 {
                 	$course = new dbIO( 'CC_Course', $courseDb );
                 	if( $course->Load( $n->CourseID ) )
@@ -326,10 +339,16 @@ if( isset( $args->method ) )
                 
                 if( !$clone )
                 {
-                	die( 'fail<!--separate-->{"message":"Failed to make clone of course template.","response":-1}' );
+                	// Only fail if we wanted to change course
+                	if( $n->CourseID != $args->data->courseId )
+                	{
+                		die( 'fail<!--separate-->{"message":"Failed to make clone of course template.","response":-1}' );
+                	}
                 }
-                
-                $n->CourseID = $clone->ID;
+                else
+                {
+	                $n->CourseID = $clone->ID;
+	            }
                 
                 if ( isset( $args->data->status ))
                     $n->Status = intval( $args->data->status, 10 );
@@ -432,30 +451,35 @@ if( isset( $args->method ) )
         				{
 		    				if( $rows = $courseDb->fetchObjects( '
 		    					SELECT * FROM CC_Course 
-						        WHERE IsDeleted=0
-						        AND Status!=0
-						        AND ( ParentID=0 OR ParentID=\'' . $currentCourse->ParentID . '\' )
-						        AND ID NOT IN ( \'' . $currentCourse->ParentID . '\' )
+						        WHERE 
+						        	IsDeleted = 0 AND
+						       		Status != 0 AND
+						       		( ParentID = 0 OR ParentID = \'' . $currentCourse->ParentID . '\' ) AND
+						        	ID NOT IN ( \'' . $currentCourse->ParentID . '\' )
 								ORDER BY DateCreated DESC
 		    				' ) )
 		    				{
 		    					die( 'ok<!--separate-->' . json_encode( $rows ) );
 		    				}
 		    			}
+		    			// The course is deleted, adjust classromm
+		    			else
+		    			{
+		    				$classroom->CourseID = 0;
+		    				$classroom->Save();
+		    			}
         			}
         			// All available course templates
-        			else
-        			{
-						if( $rows = $courseDb->fetchObjects( '
-							SELECT * FROM CC_Course 
-				            WHERE IsDeleted=0
-				            AND Status!=0
-				            AND ParentID=0
-							ORDER BY DateCreated DESC
-						' ) )
-						{
-							die( 'ok<!--separate-->' . json_encode( $rows ) );
-						}
+					if( $rows = $courseDb->fetchObjects( '
+						SELECT * FROM CC_Course 
+			            WHERE 
+			            	IsDeleted = 0 AND
+				            Status != 0 AND
+				            ParentID = 0
+						ORDER BY DateCreated DESC
+					' ) )
+					{
+						die( 'ok<!--separate-->' . json_encode( $rows ) );
 					}
 		    	}
 	    		die( 'fail<!--separate-->{"message":"No classrooms available."}' );
@@ -464,8 +488,10 @@ if( isset( $args->method ) )
             {
                 if( $rows = $courseDb->fetchObjects( '
                     SELECT * FROM CC_Course
-                    WHERE IsDeleted=0
-                    AND Status!=0
+                    WHERE
+                    	IsDeleted = 0 AND
+                    	Status != 0 AND
+                    	ParentID = 0
                     ORDER BY DateCreated DESC
                 ' ) )
                 {

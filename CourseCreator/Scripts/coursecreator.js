@@ -123,12 +123,13 @@ class SectionElement extends Element
     	let disp = 0;
     	for( let a in this.children )
     	{
-    		if( this.children[a].displayId > disp )
+    		let did = parseInt( this.children[a].displayId );
+    		if( did > disp )
     		{
-    			disp = this.children[a].displayId;
+    			disp = did;
     		}
     	}
-    	return disp + 1;
+    	return parseInt( disp ) + 1;
     }
 
     save = function(callBack)
