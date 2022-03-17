@@ -244,6 +244,8 @@ moduleObject.classrooms = {
 	// Show the classroom details
 	initClassroomDetails( classroomId, listview )
 	{
+		let self = this;
+		
 		// If we have no arguments, we are doing a refresh
 		if( !classroomId )
 		{
@@ -389,6 +391,36 @@ moduleObject.classrooms = {
 				command: 'listsections',
 				courseId: course.ID
 			} );
+			
+			// Read news bulletin
+			let news = FUI.getElementByUniqueId( 'classroom_news' );
+			news.setHeader( 'News and updates' );
+			let ne = new Module( 'system' );
+			ne.onExecuted = function( ner, ned )
+			{
+				if( ner != 'ok' )
+				{
+					news.setContent( '<p>No news at this time.</p>' );
+					return;
+				}
+			
+				let newsItems = JSON.parse( ned );
+				let str = '';
+				for( let a = 0; a < newsItems.length; a++ )
+				{
+					str += '<div class="NewsItem">\
+						<div class="Date FloatRight MarginLeft MarginBottom">' + friendUP.tool.getChatTime( newsItems[a].DateUpdated ) + '</div>\
+						<div class="NewsContent">' + newsItems[a].Message + '</div>\
+					</div>';
+				}
+				news.setContent( str );
+			}
+			ne.execute( 'appmodule', {
+				appName: 'Courses',
+				command: 'getnews',
+				classroomId: self.currentClassroomId
+			} );
+			
 		}
 		n.execute( 'appmodule', {
 			appName: 'Courses',

@@ -290,6 +290,24 @@ if( isset( $args->method ) )
                 
                 $clone = false;
                 
+                // Quickly save
+                if ( isset( $args->data->status ))
+                    $n->Status = intval( $args->data->status, 10 );
+                if( !isset( $args->data->startDate ) || !trim( $args->data->startDate ) )
+                    $args->data->startDate = date( 'Y-m-d' );
+                $n->StartDate = $args->data->startDate . ' 00:00:00';
+                if( !isset( $args->data->endDate ) || !trim( $args->data->endDate ) )
+                    $args->data->endDate = date( 'Y-m-d' );
+                $n->EndDate = $args->data->endDate . ' 23:59:59';
+                
+                $newCourse = false;
+                if( !$n->ID )
+                {
+                	$newCourse = true;
+                }
+                
+                $n->Save();
+                
                 // Course have changed! Delete everything related to previous course
                 if( $n->CourseID > 0 && $n->CourseID != $args->data->courseId && $args->data->courseId > 0 )
                 {
@@ -304,35 +322,41 @@ if( isset( $args->method ) )
 						    	// Also copy the new course
 						    	if( !( $clone = copyCourseDataToClassroom( $args->data->courseId, $n->ID ) ) )
 						    	{
+						    		if( $newCourse ) $n->Delete();
 						    		die( 'fail<!--separate-->{"message":"Could not clone template for connected course.","response":-1}' );
 						    	}
 						    }
 						    else
 						    {
+						    	if( $newCourse ) $n->Delete();
 						    	die( 'fail<!--separate-->{"message":"Could not remove clone for connected course.","response":-1}' );
 						    }
 						}
 						// Copy the new course from template
 						else if( !( $clone = copyCourseDataToClassroom( $args->data->courseId, $n->ID ) ) )
 				    	{
+				    		if( $newCourse ) $n->Delete();
 				    		die( 'fail<!--separate-->{"message":"Could not clone template for connected course.","response":-1}' );
 				    	}
 				    	else
 						{
+							if( $newCourse ) $n->Delete();
 							die( 'fail<!--separate-->{"message":"Could not clone template.","response":-1}' );
 						}
 				    }
 				    else
 				    {
+				    	if( $newCourse ) $n->Delete();
 				    	die( 'fail<!--separate-->{"message":"Could not load previously connected course.","response":-1}' );
 				    }
                 }
                 // We are adding a course for the first time
-                else if( $n->CourseID == 0 )
+                else if( $n->CourseID == 0 && $args->data->courseId > 0 )
                 {
                 	// Also copy the new course
 			    	if( !( $clone = copyCourseDataToClassroom( $args->data->courseId, $n->ID ) ) )
 			    	{
+			    		if( $newCourse ) $n->Delete();
 			    		die( 'fail<!--separate-->{"message":"Could not clone template for connected course, on top of empty slot.","response":-1}' );
 			    	}
                 }
@@ -342,6 +366,7 @@ if( isset( $args->method ) )
                 	// Only fail if we wanted to change course
                 	if( $n->CourseID != $args->data->courseId )
                 	{
+                		if( $newCourse ) $n->Delete();
                 		die( 'fail<!--separate-->{"message":"Failed to make clone of course template.","response":-1}' );
                 	}
                 }
@@ -350,15 +375,6 @@ if( isset( $args->method ) )
 	                $n->CourseID = $clone->ID;
 	            }
                 
-                if ( isset( $args->data->status ))
-                    $n->Status = intval( $args->data->status, 10 );
-                if( !isset( $args->data->startDate ) || !trim( $args->data->startDate ) )
-                    $args->data->startDate = date( 'Y-m-d' );
-                $n->StartDate = $args->data->startDate . ' 00:00:00';
-                if( !isset( $args->data->endDate ) || !trim( $args->data->endDate ) )
-                    $args->data->endDate = date( 'Y-m-d' );
-                $n->EndDate = $args->data->endDate . ' 23:59:59';
-                $n->Save();
                 $q = $n->_lastQuery;
                 if( $n->ID > 0 )
                 {
@@ -371,6 +387,7 @@ if( isset( $args->method ) )
                     
                     die( 'ok<!--separate-->' . json_encode($cl[ 0 ]));
                 }
+                if( $newCourse ) $n->Delete();
                 die( 'fail<!--separate-->{"message":"Failed to save classroom."}<!--separate-->' . $q );
             }
             else
