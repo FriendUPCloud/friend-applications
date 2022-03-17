@@ -10,7 +10,7 @@
 *                                                                              *
 *****************************************************************************©*/
 
-global $User, $SqlDatabase;
+global $User, $SqlDatabase, $level;
 
 $GLOBALS[ 'courseDb' ] =& $courseDb;
 
@@ -166,6 +166,19 @@ if( isset( $args->method ) )
                 ));
             }
             break;
+        // Remove news item
+        case 'removenews':
+        	if( $level == 'Admin' )
+        	{
+		    	$n = new dbIO( 'CC_NewsBulletin', $courseDb );
+		    	if( $n->Load( $args->newsId ) )
+		    	{
+		    		$n->Delete();
+		    		die( 'ok<!--separate-->' );
+		    	}
+		    }
+		    die( 'fail<!--separate-->' );
+			break;
         case 'addnews':
         	if( isset( $args->classroomId ) && isset( $args->message ) )
         	{

@@ -135,6 +135,30 @@
 		        	} );
 		        }
             },
+            removeNewsItem( newsid )
+            {
+            	let self = this;
+            	Confirm( 'Are you sure?', 'This will remove the news item from the classroom.', function( res )
+            	{
+            		if( res.data )
+            		{
+		        		let m = new Module( 'system' );
+		        		m.onExecuted = function( me, md )
+		        		{
+		        			self.refreshNewsItems();
+		        		}
+		        		m.execute( 'appmodule', {
+							appName: 'CourseCreator',
+							command: 'submodule',
+							vars: {
+								method: 'removenews',
+								submodule: 'classrooms',
+								newsId: newsid
+							}
+						} );
+					}
+            	} );
+            },
             // Get the list of newsitems for the classroom and list them
             refreshNewsItems()
             {
@@ -163,7 +187,8 @@
         				let ms = document.createElement( 'div' ); ms.className = 'NewsContainer';
         				let dt = document.createElement( 'div' ); dt.className = 'NewsData';
         				let cn = document.createElement( 'div' ); cn.className = 'NewsContent';
-        				dt.innerHTML = friendUP.tool.getChatTime( messages[a].DateUpdated );
+        				dt.innerHTML = friendUP.tool.getChatTime( messages[a].DateUpdated ) +
+        								' <span class="MarginLeft FloatRight IconSmall fa-remove MousePointer" onclick="Application.submodules.classrooms.removeNewsItem(\'' + messages[a].ID + '\')"></span>';
         				cn.innerHTML = messages[a].Message;
         				
         				ms.appendChild( dt );
