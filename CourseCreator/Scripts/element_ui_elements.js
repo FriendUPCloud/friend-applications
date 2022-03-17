@@ -476,6 +476,11 @@ class TextBoxElement extends Element
                 		self.properties.textBox.content = event.target.innerHTML;
 	                    courseCreator.manager.saveActivePage();
                 	} );
+                	ed.on( 'change', function( event )
+                	{
+                		self.properties.textBox.content = event.target.innerHTML;
+	                    courseCreator.manager.saveActivePage();
+                	} );
                 } )
             ;
             div.innerHTML = this.properties.textBox.content;
