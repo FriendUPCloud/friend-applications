@@ -339,7 +339,11 @@ if( isset( $args->method ) )
                 
                 if( !$clone )
                 {
-                	die( 'fail<!--separate-->{"message":"Failed to make clone of course template.","response":-1}' );
+                	// Only fail if we wanted to change course
+                	if( $n->CourseID != $args->data->courseId )
+                	{
+                		die( 'fail<!--separate-->{"message":"Failed to make clone of course template.","response":-1}' );
+                	}
                 }
                 else
                 {

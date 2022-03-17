@@ -492,6 +492,9 @@
             // Edit an existing classroom
             editClassroom( rowId )
             {
+            	// Can't save while editing
+                this.saveBlock = true;
+                
                 const self = this;
                 console.log( 'editClassroom', {
                     rowId : rowId,
@@ -512,6 +515,8 @@
                             console.log( 'classroom create back', [ e, d ]);
                             if( e != 'ok' )
                             {
+                               	// Remove save block
+		                    	self.saveBlock = false;
                                 return v.close();
                             }
                             
@@ -624,6 +629,9 @@
                                    
                                 self.refreshNewsItems();
                                 
+                                // Remove save block
+		                    	self.saveBlock = false;
+                                
 		                    }
 		                    p.execute( 'appmodule', {
 		                    	appName: 'CourseCreator',
@@ -644,6 +652,11 @@
                                 template: 'create'
                             }
                        } );
+                    }
+                    else
+                    {
+                    	// Remove save block
+                    	self.saveBlock = false;
                     }
                 }
                 console.log( 'rowId', rowId );
@@ -753,14 +766,28 @@
             
             executeSaveTheRoom()
             {
-                console.log( 'executeSaveTheRoom' );
                 let self = this;
+                
+                // Postponed saving cleared
+                if( this.executeSaveTimeout )
+                {
+                	clearTimeout( this.executeSaveTimeout );
+                	this.executeSaveTimeout = false;
+                }
+                
+                // Cannot save at this time
+                if( self.saveBlock )
+                {
+                	this.executeSaveTimeout = setTimeout( function(){ self.executeSaveTheRoom(); }, 500 );
+                	return;
+                }
                 
                 self.setModuleState( 'Editing' );
                 
                 // We are pending (and will save once done)
                 if( this.savePending )
                 {
+                    console.log( 'Saving is pending.' );
                     return;
                 }
                 // First save
@@ -772,12 +799,15 @@
                 // Delayed to not do too many saves
                 else
                 {
-                    if( this.saver ) clearTimeout( this.saver );
-                    this.saver = setTimeout( function()
+                    if( this.saver ) 
                     {
-                        self.saver = null;
-                        self.saveTheRoom();
-                    }, 750 );
+                    	clearTimeout( this.saver );
+                    }
+	                this.saver = setTimeout( function()
+	                {
+	                    self.saver = false;
+	                    self.saveTheRoom();
+	                }, 750 );
                 }
             },
             
@@ -822,12 +852,26 @@
             saveTheRoom( status )
             {
                 let self = this;
+                
+                // If we queued saving, clear it
+                if( this.saveTimeout )
+                {
+                	clearTimeout( this.saveTimeout );
+                	this.saveTimeout = false;
+                }
+                
+                // Cannot save at this time
+                if( self.saveBlock )
+                {
+                	this.saveTimeout = setTimeout( function(){ self.saveTheRoom( status ); }, 500 );
+                	return;
+                }
+                
                 if ( null == status )
                     status = ge( 'ClassroomStatus' ).value;
                 else
                     ge( 'ClassroomStatus' ).value = status;
                 
-                console.log( 'savetheroom', [ ge( 'ClassroomId' ).value, status ] );
                 const name = ge( 'className' ).value;
                 if ( !name )
                     return;
@@ -843,7 +887,9 @@
                 {
                     const s = parseInt( sa[ i ], 10 );
                     const e = parseInt( ea[ i ], 10 );
-                    console.log( 'comparing', [ i, s, e ]);
+                    
+                    //console.log( 'comparing', [ i, s, e ]);
+                    
                     if ( s > e )
                     {
                         self.setModuleState( 'Editing' );
@@ -891,14 +937,15 @@
                     }
                 }
                 
-                console.log( 'saveTheRoom', {
+                /*console.log( 'saveTheRoom', {
                     roomid : ge( 'ClassroomId' ).value,
                     name   : name,
                     course : ge( 'classCourses' ).value,
                     start  : sd,
                     end    : ed,
                     status : status,
-                });
+                });*/
+                
                 edEl.classList.toggle( 'Alert-Border', false );
                 
                 let m = new Module( 'system' );
