@@ -78,6 +78,50 @@ if ( isset( $args->method ))
 					'passed'   => $args,
 				]));
 			}
+		case 'classesprogress':
+			if ( isset( $args->classrooms ))
+			{
+				$progs = [];
+				$qts = [];
+				foreach( $args->classrooms AS $cid )
+				{
+					$qt = '
+						SELECT 
+							cl.ID AS cId,
+							count( DISTINCT sc.ID ) AS sc,
+							count( DISTINCT pg.ID ) AS pg, 
+							count( DISTINCT el.ID ) AS el
+						FROM CC_Classroom AS cl
+						LEFT JOIN CC_Course AS crs
+							ON cl.CourseID = crs.ID
+						LEFT JOIN CC_Section AS sc
+							ON crs.ID = sc.CourseID
+						LEFT JOIN CC_Page AS pg
+							ON sc.ID = pg.SectionID
+						LEFT JOIN CC_Element AS el
+							ON pg.ID = el.PageID
+						WHERE cl.ID='.$cid.'
+					';
+					$qts[] = $qt;
+					$prog = $courseDb->fetchObjects( $qt );
+					$progs[] = $prog;
+				}
+				
+				
+				die( 'ok<!--separate-->'.json_encode([
+					'qts'   => $qts,
+					'progs' => $progs,
+				]));
+			}
+			else
+			{
+				die( 'fail<!--separate-->'.json_encode([
+					'endpoint' => 'classesprogress',
+					'error'    => 'missing args',
+					'required' => [ 'classrooms<[id,..]>' ],
+					'passed'   => $args,
+				]));
+			}
 		case 'status':
 			// students total
 			$aq = '
@@ -118,6 +162,7 @@ if ( isset( $args->method ))
 			$sess = $courseDb->fetchObjects( $sq );
 			
 			// completed courses
+			
 			
 			die( 'ok<!--separate-->'.json_encode([
 				'endpoint'         => 'status',

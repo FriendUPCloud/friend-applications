@@ -98,9 +98,13 @@ Application.submodules.dashboard = {
                     
                 }
                 cl.execute( 'appmodule', {
-                    appName: 'Courses',
-                    command: 'getclassroomprogress',
-                    classrooms: cIds // Classroom IDs array
+                    appName : 'CourseCreator',
+                    command : 'submodule',
+                    vars    : {
+                        method     : 'classesprogress',
+                        submodule  : 'dashboard',
+                        classrooms : cIds, // Classroom IDs array
+                    },
                 } );
                 
             }
