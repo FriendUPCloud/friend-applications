@@ -665,6 +665,12 @@ switch( $args->args->command )
 		}
 		die( 'fail<!--separate-->{"response":-1,"message":"You could not complete this course."}' );
 		break;
+	case 'getnews':
+		if( isset( $args->args->classroomId ) )
+		{
+			
+		}
+		break;
 }
 die( 'fail<!--separate-->{"message":"Unknown appmodule method.","response":-1}' );
 
