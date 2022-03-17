@@ -61,7 +61,14 @@ class CheckBoxQuestionElement extends Element
                         callBack: function( event ) {
                             self.properties.question = event.target.innerHTML;
                             courseCreator.manager.saveActivePage();
-                        } 
+                        }
+                    },
+                    {
+                        event: 'change',
+                        callBack: function( event ) {
+                            self.properties.question = event.target.innerHTML;
+                            courseCreator.manager.saveActivePage();
+                        }
                     }
                 ]
             }
@@ -113,6 +120,13 @@ class CheckBoxQuestionElement extends Element
                     "listeners": [
                         {
                             "event": "blur",
+                            "callBack": function ( event ) {
+                                cbx.label = event.target.innerHTML;
+                                courseCreator.manager.saveActivePage();
+                            }
+                        },
+                        {
+                            "event": "change",
                             "callBack": function ( event ) {
                                 cbx.label = event.target.innerHTML;
                                 courseCreator.manager.saveActivePage();
@@ -247,6 +261,13 @@ class RadioBoxQuestionElement extends Element
                             self.properties.question = event.target.innerHTML;
                             courseCreator.manager.saveActivePage();
                         } 
+                    },
+                    {
+                    	event: 'change',
+                        callBack: function( event ) {
+                            self.properties.question = event.target.innerHTML;
+                            courseCreator.manager.saveActivePage();
+                        } 
                     }
                 ]
             }
@@ -327,6 +348,13 @@ class RadioBoxQuestionElement extends Element
                     "listeners": [
                         {
                             "event": "blur",
+                            "callBack": function ( event ) {
+                                cbx.label = event.target.innerHTML;
+                                courseCreator.manager.saveActivePage();
+                            }
+                        },
+                        {
+                            "event": "change",
                             "callBack": function ( event ) {
                                 cbx.label = event.target.innerHTML;
                                 courseCreator.manager.saveActivePage();
