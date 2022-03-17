@@ -432,30 +432,35 @@ if( isset( $args->method ) )
         				{
 		    				if( $rows = $courseDb->fetchObjects( '
 		    					SELECT * FROM CC_Course 
-						        WHERE IsDeleted=0
-						        AND Status!=0
-						        AND ( ParentID=0 OR ParentID=\'' . $currentCourse->ParentID . '\' )
-						        AND ID NOT IN ( \'' . $currentCourse->ParentID . '\' )
+						        WHERE 
+						        	IsDeleted = 0 AND
+						       		Status != 0 AND
+						       		( ParentID = 0 OR ParentID = \'' . $currentCourse->ParentID . '\' ) AND
+						        	ID NOT IN ( \'' . $currentCourse->ParentID . '\' )
 								ORDER BY DateCreated DESC
 		    				' ) )
 		    				{
 		    					die( 'ok<!--separate-->' . json_encode( $rows ) );
 		    				}
 		    			}
+		    			// The course is deleted, adjust classromm
+		    			else
+		    			{
+		    				$classroom->CourseID = 0;
+		    				$classroom->Save();
+		    			}
         			}
         			// All available course templates
-        			else
-        			{
-						if( $rows = $courseDb->fetchObjects( '
-							SELECT * FROM CC_Course 
-				            WHERE IsDeleted=0
-				            AND Status!=0
-				            AND ParentID=0
-							ORDER BY DateCreated DESC
-						' ) )
-						{
-							die( 'ok<!--separate-->' . json_encode( $rows ) );
-						}
+					if( $rows = $courseDb->fetchObjects( '
+						SELECT * FROM CC_Course 
+			            WHERE 
+			            	IsDeleted = 0 AND
+				            Status != 0 AND
+				            ParentID = 0
+						ORDER BY DateCreated DESC
+					' ) )
+					{
+						die( 'ok<!--separate-->' . json_encode( $rows ) );
 					}
 		    	}
 	    		die( 'fail<!--separate-->{"message":"No classrooms available."}' );
@@ -464,8 +469,10 @@ if( isset( $args->method ) )
             {
                 if( $rows = $courseDb->fetchObjects( '
                     SELECT * FROM CC_Course
-                    WHERE IsDeleted=0
-                    AND Status!=0
+                    WHERE
+                    	IsDeleted = 0 AND
+                    	Status != 0 AND
+                    	ParentID = 0
                     ORDER BY DateCreated DESC
                 ' ) )
                 {

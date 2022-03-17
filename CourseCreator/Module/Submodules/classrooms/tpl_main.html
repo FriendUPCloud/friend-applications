@@ -884,7 +884,6 @@
                         self.setModuleState( 'Saved' );
                         
                         let res = JSON.parse( d );
-                        console.log( 'saved room', res );
                         
                         if ( res.Status != 0 )
                             self.editClassroom( res.ID );
