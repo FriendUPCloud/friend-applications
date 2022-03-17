@@ -128,7 +128,7 @@ class SectionElement extends Element
     			disp = this.children[a].displayId;
     		}
     	}
-    	return disp + 1;
+    	return parseInt( disp ) + 1;
     }
 
     save = function(callBack)

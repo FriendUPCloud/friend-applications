@@ -669,6 +669,26 @@ class CourseDatabase
     		SELECT * FROM CC_Page WHERE SectionID=\'' . intval( $args->sectionId, 10 ) . '\' ORDER BY DisplayID ASC
     	' ) )
     	{
+    		// Check if we need transform on max 500 pages
+    		$fix = false;
+    		foreach( $rows as $k=>$v )
+    		{
+    			if( $v->DisplayID > 500 )
+    			{
+    				$fix = true;
+    				break;
+    			}
+    		}
+    		if( $fix )
+    		{
+    			$seed = 1;
+    			foreach( $rows as $k=>$row )
+    			{
+    				$this->database->query( 'UPDATE CC_Page SET DisplayID=\'' . $seed . '\' WHERE ID=\'' . $row->ID . '\'' );
+    				$rows[$k]->DisplayID = $seed;
+    				$seed++;
+    			}
+    		}
     		die( 'ok<!--separate-->' . json_encode( $rows ) );
     	}
     	die( 'fail<!--separate-->' );
