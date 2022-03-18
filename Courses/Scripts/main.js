@@ -193,7 +193,24 @@ moduleObject.dashboard = {
 					console.log( 'all completed back', [ s, d ]);
 					if ( 'ok' == s )
 					{
-						const res = JSON.parse( d );
+						let res = null;
+						try
+						{
+							res = JSON.parse( d );
+						}
+						catch( ex )
+						{
+							const compl = {
+			                    mainNum  : 'borken',
+			                    mainIcon : 'fa-book',
+			                    mainText : 'Completed courses',
+			                    subStat  : undefined,
+			                    subText  : undefined,
+			                };
+			                self.addStudentStat( compl, '#27bcaf' );
+							return;
+						}
+						
 						console.log( 'all completed res', res );
 						const compl = {
 		                    mainNum  : 'NYI',
@@ -207,6 +224,14 @@ moduleObject.dashboard = {
 					else
 					{
 						console.log( 'dash - all completed failed', [ s, d ]);
+						const compl = {
+		                    mainNum  : 'no worky',
+		                    mainIcon : 'fa-book',
+		                    mainText : 'Completed courses',
+		                    subStat  : undefined,
+		                    subText  : undefined,
+		                };
+		                self.addStudentStat( compl, '#27bcaf' );
 					}
 				}
 				
