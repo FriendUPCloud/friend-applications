@@ -212,6 +212,60 @@ function copyCourseDataToClassroom( $courseId, $classroomId )
 	return false;
 }
 
-
+// Get the progress in percent for a user in a classroom
+function fetchUserClassroomProgress( $userId, $classroomId )
+{
+	global $courseDb, $Logger;
+	
+	if( !$courseDb )
+	{
+		die( 'fail<!--separate-->{"message":"No database.","response":-1}' );
+	}
+	
+	// Fetch all section elements
+	if( $row = $courseDb->fetchObject( '
+		SELECT COUNT(e.ID) CNT FROM 
+			CC_Element e,
+			CC_ElementType et,
+			CC_Page p,
+			CC_Section s,
+			CC_Classroom cl
+		WHERE
+			cl.ID = \'' . $classroomId . '\' AND
+			cl.CourseID = s.CourseID AND
+			s.ID = p.SectionID AND
+			p.ID = e.PageID AND
+			et.ID = e.ElementTypeID AND
+			et.IsQuestion
+	' ) )
+	{
+		$elementCount = $row->CNT ? $row->CNT : 0;
+		
+		// Fetch all element results
+		if( $row = $courseDb->fetchObject( '
+			SELECT COUNT(e.ID) CNT FROM
+				CC_ElementResult er,
+				CC_Element e,
+				CC_Page p,
+				CC_Section s,
+				CC_Classroom cl
+			WHERE
+				cl.ID = \'' . $classroomId . '\' AND
+				cl.CourseID = s.CourseID AND
+				s.ID = p.SectionID AND
+				p.ID = e.PageID AND
+				er.OriginalElementID = e.ID AND
+				er.Data
+		' ) )
+		{
+			$elementResultCount = $row->CNT ? $row->CNT : 0;
+			if( $elementResultCount > 0 && $elementCount > 0 )
+			{
+				return floor( $elementResultCount / $elementCount * 100 ) . '%';
+			}
+		}
+	}
+	return '0%';
+}
 
 ?>
