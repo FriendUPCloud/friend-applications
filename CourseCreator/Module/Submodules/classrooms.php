@@ -61,6 +61,10 @@ if( isset( $args->method ) )
             			{
             				if( $rows[$k]->UserID == $u->ID )
             				{
+            					// Get statistics for each user
+            					$rows[$k]->Progress = fetchUserClassroomProgress( $rows[$k->ID], intval( $args->classroomId, 10 ) );
+            					
+            					// Add the user to the row in the correct format
             					$rows[$k]->FullName = $u->FullName;
             					$lt = isset( $u->LT ) ? date( 'Y-m-d', $u->LT ) : '-';
             					$rows[$k]->LoginTime = $lt;

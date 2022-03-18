@@ -1037,7 +1037,7 @@
                 if ( lv.filters[ 0 ].value )
                     keys = lv.filters[ 0 ].value;
                 
-                console.log( 'refreshClassroomUsers', [ lv, self.ulv, keys ]);
+                //console.log( 'refreshClassroomUsers', [ lv, self.ulv, keys ]);
                 let m = new Module( 'system' );
                 m.onExecuted = function( e, d )
                 {
@@ -1053,8 +1053,7 @@
                             l--;
                             let d = new Date();
                             let name = js[l].FullName;
-                            let progress = parseInt( js[l].progress );
-                            if( isNaN( progress ) ) progress = 0;
+                            let progress = js[l].Progress;
                             let status = js[l].Status;
                             let payment = !!js[l].PaymentStatus;
                             console.log( 'payment', payment );
