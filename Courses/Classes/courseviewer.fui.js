@@ -406,7 +406,7 @@ class FUICourseviewer extends FUIElement
 			
 			let pid = sect.pages[ self.currentPage ].ID;
 			
-			console.log( 'Setting current page: ', self.currentPage + ' ' + pid );
+			//console.log( 'Setting current page: ', self.currentPage + ' ' + pid );
 			
 			// Set active page
 			let csid = this.#courseSessionId;
