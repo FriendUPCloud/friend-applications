@@ -163,7 +163,7 @@ class FUICourseviewer extends FUIElement
     			let row = self.sections[a];
     			let d = document.createElement( 'div' );
     			d.className = 'FUICourseviewerSection';
-    			d.innerHTML = '<div class="Name">' + row.Name + '</div><div class="Progress"><progressbar progress="0%"/></div><div class="Pages"></div>';
+    			d.innerHTML = '<div class="Name">' + row.Name + '</div><div class="Pages"></div>';
     			
     			if( self.activeSection == a )
     			{
