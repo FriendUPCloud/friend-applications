@@ -57,21 +57,14 @@ switch( $args->args->command )
 		}
 		die( 'fail<!--separate-->{"message":"No such template found","response":-1}' );
 		break;
-	case 'getstats':
-		// open course
-	
-		// completed courses
-	
-		// certificates
+	case 'listcertificates':
 		$cq = '
 			SELECT * FROM CC_Certificate AS c
 			WHERE c.UserID='.$User->ID.'
 		';
 		$certs = $db->database->fetchObjects( $cq );
 		if ( false == $certs )
-			$certs = 0;
-		else
-			$certs = count( $certs );
+			$certs = [];
 		
 		die( 'ok<!--separate-->'.json_encode([
 			'openCourses' => false,
