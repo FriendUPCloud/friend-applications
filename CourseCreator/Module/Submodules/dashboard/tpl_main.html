@@ -138,39 +138,43 @@ Application.submodules.dashboard = {
                     {
                         const tot = JSON.parse( d );
                         console.log( 'tot', tot );
-                        const studs = {
-                            mainNum  : dstat.usersTotal,
-                            mainIcon : 'fa-users',
-                            mainText : 'Students',
-                            subStat  : dstat.usersOnline,
-                            subText  : 'currently online',
-                        };
-                        const sesss = {
-                            mainNum  : dstat.activeSessions,
-                            mainIcon : 'fa-clock-o',
-                            mainText : 'Active sessions today',
-                            subStat  : undefined,
-                            subText  : undefined,
-                        };
-                        const courses = {
-                            mainNum  : dstat.completedCourses,
-                            mainIcon : 'fa-book',
-                            mainText : 'Completed courses',
-                        };
-                        self.addStatusBox( studs, '#27bcaf' );
-                        self.addStatusBox( sesss, '#ff7364' );
-                        self.addStatusBox( courses, '#9b59b6' );
+                        dstat.totalComplete = tot.total || 'NYI';
                     }
                     else
                     {
                         console.log( 'total progres failed', d );
+                        dstat.totalComplete = 'no worky';
                     }
+                    
+                    const studs = {
+                        mainNum  : dstat.usersTotal,
+                        mainIcon : 'fa-users',
+                        mainText : 'Students',
+                        subStat  : dstat.usersOnline,
+                        subText  : 'currently online',
+                    };
+                    const sesss = {
+                        mainNum  : dstat.activeSessions,
+                        mainIcon : 'fa-clock-o',
+                        mainText : 'Active sessions today',
+                        subStat  : undefined,
+                        subText  : undefined,
+                    };
+                    const courses = {
+                        mainNum  : dstat.totalComplete,
+                        mainIcon : 'fa-book',
+                        mainText : 'Completed courses',
+                    };
+                    self.addStatusBox( studs, '#27bcaf' );
+                    self.addStatusBox( sesss, '#ff7364' );
+                    self.addStatusBox( courses, '#9b59b6' );
                     
                 };
                 tc.execute( 'appmodule', {
-                    appName    : 'Courses',
-                    command    : 'getclassroomprogress',
-                    format     : 'sum',
+                    appName : 'Courses',
+                    command : 'getclassroomprogress',
+                    context : 'classrooms',
+                    format  : 'sum',
                     /*
                     classrooms : cIds,
                     context    : 'classrooms',
