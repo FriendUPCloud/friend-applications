@@ -854,6 +854,7 @@ class RootElement extends Element
         let ul = ce( 'ul' );
         
         // Courses
+        console.log( 'Loading structure', self.children );
         self.children.forEach( c => {
             // Sections
             let o = 1;
