@@ -859,6 +859,7 @@ class RootElement extends Element
             let o = 1;
             c.children.forEach( s => 
             {
+            	console.log( 'A section: ', s );
             	// Section list
                 let sLi = makeLiElement(s, 'section', o++ );
                 sLi.classList.add( 'SectionIndex' );
@@ -869,8 +870,10 @@ class RootElement extends Element
                 
                 // Pages
                 let n = 1;
+                console.log( 'Do we have pages?', s.children );
                 for( let k in s.children )
                 {
+                	console.log( 'A page: ', s.children[k] );
                 	let p = s.children[k];
                     let pLi = makeLiElement( p, 'page', n );
                     if( pLi )
