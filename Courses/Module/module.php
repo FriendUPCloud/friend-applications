@@ -57,22 +57,66 @@ switch( $args->args->command )
 		}
 		die( 'fail<!--separate-->{"message":"No such template found","response":-1}' );
 		break;
+	case 'getstats':
+		// open course
+	
+		// completed courses
+	
+		// certificates
+	
+		die( 'ok<!--separate-->'.json_encode([
+			'openCourses' => 'NYI',
+			'completedCourses' => 'NYI',
+			'certificates' => 'NYI',
+			'endpoint' => 'getstats',
+			'aargs'    => $args->args,
+		]));
 	/* Classrooms */
 	case 'listclassrooms':
-		if( $rows = $db->database->fetchObjects( '
+		$status = 'AND cr.Status != 3';
+		if( isset( $args->args->status )) {
+			if ( !$args->args->status )
+				$status = '';
+			else
+				$status = 'AND cr.Status ='.$args->args->status;
+		}
+		
+		$active = '';
+		if ( isset( $args->args->active ))
+		{
+			if ( 'active' == $args->args->active )
+				$active = 'AND ( DATE(cr.StartDate) <= CURDATE() ) AND ( DATE(cr.EndDate) >= CURDATE() )';
+			if ( 'starting' == $args->args->active )
+				$active = 'AND ( DATE(cr.StartDate) > CURDATE() )';
+			if ( 'ended' == $args->args->active )
+				$active = 'AND ( DATE(cr.EndDate) < CURDATE() )';
+		}
+	
+		$q = '
 			SELECT 
 				cr.* 
 			FROM 
 				CC_UserClassroom uc, 
 				CC_Classroom cr 
 			WHERE 
-				uc.ClassroomID = cr.ID AND 
-				uc.UserID=\'' . intval( $User->ID, 10 ) . '\' AND 
-				cr.Status != 3
+				uc.ClassroomID = cr.ID
+			AND 
+				uc.UserID=\'' . intval( $User->ID, 10 ) . '\'
+			' . $status . '
+			' . $active . '
 			ORDER BY 
 				cr.StartDate DESC
-		' ) )
+		';
+			
+		if( $rows = $db->database->fetchObjects( $q ) )
 		{
+			/*
+			die( 'ok<!--separate-->' . json_encode( [
+				'rows' => $rows,
+				'aargs' => $args->args,
+				'q' => $q,
+			] ) );
+			*/
 			die( 'ok<!--separate-->' . json_encode( $rows ) );
 		}
 		die( 'fail<!--separate-->{"message":"Could not find any classrooms for this user.","response":-1}' );
