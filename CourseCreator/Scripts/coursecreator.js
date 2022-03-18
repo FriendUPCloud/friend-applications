@@ -657,11 +657,11 @@ class RootElement extends Element
 		{
 			return cbk( false );
 		}
-		for( let a = 0; a < this.children.length; a++ )
+		for( let a in this.children )
 		{
 			// Sections
 			let loadCount = this.children[a].children.length;
-			for( let b = 0; b < this.children[a].children.length; b++ )
+			for( let b in this.children[a].children )
 			{
 				// Repopulate children
 				( function( sect )
