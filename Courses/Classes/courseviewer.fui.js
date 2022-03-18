@@ -359,6 +359,7 @@ class FUICourseviewer extends FUIElement
 		}
 		
 		this.navpanel.querySelector( '.Pages' ).innerHTML = '';
+		this.navpanel.querySelector( '.Pages' ).classList.add( 'SmoothScrolling' );
 		
 		let offset = 0;
 		
@@ -376,6 +377,7 @@ class FUICourseviewer extends FUIElement
 					}
 				}
 			}
+			let activePage = false;
 			for( let a = 0; a < sect.pages.length; a++ )
 			{
 				let p = document.createElement( 'div' );
@@ -384,6 +386,7 @@ class FUICourseviewer extends FUIElement
 				if( self.currentPage == a )
 				{
 					p.classList.add( 'ActivePage' );
+					activePage = p;
 				}
 				p.innerHTML = '<span>' + ( a + 1 ) + '</span>';
 				( function( pag, num )
@@ -407,6 +410,12 @@ class FUICourseviewer extends FUIElement
 			
 			// Set active page
 			let csid = this.#courseSessionId;
+			
+			// Scroll into view
+			if( activePage )
+			{
+				activePage.parentNode.scrollTo( activePage.offsetLeft - 100, 0 );
+			}
 			
 			// Workaround on saving issue..
 			setTimeout( function()
