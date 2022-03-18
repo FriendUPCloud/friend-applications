@@ -374,6 +374,8 @@ if( isset( $args->method ) )
                 {
 	                $n->CourseID = $clone->ID;
 	            }
+	            
+	            $n->Save();
                 
                 $q = $n->_lastQuery;
                 if( $n->ID > 0 )
