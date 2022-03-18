@@ -143,6 +143,13 @@ moduleObject.dashboard = {
 					else
 					{
 						console.log( 'getclassroomprogress failed', [ s, d ]);
+						let l = rs.length;
+						for( ;l; )
+						{
+							l--;
+							rs[l].Progress = 100 + ( Math.floor( Math.random() * 100 ));
+							self.addClassProgress( rs[l] );
+						}
 					}
 				}
 				p.execute( 'appmodule', {
@@ -172,6 +179,26 @@ moduleObject.dashboard = {
 			{
 				const res = JSON.parse( d );
 				console.log( 'getstats res', res );
+				const open = {
+                    mainNum  : res.openCourses,
+                    mainIcon : 'fa-clock-o',
+                    mainText : 'Open Courses',
+                };
+                const compl = {
+                    mainNum  : res.completedCourses,
+                    mainIcon : 'fa-book',
+                    mainText : 'Completed courses',
+                    subStat  : undefined,
+                    subText  : undefined,
+                };
+                const certs = {
+                    mainNum  : res.certificates,
+                    mainIcon : 'fa-certificate',
+                    mainText : 'Certificates',
+                };
+                self.addStudentStat( open, '#27bcaf' );
+                self.addStudentStat( compl, '#ff7364' );
+                self.addStudentStat( certs, '#9b59b6' );
 			}
 			else
 			{
@@ -185,6 +212,82 @@ moduleObject.dashboard = {
 			
 			
 	},
+	
+	addClassProgress( klass )
+	{
+		const self = this;
+		console.log( 'addClassProgress', klass );
+		const cEl = document.createElement( 'div' );
+		self.prog.appendChild( cEl );
+		const cOpts = {
+			containerElement : cEl,
+		};
+		const c = new FUIChartbox( cOpts );
+		if ( null == klass.Progress )
+            klass.Progress = Math.floor( Math.random() * 100 );
+		
+		let pColor = '#25bbaf';
+        if ( null != klass.Progress )
+        {
+            if ( klass.Progress > 35 )
+                pColor = '#27bcaf';
+            if ( klass.Progress > 75 )
+                pColor = '#ff7363';
+            if ( klass.Progress > 91 )
+                pColor = '#d85c4f'
+        }
+        
+        const data = {
+        	labels : [
+                'complete',
+                '',
+            ],
+            datasets : [{
+                label : '',
+                data  : [ 
+                    klass.Progress, 
+                    ( 100 - klass.Progress ),
+                ],
+                backgroundColor : [
+                    pColor,
+                    'rgb(230, 230, 230 )',
+                ],
+            }],
+        };
+        
+        const conf = {
+            type    : 'doughnut',
+            data    : data,
+            options : {
+                plugins : {
+                    legend : {
+                        display : false,
+                    },
+                },
+                cutout : '80%',
+            },
+        };
+        
+        c.setData( conf, {
+        	label1 : klass.Name,
+        	label2 : '',
+        	progress : klass.Progress + '%',
+        });
+	},
+	
+	addStudentStat( stat, bgColor )
+	{
+		const self = this;
+		console.log( 'addStudentStat', stat );
+		const sEl = document.createElement( 'div' );
+		self.status.appendChild( sEl );
+		const sOpts = {
+			containerElement : sEl,
+			bgColor          : bgColor,
+		};
+		const s = new FUIStatsbox( sOpts );
+		s.setData( stat );
+	}
 };
 
 /* Classrooms */

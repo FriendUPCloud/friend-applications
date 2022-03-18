@@ -22,6 +22,14 @@
     font-weight: bold;
 }
 
+.fuiStatsbox
+{
+    padding       : 0.5em;
+    margin-right  : 1em;
+    color         : white;
+    height        : 7em;
+    border-radius : 4px;
+}
 
 .statboxMain
 {

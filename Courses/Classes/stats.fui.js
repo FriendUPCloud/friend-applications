@@ -73,7 +73,7 @@ class FUIStatsbox extends FUIElement
         });
         
         super.attachDomElement();
-        self.domElement.classList.toggle( 'ccStatBox', true );
+        self.domElement.classList.toggle( 'fuiStatsbox', true );
         if ( null != self.options.id )
             self.domElement.id = self.options.id;
         if ( null != self.options.bgColor )

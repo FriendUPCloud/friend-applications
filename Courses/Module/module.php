@@ -63,11 +63,21 @@ switch( $args->args->command )
 		// completed courses
 	
 		// certificates
-	
+		$cq = '
+			SELECT * FROM CC_Certificate AS c
+			WHERE c.UserID='.$User->ID.'
+		';
+		$certs = $db->database->fetchObjects( $cq );
+		if ( false == $certs )
+			$certs = 0;
+		else
+			$certs = count( $certs );
+		
 		die( 'ok<!--separate-->'.json_encode([
-			'openCourses' => 'NYI',
-			'completedCourses' => 'NYI',
-			'certificates' => 'NYI',
+			'openCourses' => false,
+			'completedCourses' => false,
+			'certificates' => $certs,
+			'cq' => $cq,
 			'endpoint' => 'getstats',
 			'aargs'    => $args->args,
 		]));
