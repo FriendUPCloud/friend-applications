@@ -651,17 +651,21 @@ class RootElement extends Element
 	fetchIndex = function( cbk )
 	{
 		let self = this;
-		console.log( 'Here: ', this.children );
+		
 		// Courses
 		if( !this.children.length )
 		{
 			return cbk( false );
 		}
-		for( let a = 0; a < this.children.length; a++ )
+		for( let a in this.children )
 		{
 			// Sections
-			let loadCount = this.children[a].children.length;
-			for( let b = 0; b < this.children[a].children.length; b++ )
+			let loadCount = 0;
+			for( let b in this.children[a].children )
+			{
+				loadCount++;
+			}
+			for( let b in this.children[a].children )
 			{
 				// Repopulate children
 				( function( sect )
@@ -683,8 +687,6 @@ class RootElement extends Element
 					                pags[a2].Name
 					            );
 							}
-							console.log( 'Fetch - What is our children: ', sect.children );
-							//console.log( 'Section loaded: ', sect.children, pags );
 							// When all is done
 						}
 						if( --loadCount == 0 )
@@ -954,7 +956,6 @@ class RootElement extends Element
                                     '.SectionIndex'
                                 );
                                 let lastSection = ss[ss.length - 1];
-                                console.log('last section', lastSection);
                                 setActiveClass(lastSection);
                             } );
                         }
@@ -1148,7 +1149,6 @@ class CourseCreator
     	
     	self.manager.fetchIndex( function()
     	{
-    		console.log( 'All done here.' );
 		    self.render();
 
 		    // set active to first child

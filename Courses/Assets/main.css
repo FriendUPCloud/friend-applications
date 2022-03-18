@@ -8,3 +8,22 @@
 	padding: var(--fui-padding-normal);
 }
 
+/* News items */
+
+.NewsItem
+{
+	border: 1px solid var(--fui-border-foreground);
+	padding: var(--fui-padding-normal);
+	border-radius: var(--fui-border-radius-normal);
+	margin-bottom: 10px;
+}
+
+div > .NewsItem:last-child
+{
+	margin-bottom: 0;
+}
+
+div > .NewsItem .Date
+{
+	font-weight: bold;
+}

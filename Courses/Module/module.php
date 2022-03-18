@@ -717,8 +717,14 @@ switch( $args->args->command )
 	case 'getnews':
 		if( isset( $args->args->classroomId ) )
 		{
-			
+			if( $rows = $db->database->fetchObjects( '
+				SELECT * FROM CC_NewsBulletin WHERE ClassroomID=\'' . intval( $args->args->classroomId, 10 ) . '\' ORDER BY DateUpdated DESC
+			' ) )
+			{
+				die( 'ok<!--separate-->' . json_encode( $rows ) );
+			}
 		}
+		die( 'fail<!--separate-->{"message":"No news for classroom.","response":-1}' );
 		break;
 }
 die( 'fail<!--separate-->{"message":"Unknown appmodule method.","response":-1}' );
