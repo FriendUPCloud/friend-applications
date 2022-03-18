@@ -23,7 +23,8 @@ if ( isset( $args->method ))
 				FROM CC_Classroom AS cl
 				LEFT JOIN CC_UserClassroom AS uc
 					ON cl.ID=uc.ClassroomID
-				WHERE ( cl.StartDate < NOW() )
+				WHERE cl.Status != 3
+				AND ( cl.StartDate < NOW() )
 				AND ( cl.EndDate > NOW() )
 				GROUP BY cl.ID
 			';

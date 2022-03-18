@@ -45,9 +45,12 @@
 Application.submodules.dashboard = {
     init()
     {
+        console.log( 'dash init' );
         const self = this;
         self.classCharts = ge( 'dashActiveClasses' );
         self.status = ge( 'dashStatus' );
+        self.classCharts.innerHTML = '';
+        self.status.innerHTML = '';
         const m = new Module( 'system' );
         m.onExecuted = ( s, d ) =>
         {
@@ -210,7 +213,7 @@ Application.submodules.dashboard = {
         console.log( 'dashboard.addClassStatus', c );
         
         if ( null == klass.Progress )
-            klass.Progress = Math.floor( Math.random() * 100 );
+            klass.Progress = -(Math.floor( Math.random() * 100 ));
         
         console.log( 'prog', klass.Progress );
         let pColor = '#25bbaf';

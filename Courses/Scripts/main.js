@@ -122,6 +122,13 @@ moduleObject.dashboard = {
 			{
 				const rs = JSON.parse( d );
 				console.log( 'rooms', rs );
+				const open = {
+                    mainNum  : rs.length,
+                    mainIcon : 'fa-clock-o',
+                    mainText : ( rs.length != 1 ) ? 'Open Courses' : 'Open Course',
+                };
+                self.addStudentStat( open, '#9b59b6' );
+                
 				const clIds = [];
 				let l = rs.length;
 				for ( ;l; )
@@ -137,12 +144,23 @@ moduleObject.dashboard = {
 					console.log( 'classroom progress back', [ s, d ]);
 					if ( 'ok' == s )
 					{
-						const res = JSON.parse( d );
+						let res = null;
+						try {
+							res = JSON.parse( d );
+						}
+						catch( ex )
+						{
+							console.log( 'getclassroomprogress invalid return data', d );
+							let l = rs.length;
+							for( ;l; )
+							{
+								l--;
+								rs[l].Progress = 100 + ( Math.floor( Math.random() * 100 ));
+								self.addClassProgress( rs[l] );
+							}
+							return;
+						}
 						console.log( 'getclassroomprogress res', res );
-					}
-					else
-					{
-						console.log( 'getclassroomprogress failed', [ s, d ]);
 						let l = rs.length;
 						for( ;l; )
 						{
@@ -151,11 +169,76 @@ moduleObject.dashboard = {
 							self.addClassProgress( rs[l] );
 						}
 					}
+					else
+					{
+						console.log( 'getclassroomprogress failed', [ s, d ]);
+						let l = rs.length;
+						for( ;l; )
+						{
+							l--;
+							rs[l].Progress = -( Math.floor( Math.random() * 100 ));
+							self.addClassProgress( rs[l] );
+						}
+					}
 				}
 				p.execute( 'appmodule', {
 					appName    : 'Courses',
 					command    : 'getclassroomprogress',
 					classrooms : clIds,
+				});
+				
+				const cp = new Module( 'system' );
+				cp.onExecuted = ( s, d ) =>
+				{
+					console.log( 'all completed back', [ s, d ]);
+					if ( 'ok' == s )
+					{
+						const res = JSON.parse( d );
+						console.log( 'all completed res', res );
+						const compl = {
+		                    mainNum  : 'NYI',
+		                    mainIcon : 'fa-book',
+		                    mainText : 'Completed courses',
+		                    subStat  : undefined,
+		                    subText  : undefined,
+		                };
+		                self.addStudentStat( compl, '#27bcaf' );
+					}
+					else
+					{
+						console.log( 'dash - all completed failed', [ s, d ]);
+					}
+				}
+				
+				cp.execute( 'appmodule', {
+					appName    : 'Courses',
+					command    : 'getclassroomprogress',
+					format     : 'sum',
+				});
+				
+				const s = new Module( 'system' );
+				s.onExecuted = ( s, d ) => {
+					console.log( 'getstats back', [ s, d ]);
+					if ( 'ok' == s )
+					{
+						const res = JSON.parse( d );
+						console.log( 'getstats res', res );
+						
+		                const certs = {
+		                    mainNum  : res.certificates.length,
+		                    mainIcon : 'fa-certificate',
+		                    mainText : ( res.certificates.length == 1 ) ? 'Certificate' : 'Certificates',
+		                };
+		                self.addStudentStat( certs, '#ff7364' );
+					}
+					else
+					{
+						console.log( 'dash getstats failed', [ s, d ]);
+					}
+				}
+				s.execute( 'appmodule', {
+					appName : 'Courses',
+					command : 'listcertificates',
 				});
 			
 			}
@@ -171,46 +254,7 @@ moduleObject.dashboard = {
 			status  : false,
 			active  : 'active',
 		});
-		
-		const s = new Module( 'system' );
-		s.onExecuted = ( s, d ) => {
-			console.log( 'getstats back', [ s, d ]);
-			if ( 'ok' == s )
-			{
-				const res = JSON.parse( d );
-				console.log( 'getstats res', res );
-				const open = {
-                    mainNum  : res.openCourses,
-                    mainIcon : 'fa-clock-o',
-                    mainText : 'Open Courses',
-                };
-                const compl = {
-                    mainNum  : res.completedCourses,
-                    mainIcon : 'fa-book',
-                    mainText : 'Completed courses',
-                    subStat  : undefined,
-                    subText  : undefined,
-                };
-                const certs = {
-                    mainNum  : res.certificates,
-                    mainIcon : 'fa-certificate',
-                    mainText : 'Certificates',
-                };
-                self.addStudentStat( open, '#27bcaf' );
-                self.addStudentStat( compl, '#ff7364' );
-                self.addStudentStat( certs, '#9b59b6' );
-			}
-			else
-			{
-				console.log( 'dash getstats failed', [ s, d ]);
-			}
-		}
-		s.execute( 'appmodule', {
-			appName : 'Courses',
-			command : 'getstats',
-		});
-			
-			
+				
 	},
 	
 	addClassProgress( klass )
