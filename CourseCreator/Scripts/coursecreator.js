@@ -651,7 +651,7 @@ class RootElement extends Element
 	fetchIndex = function( cbk )
 	{
 		let self = this;
-		console.log( 'Here: ', this.children );
+		
 		// Courses
 		if( !this.children.length )
 		{
@@ -687,8 +687,6 @@ class RootElement extends Element
 					                pags[a2].Name
 					            );
 							}
-							console.log( 'Fetch - What is our children: ', sect.children );
-							//console.log( 'Section loaded: ', sect.children, pags );
 							// When all is done
 						}
 						if( --loadCount == 0 )
@@ -858,13 +856,11 @@ class RootElement extends Element
         let ul = ce( 'ul' );
         
         // Courses
-        console.log( 'Loading structure', self.children );
         self.children.forEach( c => {
             // Sections
             let o = 1;
             c.children.forEach( s => 
             {
-            	console.log( 'A section: ', s );
             	// Section list
                 let sLi = makeLiElement(s, 'section', o++ );
                 sLi.classList.add( 'SectionIndex' );
@@ -875,10 +871,8 @@ class RootElement extends Element
                 
                 // Pages
                 let n = 1;
-                console.log( 'Do we have pages?', s.children );
                 for( let k in s.children )
                 {
-                	console.log( 'A page: ', s.children[k] );
                 	let p = s.children[k];
                     let pLi = makeLiElement( p, 'page', n );
                     if( pLi )
@@ -962,7 +956,6 @@ class RootElement extends Element
                                     '.SectionIndex'
                                 );
                                 let lastSection = ss[ss.length - 1];
-                                console.log('last section', lastSection);
                                 setActiveClass(lastSection);
                             } );
                         }
@@ -1156,7 +1149,6 @@ class CourseCreator
     	
     	self.manager.fetchIndex( function()
     	{
-    		console.log( 'All done here.' );
 		    self.render();
 
 		    // set active to first child
