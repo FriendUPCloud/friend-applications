@@ -660,7 +660,11 @@ class RootElement extends Element
 		for( let a in this.children )
 		{
 			// Sections
-			let loadCount = this.children[a].children.length;
+			let loadCount = 0;
+			for( let b in this.children[a].children )
+			{
+				loadCount++;
+			}
 			for( let b in this.children[a].children )
 			{
 				// Repopulate children
