@@ -254,7 +254,8 @@ function fetchUserClassroomProgress( $userId, $classroomId )
 				cl.CourseID = s.CourseID AND
 				s.ID = p.SectionID AND
 				p.ID = e.PageID AND
-				er.OriginalElementID = e.ID
+				er.OriginalElementID = e.ID AND
+				er.Data
 		' ) )
 		{
 			$elementResultCount = $row->CNT ? $row->CNT : 0;
