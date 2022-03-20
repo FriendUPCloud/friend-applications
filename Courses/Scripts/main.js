@@ -379,7 +379,6 @@ moduleObject.certificates = {
 					return;
 				}
 				let dat = JSON.parse( sd );
-				console.log( dat );
 				
 				if( !dat.certificates.length )
 				{
