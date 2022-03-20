@@ -414,10 +414,29 @@ moduleObject.certificates = {
 							value: friendUP.tool.getChatTime( certs[a].DateAdded )
 						}
 					] );
-					FUI.addCallback( 'clickety_' + a, function( itm )
+					( function( cl )
 					{
-						console.log( 'Clickety!' );
-					} );
+						FUI.addCallback( 'clickety_' + a, function( itm )
+						{
+							let v = new View( {
+								title: 'Checking certificate for ' + cl,
+								width: 1100,
+								height: 990
+							} );
+							let f = new File( 'Progdir:Assets/certificate.html' );
+							f.onLoad = function( data )
+							{
+								v.setContent( data, function()
+								{
+									v.sendMessage( {
+										command: 'loadcertificate',
+										certId: cid
+									} );
+								} );
+							}
+							f.load();
+						} );
+					} )( certs[a].Classroom , certs[a].ID );
 				}
 				lv.setRowData( out );
 			}
