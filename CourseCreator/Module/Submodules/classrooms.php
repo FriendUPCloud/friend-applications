@@ -401,6 +401,41 @@ if( isset( $args->method ) )
                 die( 'fail<!--separate-->{"message":"Failed to save classroom because data structure was empty."}' );
             }
             break;
+        case 'getcontrollingsheet':
+        	if( isset( $args->classroomId ) && isset( $args->userId ) )
+        	{
+        		// Get all pages and elements
+        		if( $rows = $courseDb->fetchObjects( $q = '
+        			SELECT 
+        				pg.Name as PageName, pg.ID as PageID, re.*, el.Properties
+        			FROM 
+        				CC_Classroom cl,
+        				CC_CourseSession se,
+        				CC_Section sc,
+        				CC_Page pg,
+        				CC_ElementType et,
+        				CC_Element el,
+        				CC_ElementResult re
+        				
+        			WHERE
+        				cl.ID = \'' . intval( $args->classroomId, 10 ) . '\' AND
+        				se.CourseID = cl.CourseID AND
+        				se.UserID = \'' . intval( $args->userId, 10 ) . '\' AND
+        				se.Status = 9 AND
+        				sc.CourseID = se.CourseID AND
+        				pg.SectionID = sc.ID AND
+        				et.IsQuestion AND
+        				el.PageID = pg.ID AND
+        				el.ElementTypeID = et.ID AND
+        				re.OriginalElementID = el.ID
+        			ORDER BY pg.DisplayID ASC, el.DisplayID ASC
+        		' ) )
+        		{
+        			die( 'ok<!--separate-->' . json_encode( $rows ) );
+        		}
+        	}
+        	die( 'fail<!--separate-->{"message":"Could not get controller sheet.","response":-1,"query":"' . $q . '"}' );
+        	break;
         case 'getclassroom':
             if( isset( $args->classroomId ) )
             {
