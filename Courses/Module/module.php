@@ -775,9 +775,9 @@ switch( $args->args->command )
         	die( 'fail<!--separate-->{"message":"Could not load cert."}' );
         }
         
-        if( file_exists( $toPath . '/' . $User->UniqueID . '/certs/' . $cert->Filename . '.' . $cert->FileExt ) )
+        if( file_exists( $toPath . '/' . $User->UniqueID . '/certs/' . $cert->FileName . '.' . $cert->FileExt ) )
         {
-        	die( readfile( $toPath . '/' . $User->UniqueID . '/certs/' . $cert->Filename . '.' . $cert->FileExt ) );
+        	die( readfile( $toPath . '/' . $User->UniqueID . '/certs/' . $cert->FileName . '.' . $cert->FileExt ) );
         }
         die( 'fail<!--separate-->{"message":"No such certificate!"}' );
         

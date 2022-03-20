@@ -414,7 +414,7 @@ moduleObject.certificates = {
 							value: friendUP.tool.getChatTime( certs[a].DateAdded )
 						}
 					] );
-					( function( cl )
+					( function( cl, cid )
 					{
 						FUI.addCallback( 'clickety_' + a, function( itm )
 						{
