@@ -383,7 +383,16 @@ moduleObject.certificates = {
 				
 				if( !dat.certificates.length )
 				{
-					console.log( 'No certs' );
+					lv.setRowData( [ {
+						type: 'string',
+						value: 'No certificates to list.'
+					}, {
+						type: 'string',
+						value: ''
+					}, {
+						type: 'string',
+						value: ''
+					} ] );
 					return;
 				}
 				
