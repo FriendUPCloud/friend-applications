@@ -59,8 +59,12 @@ switch( $args->args->command )
 		break;
 	case 'listcertificates':
 		$cq = '
-			SELECT * FROM CC_Certificate AS c
-			WHERE c.UserID='.$User->ID.'
+			SELECT c.*, cl.Name as Classroom FROM 
+				CC_Certificate AS c,
+				CC_Classroom cl
+			WHERE 
+				c.UserID=\''.$User->ID.'\' AND
+				c.ClassID = cl.ID
 		';
 		$certs = $db->database->fetchObjects( $cq );
 		if ( false == $certs )

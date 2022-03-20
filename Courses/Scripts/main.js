@@ -359,6 +359,69 @@ moduleObject.dashboard = {
 	}
 };
 
+
+/* Certificates */
+
+moduleObject.certificates = {
+	initialize( moduleView )
+	{
+		
+	},
+	preload()
+	{
+		FUI.addCallback( 'w_reload_certificates', function( lv )
+		{
+			let s = new Module( 'system' );
+			s.onExecuted = function( se, sd )
+			{
+				if( se != 'ok' )
+				{
+					return;
+				}
+				let dat = JSON.parse( sd );
+				console.log( dat );
+				
+				if( !dat.certificates.length )
+				{
+					console.log( 'No certs' );
+					return;
+				}
+				
+				let out = [];
+				let certs = dat.certificates;
+				for( let a = 0; a < certs.length; a++ )
+				{
+					out.push( [ 
+						{
+							type: 'string',
+							value: certs[a].Classroom
+						},
+						{
+							type: 'string',
+							value: 'Click to open',
+							onclick: 'clickety_' + a
+						},
+						{
+							type: 'string',
+							value: friendUP.tool.getChatTime( certs[a].DateAdded )
+						}
+					] );
+					FUI.addCallback( 'clickety_' + a, function( itm )
+					{
+						console.log( 'Clickety!' );
+					} );
+				}
+				lv.setRowData( out );
+			}
+			s.execute( 'appmodule', {
+				appName : 'Courses',
+				command : 'listcertificates',
+			});
+		} );
+	}
+};
+
+
 /* Classrooms */
 
 moduleObject.classrooms = {
