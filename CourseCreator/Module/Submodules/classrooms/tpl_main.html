@@ -1053,6 +1053,7 @@
                             l--;
                             let d = new Date();
                             let name = js[l].FullName;
+                            const id = js[l].ID;
                             let progress = js[l].Progress;
                             let status = js[l].Status;
                             let payment = !!js[l].PaymentStatus;
@@ -1070,7 +1071,8 @@
                                 },
                                 {
                                     type  : 'string',
-                                    value : progress
+                                    value : progress,
+                                    onclick: progress == '100%' ? ( 'prog_click_' + js[l].ID ) : false
                                 },
                                 {
                                     type     : 'checkbox',
@@ -1095,6 +1097,28 @@
                             ];
                             
                             rws.push( cnf );
+                            
+                            ccAddCallback( 'prog_click_' + js[l].ID, function( that )
+                            {
+                            	let v = new View( {
+                            		title: 'Controlling user ' + name,
+                            		width: 800,
+                            		height: 800
+                            	} );
+                            	let f = new File( 'Progdir:Templates/controller.html' );
+                            	f.onLoad = function( data )
+                            	{
+                            		v.setContent( data, function()
+                            		{
+                            			v.sendMessage( {
+                            				command: 'loadcontroller',
+                            				classroomId: ge( 'ClassroomId' ).value,
+                            				userId: id
+                            			} );
+                            		} );
+                            	}
+                            	f.load();
+                            } );
                             
                         }
                         

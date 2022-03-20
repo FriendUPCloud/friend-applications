@@ -279,7 +279,7 @@ class ccListview extends ccGUIElement
             		if ( !self.cols[ header ].length )
             			return;
             		
-            		console.log( 'sorting header', [ header, self.cols._current ]);
+            		//console.log( 'sorting header', [ header, self.cols._current ]);
             		const hIdx = self.cols._list.indexOf( header );
             		const headId = self.headerElements[ hIdx ].id;
             		const hEl = ge( headId );
@@ -288,7 +288,7 @@ class ccListview extends ccGUIElement
             		{
             			self.cols[header].sort(( ra, rb ) =>
             			{
-            				console.log( 'sort', [ ra.value, rb.value ]);
+            				//console.log( 'sort', [ ra.value, rb.value ]);
             				if ( ra.value == null || rb.value == null )
             				{
             					if ( self.cols._current == header )
@@ -326,7 +326,7 @@ class ccListview extends ccGUIElement
             				}
             			});
             			
-            			console.log( 'sorted', self.cols[ header ]);
+            			//console.log( 'sorted', self.cols[ header ]);
             			const p = ge( self.cols[ header ][ 0 ].rowId ).parentNode;
             			for( let i = 0; i < self.cols[ header ].length; i++ )
             			{
@@ -489,6 +489,7 @@ class ccListview extends ccGUIElement
 				{
 				    ( function( data, column )
 				    {
+				        column.style.cursor = 'pointer';
 				        column.onclick = function( e )
 				        {
 				        	if( e.target && e.target.nodeName == 'INPUT' ) return;
