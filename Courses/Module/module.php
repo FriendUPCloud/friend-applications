@@ -10,6 +10,8 @@
 *                                                                              *
 *****************************************************************************©*/
 
+global $Config, $User;
+
 if( !isset( $args->args->command ) ) die( 'fail' );
 
 // Import database class from Course Creator
@@ -732,6 +734,53 @@ switch( $args->args->command )
 			}
 		}
 		die( 'fail<!--separate-->{"message":"No news for classroom.","response":-1}' );
+		break;
+	case 'showcertificate':
+		$d = getcwd();
+		$s = new dbIO( 'FSetting' );
+        $s->Type = 'CourseCreator';
+        $s->Key = 'Storage';
+        if( !$s->Load() )
+        {
+            die( 'fail<!--separate-->{"message":"Could not read server setting."}' );
+        }
+        if( !isset( $s->Data ) )
+        {
+            die( 'fail<!--separate-->' . json_encode( [ 
+                'message' => 'missing server setting',
+                'setting' => $s,
+            ] ) );
+        }
+        $cs = json_decode( $s->Data );
+        if( !isset( $cs->path ) )
+        {
+            die( 'fail<!--separate-->' . json_encode( [
+                'message' => 'server setting missing path',
+                'setting' => $cs,
+            ] ) );
+        }
+        
+        // check storage path
+        $toPath = $Config->FCUpload;
+        $toPath .= $cs->path;
+        $ccok = file_exists( $toPath );
+        if ( !$ccok )
+        {
+          die( 'fail<!--separate-->{"message":"Server path does not exist."}' );
+        }
+        
+        $cert = new dbIO( 'CC_Certificate', $db->database );
+        if( !$cert->Load( $args->args->certId ) )
+        {
+        	die( 'fail<!--separate-->{"message":"Could not load cert."}' );
+        }
+        
+        if( file_exists( $toPath . '/' . $User->UniqueID . '/certs/' . $cert->Filename . '.' . $cert->FileExt ) )
+        {
+        	die( readfile( $toPath . '/' . $User->UniqueID . '/certs/' . $cert->Filename . '.' . $cert->FileExt ) );
+        }
+        die( 'fail<!--separate-->{"message":"No such certificate!"}' );
+        
 		break;
 }
 die( 'fail<!--separate-->{"message":"Unknown appmodule method.","response":-1}' );
