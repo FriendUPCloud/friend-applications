@@ -427,7 +427,8 @@ if( isset( $args->method ) )
         				et.IsQuestion AND
         				el.PageID = pg.ID AND
         				el.ElementTypeID = et.ID AND
-        				re.OriginalElementID = el.ID
+        				re.OriginalElementID = el.ID AND
+        				re.Data
         			ORDER BY pg.DisplayID ASC, el.DisplayID ASC
         		' ) )
         		{

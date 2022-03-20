@@ -1,3 +1,23 @@
-<h1>
-	Certificates
-</h1>
+
+	<group>
+		<rows gap="20px">
+			<row>
+				<listview uniqueid="certificates_list">
+					<listviewhead>
+						<listviewheading>
+							Your certificates
+						</listviewheading>
+					</listviehead>
+					<listviewheaders>
+						<listviewheader width="50%" sortable="sortable" name="Classroom">Classroom</listviewheader>
+						<listviewheader width="25%" sortable="sortable" name="Progress">Certificate</listviewheader>
+						<listviewheader width="25%" sortable="sortable" name="Status">Date</listviewheader>
+					</listviewheaders>
+					<listviewrows onload="w_reload_certificates">
+					</listviewrows>
+				</listview>
+			</row>
+		</rows>
+	</group>
+
+
