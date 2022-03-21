@@ -550,6 +550,7 @@ class RootElement extends Element
         let parsedData = JSON.parse( data );
         ge( 'ProjectName' ).innerHTML = parsedData[0].courseName;
         courseCreator.publishState = parsedData[0].courseStatus;
+        courseCreator.description = parsedData[0].courseDescription;
         
         //console.log( 'Checking data for processing (courseId: ' + courseId + ')', data, '--', self.children );
         try

@@ -34,18 +34,20 @@ VALUES
 
 
 select "Course Table" as "";
-CREATE TABLE IF NOT EXISTS CC_Course(
-    ID BIGINT(20) auto_increment NOT NULL,
-    ParentID BIGINT(20) DEFAULT 0,
-    DisplayID BIGINT(20) NOT NULL,
-    Name VARCHAR(60),
-    Status INT DEFAULT 0,
-    OwnerID BIGINT(20),
-    CourseCollectionID BIGINT(20),
-    Version VARCHAR(20),
-    DateCreated DATETIME DEFAULT CURRENT_TIMESTAMP,
-    DateUpdated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY(ID)
+CREATE TABLE IF NOT EXISTS `CC_Course` (
+  `ID` bigint NOT NULL AUTO_INCREMENT,
+  `ParentID` bigint DEFAULT '0',
+  `DisplayID` bigint NOT NULL,
+  `Name` varchar(60) DEFAULT NULL,
+  `Description` text,
+  `Status` int DEFAULT '0',
+  `IsDeleted` tinyint DEFAULT '0',
+  `OwnerID` bigint DEFAULT NULL,
+  `CourseCollectionID` bigint DEFAULT NULL,
+  `Version` varchar(20) DEFAULT NULL,
+  `DateCreated` datetime DEFAULT CURRENT_TIMESTAMP,
+  `DateUpdated` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`ID`)
 );
 INSERT INTO CC_Course
 (Name, DisplayID, OwnerID, CourseCollectionID )
