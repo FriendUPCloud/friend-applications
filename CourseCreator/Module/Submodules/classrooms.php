@@ -407,7 +407,7 @@ if( isset( $args->method ) )
         		// Get all pages and elements
         		if( $rows = $courseDb->fetchObjects( $q = '
         			SELECT 
-        				pg.Name as PageName, pg.ID as PageID, re.*, el.Properties
+        				pg.Name as PageName, pg.ID as PageID, re.*, el.ID AS DataID, el.Properties
         			FROM 
         				CC_Classroom cl,
         				CC_CourseSession se,

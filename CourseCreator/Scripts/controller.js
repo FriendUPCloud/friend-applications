@@ -41,18 +41,20 @@ Application.receiveMessage = function( msg )
 					
 					str += '<tr><td bgcolor="#f8f8f8" colspan="2"><p>Question:</p>' + d.question + '</td></tr>';
 					
-					let submitted = parseInt( data[a].Data );
+					let submittedValue = parseInt( data[a].Data );
+					let dataId = data[a].DataID;
+					let submittedName = data[a].ElementID;
 					
 					// Support checkboxes
 					if( d.checkBoxes )
 					{
 						for( let b = 0; b < d.checkBoxes.length; b++ )
-						{
-							console.log( 'Checkboxes: ', d.checkBoxes[b] );
+						{	
 							let cl = d.checkBoxes[b].isAnswer ? ' bgcolor="#ffaacc" color="black"' : ' bgcolor="#ffffff"';
 							
 							let answer = 'bgcolor="#ffffff"';
-							if( b == submitted )
+
+							if( md5( dataId + '_' + b ) == submittedName )
 							{
 								answer = 'bgcolor="#aa0000" class="Submitted"';
 								if( d.checkBoxes[b].isAnswer )
@@ -75,7 +77,7 @@ Application.receiveMessage = function( msg )
 							let cl = d.radioBoxes[b].isAnswer ? ' bgcolor="#ffaacc" color="black"' : ' bgcolor="#ffffff"';
 							
 							let answer = 'bgcolor="#ffffff"';
-							if( b == submitted )
+							if( md5( dataId + '_' + b ) == submittedName )
 							{
 								answer = 'bgcolor="#aa0000" class="Submitted"';
 								if( d.radioBoxes[b].isAnswer )
