@@ -81,6 +81,7 @@ class CourseElement extends Element
             table: this.classInfo.dbTable,
             ID: this.dbId == null ? 0 : this.dbId,
             Name: this.name == null ? '' : this.name,
+            Description: this.description == null ? '' : this.description,
             DisplayID: this.displayId == null ? 0 : this.displayId,
             CourseCollectionID: 1
         };
@@ -142,12 +143,16 @@ class SectionElement extends Element
             CourseID: this.parent.dbId == null ? 0 : this.parent.dbId,
             ElementTypeID: this.classInfo.elementTypeId
         };
+        
         courseCreator.dbio.call(
             'updateTable',
             params,
-            function ( code, data ) {
-                if (callBack && typeof( callBack ) == 'function' )
-                    callBack( data );
+            function( code, data )
+            {
+            	if( callBack && typeof( callBack ) == 'function' )
+            	{
+                	callBack( data );
+                }
             }
         );
     }
@@ -551,6 +556,8 @@ class RootElement extends Element
         ge( 'ProjectName' ).innerHTML = parsedData[0].courseName;
         courseCreator.publishState = parsedData[0].courseStatus;
         courseCreator.description = parsedData[0].courseDescription;
+        console.log( 'Ifno: ', parsedData[0] );
+        ge( 'InfoDescription' ).value = courseCreator.description;
         
         //console.log( 'Checking data for processing (courseId: ' + courseId + ')', data, '--', self.children );
         try
@@ -1222,6 +1229,7 @@ class CourseCreator
 			ge( 'saveProps' ).onclick = function()
 			{
 				courseCreator.manager.children[0].name = inp.value;
+				courseCreator.manager.children[0].description = ge( 'InfoDescription' ).value;
 				courseCreator.manager.children[0].save();
 				Application.sendMessage( {
 					command: 'setViewTitle',
