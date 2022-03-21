@@ -42,7 +42,7 @@ let ce = function(type,
         InlineEditor
             .create( e, {
             	//removePlugins: [ 'ImageInline' ]
-            	toolbar: [ 'heading', 'bold', 'italic', 'bulletedList', 'numberedList', 'outdent', 'indent', 'blockQuote' , 'insertTable', 'link', 'undo', 'redo' ]
+            	toolbar: [ 'heading', 'bold', 'italic', 'bulletedList', 'numberedList', 'outdent', 'indent', 'blockQuote' , 'insertTable', 'link', 'mediaEmbed', 'undo', 'redo' ]
             } )
             .catch( error => {
                 console.error( error );
