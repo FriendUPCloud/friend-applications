@@ -486,8 +486,10 @@ moduleObject.classrooms = {
 			{
 				if( rc != 'ok' )
 				{
-					console.log( 'Could not load classroms.' );
-					ls.clearRows();
+					ls.setRowData( [ [ {
+						type: 'string',
+						value: 'You have no classrooms available.'
+					} ] ] );
 					return;
 				}
 				

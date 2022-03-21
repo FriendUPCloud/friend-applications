@@ -110,7 +110,7 @@ switch( $args->args->command )
 			WHERE 
 				uc.ClassroomID = cr.ID
 			AND 
-				uc.UserID=\'' . intval( $User->ID, 10 ) . '\'
+				uc.UserID=\'' . intval( $User->ID, 10 ) . '\' AND cr.Status > 0
 			' . $status . '
 			' . $active . '
 			ORDER BY 
@@ -411,7 +411,8 @@ switch( $args->args->command )
 			CC_CourseSession s 
 			WHERE 
 				( s.Status = 9 OR s.Status = 1 ) AND 
-				s.CourseID = \'' . intval( $args->args->courseId, 10 ) . '\'
+				s.CourseID = \'' . intval( $args->args->courseId, 10 ) . '\' AND
+				s.UserID=\'' . $User->ID . '\'
 			ORDER BY ID DESC LIMIT 1
 		' );
 		
@@ -437,7 +438,7 @@ switch( $args->args->command )
 						if( $elementFilled = $db->database->fetchObject( '
 							SELECT COUNT(e.ID) AS CNT FROM CC_ElementResult e, CC_CourseSession s
 							WHERE
-								s.ID = \'' . $sess->ID . '\' AND e.CourseSessionID = s.ID AND e.Data
+								s.ID = \'' . $sess->ID . '\' AND s.UserID=\'' . $User->ID . '\' AND e.CourseSessionID = s.ID AND e.Data
 						' ) )
 						{
 							$elementFilled = $elementFilled->CNT;
@@ -528,7 +529,8 @@ switch( $args->args->command )
 				s.ID = \'' . intval( $args->args->sectionId, 10 ) . '\' AND
 				cs.ID = \'' . intval( $args->args->courseSessionId, 10 ) . '\' AND
 				cs.CourseID = s.CourseID AND
-				p.CourseSessionID = cs.ID
+				p.CourseSessionID = cs.ID AND
+				cs.UserID=\'' . $User->ID . '\'
 		' ) )
 		{
 			// The amount of pages that were viewed
@@ -541,7 +543,8 @@ switch( $args->args->command )
 					p.SectionID = \'' . intval( $args->args->sectionId, 10 ) . '\' AND
 					s.ID = p.SectionID AND
 					s.CourseID = cs.CourseID AND
-					cs.ID = \'' . intval( $args->args->courseSessionId, 10 ) . '\'
+					cs.ID = \'' . intval( $args->args->courseSessionId, 10 ) . '\' AND
+					cs.UserID = \'' . $User->ID . '\'
 			' ) )
 			{
 				$total = $total->CNT;
@@ -559,7 +562,8 @@ switch( $args->args->command )
 					cs.ID = \'' . intval( $args->args->courseSessionId, 10 ) . '\' AND
 					cs.CourseID = s.CourseID AND
 					p.CourseSessionID = cs.ID AND
-					p.Status != \'1\'
+					p.Status != \'1\' AND
+					cs.UserID = \'' . $User->ID . '\'
 			' ) )
 			{
 				die( 'fail<!--separate->{"message":"This section is not complete because of unread pages.","response":-1}' );
@@ -599,7 +603,7 @@ switch( $args->args->command )
 				$classrooms[ $k ] = intval( $v, 10 );
 			}
 			if( $sessions = $db->database->fetchObjects( '
-				SELECT s.* FROM CC_CourseSession s, CC_Classroom c WHERE c.ID IN ( ' . implode( ',', $classrooms ) . ' ) AND s.CourseID = c.CourseID
+				SELECT s.* FROM CC_CourseSession s, CC_Classroom c WHERE s.UserID=\'' . $User->ID . '\' AND c.ID IN ( ' . implode( ',', $classrooms ) . ' ) AND s.CourseID = c.CourseID
 			' ) )
 			{
 				foreach( $sessions as $sess )
@@ -609,7 +613,7 @@ switch( $args->args->command )
 			}
 			else
 			{
-				die( 'fail<!--separate-->SELECT s.* FROM CC_CourseSession s, CC_Classroom c WHERE c.ID IN ( ' . implode( ',', $classrooms ) . ' ) AND s.CourseID = c.CourseID' );
+				die( 'fail<!--separate-->SELECT s.* FROM CC_CourseSession s, CC_Classroom c WHERE s.UserID=\'' . $User->ID . '\' AND c.ID IN ( ' . implode( ',', $classrooms ) . ' ) AND s.CourseID = c.CourseID' );
 			}
 		}
 		else
@@ -671,7 +675,8 @@ switch( $args->args->command )
 						s.CourseID = se.CourseID AND ' . $sectionSpecific . '
 						p.ID = e.PageID AND 
 						e.ElementTypeID IN ( ' . implode( ',', $types ) . ' ) AND 
-						s.ID = \'' . $cl->ID . '\'
+						s.ID = \'' . $cl->ID . '\' AND
+						s.UserID = \'' . $User->ID . '\'
 				' ) )
 				{
 					$elementCount = $elementCount->CNT;
