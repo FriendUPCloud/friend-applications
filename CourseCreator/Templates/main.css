@@ -220,6 +220,15 @@
     text-overflow: ellipsis;
 }
 
+.PageIndex > div span.PageTitle
+{
+	width: calc(100% - 53px);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	display: inline-block;
+	vertical-align: top;
+}
+
 #index .SectionButton
 {
 	height: auto;
