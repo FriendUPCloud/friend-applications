@@ -40,7 +40,10 @@ let ce = function(type,
     // Make CK Editor
     if (ckEditor == true){
         InlineEditor
-            .create( e )
+            .create( e, {
+            	//removePlugins: [ 'ImageInline' ]
+            	toolbar: [ 'heading', 'bold', 'italic', 'bulletedList', 'numberedList', 'outdent', 'indent', 'blockQuote' , 'insertTable', 'link', 'undo', 'redo' ]
+            } )
             .catch( error => {
                 console.error( error );
                 } 

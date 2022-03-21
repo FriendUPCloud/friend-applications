@@ -466,7 +466,10 @@ class TextBoxElement extends Element
         {
             let div = ce('div');
             InlineEditor
-                .create( div )
+                .create( div, { 
+                	//removePlugins: [ 'ImageInline' ]
+                	toolbar: [ 'heading', 'bold', 'italic', 'bulletedList', 'numberedList', 'outdent', 'indent', 'blockQuote' , 'insertTable', 'link', 'undo', 'redo' ]
+                } )
                 .catch( error => {
                     console.error( error );
                 } )
