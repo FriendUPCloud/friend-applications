@@ -1152,7 +1152,7 @@ class CourseCreator
     	{
 		    self.render();
 
-		    // set active to first child
+		    // Set active to first child
 		    let firstPage = self.indexView.querySelector( '.PageIndex' );
 		    if( firstPage )
 		    {
@@ -1160,7 +1160,6 @@ class CourseCreator
 		        let sec = null;
 		        if( sec = ge( 'index' ).querySelector( '.SectionIndex' ) )
 		        {
-		        	//sec.querySelector( '.PageClicker' ).click();
 		        	sec.classList.add( 'ActiveBlock' );
 		        }
 		        
