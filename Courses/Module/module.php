@@ -639,6 +639,7 @@ switch( $args->args->command )
 				
 				// Get classroom
 				$cl = new dbIO( 'CC_CourseSession', $db->database );
+				$cl->UserID = $userId;
 				$cl->CourseID = $csi;
 				$cl->Status = 1;
 				if( !$cl->Load() )
@@ -676,13 +677,24 @@ switch( $args->args->command )
 						p.ID = e.PageID AND 
 						e.ElementTypeID IN ( ' . implode( ',', $types ) . ' ) AND 
 						s.ID = \'' . $cl->ID . '\' AND
-						s.UserID = \'' . $User->ID . '\'
+						s.UserID = \'' . $userId . '\'
 				' ) )
 				{
 					$elementCount = $elementCount->CNT;
 					
 					// Get elements that were interacted with
-					$regged = 'SELECT COUNT(ID) AS CNT FROM CC_ElementResult WHERE `Data` AND CourseSessionID = \'' . $cl->ID . '\'';
+					$regged = '
+					SELECT 
+						COUNT(er.ID) AS CNT 
+					FROM 
+						CC_ElementResult er, 
+						CC_CourseSession cs 
+					WHERE 
+						cs.UserID = \'' . $userId . '\' AND 
+						cs.ID = er.CourseSessionID AND 
+						er.Data AND 
+						er.CourseSessionID = \'' . $cl->ID . '\'
+					';
 					
 					if( isset( $args->args->sectionId ) )
 					{
@@ -690,14 +702,16 @@ switch( $args->args->command )
 							SELECT 
 								COUNT(r.ID) AS CNT 
 							FROM 
-								CC_ElementResult r, CC_Element e, CC_Page p, CC_Section s
+								CC_ElementResult r, CC_Element e, CC_Page p, CC_Section s, CC_CourseSession cs
 							WHERE 
 								r.Data AND 
 								r.OriginalElementId = e.ID AND
 								e.PageID = p.ID AND
 								p.SectionID = s.ID AND
 								s.ID = \'' . intval( $args->args->sectionId, 10 ) . '\' AND
-								r.CourseSessionID = \'' . $cl->ID . '\'';
+								r.CourseSessionID = \'' . $cl->ID . '\' AND
+								cs.ID = r.CourseSessionID
+						';
 					}
 					
 					
