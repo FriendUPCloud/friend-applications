@@ -111,10 +111,32 @@ moduleObject.dashboard = {
 	{
 		const self = this;
 		console.log( 'dash init', moduleView, self );
-		let cont = moduleView.moduleContainer.domNode;
-		ge( 'dashWelcome' ).innerHTML = 'Welcome ' + Application.fullName + '!';
-		self.prog = ge( 'dashProgress' );
-		self.status = ge( 'dashStatus' );
+		self.welc = moduleView.moduleContainer.domNode.children[0].children[0];
+		self.prog = moduleView.moduleContainer.domNode.children[0].children[1];
+		self.stat = moduleView.moduleContainer.domNode.children[0].children[2];
+		
+		// Welcome 
+		self.welc.querySelector('.FUISectionHeader h2').innerHTML = 'Welcome ' + Application.fullName + '!';
+		const wc = self.welc.querySelector('.FUISectionContent');
+		wc.parentNode.removeChild( wc );
+		
+		// Activity 
+		self.prog = self.prog.querySelector( '.FUISectionContent' );
+		self.prog.classList.add( 'dashDisplayWrap' );
+		
+		// Status
+		self.stat = self.stat.querySelector( '.FUISectionContent' );
+		self.stat.classList.add( 'dashDisplayWrap' );
+		
+		console.log( 'sects', {
+			welc : self.welc,
+			prog : self.prog,
+			stat : self.stat,
+		});
+		
+		//self.prog = ge( 'dashProgress' );
+		//self.stat = ge( 'dashStatus' );
+		
 		const cl = new Module( 'system' );
 		cl.onExecuted = ( s , d ) => {
 			console.log( 'dash list cl', [ s, d ]);
@@ -349,7 +371,7 @@ moduleObject.dashboard = {
 		const self = this;
 		console.log( 'addStudentStat', stat );
 		const sEl = document.createElement( 'div' );
-		self.status.appendChild( sEl );
+		self.stat.appendChild( sEl );
 		const sOpts = {
 			containerElement : sEl,
 			bgColor          : bgColor,
