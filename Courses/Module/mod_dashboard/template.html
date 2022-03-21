@@ -1,5 +1,5 @@
 
-
+<!--
 	<h1 id="dashWelcome">
 		
 	</h1>
@@ -33,12 +33,44 @@
 	</div>
 	<div id="dashActivitylog" class="ContentBlock">
 	</div>
+-->
+
+<group>
+		<rows gap="20px">
+			<row>
+				<section>
+					<sectionheader uniqueid="dashWelcomeUser">
+						
+					</sectionheader>
+				</section>
+			</row>
+			<row>
+				<section>
+					<sectionheader uniqueid="dashProgressHead">
+						Active courses
+					</sectionheader>
+					<sectioncontent uniqueid="dashProgress">
+					</sectioncontent>
+				</section>
+			</row>
+			<row>
+				<section >
+					<sectionheader uniqueid="dashStatusHead">
+						Status
+					</sectionheader>
+					<sectioncontent uniqueid="dashStatus">
+					</sectioncontent>
+				</section>
+			</row>
+		</rows>
+	</group>
 	
 
 <style>
 	
 #dashStatus,
-#dashProgress {
+#dashProgress,
+.dashDisplayWrap {
     display         : flex;
     flex-wrap       : wrap;
     justify-content : center;
