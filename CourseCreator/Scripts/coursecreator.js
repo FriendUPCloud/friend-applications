@@ -86,7 +86,7 @@ class CourseElement extends Element
             CourseCollectionID: 1
         };
         
-        console.log("Update table ", params);
+        //console.log("Update table ", params);
         courseCreator.dbio.call(
             'updateTable',
             params,
@@ -235,7 +235,7 @@ class PageElement extends Element
             {
                 if (code == "fail")
                 {
-                    console.log(data);
+                    //console.log(data);
                     return false;
                 }
 
@@ -397,7 +397,7 @@ class DBIO
     {
     	for( let a in vars )
     	{
-    		console.log( 'Calling DBIO with var: ' + a + ' vars[a]: ' + vars[a] );
+    		//console.log( 'Calling DBIO with var: ' + a + ' vars[a]: ' + vars[a] );
     		if( vars[a] == null || typeof( vars[a] ) == 'undefined' )
     		{
     			vars[a] = false;
@@ -497,7 +497,9 @@ class RootElement extends Element
             function ( code, data )
             {
             	if( data.substr( 0, 1 ) == '{' || data.substr( 0, 1 ) == '[' )
-	                console.log( "this is the course table", JSON.parse(data) );
+            	{
+	                //console.log( "this is the course table", JSON.parse(data) );
+	            }
 	            else console.log( 'response from call: ' + data );
                 self.processData(data, courseId);
             }
@@ -556,7 +558,6 @@ class RootElement extends Element
         ge( 'ProjectName' ).innerHTML = parsedData[0].courseName;
         courseCreator.publishState = parsedData[0].courseStatus;
         courseCreator.description = parsedData[0].courseDescription;
-        console.log( 'Ifno: ', parsedData[0] );
         ge( 'InfoDescription' ).value = courseCreator.description;
         
         //console.log( 'Checking data for processing (courseId: ' + courseId + ')', data, '--', self.children );
@@ -610,7 +611,7 @@ class RootElement extends Element
 	
 	getElementTypeIcon = function( type )
     {
-    	console.log( 'What is the type: ' + type );
+    	//console.log( 'What is the type: ' + type );
     	switch( type )
     	{
 			case 'image':
