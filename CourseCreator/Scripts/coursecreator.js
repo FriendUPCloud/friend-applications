@@ -768,12 +768,13 @@ class RootElement extends Element
                 { 
                     'text': '<span class="IconSmall fa-remove FloatRight Remove MousePointer MarginLeft"></span>' +
                     		'<span class="IconSmall fa-edit FloatRight Edit MousePointer"></span>' +
-                    		( icon ? '&nbsp;' : '' ) + num + '. ' + ele.name,
-                    'classes': [ 'IconSmall', icon ],
+                    		'<span class="PageTitle">' + ( icon ? '&nbsp;' : '' ) + num + '. ' + ele.name + '</span>',
+                    'classes': [ 'IconSmall', icon, 'PageClicker' ],
                     'listeners': [
                         {
                             'event': 'click',
-                            'callBack': function ( event ){
+                            'callBack': function ( event )
+                            {
                                 event.stopPropagation();
                                 ele.setActive();
                                 ele.renderMain();
@@ -781,7 +782,7 @@ class RootElement extends Element
                                 courseCreator.setActivePanel( 'SectionsPanel' );
                                 setActiveClass(
                                     event
-                                        .target
+                                        .target.parentNode
                                         .parentNode
                                         .parentNode
                                 );
@@ -791,8 +792,8 @@ class RootElement extends Element
                     ]
                 }
             );
-            div.appendChild(text);
-            li.appendChild(div);
+            div.appendChild( text );
+            li.appendChild( div );
             
             if( ele.dbId == courseCreator.currentPageId )
             {
@@ -1151,13 +1152,24 @@ class CourseCreator
     	{
 		    self.render();
 
-		    // set active to first child
+		    // Set active to first child
 		    let firstPage = self.indexView.querySelector( '.PageIndex' );
 		    if( firstPage )
 		    {
-		        firstPage.classList.add( 'Active' );
+		        // Activate first index
+		        let sec = null;
+		        if( sec = ge( 'index' ).querySelector( '.SectionIndex' ) )
+		        {
+		        	sec.classList.add( 'ActiveBlock' );
+		        }
+		        
 		        // Activate this firstpage!
-		        firstPage.getElementsByTagName( 'span' )[0].click();
+		        let spa = firstPage.querySelector( '.PageClicker' );
+		        if( spa )
+		        {
+		        	spa.click();
+		        	firstPage.classList.add( 'Active' );
+		        }
 		    }
 
 		    // set view button event handler

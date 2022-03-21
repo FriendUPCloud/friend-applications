@@ -98,6 +98,13 @@ body .Module.Active p > span
     transition: opacity 0.25s;
 }
 
+#classCourses
+{
+	max-width: calc(100% - 8px);
+    text-overflow: ellipsis;
+}
+
+
 body.Editing .Module.Active p > span,
 body.Saving .Module.Active p > span,
 body.Saved .Module.Active p > span
