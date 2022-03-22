@@ -812,7 +812,7 @@ switch( $args->args->command )
 						';
 					}
 					
-					$rows = $db->database->fetchObjects( $regged )
+					$rows = $db->database->fetchObjects( $regged );
 					if( $rows )
 					{
 						$uniques = new stdClass();
