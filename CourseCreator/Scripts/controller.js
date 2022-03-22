@@ -105,7 +105,26 @@ Application.receiveMessage = function( msg )
 							let errorSet = false;
 							let ignoreCorrect = false;
 							let correctHere = 0;
-						
+							
+							// Look for errors
+							for( let c = 0; c < element.choices.length; c++ )
+							{
+								let choice = element.choices[ c ];
+								if( element.answers[ md5( element.dataId + '_' + c ) ] )
+								{
+									if( !( choice.isAnswer || choice.isCorrect ) )
+									{
+										if( !errorSet )
+										{
+											errors++;
+											errorSet = true;
+										}
+										ignoreCorrect = true;
+									}
+								}
+							}
+							
+							// Generate list
 							for( let c = 0; c < element.choices.length; c++ )
 							{
 								let choice = element.choices[ c ];
@@ -115,9 +134,10 @@ Application.receiveMessage = function( msg )
 								
 								if( element.answers[ md5( element.dataId + '_' + c ) ] )
 								{
-									answer = 'class="cSubmitted cCorrect"';
+									answer = 'class="cSubmitted cError"';
 									if( ( choice.isAnswer || choice.isCorrect ) )
 									{
+										answer = 'class="cSubmitted cCorrect"';
 										// Ignore comes into action if we made a mistage
 										if( !ignoreCorrect )
 										{
@@ -139,19 +159,9 @@ Application.receiveMessage = function( msg )
 											answer = 'class="cSubmitted cFlaw"';
 										}
 									}
-									// We have an error
-									else
-									{
-										if( !errorSet )
-										{
-											errors++;
-											errorSet = true;
-										}
-										correctHere = 0;
-										ignoreCorrect = true;
-										answer = 'class="cSubmitted cError"';
-									}
 								}
+								
+								
 								
 								str += '<tr><td' + cl + '><p>Answer ' + ( c + 1 ) + ':</p></td><td ' + answer + '>' + choice.label + '</td></tr>';
 							}
