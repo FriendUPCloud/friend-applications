@@ -526,6 +526,40 @@ switch( $args->args->command )
 							}
 							$found++;
 						}
+						// No section data on elements, what if there's elements that we didn't cound?
+						else if( 1 == 1 )
+						{
+							$response->{$secId} = new stdClass();
+							// Check if page is complete
+							if( $d = $db->database->fetchObject( ( $q = '
+								SELECT pr.Status FROM CC_PageResult pr, CC_Section s, CC_Page p
+								WHERE
+									s.ID=\'' . intval( $secId, 10 ) . '\' AND 
+									pr.PageID = p.ID AND
+									p.SectionID = s.ID AND
+									pr.CourseSessionID = \'' . $sess->ID . '\'
+								ORDER BY pr.ID DESC
+								LIMIT 1
+							' ) ) )
+							{
+								// Non-interactive (no interactive elements)
+								if( $elementC == 0 )
+								{
+									// Check if the page is complete
+									$response->{$secId}->progress = ( $d && $d->Status == 1 ) ? '100%' : '0%';
+								}
+								// No interactive element is completed
+								else
+								{
+									$response->{$secId}->progress = '0%';
+								}
+							}
+							// The page of the element is not complete
+							else
+							{
+								$response->{$secId}->progress = '0%';
+							}
+						}
 					}
 				}
 				if( $found > 0 )
