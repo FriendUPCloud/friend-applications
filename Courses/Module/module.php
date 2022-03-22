@@ -725,10 +725,15 @@ switch( $args->args->command )
 			$out = new stdClass();
 			$prog = [];
 			$ins = [];
-			$regQ = '';
-			$regR = null;
+			$loops = [];
 			foreach( $csid as $csi )
 			{
+				$iter = [];
+				$loops[] = &$iter;
+				$iter[ 'csi' ] = $csi;
+				$regQ = '';
+				$regR = null;
+				$elC = null;
 				
 				// Get classroom
 				$cl = new dbIO( 'CC_CourseSession', $db->database );
@@ -744,6 +749,7 @@ switch( $args->args->command )
 					}
 				}
 				
+				$iter[ 'thingloaded' ] = true;
 				$out->{$cl->CourseID} = new stdClass();
 				$entry =& $out->{$cl->CourseID};
 				$entry->status = $cl->Status;
@@ -754,8 +760,10 @@ switch( $args->args->command )
 					$sectionSpecific = 'se.ID = \'' . intval( $args->args->sectionId, 10 ) . '\' AND ';
 				}
 				
+				$iter[ 'sectionSpecific' ] = $sectionSpecific;
+				
 				// Get total element count based on course session
-				if( $elementCount = $db->database->fetchObject( '
+				if( $elC = $db->database->fetchObject( '
 					SELECT COUNT(e.ID) CNT
 					FROM 
 						CC_CourseSession s, 
@@ -773,7 +781,8 @@ switch( $args->args->command )
 						s.UserID = \'' . $userId . '\'
 				' ) )
 				{
-					$elementCount = $elementCount->CNT;
+					$iter[ 'elC' ] = $elC;
+					$elementCount = $elC->CNT;
 					
 					// Get elements that were interacted with
 					$regQ = '
@@ -814,7 +823,9 @@ switch( $args->args->command )
 						';
 					}
 					
+					$iter[ 'regQ' ] = $regQ;
 					$regR = $db->database->fetchObjects( $regQ );
+					$iter[ 'regR' ] = $regR;
 					if( $regR )
 					{
 						$uniques = new stdClass();
@@ -828,6 +839,7 @@ switch( $args->args->command )
 							}
 						}
 						
+						$iter[ 'uniques' ] = $uniques;
 						$reg = $registered; //intval( $registered->CNT, 10 );
 						$tot = intval( $elementCount, 10 );
 						$in = [
@@ -852,7 +864,7 @@ switch( $args->args->command )
 					'completed' => $sum,
 					'args'      => $args,
 					'regR'      => $regR,
-					'uniques'   => $uniques,
+					'loops'     => $loops,
 				] ) );
 			
 		}
