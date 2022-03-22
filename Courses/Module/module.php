@@ -526,7 +526,7 @@ switch( $args->args->command )
 							}
 							$found++;
 						}
-						// No section data on elements, what if there's elements that we didn't cound?
+						// No section data on elements, what if there's elements that we didn't count? (e.g. non-interactive)
 						else if( 1 == 1 )
 						{
 							$response->{$secId} = new stdClass();
