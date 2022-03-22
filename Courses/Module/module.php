@@ -725,6 +725,8 @@ switch( $args->args->command )
 			$out = new stdClass();
 			$prog = [];
 			$ins = [];
+			$regQ = '';
+			$regR = null;
 			foreach( $csid as $csi )
 			{
 				
@@ -774,7 +776,7 @@ switch( $args->args->command )
 					$elementCount = $elementCount->CNT;
 					
 					// Get elements that were interacted with
-					$regged = '
+					$regQ = '
 					SELECT 
 						er.*
 					FROM 
@@ -790,7 +792,7 @@ switch( $args->args->command )
 					
 					if( isset( $args->args->sectionId ) )
 					{
-						$regged = '
+						$regQ = '
 							SELECT 
 								r.*
 							FROM 
@@ -812,12 +814,12 @@ switch( $args->args->command )
 						';
 					}
 					
-					$rows = $db->database->fetchObjects( $regged );
-					if( $rows )
+					$regR = $db->database->fetchObjects( $regQ );
+					if( $regR )
 					{
 						$uniques = new stdClass();
 						$registered = 0;
-						foreach( $rows as $row )
+						foreach( $regR as $row )
 						{
 							if( !isset( $uniques->{$row->OriginalElementID} ) )
 							{
@@ -843,13 +845,13 @@ switch( $args->args->command )
 			}
 			die( 'ok<!--separate-->' . json_encode( [
 					'csid'      => $csid,
-					'regged'    => $regged,
+					'regQ'      => $regQ,
 					//'progress'=> $out,
 					'progress'  => $prog,
 					'ins'       => $ins,
 					'completed' => $sum,
 					'args'      => $args,
-					'rows'      => $rows,
+					'regR'      => $regR,
 					'uniques'   => $uniques,
 				] ) );
 			
