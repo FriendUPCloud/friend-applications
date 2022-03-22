@@ -661,7 +661,9 @@ switch( $args->args->command )
 			$cq = '
 				SELECT
 					s.* 
-				FROM CC_CourseSession s, CC_Classroom c 
+				FROM 
+					CC_CourseSession s, 
+					CC_Classroom c 
 				WHERE c.ID IN ( ' . implode( ',', $classrooms ) . ' ) 
 				AND s.CourseID = c.CourseID
 				'.$usrChk.' 
@@ -810,8 +812,8 @@ switch( $args->args->command )
 						';
 					}
 					
-					
-					if( $rows = $db->database->fetchObjects( $regged ) )
+					$rows = $db->database->fetchObjects( $regged )
+					if( $rows )
 					{
 						$uniques = new stdClass();
 						$registered = 0;
@@ -840,14 +842,15 @@ switch( $args->args->command )
 				}
 			}
 			die( 'ok<!--separate-->' . json_encode( [
-					'csid' => $csid,
-					'elecount' => $elementCount,
-					'regged' => $registered,
-					//'progress'  => $out,
-					'progress' => $prog,
-					'ins'      => $ins,
+					'csid'      => $csid,
+					'regged'    => $regged,
+					//'progress'=> $out,
+					'progress'  => $prog,
+					'ins'       => $ins,
 					'completed' => $sum,
 					'args'      => $args,
+					'rows'      => $rows,
+					'uniques'   => $uniques,
 				] ) );
 			
 		}

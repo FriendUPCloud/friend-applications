@@ -201,6 +201,9 @@ moduleObject.dashboard = {
 						} catch( ex ) {
 							
 						}
+						
+						return;
+						/*
 						let l = rs.length;
 						for( ;l; )
 						{
@@ -208,6 +211,7 @@ moduleObject.dashboard = {
 							rs[l].Progress = -( Math.floor( Math.random() * 100 ));
 							self.addClassProgress( rs[l] );
 						}
+						*/
 					}
 				}
 				p.execute( 'appmodule', {
