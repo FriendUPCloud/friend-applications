@@ -530,26 +530,29 @@ moduleObject.classrooms = {
 					
 					for( let a = 0; a < list.length; a++ )
 					{
-						if( !list[ a ] || !progress[ list[a].CourseID ] )
-						{
-							console.log( 'Failed to find course id in progress items.' );
-							continue;
-						}
 						let exStatus = false;
 						let endTime = ( new Date( list[a].EndDate ) ).getTime();
 						let now = ( new Date() ).getTime();
 						
-						let prog = progress[ list[a].CourseID ];
-						console.log( 'prog', prog );
-						if( now >= endTime )
+						let prog = '0%';
+						if( list[ a ] && progress[ list[a].CourseID ] )
 						{
-							exStatus = 'Expired';
+							prog = progress[ list[a].CourseID ];
+							//console.log( 'prog', prog );
+							if( now >= endTime )
+							{
+								exStatus = 'Expired';
+							}
+							else if( prog && prog.status == 9 )
+							{
+								exStatus = 'Completed';
+							}
 						}
-						else if( prog && prog.status == 9 )
+						else
 						{
-							exStatus = 'Completed';
+							exStatus = 'New';
 						}
-					
+						
 						out.push( [
 							{
 								type: 'string',
@@ -650,7 +653,7 @@ moduleObject.classrooms = {
 		n.onExecuted = function( ee, dd )
 		{
 			const course = JSON.parse( dd );
-			//console.log( 'initclassroomdetails course', [ classroomId, listview, course ]);
+			
 			let section = FUI.getElementByUniqueId( 'classroom_section_1' );
 			const now = Date.now();
 			const cStart = Date.parse( course.ClassStartDate );
@@ -698,8 +701,14 @@ moduleObject.classrooms = {
 				btnClick = '';
 			}
 			
+			let details = '';
+			if( course.Description && course.Description.length )
+			{
+				details = '<div class="Details"><p>' + course.Description.split( "\n" ).join ( '<br><br>' ) + '</p></div>';
+			}
+			
 			section.setHeader( 'Details for ' + course.Name );
-			section.setContent( '<p class="TextRight"><button ' + ( btnDisable ? 'disabled' : '' ) + ' type="button" class="IconSmall ' + classText + '" onclick="' + btnClick + '">' + btnText + '</button></p>' );
+			section.setContent( details + '<p class="TextRight"><button ' + ( btnDisable ? 'disabled' : '' ) + ' type="button" class="IconSmall ' + classText + '" onclick="' + btnClick + '">' + btnText + '</button></p>' );
 			
 			let list = FUI.getElementByUniqueId( 'classroom_progress' );
 			let m = new Module( 'system' );

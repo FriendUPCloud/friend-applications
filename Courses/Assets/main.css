@@ -27,3 +27,14 @@ div > .NewsItem .Date
 {
 	font-weight: bold;
 }
+
+.FUISectionContent .Details
+{
+	max-width: 85%;
+	width: 600px;	
+}
+
+.FUISectionContent .Details p
+{
+	margin: 0 0 10px 0;
+}
