@@ -530,6 +530,11 @@ moduleObject.classrooms = {
 					
 					for( let a = 0; a < list.length; a++ )
 					{
+						if( !list[ a ] || !progress[ list[a].CourseID ] )
+						{
+							console.log( 'Failed to find course id in progress items.' );
+							continue;
+						}
 						let exStatus = false;
 						let endTime = ( new Date( list[a].EndDate ) ).getTime();
 						let now = ( new Date() ).getTime();
