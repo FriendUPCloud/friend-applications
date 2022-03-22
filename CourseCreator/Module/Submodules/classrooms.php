@@ -62,7 +62,7 @@ if( isset( $args->method ) )
             				if( $rows[$k]->UserID == $u->ID )
             				{
             					// Get statistics for each user
-            					$rows[$k]->Progress = fetchUserClassroomProgress( $rows[$k->ID], intval( $args->classroomId, 10 ) );
+            					$rows[$k]->Progress = fetchUserClassroomProgress( $u->ID, intval( $args->classroomId, 10 ) );
             					
             					// Add the user to the row in the correct format
             					$rows[$k]->FullName = $u->FullName;
@@ -428,11 +428,19 @@ if( isset( $args->method ) )
         				el.PageID = pg.ID AND
         				el.ElementTypeID = et.ID AND
         				re.OriginalElementID = el.ID AND
+        				re.UserID = se.UserID AND
         				re.Data
         			ORDER BY pg.DisplayID ASC, el.DisplayID ASC
         		' ) )
         		{
-        			die( 'ok<!--separate-->' . json_encode( $rows ) );
+        			$cl = new dbIO( 'CC_Classroom', $courseDb );
+        			if( $cl->Load( $args->classroomId ) )
+        			{
+        				$out = new stdClass();
+        				$out->Name = $cl->Name;
+        				$out->Data = $rows;
+	        			die( 'ok<!--separate-->' . json_encode( $out ) );
+	        		}
         		}
         	}
         	die( 'fail<!--separate-->{"message":"Could not get controller sheet.","response":-1,"query":"' . $q . '"}' );

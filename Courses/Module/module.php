@@ -274,16 +274,20 @@ switch( $args->args->command )
 		$o->CourseSessionID = intval( $args->args->courseSessionId, 10 );
 		if( !$o->Load() )
 		{
+			if( !$args->args->value )
+			{
+				die( 'fail<!--separate-->{"response":-1,"message":"Element never existed."}' );
+			}
 			$o->DateCreated = date( 'Y-m-d H:i:s' );
 		}
 		if( !$args->args->value )
-			die( 'fail<!--separate-->{"response":-1,"message":"No value to store for element."}' );
+		{
+			$o->Delete();
+			die( 'ok<!--separate-->{"response":1,"message":"Element was removed."}' );
+		}
 		$o->Data = $d->real_escape_string( $args->args->value );
 		$o->DateUpdated = date( 'Y-m-d H:i:s' );
 		$o->Save();
-		
-		// Remove older element results
-		$db->database->query( 'DELETE FROM CC_ElementResult WHERE ID != \'' . $o->ID . '\' AND OriginalElementID=\'' . $o->OriginalElementID . '\'' );
 		
 		if( $o->ID > 0 )
 		{
@@ -294,12 +298,27 @@ switch( $args->args->command )
 	// Get element value
 	case 'getelementvalue':
 		if( $row = $db->database->fetchObject( '
-			SELECT * FROM CC_ElementResult
+			SELECT 
+				e.* 
+			FROM 
+				CC_ElementResult e,
+				CC_Element ol,
+				CC_Page p,
+				CC_Section s,
+				CC_CourseSession se
+				
 			WHERE
-				UserID=\'' . intval( $User->ID, 10 ) . '\' AND
-				ElementID=\'' . $db->database->_link->real_escape_string( $args->args->uniqueName ) . '\' AND
-				CourseID=\'' . intval( $args->args->courseId, 10 ) . '\' AND
-				CourseSessionID=\'' . intval( $args->args->courseSessionId, 10 ) . '\'
+				e.UserID=\'' . intval( $User->ID, 10 ) . '\' AND
+				e.ElementID=\'' . $db->database->_link->real_escape_string( $args->args->uniqueName ) . '\' AND
+				e.CourseID=\'' . intval( $args->args->courseId, 10 ) . '\' AND
+				e.CourseSessionID=\'' . intval( $args->args->courseSessionId, 10 ) . '\' AND
+				
+				
+				e.OriginalElementID = ol.ID AND
+				ol.PageID = p.ID AND
+				p.SectionID = s.ID AND
+				s.CourseID = se.CourseID AND
+				se.ID = e.CourseSessionID
 		' ) )
 		{
 			$o = new stdClass();
@@ -429,19 +448,44 @@ switch( $args->args->command )
 						SELECT COUNT(e.ID) AS CNT FROM CC_Element e, CC_Section s, CC_Page p
 						WHERE
 							p.SectionID = s.ID AND
-							e.PageID = p.ID AND s.ID = \'' . intval( $secId, 10 ) . '\' AND
+							e.PageID = p.ID AND 
+							s.ID = \'' . intval( $secId, 10 ) . '\' AND
 							e.ElementTypeID IN ( ' . implode( ', ', $typeOut ) . ' )
 					' ) ) )
 					{
 						$elementC = $elementC->CNT;
 						
-						if( $elementFilled = $db->database->fetchObject( '
-							SELECT COUNT(e.ID) AS CNT FROM CC_ElementResult e, CC_CourseSession s
+						if( $rows = $db->database->fetchObjects( '
+							SELECT e.* 
+							FROM 
+								CC_ElementResult e, 
+								CC_Element el,
+								CC_CourseSession s,
+								CC_Section se,
+								CC_Page p
 							WHERE
-								s.ID = \'' . $sess->ID . '\' AND s.UserID=\'' . $User->ID . '\' AND e.CourseSessionID = s.ID AND e.Data
+								s.ID = \'' . $sess->ID . '\' AND 
+								s.UserID=\'' . $User->ID . '\' AND 
+								se.CourseID = s.CourseID AND
+								se.ID = \'' . $secId . '\' AND
+								p.SectionID = se.ID AND
+								el.ID = e.OriginalElementID AND
+								el.PageID = p.ID AND
+								e.CourseSessionID = s.ID AND 
+								e.Data AND 
+								e.UserID = s.UserID
 						' ) )
 						{
-							$elementFilled = $elementFilled->CNT;
+							$uniques = new stdClass();
+							$elementFilled = 0;
+							foreach( $rows as $row )
+							{
+								if( !isset( $uniques->{$row->OriginalElementID} ) )
+								{
+									$elementFilled++;
+									$uniques->{$row->OriginalElementID} = true;
+								}
+							}
 							
 							$response->{$secId} = new stdClass();
 							if( $elementC > 0 && $elementFilled > 0 )
@@ -613,6 +657,7 @@ switch( $args->args->command )
 			{
 				$classrooms[ $k ] = intval( $v, 10 );
 			}
+
 			$cq = '
 				SELECT
 					s.* 
@@ -622,6 +667,18 @@ switch( $args->args->command )
 				'.$usrChk.' 
 			';
 			if( $sessions = $db->database->fetchObjects( $cq ) )
+/*
+			if( $sessions = $db->database->fetchObjects( '
+				SELECT 
+					s.* 
+				FROM 
+					CC_CourseSession s, 
+					CC_Classroom c 
+				WHERE 
+					s.UserID=\'' . $User->ID . '\' AND c.ID IN ( ' . implode( ',', $classrooms ) . ' ) AND s.CourseID = c.CourseID
+			' ) )
+>>>>>>> badd0049eaa3899d69b49df4b122f9a7e824c1a8
+*/
 			{
 				foreach( $sessions as $sess )
 				{
@@ -717,7 +774,7 @@ switch( $args->args->command )
 					// Get elements that were interacted with
 					$regged = '
 					SELECT 
-						COUNT(er.ID) AS CNT 
+						er.*
 					FROM 
 						CC_ElementResult er, 
 						CC_CourseSession cs 
@@ -725,6 +782,7 @@ switch( $args->args->command )
 						cs.UserID = \'' . $userId . '\' AND 
 						cs.ID = er.CourseSessionID AND 
 						er.Data AND 
+						er.UserID = cs.UserID AND
 						er.CourseSessionID = \'' . $cl->ID . '\'
 					';
 					
@@ -732,7 +790,7 @@ switch( $args->args->command )
 					{
 						$regged = '
 							SELECT 
-								COUNT(r.ID) AS CNT 
+								r.*
 							FROM 
 								CC_ElementResult r, 
 								CC_Element e, 
@@ -741,20 +799,32 @@ switch( $args->args->command )
 								CC_CourseSession cs
 							WHERE 
 								r.Data AND 
+								r.UserID = cs.UserID AND
 								r.OriginalElementId = e.ID AND
 								e.PageID = p.ID AND
 								p.SectionID = s.ID AND
 								s.ID = \'' . intval( $args->args->sectionId, 10 ) . '\' AND
 								r.CourseSessionID = \'' . $cl->ID . '\' AND
+								cs.UserID = \'' . $userId . '\' AND
 								cs.ID = r.CourseSessionID
 						';
 					}
 					
 					
-					if( $registered = $db->database->fetchObject( $regged ) )
+					if( $rows = $db->database->fetchObjects( $regged ) )
 					{
+						$uniques = new stdClass();
+						$registered = 0;
+						foreach( $rows as $row )
+						{
+							if( !isset( $uniques->{$row->OriginalElementID} ) )
+							{
+								$registered++;
+								$uniques->{$row->OriginalElementID} = true;
+							}
+						}
 						
-						$reg = intval( $registered->CNT, 10 );
+						$reg = $registered; //intval( $registered->CNT, 10 );
 						$tot = intval( $elementCount, 10 );
 						$in = [
 							'registered' => $reg,
@@ -766,13 +836,6 @@ switch( $args->args->command )
 						else
 							$prog[ $csi ] = ( $reg / $tot ) * 100;
 						
-						/*
-						if ( 0 == intval( $registered->CNT, 10 ) )
-							$prog[ $csi ] = 0;
-						else
-							$prog[ $csi ] = ( ( intval( $registered, 10 ) / intval( $elementCount, 10 ) ) * 100 );
-						*/
-						//$entry->progress = ( ( intval( $registered, 10 ) / intval( $elementCount, 10 ) ) * 100 );
 					}
 				}
 			}
