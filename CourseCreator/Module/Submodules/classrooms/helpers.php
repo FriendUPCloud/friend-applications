@@ -256,9 +256,9 @@ function fetchUserClassroomProgress( $userId, $classroomId )
 				s.ID = p.SectionID AND
 				p.ID = e.PageID AND
 				er.OriginalElementID = e.ID AND
-				er.UserID = \'' . $userId . '\' AND
+				er.UserID = \'' . intval( $userId, 10 ) . '\' AND
 				se.CourseID = s.CourseID AND
-				se.UserID = \'' . $userId . '\' AND
+				se.UserID = \'' . intval( $userId, 10 ) . '\' AND
 				er.Data
 		' ) )
 		{

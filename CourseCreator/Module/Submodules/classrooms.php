@@ -428,6 +428,7 @@ if( isset( $args->method ) )
         				el.PageID = pg.ID AND
         				el.ElementTypeID = et.ID AND
         				re.OriginalElementID = el.ID AND
+        				re.UserID = se.UserID AND
         				re.Data
         			ORDER BY pg.DisplayID ASC, el.DisplayID ASC
         		' ) )

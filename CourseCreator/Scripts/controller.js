@@ -50,6 +50,8 @@ Application.receiveMessage = function( msg )
 					// Support checkboxes
 					if( d.checkBoxes )
 					{
+						let correctSet = false;
+						let errorSet = false;
 						for( let b = 0; b < d.checkBoxes.length; b++ )
 						{	
 							let cl = d.checkBoxes[b].isAnswer ? ' class="cCorrect"' : ' class="cNotCorrect"';
@@ -59,11 +61,11 @@ Application.receiveMessage = function( msg )
 							if( md5( dataId + '_' + b ) == submittedName )
 							{
 								answer = 'class="cSubmitted"';
-								if( d.checkBoxes[b].isAnswer )
+								if( d.checkBoxes[b].isAnswer && !correctSet )
 								{
 									correct++;
 								}
-								else
+								else if( !errorSet )
 								{
 									errors++;
 								}
@@ -74,6 +76,8 @@ Application.receiveMessage = function( msg )
 					}
 					if( d.radioBoxes )
 					{
+						let correctSet = false;
+						let errorSet = false;
 						for( let b = 0; b < d.radioBoxes.length; b++ )
 						{
 							let cl = d.radioBoxes[b].isAnswer ? ' class="cCorrect"' : ' class="cNotCorrect"';
@@ -82,13 +86,15 @@ Application.receiveMessage = function( msg )
 							if( md5( dataId + '_' + b ) == submittedName )
 							{
 								answer = 'class="cSubmitted"';
-								if( d.radioBoxes[b].isAnswer )
+								if( d.radioBoxes[b].isAnswer && !correctSet )
 								{
 									correct++;
+									correctSet = true;
 								}
-								else
+								else if( !errorSet )
 								{
 									errors++;
+									errorSet = true;
 								}
 							}
 							
