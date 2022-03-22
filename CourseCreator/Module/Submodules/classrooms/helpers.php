@@ -248,13 +248,17 @@ function fetchUserClassroomProgress( $userId, $classroomId )
 				CC_Element e,
 				CC_Page p,
 				CC_Section s,
-				CC_Classroom cl
+				CC_Classroom cl,
+				CC_CourseSession se
 			WHERE
 				cl.ID = \'' . $classroomId . '\' AND
 				cl.CourseID = s.CourseID AND
 				s.ID = p.SectionID AND
 				p.ID = e.PageID AND
 				er.OriginalElementID = e.ID AND
+				er.UserID = \'' . $userId . '\' AND
+				se.CourseID = s.CourseID AND
+				se.UserID = \'' . $userId . '\' AND
 				er.Data
 		' ) )
 		{

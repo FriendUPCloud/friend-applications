@@ -283,7 +283,7 @@ switch( $args->args->command )
 		$o->Save();
 		
 		// Remove older element results
-		$db->database->query( 'DELETE FROM CC_ElementResult WHERE ID != \'' . $o->ID . '\' AND OriginalElementID=\'' . $o->OriginalElementID . '\'' );
+		$db->database->query( 'DELETE FROM CC_ElementResult WHERE ID != \'' . $o->ID . '\' AND UserID=\'' . $User->ID . '\' AND CourseID=\'' . $o->CourseID . '\' AND OriginalElementID=\'' . $o->OriginalElementID . '\'' );
 		
 		if( $o->ID > 0 )
 		{
