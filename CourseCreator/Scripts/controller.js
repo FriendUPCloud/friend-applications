@@ -35,7 +35,6 @@ Application.receiveMessage = function( msg )
 					// The page contains the following data
 					data[ row.PageID ] =  {
 						pageName: row.PageName,
-						dataId: row.DataID,
 						elements: {} // question elements, key, original element ID
 					};
 				}
@@ -59,17 +58,25 @@ Application.receiveMessage = function( msg )
 						};
 					}
 					let element = obj.elements[ row.OriginalElementID ];
+					
+					element.dataId = row.DataID;
+					
 					if( !element.choices )
 					{
 						if( d.checkBoxes )
+						{
 							element.choices = d.checkBoxes;
+							element.choiceType = 'checkbox';
+						}
 						if( d.radioBoxes )
+						{
 							element.choices = d.radioBoxes;
+							element.choiceType = 'radiobox';
+						}
 					}
 				}
 				
 				obj.elements[ row.OriginalElementID ].answers[ row.ElementID ] = true;
-				
 			}
 			
 			// Begin listing results
@@ -96,6 +103,8 @@ Application.receiveMessage = function( msg )
 						{
 							let correctSet = false;
 							let errorSet = false;
+							let ignoreCorrect = false;
+							let correctHere = 0;
 						
 							for( let c = 0; c < element.choices.length; c++ )
 							{
@@ -103,164 +112,55 @@ Application.receiveMessage = function( msg )
 								let cl = ( choice.isAnswer || choice.isCorrect ) ? ' class="cCorrect"' : ' class="cNotCorrect"';
 							
 								let answer = 'class="cAnswer"';
-									
-								if( element.answers[ md5( page.dataId + '_' + c ) ] )
+								
+								if( element.answers[ md5( element.dataId + '_' + c ) ] )
 								{
-									answer = 'class="cSubmitted"';
-									if( ( choice.isAnswer || choice.isCorrect ) && !correctSet )
+									answer = 'class="cSubmitted cCorrect"';
+									if( ( choice.isAnswer || choice.isCorrect ) )
 									{
-										correct++;
+										// Ignore comes into action if we made a mistage
+										if( !ignoreCorrect )
+										{
+											if( errorSet )
+											{
+												answer = 'class="cSubmitted cFlaw"';
+											}
+											else
+											{
+												if( !correctSet )
+												{
+													correctHere++;
+													correctSet = true;
+												}
+											}
+										}
+										else
+										{
+											answer = 'class="cSubmitted cFlaw"';
+										}
 									}
-									else if( !errorSet )
+									// We have an error
+									else
 									{
-										errors++;
+										if( !errorSet )
+										{
+											errors++;
+											errorSet = true;
+										}
+										correctHere = 0;
+										ignoreCorrect = true;
+										answer = 'class="cSubmitted cError"';
 									}
 								}
 								
 								str += '<tr><td' + cl + '><p>Answer ' + ( c + 1 ) + ':</p></td><td ' + answer + '>' + choice.label + '</td></tr>';
 							}
+							
+							correct += correctHere;
 						}
 					}
-					
-					/*let submittedValue = parseInt( data[a].Data );
-					let dataId = data[a].DataID;
-					let submittedName = data[a].ElementID;
-					
-					// Support checkboxes
-					if( d.checkBoxes )
-					{
-						let correctSet = false;
-						let errorSet = false;
-						for( let b = 0; b < d.checkBoxes.length; b++ )
-						{	
-							let cl = d.checkBoxes[b].isAnswer ? ' class="cCorrect"' : ' class="cNotCorrect"';
-							
-							let answer = 'class="cAnswer"';
-
-							if( md5( dataId + '_' + b ) == submittedName )
-							{
-								answer = 'class="cSubmitted"';
-								if( d.checkBoxes[b].isAnswer && !correctSet )
-								{
-									correct++;
-								}
-								else if( !errorSet )
-								{
-									errors++;
-								}
-							}
-							
-							str += '<tr><td' + cl + '><p>Answer ' + ( b + 1 ) + ':</p></td><td ' + answer + '>' + d.checkBoxes[b].label + '</td></tr>';
-						}
-					}
-					if( d.radioBoxes )
-					{
-						let correctSet = false;
-						let errorSet = false;
-						for( let b = 0; b < d.radioBoxes.length; b++ )
-						{
-							let cl = d.radioBoxes[b].isAnswer ? ' class="cCorrect"' : ' class="cNotCorrect"';
-							
-							let answer = 'class="cAnswer"';
-							if( md5( dataId + '_' + b ) == submittedName )
-							{
-								answer = 'class="cSubmitted"';
-								if( d.radioBoxes[b].isAnswer && !correctSet )
-								{
-									correct++;
-									correctSet = true;
-								}
-								else if( !errorSet )
-								{
-									errors++;
-									errorSet = true;
-								}
-							}
-							
-							str += '<tr><td' + cl + '><p>Answer ' + ( b + 1 ) + ':</p></td><td ' + answer + '>' + d.radioBoxes[b].label + '</td></tr>';
-						}
-					}*/
 				}
 			}
-			
-			//console.log( 'Ok, we should have the entire page now: ', data );
-			//return;
-			// List out
-			/*for( let a = 0; a < data.length; a++ )
-			{
-				if( data[a].PageID != currentPage )
-				{
-					currentPage = data[a].PageID;
-					str += '<tr><td colspan="2" class="cPage"><p>Page, <strong>' + data[a].PageName + '</strong></p></td></tr>';
-				}
-				if( data[a].Properties.substr( 0, 7 ) == 'BASE64:' )
-				{
-					totals++;
-					let d = data[a].Properties.substr( 7, data[a].Properties.length - 7 );
-					d = JSON.parse( Base64.decode( d ) );
-					
-					str += '<tr><td class="cQuestion" colspan="2"><p><strong>Question:</strong></p>' + d.question + '</td></tr>';
-					
-					let submittedValue = parseInt( data[a].Data );
-					let dataId = data[a].DataID;
-					let submittedName = data[a].ElementID;
-					
-					// Support checkboxes
-					if( d.checkBoxes )
-					{
-						let correctSet = false;
-						let errorSet = false;
-						for( let b = 0; b < d.checkBoxes.length; b++ )
-						{	
-							let cl = d.checkBoxes[b].isAnswer ? ' class="cCorrect"' : ' class="cNotCorrect"';
-							
-							let answer = 'class="cAnswer"';
-
-							if( md5( dataId + '_' + b ) == submittedName )
-							{
-								answer = 'class="cSubmitted"';
-								if( d.checkBoxes[b].isAnswer && !correctSet )
-								{
-									correct++;
-								}
-								else if( !errorSet )
-								{
-									errors++;
-								}
-							}
-							
-							str += '<tr><td' + cl + '><p>Answer ' + ( b + 1 ) + ':</p></td><td ' + answer + '>' + d.checkBoxes[b].label + '</td></tr>';
-						}
-					}
-					if( d.radioBoxes )
-					{
-						let correctSet = false;
-						let errorSet = false;
-						for( let b = 0; b < d.radioBoxes.length; b++ )
-						{
-							let cl = d.radioBoxes[b].isAnswer ? ' class="cCorrect"' : ' class="cNotCorrect"';
-							
-							let answer = 'class="cAnswer"';
-							if( md5( dataId + '_' + b ) == submittedName )
-							{
-								answer = 'class="cSubmitted"';
-								if( d.radioBoxes[b].isAnswer && !correctSet )
-								{
-									correct++;
-									correctSet = true;
-								}
-								else if( !errorSet )
-								{
-									errors++;
-									errorSet = true;
-								}
-							}
-							
-							str += '<tr><td' + cl + '><p>Answer ' + ( b + 1 ) + ':</p></td><td ' + answer + '>' + d.radioBoxes[b].label + '</td></tr>';
-						}
-					}
-				}
-			}*/
 			
 			str += '<tr><td colspan="2" class="cResults"><p><strong>Results:</strong></p></td></tr>';
 			str += '<tr><td colspan="2" class="cSum"><p><em>Correct answers:</em> ' + correct + '</p><p><em>Wrong answers:</em> ' + errors + '</p><p><em>Score</em> ' + ( totals - errors ) + ' out of ' + totals + ' or ' + Math.floor( correct / totals * 100 ) + '%</p></td></tr>';
