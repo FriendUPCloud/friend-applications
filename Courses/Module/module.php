@@ -298,12 +298,27 @@ switch( $args->args->command )
 	// Get element value
 	case 'getelementvalue':
 		if( $row = $db->database->fetchObject( '
-			SELECT * FROM CC_ElementResult
+			SELECT 
+				e.* 
+			FROM 
+				CC_ElementResult e,
+				CC_Element ol,
+				CC_Page p,
+				CC_Section s,
+				CC_CourseSession se
+				
 			WHERE
-				UserID=\'' . intval( $User->ID, 10 ) . '\' AND
-				ElementID=\'' . $db->database->_link->real_escape_string( $args->args->uniqueName ) . '\' AND
-				CourseID=\'' . intval( $args->args->courseId, 10 ) . '\' AND
-				CourseSessionID=\'' . intval( $args->args->courseSessionId, 10 ) . '\'
+				e.UserID=\'' . intval( $User->ID, 10 ) . '\' AND
+				e.ElementID=\'' . $db->database->_link->real_escape_string( $args->args->uniqueName ) . '\' AND
+				e.CourseID=\'' . intval( $args->args->courseId, 10 ) . '\' AND
+				e.CourseSessionID=\'' . intval( $args->args->courseSessionId, 10 ) . '\' AND
+				
+				
+				e.OriginalElementID = ol.ID AND
+				ol.PageID = p.ID AND
+				p.SectionID = s.ID AND
+				s.CourseID = se.CourseID AND
+				se.ID = e.CourseSessionID
 		' ) )
 		{
 			$o = new stdClass();
