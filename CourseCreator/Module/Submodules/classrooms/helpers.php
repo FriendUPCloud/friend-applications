@@ -242,8 +242,8 @@ function fetchUserClassroomProgress( $userId, $classroomId )
 		$elementCount = $row->CNT ? $row->CNT : 0;
 		
 		// Fetch all element results
-		if( $row = $courseDb->fetchObject( '
-			SELECT COUNT(e.ID) CNT FROM
+		if( $rows = $courseDb->fetchObjects( '
+			SELECT e.*, er.OriginalElementID FROM
 				CC_ElementResult er,
 				CC_Element e,
 				CC_Page p,
@@ -261,8 +261,18 @@ function fetchUserClassroomProgress( $userId, $classroomId )
 				se.UserID = \'' . intval( $userId, 10 ) . '\' AND
 				er.Data
 		' ) )
-		{
-			$elementResultCount = $row->CNT ? $row->CNT : 0;
+		{	
+			$uniques = new stdClass();
+			$elementResultCount = 0;
+			foreach( $rows as $row )
+			{
+				if( !isset( $uniques->{$row->OriginalElementID} ) )
+				{
+					$elementResultCount++;
+					$uniques->{$row->OriginalElementID} = true;
+				}
+			}
+			//$elementResultCount = $row->CNT ? $row->CNT : 0;
 			if( $elementResultCount > 0 && $elementCount > 0 )
 			{
 				return floor( $elementResultCount / $elementCount * 100 ) . '%';
