@@ -16,9 +16,11 @@ Application.receiveMessage = function( msg )
 				CloseView();
 				return;
 			}
-			let data = JSON.parse( md );
+			let cl = JSON.parse( md );
+			let data = cl.Data;
 			
-			let str = '<table border="0" cellspacing="1" cellpadding="8" bgcolor="#c0c0c0">';
+			let str = '<h2>' + cl.Name + '</h2>';
+			str += '<table border="0" cellspacing="0">';
 			let currentPage = -1;
 			
 			// To measure
@@ -31,7 +33,7 @@ Application.receiveMessage = function( msg )
 				if( data[a].PageID != currentPage )
 				{
 					currentPage = data[a].PageID;
-					str += '<tr><td colspan="3"><p><strong>' + data[a].PageName + '</strong></p></td></tr>';
+					str += '<tr><td colspan="2" class="cPage"><p>Page, <strong>' + data[a].PageName + '</strong></p></td></tr>';
 				}
 				if( data[a].Properties.substr( 0, 7 ) == 'BASE64:' )
 				{
@@ -39,7 +41,7 @@ Application.receiveMessage = function( msg )
 					let d = data[a].Properties.substr( 7, data[a].Properties.length - 7 );
 					d = JSON.parse( Base64.decode( d ) );
 					
-					str += '<tr><td bgcolor="#f8f8f8" colspan="2"><p>Question:</p>' + d.question + '</td></tr>';
+					str += '<tr><td class="cQuestion" colspan="2"><p><strong>Question:</strong></p>' + d.question + '</td></tr>';
 					
 					let submittedValue = parseInt( data[a].Data );
 					let dataId = data[a].DataID;
@@ -50,13 +52,13 @@ Application.receiveMessage = function( msg )
 					{
 						for( let b = 0; b < d.checkBoxes.length; b++ )
 						{	
-							let cl = d.checkBoxes[b].isAnswer ? ' bgcolor="#ffaacc" color="black"' : ' bgcolor="#ffffff"';
+							let cl = d.checkBoxes[b].isAnswer ? ' class="cCorrect"' : ' class="cNotCorrect"';
 							
-							let answer = 'bgcolor="#ffffff"';
+							let answer = 'class="cAnswer"';
 
 							if( md5( dataId + '_' + b ) == submittedName )
 							{
-								answer = 'bgcolor="#aa0000" class="Submitted"';
+								answer = 'class="cSubmitted"';
 								if( d.checkBoxes[b].isAnswer )
 								{
 									correct++;
@@ -74,12 +76,12 @@ Application.receiveMessage = function( msg )
 					{
 						for( let b = 0; b < d.radioBoxes.length; b++ )
 						{
-							let cl = d.radioBoxes[b].isAnswer ? ' bgcolor="#ffaacc" color="black"' : ' bgcolor="#ffffff"';
+							let cl = d.radioBoxes[b].isAnswer ? ' class="cCorrect"' : ' class="cNotCorrect"';
 							
-							let answer = 'bgcolor="#ffffff"';
+							let answer = 'class="cAnswer"';
 							if( md5( dataId + '_' + b ) == submittedName )
 							{
-								answer = 'bgcolor="#aa0000" class="Submitted"';
+								answer = 'class="cSubmitted"';
 								if( d.radioBoxes[b].isAnswer )
 								{
 									correct++;
@@ -90,14 +92,14 @@ Application.receiveMessage = function( msg )
 								}
 							}
 							
-							str += '<tr><td' + cl + '><p>Answer ' + ( b + 1 ) + ':</p></td><td  ' + answer + '>' + d.radioBoxes[b].label + '</td></tr>';
+							str += '<tr><td' + cl + '><p>Answer ' + ( b + 1 ) + ':</p></td><td ' + answer + '>' + d.radioBoxes[b].label + '</td></tr>';
 						}
 					}
 				}
 			}
 			
-			str += '<tr><td colspan="2"><p><strong>Results:</strong></p></td></tr>';
-			str += '<tr><td colspan="2">Correct: ' + correct + ' Wrong: ' + errors + ' (Score ' + ( totals - errors ) + ' out of ' + totals + ' or ' + Math.floor( correct / totals * 100 ) + '%)</td></tr>';
+			str += '<tr><td colspan="2" class="cResults"><p><strong>Results:</strong></p></td></tr>';
+			str += '<tr><td colspan="2" class="cSum"><p><em>Correct answers:</em> ' + correct + '</p><p><em>Wrong answers:</em> ' + errors + '</p><p><em>Score</em> ' + ( totals - errors ) + ' out of ' + totals + ' or ' + Math.floor( correct / totals * 100 ) + '%</p></td></tr>';
 			
 			str += '</table>';
 			ge( 'ControllerContainer' ).innerHTML = str;

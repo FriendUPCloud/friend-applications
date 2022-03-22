@@ -16,16 +16,92 @@
 	#ControllerContainer table
 	{
 		width: 100%;
-	}
-	#ControllerContainer table p
-	{
-		margin: 5px 0 5px 0;
+		background-color: var(--fui-background-foreground);
+		padding: var(--fui-padding-normal);
+		border-radius: var(--fui-border-radius-normal);
 	}
 	
-	#ControllerContainer table td.Submitted
+	
+	#ControllerContainer h2
 	{
-		color: white;
-		background: #aa0000;
+		background: var(--fui-menu-background);
+		color: var(--fui-menu-color);
+		padding: var(--fui-padding-normal);
+		border-radius: var(--fui-border-radius-normal);
+	}
+	
+	.cSum em
+	{
+		font-style: normal;
 		font-weight: bold;
 	}
+	
+	.cResults
+	{
+	}
+	
+	.cSubmitted
+	{
+	}
+	
+	.cAnswer
+	{
+	}
+	
+	.cAnswer p:before
+	{
+		content: "\f10c";
+		font-family: FontAwesome;
+		display: inline-block;
+		margin: 0 10px 0 0;
+	}
+	
+	.cSubmitted
+	{
+		font-weight: bold;
+	}
+	
+	.cSubmitted p:before
+	{
+		content: "\f05d";
+		font-family: FontAwesome;
+		display: inline-block;
+		margin: 0 10px 0 0;
+	}
+	
+	.cCorrect p:before
+	{
+		content: "\f00c";
+		font-family: FontAwesome;
+		display: inline-block;
+		margin: 0 10px 0 0;
+	}
+	
+	.cNotCorrect p:before
+	{
+		content: "\f00d";
+		font-family: FontAwesome;
+		display: inline-block;
+		margin: 0 10px 0 0;
+	}
+	
+	.cQuestion
+	{
+	}
+	
+	.cPage p:before
+	{
+		content: "\f0f6";
+		font-family: FontAwesome;
+		display: inline-block;
+		margin: 0 10px 0 0;
+	}	
+	
+	.cPage, .cResults
+	{
+		border-bottom: 1px solid var(--fui-border-color);
+		margin-bottom: 10px;
+	}
+	
 </style>
+

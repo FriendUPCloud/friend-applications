@@ -432,7 +432,14 @@ if( isset( $args->method ) )
         			ORDER BY pg.DisplayID ASC, el.DisplayID ASC
         		' ) )
         		{
-        			die( 'ok<!--separate-->' . json_encode( $rows ) );
+        			$cl = new dbIO( 'CC_Classroom', $courseDb );
+        			if( $cl->Load( $args->classroomId ) )
+        			{
+        				$out = new stdClass();
+        				$out->Name = $cl->Name;
+        				$out->Data = $rows;
+	        			die( 'ok<!--separate-->' . json_encode( $out ) );
+	        		}
         		}
         	}
         	die( 'fail<!--separate-->{"message":"Could not get controller sheet.","response":-1,"query":"' . $q . '"}' );
