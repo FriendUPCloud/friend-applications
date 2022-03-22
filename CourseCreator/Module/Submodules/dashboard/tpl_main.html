@@ -73,13 +73,7 @@ Application.submodules.dashboard = {
                     console.log( 'classroom progress', [ s, d ] );
                     if ( 'fail' == s || !d )
                     {
-                        let l = res.activeclasses.length;
-                        for( ;l; )
-                        {
-                            l--;
-                            res.activeclasses[l].Progress = null;
-                            self.addClassStatus( res.activeclasses[ l ]);
-                        }
+                        return;
                     }
                     else
                     {

@@ -173,13 +173,6 @@ moduleObject.dashboard = {
 						catch( ex )
 						{
 							console.log( 'getclassroomprogress invalid return data', d );
-							let l = rs.length;
-							for( ;l; )
-							{
-								l--;
-								rs[l].Progress = 100 + ( Math.floor( Math.random() * 100 ));
-								self.addClassProgress( rs[l] );
-							}
 							return;
 						}
 						console.log( 'getclassroomprogress res', res );

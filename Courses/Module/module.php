@@ -857,13 +857,11 @@ switch( $args->args->command )
 			}
 			die( 'ok<!--separate-->' . json_encode( [
 					'csid'      => $csid,
-					'regQ'      => $regQ,
 					//'progress'=> $out,
 					'progress'  => $prog,
 					'ins'       => $ins,
 					'completed' => $sum,
 					'args'      => $args,
-					'regR'      => $regR,
 					'loops'     => $loops,
 				] ) );
 			
