@@ -433,7 +433,8 @@ switch( $args->args->command )
 						SELECT COUNT(e.ID) AS CNT FROM CC_Element e, CC_Section s, CC_Page p
 						WHERE
 							p.SectionID = s.ID AND
-							e.PageID = p.ID AND s.ID = \'' . intval( $secId, 10 ) . '\' AND
+							e.PageID = p.ID AND 
+							s.ID = \'' . intval( $secId, 10 ) . '\' AND
 							e.ElementTypeID IN ( ' . implode( ', ', $typeOut ) . ' )
 					' ) ) )
 					{
@@ -443,9 +444,21 @@ switch( $args->args->command )
 							SELECT e.* 
 							FROM 
 								CC_ElementResult e, 
-								CC_CourseSession s
+								CC_Element el,
+								CC_CourseSession s,
+								CC_Section se,
+								CC_Page p
 							WHERE
-								s.ID = \'' . $sess->ID . '\' AND s.UserID=\'' . $User->ID . '\' AND e.CourseSessionID = s.ID AND e.Data AND e.UserID = s.UserID
+								s.ID = \'' . $sess->ID . '\' AND 
+								s.UserID=\'' . $User->ID . '\' AND 
+								se.CourseID = s.CourseID AND
+								se.ID = \'' . $secId . '\' AND
+								p.SectionID = se.ID AND
+								el.ID = e.OriginalElementID AND
+								el.PageID = p.ID AND
+								e.CourseSessionID = s.ID AND 
+								e.Data AND 
+								e.UserID = s.UserID
 						' ) )
 						{
 							$uniques = new stdClass();
