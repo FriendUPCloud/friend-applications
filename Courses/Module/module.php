@@ -274,16 +274,20 @@ switch( $args->args->command )
 		$o->CourseSessionID = intval( $args->args->courseSessionId, 10 );
 		if( !$o->Load() )
 		{
+			if( !$args->args->value )
+			{
+				die( 'fail<!--separate-->{"response":-1,"message":"Element never existed."}' );
+			}
 			$o->DateCreated = date( 'Y-m-d H:i:s' );
 		}
 		if( !$args->args->value )
-			die( 'fail<!--separate-->{"response":-1,"message":"No value to store for element."}' );
+		{
+			$o->Delete();
+			die( 'ok<!--separate-->{"response":1,"message":"Element was removed."}' );
+		}
 		$o->Data = $d->real_escape_string( $args->args->value );
 		$o->DateUpdated = date( 'Y-m-d H:i:s' );
 		$o->Save();
-		
-		// Remove older element results
-		$db->database->query( 'DELETE FROM CC_ElementResult WHERE ID != \'' . $o->ID . '\' AND UserID=\'' . $User->ID . '\' AND CourseID=\'' . $o->CourseID . '\' AND OriginalElementID=\'' . $o->OriginalElementID . '\'' );
 		
 		if( $o->ID > 0 )
 		{

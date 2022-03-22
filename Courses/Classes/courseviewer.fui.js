@@ -877,7 +877,7 @@ class FUICourseviewer extends FUIElement
     					self.registerElementValue( this.nam, this.checked, this.getAttribute( 'elementid' ) );
     					
     					// Check that at least one is checked
-    					let inps = n.getElementsByTagName( 'input' );
+    					let inps = ul.getElementsByTagName( 'input' );
     					dummyElement.resolved = false;
     					for( let a = 0; a < inps.length; a++ )
     					{
