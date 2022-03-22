@@ -88,11 +88,16 @@ Application.submodules.dashboard = {
                             console.log( 'c', c );
                             if ( c.CourseID && '0' != c.CourseID )
                             {
-                                c.Progress = prog[ c.CourseID ];
-                                self.addClassStatus( res.activeclasses[ cl ]);
+                                if ( prog[ c.CourseID ])
+                                {
+                                    c.Progress = prog[ c.CourseID ];
+                                    self.addClassStatus( res.activeclasses[ cl ]);
+                                }
+                                    
                             }
                 
                         }
+                        
                     }
             
                 }
