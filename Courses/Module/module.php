@@ -439,13 +439,25 @@ switch( $args->args->command )
 					{
 						$elementC = $elementC->CNT;
 						
-						if( $elementFilled = $db->database->fetchObject( '
-							SELECT COUNT(e.ID) AS CNT FROM CC_ElementResult e, CC_CourseSession s
+						if( $rows = $db->database->fetchObjects( '
+							SELECT e.* 
+							FROM 
+								CC_ElementResult e, 
+								CC_CourseSession s
 							WHERE
-								s.ID = \'' . $sess->ID . '\' AND s.UserID=\'' . $User->ID . '\' AND e.CourseSessionID = s.ID AND e.Data
+								s.ID = \'' . $sess->ID . '\' AND s.UserID=\'' . $User->ID . '\' AND e.CourseSessionID = s.ID AND e.Data AND e.UserID = s.UserID
 						' ) )
 						{
-							$elementFilled = $elementFilled->CNT;
+							$uniques = new stdClass();
+							$elementFilled = 0;
+							foreach( $rows as $row )
+							{
+								if( !isset( $uniques->{$row->OriginalElementID} ) )
+								{
+									$elementFilled++;
+									$uniques->{$row->OriginalElementID} = true;
+								}
+							}
 							
 							$response->{$secId} = new stdClass();
 							if( $elementC > 0 && $elementFilled > 0 )
@@ -607,7 +619,13 @@ switch( $args->args->command )
 				$classrooms[ $k ] = intval( $v, 10 );
 			}
 			if( $sessions = $db->database->fetchObjects( '
-				SELECT s.* FROM CC_CourseSession s, CC_Classroom c WHERE s.UserID=\'' . $User->ID . '\' AND c.ID IN ( ' . implode( ',', $classrooms ) . ' ) AND s.CourseID = c.CourseID
+				SELECT 
+					s.* 
+				FROM 
+					CC_CourseSession s, 
+					CC_Classroom c 
+				WHERE 
+					s.UserID=\'' . $User->ID . '\' AND c.ID IN ( ' . implode( ',', $classrooms ) . ' ) AND s.CourseID = c.CourseID
 			' ) )
 			{
 				foreach( $sessions as $sess )
@@ -617,7 +635,7 @@ switch( $args->args->command )
 			}
 			else
 			{
-				die( 'fail<!--separate-->SELECT s.* FROM CC_CourseSession s, CC_Classroom c WHERE s.UserID=\'' . $User->ID . '\' AND c.ID IN ( ' . implode( ',', $classrooms ) . ' ) AND s.CourseID = c.CourseID' );
+				die( 'fail<!--separate-->' );
 			}
 		}
 		else
@@ -689,7 +707,7 @@ switch( $args->args->command )
 					// Get elements that were interacted with
 					$regged = '
 					SELECT 
-						COUNT(er.ID) AS CNT 
+						er.*
 					FROM 
 						CC_ElementResult er, 
 						CC_CourseSession cs 
@@ -697,6 +715,7 @@ switch( $args->args->command )
 						cs.UserID = \'' . $userId . '\' AND 
 						cs.ID = er.CourseSessionID AND 
 						er.Data AND 
+						er.UserID = cs.UserID AND
 						er.CourseSessionID = \'' . $cl->ID . '\'
 					';
 					
@@ -704,24 +723,35 @@ switch( $args->args->command )
 					{
 						$regged = '
 							SELECT 
-								COUNT(r.ID) AS CNT 
+								r.*
 							FROM 
 								CC_ElementResult r, CC_Element e, CC_Page p, CC_Section s, CC_CourseSession cs
 							WHERE 
 								r.Data AND 
+								r.UserID = cs.UserID AND
 								r.OriginalElementId = e.ID AND
 								e.PageID = p.ID AND
 								p.SectionID = s.ID AND
 								s.ID = \'' . intval( $args->args->sectionId, 10 ) . '\' AND
 								r.CourseSessionID = \'' . $cl->ID . '\' AND
+								cs.UserID = \'' . $userId . '\' AND
 								cs.ID = r.CourseSessionID
 						';
 					}
 					
 					
-					if( $registered = $db->database->fetchObject( $regged ) )
+					if( $rows = $db->database->fetchObjects( $regged ) )
 					{
-						$registered = $registered->CNT;
+						$uniques = new stdClass();
+						$registered = 0;
+						foreach( $rows as $row )
+						{
+							if( !isset( $uniques->{$row->OriginalElementID} ) )
+							{
+								$registered++;
+								$uniques->{$row->OriginalElementID} = true;
+							}
+						}
 						
 						$entry->progress = ( ( $registered / $elementCount ) * 100 );
 					}
