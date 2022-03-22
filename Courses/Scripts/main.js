@@ -183,17 +183,24 @@ moduleObject.dashboard = {
 							return;
 						}
 						console.log( 'getclassroomprogress res', res );
+						const prog = res.progress;
 						let l = rs.length;
 						for( ;l; )
 						{
 							l--;
-							rs[l].Progress = 100 + ( Math.floor( Math.random() * 100 ));
+							console.log( 'class, prog', rs[l], prog[ rs[l].CourseID ] );
+							rs[l].Progress = prog[ rs[l].CourseID ];
 							self.addClassProgress( rs[l] );
 						}
 					}
 					else
 					{
 						console.log( 'getclassroomprogress failed', [ s, d ]);
+						try {
+							console.log( JSON.parse( d ));
+						} catch( ex ) {
+							
+						}
 						let l = rs.length;
 						for( ;l; )
 						{
@@ -246,6 +253,10 @@ moduleObject.dashboard = {
 					else
 					{
 						console.log( 'dash - all completed failed', [ s, d ]);
+						try {
+							console.log( JSON.parse( d ));
+						} catch ( ex ) {}
+						
 						const compl = {
 		                    mainNum  : 'no worky',
 		                    mainIcon : 'fa-book',
@@ -298,7 +309,6 @@ moduleObject.dashboard = {
 		cl.execute( 'appmodule', {
 			appName : 'Courses',
 			command : 'listclassrooms',
-			status  : false,
 			active  : 'active',
 		});
 				
@@ -503,12 +513,15 @@ moduleObject.classrooms = {
 				let cl = new Module( 'system' );
 				cl.onExecuted = function( ce, cd )
 				{
+					console.log( 'getclassroomprogress classrooms', [ ce, cd ]);
 					let progress = {};
 					if( ce == 'ok' )
 					{
 						try
 						{
-							progress = JSON.parse( cd );
+							const res = JSON.parse( cd ); 
+							progress = res.progress;
+							console.log( 'w_reload_classrooms res', progress );
 						}
 						catch( e )
 						{
@@ -525,7 +538,7 @@ moduleObject.classrooms = {
 						let now = ( new Date() ).getTime();
 						
 						let prog = progress[ list[a].CourseID ];
-						
+						console.log( 'prog', prog );
 						if( now >= endTime )
 						{
 							exStatus = 'Expired';
@@ -547,7 +560,7 @@ moduleObject.classrooms = {
 							},
 							{
 								type: 'string',
-								value: '<progressbar progress="' + ( prog ? prog.progress : '0%' ) + '"/>'
+								value: '<progressbar progress="' + ( prog ? prog : '0%' ) + '"/>'
 							},
 							{
 								type: 'string',

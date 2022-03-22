@@ -587,6 +587,13 @@ switch( $args->args->command )
 	// Get progress for you (your user) in a selected class
 	case 'getclassroomprogress':
 		$types = getInteractiveElementTypes( $db );
+		$context = 'user';
+		if ( isset( $args->args ) && isset($args->args->context ))
+			$context = $args->args->context;
+		$format = 'course';
+		if( isset( $args->args ) && isset( $args->args->format ))
+			$format = $args->args->format;
+		$sum = null;
 		
 		// Get only one item based on course session id
 		if( isset( $args->args ) && isset( $args->args->courseSessionId ) )
@@ -596,15 +603,25 @@ switch( $args->args->command )
 		// Get active sessions frmo classroom ids
 		else if( isset( $args->args ) && isset( $args->args->classrooms ) )
 		{
+			$usrChk = ' AND s.UserID=\'' . $User->ID . '\'';
+			if ( 'classrooms' == $context )
+				$usrChk = '';
+			
 			$classrooms = $args->args->classrooms;
 			$csid = array();
 			foreach( $classrooms as $k=>$v )
 			{
 				$classrooms[ $k ] = intval( $v, 10 );
 			}
-			if( $sessions = $db->database->fetchObjects( '
-				SELECT s.* FROM CC_CourseSession s, CC_Classroom c WHERE s.UserID=\'' . $User->ID . '\' AND c.ID IN ( ' . implode( ',', $classrooms ) . ' ) AND s.CourseID = c.CourseID
-			' ) )
+			$cq = '
+				SELECT
+					s.* 
+				FROM CC_CourseSession s, CC_Classroom c 
+				WHERE c.ID IN ( ' . implode( ',', $classrooms ) . ' ) 
+				AND s.CourseID = c.CourseID
+				'.$usrChk.' 
+			';
+			if( $sessions = $db->database->fetchObjects( $cq ) )
 			{
 				foreach( $sessions as $sess )
 				{
@@ -613,8 +630,21 @@ switch( $args->args->command )
 			}
 			else
 			{
-				die( 'fail<!--separate-->SELECT s.* FROM CC_CourseSession s, CC_Classroom c WHERE s.UserID=\'' . $User->ID . '\' AND c.ID IN ( ' . implode( ',', $classrooms ) . ' ) AND s.CourseID = c.CourseID' );
+				die( 'fail<!--separate-->'.json_encode([
+					'endpoint'   => 'getclassroomprogress',
+					'error'      => 'query failed',
+					'query'      => $cq,
+					'args'       => $args,
+					'classrooms' => $classrooms,
+					'usrChk'     => $usrChk,
+				]) );
 			}
+		}
+		else if ( 'sum' == $format )
+		{
+			die('fail<!--separate-->'.json_encode([
+				'error' => 'sum not yet implemented',
+			]));
 		}
 		else
 		{
@@ -634,6 +664,8 @@ switch( $args->args->command )
 		{
 			// Output progress based on course
 			$out = new stdClass();
+			$prog = [];
+			$ins = [];
 			foreach( $csid as $csi )
 			{
 				
@@ -702,7 +734,11 @@ switch( $args->args->command )
 							SELECT 
 								COUNT(r.ID) AS CNT 
 							FROM 
-								CC_ElementResult r, CC_Element e, CC_Page p, CC_Section s, CC_CourseSession cs
+								CC_ElementResult r, 
+								CC_Element e, 
+								CC_Page p, 
+								CC_Section s, 
+								CC_CourseSession cs
 							WHERE 
 								r.Data AND 
 								r.OriginalElementId = e.ID AND
@@ -717,14 +753,40 @@ switch( $args->args->command )
 					
 					if( $registered = $db->database->fetchObject( $regged ) )
 					{
-						$registered = $registered->CNT;
 						
-						$entry->progress = ( ( $registered / $elementCount ) * 100 );
+						$reg = intval( $registered->CNT, 10 );
+						$tot = intval( $elementCount, 10 );
+						$in = [
+							'registered' => $reg,
+							'total'      => $tot,
+						];
+						$ins[ $csi ] = $in;
+						if ( 0 == $reg || 0 == $tot )
+							$prog[ $csi ] = 0;
+						else
+							$prog[ $csi ] = ( $reg / $tot ) * 100;
+						
+						/*
+						if ( 0 == intval( $registered->CNT, 10 ) )
+							$prog[ $csi ] = 0;
+						else
+							$prog[ $csi ] = ( ( intval( $registered, 10 ) / intval( $elementCount, 10 ) ) * 100 );
+						*/
+						//$entry->progress = ( ( intval( $registered, 10 ) / intval( $elementCount, 10 ) ) * 100 );
 					}
 				}
 			}
-			die( 'ok<!--separate-->' . json_encode( $out ) );
-
+			die( 'ok<!--separate-->' . json_encode( [
+					'csid' => $csid,
+					'elecount' => $elementCount,
+					'regged' => $registered,
+					//'progress'  => $out,
+					'progress' => $prog,
+					'ins'      => $ins,
+					'completed' => $sum,
+					'args'      => $args,
+				] ) );
+			
 		}
 		// Zero progress
 		die( 'fail<!--separate-->{"message":"Could not parse any classroom ids or course session id."}' );

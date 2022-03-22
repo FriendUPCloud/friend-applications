@@ -108,10 +108,9 @@ class FUIChartbox extends FUIElement
         const l1 = self.domElement.children[1];
         const l2 = self.domElement.children[2];
         const pr = self.domElement.children[3];
-        console.log( 'setData l1, l2', [ l1, l2 ]);
-        l1.innerHTML = description.label1 || 'label1';
-        l2.innerHTML = description.label2 || 'label2';
-        pr.innerHTML = description.progress || '92%';
+        l1.innerHTML = ( null == description.label1 ) ? '{label1}' : description.label1;
+        l2.innerHTML = ( null == description.label2 ) ? '{label2}' : description.label2;
+        pr.innerHTML = ( null == description.progress ) ? '{prog}' : description.progress;
     }
     
     attachDomElement()

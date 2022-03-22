@@ -85,25 +85,22 @@ Application.submodules.dashboard = {
                     {
                         const pres = JSON.parse( d );
                         console.log( 'pres', pres );
-                        let pl = pres.length;
-                        for( ;pl; )
+                        const prog = pres.progress;
+                        let cl = res.activeclasses.length;
+                        for( ;cl; )
                         {
-                            pl--;
-                            const p = pres[ pl ];
-                            console.log( 'p', p );
-                            let cl = res.activeclasses.length;
-                            for( ;cl; )
+                            cl--;
+                            const c = res.activeclasses[ cl ];
+                            console.log( 'c', c );
+                            if ( c.CourseID && '0' != c.CourseID )
                             {
-                                cl--;
-                                const c = res.activeclasses[ cl ];
-                                console.log( 'compare', [ p, c ]);
-                                
+                                c.Progress = prog[ c.CourseID ];
+                                self.addClassStatus( res.activeclasses[ cl ]);
                             }
+                
                         }
                     }
-                    // returns returnData upon OK returnCode:
-                    // {"6":0,"13":0,"41":50} where key is CourseID
-                    
+            
                 }
                 cl.execute( 'appmodule', {
                     appName    : 'Courses',
