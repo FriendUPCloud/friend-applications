@@ -212,6 +212,7 @@ Application.submodules.dashboard = {
         if ( null == klass.Progress )
             klass.Progress = -(Math.floor( Math.random() * 100 ));
         
+        klass.Progress = Math.floor( klass.Progress );
         console.log( 'prog', klass.Progress );
         let pColor = '#27bcaf';
         /*
