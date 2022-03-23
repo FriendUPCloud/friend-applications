@@ -952,7 +952,7 @@ function getDateString( dt )
 		
 		if( secs / 60 < 60 )
 		{
-			return secs + ' minutes ago.';
+			return Math.floor( secs / 60 ) + ' minutes ago.';
 		}
 		
 		if( secs / 60 / 60 < 24 )
@@ -973,7 +973,7 @@ function getDateString( dt )
 		
 		if( secs / 60 < 60 )
 		{
-			return 'In ' + secs + ' minutes.';
+			return 'In ' + Math.floor( secs / 60 ) + ' minutes.';
 		}
 		
 		if( secs / 60 / 60 < 24 )
