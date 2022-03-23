@@ -539,6 +539,7 @@ moduleObject.classrooms = {
 						let now = ( new Date() ).getTime();
 						
 						let prog = '0%';
+						
 						if( list[ a ] && progress[ list[a].CourseID ] )
 						{
 							prog = progress[ list[a].CourseID ];
@@ -565,7 +566,7 @@ moduleObject.classrooms = {
 							},
 							{
 								type : 'string',
-								value : list[a].StartDate.split(' ')[0],
+								value : getDateString( list[a].StartDate ),
 							},
 							{
 								type: 'string',
