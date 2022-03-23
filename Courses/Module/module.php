@@ -829,13 +829,16 @@ switch( $args->args->command )
 					
 				$iter[ 'session' ] = $session;
 			
+				
 				// Started session
+				/*
 				if( $session->Status == '1' )
 				{
 					$prog[] = 0;
 					unset( $csId );
 					continue;
 				}
+				*/
 				
 				// Completed session
 				if( $session->Status == '9' )
