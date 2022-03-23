@@ -791,8 +791,6 @@ switch( $args->args->command )
 			foreach( $csIds as $csId )
 			{
 				unset( $iter );
-				
-				$lop[] = $csId;
 				$iter = [];
 				$loops[] = &$iter;
 				$iter[ 'csId' ] = $csId;
@@ -816,18 +814,14 @@ switch( $args->args->command )
 				
 				$session = $db->database->fetchObject( $sq );
 				
-				$prog = [];
+				unset( $prog );
 				if ( !isset( $crsProg[ $session->CourseID ]) )
 				{
-					$crsProg[ $session->CourseID ] = &$prog;
+					$crsProg[ $session->CourseID ] = [];
 				}
-				else
-				{
-					$prog = &$crsProg[ $session->CourseID ];
-				}
-					
+				$prog = &$crsProg[ $session->CourseID ];
+				
 				$iter[ 'session' ] = $session;
-			
 				
 				/*
 				// Not Started session
@@ -966,6 +960,7 @@ switch( $args->args->command )
 						$in = [
 							'registered' => $reg,
 							'total'      => $tot,
+							'res'        => ( $reg / $tot ) * 100,
 						];
 						$iter[ 'in' ] = $in;
 						if ( 0 == $reg || 0 == $tot )
