@@ -674,14 +674,17 @@ switch( $args->args->command )
 	case 'getclassroomprogress':
 		$types = getInteractiveElementTypes( $db );
 		$context = 'user';
-		if ( isset( $args->args ) && isset($args->args->context ))
-			$context = $args->args->context;
 		$format = 'course';
-		if( isset( $args->args ) && isset( $args->args->format ))
-			$format = $args->args->format;
 		$sum = null;
 		
+		if ( isset( $args->args ) && isset( $args->args->context ) )
+			$context = $args->args->context;
+		
+		if( isset( $args->args ) && isset( $args->args->format ) )
+			$format = $args->args->format;
+		
 		$userId = intval( $User->ID, 10 );
+		
 		// Only admins can do this
 		if( $level == 'Admin' && isset( $args->args ) && isset( $args->args->userId ) )
 		{
@@ -704,7 +707,8 @@ switch( $args->args->command )
 				$classrooms[ $k ] = intval( $v, 10 );
 			}
 			
-			$usrChk = ' AND s.UserID=\'' . $userId . '\'';
+			$userCheck = ' AND s.UserID=\'' . $userId . '\'';
+			
 			if ( 'classrooms' == $context )
 			{
 				$uq = '
@@ -723,7 +727,7 @@ switch( $args->args->command )
 					}
 				}
 				
-				$usrChk = 'AND s.UserID IN (' . implode( ',', $uList ) . ')';
+				$userCheck = 'AND s.UserID IN (' . implode( ',', $uList ) . ')';
 			}
 
 			$cq = '
@@ -733,7 +737,7 @@ switch( $args->args->command )
 					CC_CourseSession s, 
 					CC_Classroom c 
 				WHERE c.ID IN ( ' . implode( ',', $classrooms ) . ' ) 
-				'.$usrChk.' 
+				' . $userCheckusrChk . ' 
 				AND s.CourseID = c.CourseID
 				GROUP BY s.ID
 			';
@@ -776,9 +780,11 @@ switch( $args->args->command )
 		
 		
 		// Pass through all sessions
+		
 		$lop = []; // dbg
 		$loops = []; // debug
 		$crsProg = []; // store progress by course id
+		
 		if( count( $csIds ) )
 		{
 			// Output progress based on course
@@ -786,6 +792,7 @@ switch( $args->args->command )
 			foreach( $csIds as $csId )
 			{
 				unset( $iter );
+				
 				$lop[] = $csId;
 				$iter = [];
 				$loops[] = &$iter;
@@ -794,6 +801,7 @@ switch( $args->args->command )
 				$regR = null;
 				$elC = null;
 				
+				// Request course session with classroom ID
 				$sq = '
 					SELECT
 						s.*, cl.ID AS ClassID 
@@ -804,26 +812,33 @@ switch( $args->args->command )
 					WHERE
 						s.ID='.$csId.'
 				';
+				
 				$iter[ 'sq' ] = $sq;
+				
 				$session = $db->database->fetchObject( $sq );
 				
-				unset( $prog );
-				if ( !isset( $crsProg[ $session->CourseID ]))
-					$crsProg[ $session->CourseID ] = [];
-				
-				$prog = &$crsProg[ $session->CourseID ];
-				
-				$iter[ 'prog' ] = &$prog;
+				$prog = [];
+				if ( !isset( $crsProg[ $session->CourseID ]) )
+				{
+					$crsProg[ $session->CourseID ] = &$prog;
+				}
+				else
+				{
+					$prog = &$crsProg[ $session->CourseID ];
+				}
+					
 				$iter[ 'session' ] = $session;
 			
-				if ( '1' == $session->Status )
+				// Started session
+				if( $session->Status == '1' )
 				{
 					$prog[] = 0;
 					unset( $csId );
 					continue;
 				}
 				
-				if ( '9' == $session->Status )
+				// Completed session
+				if( $session->Status == '9' )
 				{
 					$prog[] = 100;
 					unset( $csId );
@@ -831,9 +846,10 @@ switch( $args->args->command )
 				}
 				
 				// Get classroom
-				
 				$iter[ 'thingloaded' ] = true;
+				
 				$out->{$cl->CourseID} = new stdClass();
+				
 				$entry =& $out->{$cl->CourseID};
 				$entry->status = $cl->Status;
 				
@@ -907,6 +923,7 @@ switch( $args->args->command )
 					}
 					
 					$iter[ 'regQ' ] = $regQ;
+					
 					$regR = $db->database->fetchObjects( $regQ );
 					$iter[ 'regR' ] = $regR;
 					if( $regR )
