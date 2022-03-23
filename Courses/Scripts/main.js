@@ -762,7 +762,7 @@ moduleObject.classrooms = {
 								value: sprog == '100%' ? 'Completed' : 'Not completed',
 							}, {
 								type: 'string',
-								value: getDateString( rows[a].DateUpdated )
+								value: rows[a].DateUpdated != rows[a].DateCreated ? getDateString( rows[a].DateUpdated ) : 'Never'
 							} ] );
 						};
 						list.setRowData( out );

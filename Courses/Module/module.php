@@ -258,6 +258,14 @@ switch( $args->args->command )
 			ORDER BY e.DisplayID ASC
 		' ) )
 		{
+			// Update section date
+			if( $sect = $db->database->fetchObject( '
+				SELECT se.ID FROM CC_Section se, CC_Page p
+				WHERE p.ID = \'' . intval( $args->args->pageId, 10 ) . '\' AND p.SectionID = se.ID
+			' ) )
+			{
+				$db->database->query( 'UPDATE CC_Section SET DateUpdated=\'' . date( 'Y-m-d H:i:s' ) . '\' WHERE ID=\'' . $sect->ID . '\' LIMIT 1' );
+			}
 			die( 'ok<!--separate-->' . json_encode( $rows ) );
 		}
 		die( 'fail<!--separate-->{"message":"No page elements found.","response":-1,"pageId":' . $args->args->pageId . '}' );

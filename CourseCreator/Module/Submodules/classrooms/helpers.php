@@ -118,6 +118,8 @@ function copyCourseDataToClassroom( $courseId, $classroomId )
 					$sectCopy = new dbIO( 'CC_Section', $courseDb ); 
 					$sectCopy->Load( $sect->ID );
 					$sectCopy->ID = 0;
+					$sectCopy->DateCreated = date( 'Y-m-d H:i:s' );
+					$sectCopy->DateUpdated = $sectCopy->DateCreated;
 					$sectCopy->CourseID = $courseCopy->ID;
 					
 					// We crashed!
