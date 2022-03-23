@@ -18,6 +18,9 @@ Application.mainView = null;
 
 Application.run = function ( msg ) {
     
+    if( this.getUserLevel() != 'admin' )
+    	Application.quit();
+    
     this.setApplicationName( 'CourseCreator' );
    
     // Create the admin view
