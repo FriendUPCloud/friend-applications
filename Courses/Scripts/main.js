@@ -440,7 +440,7 @@ moduleObject.certificates = {
 						},
 						{
 							type: 'string',
-							value: friendUP.tool.getChatTime( certs[a].DateAdded )
+							value: getDateString( certs[a].DateAdded )
 						}
 					] );
 					( function( cl, cid )
@@ -573,7 +573,7 @@ moduleObject.classrooms = {
 							},
 							{
 								type: 'string',
-								value: friendUP.tool.ucfirst( friendUP.tool.getChatTime( ( new Date( list[a].EndDate ) ).getTime() ) ),
+								value: getDateString( list[ a ].EndDate ),
 							}
 						] );
 						
@@ -762,7 +762,7 @@ moduleObject.classrooms = {
 								value: sprog == '100%' ? 'Completed' : 'Not completed',
 							}, {
 								type: 'string',
-								value: friendUP.tool.ucfirst( friendUP.tool.getChatTime( ( new Date( rows[a].DateUpdated ) ).getTime() ) )
+								value: getDateString( rows[a].DateUpdated )
 							} ] );
 						};
 						list.setRowData( out );
@@ -798,7 +798,7 @@ moduleObject.classrooms = {
 				for( let a = 0; a < newsItems.length; a++ )
 				{
 					str += '<div class="NewsItem">\
-						<div class="Date FloatRight MarginLeft MarginBottom">' + friendUP.tool.getChatTime( newsItems[a].DateUpdated ) + '</div>\
+						<div class="Date FloatRight MarginLeft MarginBottom">' + getDateString( newsItems[a].DateUpdated ) + '</div>\
 						<div class="NewsContent">' + newsItems[a].Message + '</div>\
 					</div>';
 				}
@@ -900,6 +900,88 @@ class Courseviewer
 			command: 'getcourse',
 			courseId: courseId
 		} );
+	}
+}
+
+/* Date helper */
+
+function getDateString( dt )
+{
+	function tPad( num )
+	{
+		if( ( num + '' ).length < 2 )
+			return '0' + ( num + '' );
+		return num;
+	}
+	
+	let months = [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Des' ];
+	
+	let now = new Date();
+	let then = new Date( dt );
+	
+	let nyear = now.getFullYear();
+	let nmonth = now.getMonth() + 1;
+	let ndate = now.getDate();
+	
+	let tyear = then.getFullYear();
+	let tmonth = then.getMonth() + 1;
+	let tdate = then.getDate();
+	
+	
+	// Last year we do not care about time
+	if( nyear > tyear )
+	{
+		return tdate + '. ' + months[ then.getMonth() ] + ' ' + tyear;
+	}
+	
+	// Check span of time
+	
+	let secs = 0;
+	let nowTime = now.getTime();
+	let thenTime = then.getTime();
+	
+	// In the past
+	if( nowTime > thenTime )
+	{
+		secs = Math.floor( ( nowTime - thenTime ) / 1000 );
+		
+		if( secs < 60 )
+		{
+			return secs + ' seconds ago.';
+		}
+		
+		if( secs / 60 < 60 )
+		{
+			return secs + ' minutes ago.';
+		}
+		
+		if( secs / 60 / 60 < 24 )
+		{
+			return Math.floor( secs / 60 / 60 ) + ' hours ago.';
+		}
+		
+		return tPad( tdate ) + '. ' + tPad( months[ then.getMonth() ] ) + ' ' + tyear; 
+	}
+	else
+	{
+		secs = Math.floor( ( thenTime - nowTime ) / 1000 );
+		
+		if( secs < 60 )
+		{
+			return 'In ' + secs + ' seconds.';
+		}
+		
+		if( secs / 60 < 60 )
+		{
+			return 'In ' + secs + ' minutes.';
+		}
+		
+		if( secs / 60 / 60 < 24 )
+		{
+			return 'In ' + Math.floor( secs / 60 / 60 ) + ' hours.';
+		}
+		
+		return tPad( tdate ) + '. ' + tPad( months[ then.getMonth() ] ) + ' ' + tyear;
 	}
 }
 
