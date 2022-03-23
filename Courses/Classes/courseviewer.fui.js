@@ -459,9 +459,7 @@ class FUICourseviewer extends FUIElement
 			if( self.completed ) return;
 			if( self.pageCompleted() )
 			{
-				console.log( 'Current page ' + self.currentPage + ' is completed! Going to next.' );
 				self.currentPage++;
-				console.log( 'Current page is now ' + self.currentPage + '.' );
 				if( self.currentPage >= self.sections[ self.activeSection ].pages.length )
 				{
 					// Check if there's a next section
@@ -472,9 +470,10 @@ class FUICourseviewer extends FUIElement
 						if( a == self.activeSection )
 						{
 							current = b;
-							console.log( 'Current section is ' + self.current + '.' );
 						}
+						b++;
 					}
+					b = 0;
 					for( let a in self.sections )
 					{
 						// This is the next section
@@ -483,13 +482,11 @@ class FUICourseviewer extends FUIElement
 							self.activeSection = a;
 							self.currentPage = 0;
 							self.refreshStructure();
-							console.log( 'Found the right section ' + a + '! Set page to 0.' );
 							return;
 						}
 						b++;
 					}
 					self.currentPage--;
-					console.log( 'Could not find next section! Page is now as it were ' + self.currentPage + '.' );
 					return;
 				}
 				self.renderElements();
@@ -497,7 +494,6 @@ class FUICourseviewer extends FUIElement
 			else
 			{
 				console.log( 'This page is not solved.' );
-			
 			}
 		}
     }
