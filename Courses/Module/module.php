@@ -776,6 +776,7 @@ switch( $args->args->command )
 		
 		
 		// Pass through all sessions
+		$lop = [];
 		$loops = []; // debug
 		$crsProg = []; // store progress by course id
 		if( count( $csIds ) )
@@ -784,6 +785,7 @@ switch( $args->args->command )
 			$out = new stdClass();
 			foreach( $csIds as $csId )
 			{
+				$lop[] = $csId;
 				$iter = [];
 				$loops[] = &$iter;
 				$iter[ 'csId' ] = $csId;
@@ -962,6 +964,7 @@ switch( $args->args->command )
 					'progress'  => $crsProg,
 					'completed' => $sum,
 					'args'      => $args,
+					'lop'       => $lop,
 					'loops'     => $loops,
 				] ) );
 		
