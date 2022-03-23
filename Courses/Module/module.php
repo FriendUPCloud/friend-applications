@@ -114,7 +114,7 @@ switch( $args->args->command )
 			' . $status . '
 			' . $active . '
 			ORDER BY 
-				cr.StartDate DESC
+				cr.StartDate DESC, ID DESC
 		';
 			
 		if( $rows = $db->database->fetchObjects( $q ) )
