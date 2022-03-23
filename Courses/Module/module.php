@@ -876,7 +876,7 @@ switch( $args->args->command )
 						p.ID = e.PageID AND 
 						e.ElementTypeID IN ( ' . implode( ',', $types ) . ' ) AND 
 						' . $sectionSpecific . '
-						s.ID = \'' . $csId . '
+						s.ID = \'' . $csId . '\'
 				';
 				$iter[ 'elCQ' ] = $elementCountQuery;
 				if( $elC = $db->database->fetchObject( $elementCountQuery ) )
