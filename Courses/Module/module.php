@@ -791,14 +791,18 @@ switch( $args->args->command )
 				$regR = null;
 				$elC = null;
 				
-				$session = $db->database->fetchObject('
+				$sq = '
 					SELECT
 						s.*, cl.ID AS ClassID 
 					FROM
 						CC_CourseSession s
 					LEFT JOIN CC_Classroom cl
 						ON s.CourseID = cl.CourseID
-				');
+					WHERE
+						s.ID='.$csId.'
+				';
+				$iter[ 'sq' ] = $sq;
+				$session = $db->database->fetchObject( $sq );
 				
 				$prog = [];
 				if ( !isset( $crsProg[ $session->CourseID ]))
@@ -806,6 +810,7 @@ switch( $args->args->command )
 				else
 					$prog = &$crsProg[ $session->CourseID ];
 					
+					$iter[ 'session' ] = $session;
 			
 				if ( '1' == $session->Status )
 				{
