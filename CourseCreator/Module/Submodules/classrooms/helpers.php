@@ -195,7 +195,7 @@ function copyCourseDataToClassroom( $courseId, $classroomId )
 							{
 								// Flush and return false
 								flushCourseAndData( $courseCopy->ID );
-								$Logger->log( 'copyCourseDataToClassroom: Could not find elements on page!' );
+								$Logger->log( 'copyCourseDataToClassroom: Could not find elements on page! (' . $page->Name . ' -> ' . $page->ID . ')' );
 								return false;
 							}
 						}
