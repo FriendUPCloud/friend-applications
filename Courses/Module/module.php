@@ -829,7 +829,8 @@ switch( $args->args->command )
 				$iter[ 'session' ] = $session;
 			
 				
-				// Started session
+				/*
+				// Not Started session
 				if( $session->Status == '0' )
 				{
 					$prog[] = 0;
@@ -844,6 +845,7 @@ switch( $args->args->command )
 					unset( $csId );
 					continue;
 				}
+				*/
 				
 				// Get classroom
 				$iter[ 'thingloaded' ] = true;
@@ -904,7 +906,6 @@ switch( $args->args->command )
 					WHERE 
 						cs.ID = er.CourseSessionID AND 
 						er.Data AND 
-						er.UserID = cs.UserID AND
 						er.CourseSessionID = \'' . $csId . '\'
 					';
 					
@@ -916,6 +917,7 @@ switch( $args->args->command )
 						er.CourseSessionID = \'' . $csId . '\'
 					*/
 					
+					/* RE ENABLE WHEN ELEMENT COUNT WORKS
 					if( isset( $args->args->sectionId ) )
 					{
 						$regQ = '
@@ -939,6 +941,7 @@ switch( $args->args->command )
 								cs.ID = r.CourseSessionID
 						';
 					}
+					*/
 					
 					$iter[ 'regQ' ] = $regQ;
 					
