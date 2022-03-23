@@ -153,11 +153,11 @@ moduleObject.dashboard = {
                 
 				const clIds = [];
 				let l = rs.length;
+				// loop
 				for ( ;l; )
 				{
 					l--;
-					const r = rs[l];
-					clIds[l] = r.ID;
+					clIds[l] = rs[l].ID; // get classroom ID
 				}
 				
 				console.log( 'class ids', clIds );

@@ -818,11 +818,6 @@ switch( $args->args->command )
 			
 				if ( '1' == $session->Status )
 				{
-					/*
-					$prog[] = mt_rand( 1, 42 );
-					$prog[] = mt_rand( 1, 42 );
-					$prog[] = mt_rand( 1, 42 );
-					*/
 					$prog[] = 0;
 					unset( $csId );
 					continue;
