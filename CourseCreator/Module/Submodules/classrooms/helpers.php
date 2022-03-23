@@ -191,8 +191,10 @@ function copyCourseDataToClassroom( $courseId, $classroomId )
 							// This page may lack elements
 							else
 							{
-								// Do nothing..
-								// TODO: Perhaps we should fail here because it doesn't have the requirements?
+								// Flush and return false
+								flushCourseAndData( $courseCopy->ID );
+								$Logger->log( 'Could not find elements on page!' );
+								return false;
 							}
 						}
 					}
