@@ -776,7 +776,7 @@ switch( $args->args->command )
 		
 		
 		// Pass through all sessions
-		$lop = [];
+		$lop = []; // dbg
 		$loops = []; // debug
 		$crsProg = []; // store progress by course id
 		if( count( $csIds ) )
@@ -949,7 +949,7 @@ switch( $args->args->command )
 			}
 		}
 		
-		$pre = $crsProg;
+		$pre = clone $crsProg;
 		foreach( $crsProg as $cid=>$cps )
 		{
 			$l = count( $cps );
@@ -964,6 +964,8 @@ switch( $args->args->command )
 					$s = $s + $n;
 				$crsProg[ $cid ] = ( $s / $l );
 			}
+			unset( $cid );
+			unset( $cps );
 		}
 		
 		
