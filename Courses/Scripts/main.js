@@ -542,7 +542,7 @@ moduleObject.classrooms = {
 						if( list[ a ] && progress[ list[a].CourseID ] )
 						{
 							prog = progress[ list[a].CourseID ];
-							//console.log( 'prog', prog );
+							console.log( 'prog', prog );
 							if( now >= endTime )
 							{
 								exStatus = 'Expired';
