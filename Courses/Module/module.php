@@ -785,6 +785,7 @@ switch( $args->args->command )
 			$out = new stdClass();
 			foreach( $csIds as $csId )
 			{
+				unset( $iter );
 				$lop[] = $csId;
 				$iter = [];
 				$loops[] = &$iter;
@@ -817,12 +818,14 @@ switch( $args->args->command )
 				if ( '1' == $session->Status )
 				{
 					$prog[] = 0;
+					unset( $csId );
 					continue;
 				}
 				
 				if ( '9' == $session->Status )
 				{
 					$prog = 100;
+					unset( $csId );
 					continue;
 				}
 				
@@ -937,6 +940,12 @@ switch( $args->args->command )
 						$prog[] = 0;
 					}
 				}
+				else
+				{
+					// THING HERE!!!?
+				}
+				
+				unset( $csId );
 			}
 		}
 		
