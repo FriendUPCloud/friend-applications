@@ -872,15 +872,24 @@ switch( $args->args->command )
 						CC_Section se 
 					WHERE 
 						s.CourseID = s.CourseID AND 
+						p.SectionID = se.ID AND 
+						s.CourseID = se.CourseID AND ' . $sectionSpecific . '
+						p.ID = e.PageID AND 
+						e.ElementTypeID IN ( ' . implode( ',', $types ) . ' ) AND 
+						s.ID = \'' . $csId . '
+						
+				' ) )
+				{
+					/*
+					s.CourseID = s.CourseID AND 
 						s.UserID = \'' . $userId . '\' AND 
 						p.SectionID = se.ID AND 
 						s.CourseID = se.CourseID AND ' . $sectionSpecific . '
 						p.ID = e.PageID AND 
 						e.ElementTypeID IN ( ' . implode( ',', $types ) . ' ) AND 
-						s.ID = \'' . $cl->ID . '\' AND
+						s.ID = \'' . $csId . '\' AND
 						s.UserID = \'' . $userId . '\'
-				' ) )
-				{
+					*/
 					$iter[ 'elC' ] = $elC;
 					$elementCount = $elC->CNT;
 					
@@ -892,12 +901,19 @@ switch( $args->args->command )
 						CC_ElementResult er, 
 						CC_CourseSession cs 
 					WHERE 
-						cs.UserID = \'' . $userId . '\' AND 
 						cs.ID = er.CourseSessionID AND 
 						er.Data AND 
 						er.UserID = cs.UserID AND
 						er.CourseSessionID = \'' . $csId . '\'
 					';
+					
+					/*
+					cs.UserID = \'' . $userId . '\' AND 
+						cs.ID = er.CourseSessionID AND 
+						er.Data AND 
+						er.UserID = cs.UserID AND
+						er.CourseSessionID = \'' . $csId . '\'
+					*/
 					
 					if( isset( $args->args->sectionId ) )
 					{
