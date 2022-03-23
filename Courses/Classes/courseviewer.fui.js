@@ -462,13 +462,18 @@ class FUICourseviewer extends FUIElement
 				self.currentPage++;
 				if( self.currentPage >= self.sections[ self.activeSection ].pages.length )
 				{
-					// Check if there's a next section'
+					// Check if there's a next section
 					let b = 0;
 					let current = 0;
 					for( let a in self.sections )
 					{
 						if( a == self.activeSection )
+						{
 							current = b;
+						}
+					}
+					for( let a in self.sections )
+					{
 						// This is the next section
 						if( b == current + 1 )
 						{
