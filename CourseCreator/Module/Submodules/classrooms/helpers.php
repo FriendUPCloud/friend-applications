@@ -88,7 +88,7 @@ function copyCourseDataToClassroom( $courseId, $classroomId )
 		// We cannot use a course copy as a template
 		if( $course->ParentID > 0 ) 
 		{
-			//$Logger->log( 'Course has parent!' );
+			//$Logger->log( 'copyCourseDataToClassroom: Course has parent!' );
 			return false;
 		}
 		
@@ -98,7 +98,7 @@ function copyCourseDataToClassroom( $courseId, $classroomId )
 		// Make sure we load the original
 		if( !$courseCopy->Load( $courseId ) ) 
 		{
-			//$Logger->log( 'Could not load template!' );
+			//$Logger->log( 'copyCourseDataToClassroom: Could not load template!' );
 			return false;
 		}
 		$courseCopy->ID = 0;
@@ -126,7 +126,7 @@ function copyCourseDataToClassroom( $courseId, $classroomId )
 					if( !$sectCopy->Save() ) 
 					{
 						flushCourseAndData( $courseCopy->ID );
-						//$Logger->log( 'Could not save section!' );
+						//$Logger->log( 'copyCourseDataToClassroom: Could not save section copy!' );
 						return false;
 					}
 					
@@ -146,7 +146,7 @@ function copyCourseDataToClassroom( $courseId, $classroomId )
 							if( !$pageCopy->Save() )
 							{
 								flushCourseAndData( $courseCopy->ID );
-								//$Logger->log( 'Could not save page!' );
+								//$Logger->log( 'copyCourseDataToClassroom: Could not save page copy!' );
 								return false;
 							}
 							
@@ -182,7 +182,7 @@ function copyCourseDataToClassroom( $courseId, $classroomId )
 										if( !$eleCopy->Save() )
 										{
 											flushCourseAndData( $courseCopy->ID );
-											//$Logger->log( 'Could not save element!' );
+											//$Logger->log( 'copyCourseDataToClassroom: Could not save element copy!' );
 											return false;
 										}
 									}
@@ -195,7 +195,7 @@ function copyCourseDataToClassroom( $courseId, $classroomId )
 							{
 								// Flush and return false
 								flushCourseAndData( $courseCopy->ID );
-								$Logger->log( 'Could not find elements on page!' );
+								//$Logger->log( 'copyCourseDataToClassroom: Could not find elements on page! (' . $page->Name . ' -> ' . $page->ID . ')' );
 								return false;
 							}
 						}
@@ -203,7 +203,7 @@ function copyCourseDataToClassroom( $courseId, $classroomId )
 					else
 					{
 						flushCourseAndData( $courseCopy->ID );
-						//$Logger->log( 'No pages in section!' );
+						//$Logger->log( 'copyCourseDataToClassroom: No pages in section!' );
 						return false;
 					}
 				}
@@ -212,7 +212,7 @@ function copyCourseDataToClassroom( $courseId, $classroomId )
 			return $courseCopy;
 		}
 	}
-	//$Logger->log( 'FAIL!' );
+	//$Logger->log( 'copyCourseDataToClassroom: Fail at the root of algo!' );
 	return false;
 }
 
