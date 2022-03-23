@@ -832,6 +832,11 @@ switch( $args->args->command )
 				// Started session
 				if( $session->Status == '1' )
 				{
+					/*
+					$prog[] = mt_rand( 1, 42 );
+					$prog[] = mt_rand( 1, 42 );
+					$prog[] = mt_rand( 1, 42 );
+					*/
 					$prog[] = 0;
 					unset( $csId );
 					continue;
@@ -840,7 +845,7 @@ switch( $args->args->command )
 				// Completed session
 				if( $session->Status == '9' )
 				{
-					$prog = 100;
+					$prog[] = 100;
 					unset( $csId );
 					continue;
 				}
@@ -961,40 +966,39 @@ switch( $args->args->command )
 				else
 				{
 					// THING HERE!!!?
+					$prog[] = 0;
 				}
 				
 				unset( $csId );
 			}
 		}
 		
-		$pre = clone $crsProg;
+		$progress = [];
 		foreach( $crsProg as $cid=>$cps )
 		{
 			$l = count( $cps );
 			if ( 0 == $l )
 			{
-				$crsProg[ $cid ] = 0;
+				$progress[ $cid ] = 0;
 			}
 			else
 			{
 				$s = 0;
 				foreach( $cps as $n )
 					$s = $s + $n;
-				$crsProg[ $cid ] = ( $s / $l );
+				$progress[ $cid ] = ( $s / $l );
 			}
 			unset( $cid );
 			unset( $cps );
 		}
 		
-		
 		die( 'ok<!--separate-->' . json_encode( [
 					'csIds'     => $csIds,
 					'pre'       => $pre,
-					'progress'  => $crsProg,
+					'crsProg'   => $crsProg,
+					'progress'  => $progress,
 					'completed' => $sum,
 					'args'      => $args,
-					'lop'       => $lop,
-					'loops'     => $loops,
 				] ) );
 		
 		break;
