@@ -324,6 +324,9 @@ moduleObject.dashboard = {
 		if ( null == klass.Progress )
             klass.Progress = Math.floor( Math.random() * 100 );
 		
+		let pColor = '#27bcaf';
+		
+		/*
 		let pColor = '#25bbaf';
         if ( null != klass.Progress )
         {
@@ -334,6 +337,7 @@ moduleObject.dashboard = {
             if ( klass.Progress > 91 )
                 pColor = '#d85c4f'
         }
+        */
         
         const data = {
         	labels : [
