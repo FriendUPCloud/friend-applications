@@ -118,6 +118,8 @@ function copyCourseDataToClassroom( $courseId, $classroomId )
 					$sectCopy = new dbIO( 'CC_Section', $courseDb ); 
 					$sectCopy->Load( $sect->ID );
 					$sectCopy->ID = 0;
+					$sectCopy->DateCreated = date( 'Y-m-d H:i:s' );
+					$sectCopy->DateUpdated = $sectCopy->DateCreated;
 					$sectCopy->CourseID = $courseCopy->ID;
 					
 					// We crashed!
@@ -191,8 +193,10 @@ function copyCourseDataToClassroom( $courseId, $classroomId )
 							// This page may lack elements
 							else
 							{
-								// Do nothing..
-								// TODO: Perhaps we should fail here because it doesn't have the requirements?
+								// Flush and return false
+								flushCourseAndData( $courseCopy->ID );
+								$Logger->log( 'Could not find elements on page!' );
+								return false;
 							}
 						}
 					}
