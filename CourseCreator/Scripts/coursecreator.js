@@ -1181,7 +1181,7 @@ class CourseCreator
 		        }
 		    }
 
-		    // set view button event handler
+		    /*// set view button event handler
 		    ge('viewButton').addEventListener(
 		        'click',
 		        function( event ){
@@ -1203,7 +1203,7 @@ class CourseCreator
 		            }
 		            f.load();
 		        }
-		    );
+		    );*/
 		    
 		    // Set up properties functionality
 		    FUI.addCallback( 'project_publish_change', function( ch )
