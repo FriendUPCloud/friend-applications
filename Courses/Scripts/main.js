@@ -952,12 +952,14 @@ function getDateString( dt )
 		
 		if( secs / 60 < 60 )
 		{
-			return Math.floor( secs / 60 ) + ' minutes ago.';
+			let mins = Math.floor( secs / 60 );
+			return mins + ' ' + ( mins == 1 ? 'minute' : 'minutes' ) + ' ago.';
 		}
 		
 		if( secs / 60 / 60 < 24 )
 		{
-			return Math.floor( secs / 60 / 60 ) + ' hours ago.';
+			let hours = Math.floor( secs / 60 / 60 );
+			return hours + ' ' + ( hours == 1 ? 'hour' : 'hours' ) + ' ago.';
 		}
 		
 		return tPad( tdate ) + '. ' + tPad( months[ then.getMonth() ] ) + ' ' + tyear; 
@@ -973,12 +975,14 @@ function getDateString( dt )
 		
 		if( secs / 60 < 60 )
 		{
-			return 'In ' + Math.floor( secs / 60 ) + ' minutes.';
+			let mins = Math.floor( secs / 60 );
+			return 'In ' + mins + ' ' + ( mins == 1 ? 'minute' : 'minutes' ) + '.';
 		}
 		
 		if( secs / 60 / 60 < 24 )
 		{
-			return 'In ' + Math.floor( secs / 60 / 60 ) + ' hours.';
+			let hours = Math.floor( secs / 60 / 60 );
+			return 'In ' + hours + ' ' + ( hours == 1 ? 'hour' : 'hours' ) + '.';
 		}
 		
 		return tPad( tdate ) + '. ' + tPad( months[ then.getMonth() ] ) + ' ' + tyear;
