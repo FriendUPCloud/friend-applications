@@ -776,6 +776,7 @@ switch( $args->args->command )
 		
 		
 		// Pass through all sessions
+		$lop = []; // dbg
 		$loops = []; // debug
 		$crsProg = []; // store progress by course id
 		if( count( $csIds ) )
@@ -784,6 +785,8 @@ switch( $args->args->command )
 			$out = new stdClass();
 			foreach( $csIds as $csId )
 			{
+				unset( $iter );
+				$lop[] = $csId;
 				$iter = [];
 				$loops[] = &$iter;
 				$iter[ 'csId' ] = $csId;
@@ -815,12 +818,14 @@ switch( $args->args->command )
 				if ( '1' == $session->Status )
 				{
 					$prog[] = 0;
+					unset( $csId );
 					continue;
 				}
 				
 				if ( '9' == $session->Status )
 				{
 					$prog = 100;
+					unset( $csId );
 					continue;
 				}
 				
@@ -935,10 +940,16 @@ switch( $args->args->command )
 						$prog[] = 0;
 					}
 				}
+				else
+				{
+					// THING HERE!!!?
+				}
+				
+				unset( $csId );
 			}
 		}
 		
-		$pre = $crsProg;
+		$pre = clone $crsProg;
 		foreach( $crsProg as $cid=>$cps )
 		{
 			$l = count( $cps );
@@ -953,6 +964,8 @@ switch( $args->args->command )
 					$s = $s + $n;
 				$crsProg[ $cid ] = ( $s / $l );
 			}
+			unset( $cid );
+			unset( $cps );
 		}
 		
 		
@@ -962,6 +975,7 @@ switch( $args->args->command )
 					'progress'  => $crsProg,
 					'completed' => $sum,
 					'args'      => $args,
+					'lop'       => $lop,
 					'loops'     => $loops,
 				] ) );
 		
