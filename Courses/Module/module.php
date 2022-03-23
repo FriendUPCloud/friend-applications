@@ -848,11 +848,11 @@ switch( $args->args->command )
 				// Get classroom
 				$iter[ 'thingloaded' ] = true;
 				
+				/*
 				$out->{$cl->CourseID} = new stdClass();
-				
 				$entry =& $out->{$cl->CourseID};
 				$entry->status = $cl->Status;
-				
+				*/
 				
 				$sectionSpecific = '';
 				if( isset( $args->args->sectionId ) )
@@ -863,7 +863,7 @@ switch( $args->args->command )
 				$iter[ 'sectionSpecific' ] = $sectionSpecific;
 				
 				// Get total element count based on course session
-				if( $elC = $db->database->fetchObject( '
+				$elementCountQuery = '
 					SELECT COUNT(e.ID) CNT
 					FROM 
 						CC_CourseSession s, 
@@ -871,17 +871,18 @@ switch( $args->args->command )
 						CC_Page p, 
 						CC_Section se 
 					WHERE 
-						s.CourseID = s.CourseID AND 
+						s.CourseID = se.CourseID AND 
 						p.SectionID = se.ID AND 
-						s.CourseID = se.CourseID AND ' . $sectionSpecific . '
 						p.ID = e.PageID AND 
 						e.ElementTypeID IN ( ' . implode( ',', $types ) . ' ) AND 
+						' . $sectionSpecific . '
 						s.ID = \'' . $csId . '
-						
-				' ) )
+				';
+				$iter[ 'elCQ' ] = $elementCountQuery;
+				if( $elC = $db->database->fetchObject( $elementCountQuery ) )
 				{
 					/*
-					s.CourseID = s.CourseID AND 
+						s.CourseID = s.CourseID AND 
 						s.UserID = \'' . $userId . '\' AND 
 						p.SectionID = se.ID AND 
 						s.CourseID = se.CourseID AND ' . $sectionSpecific . '
