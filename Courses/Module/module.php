@@ -853,6 +853,7 @@ switch( $args->args->command )
 				$entry =& $out->{$cl->CourseID};
 				$entry->status = $cl->Status;
 				
+				
 				$sectionSpecific = '';
 				if( isset( $args->args->sectionId ) )
 				{
@@ -895,7 +896,7 @@ switch( $args->args->command )
 						cs.ID = er.CourseSessionID AND 
 						er.Data AND 
 						er.UserID = cs.UserID AND
-						er.CourseSessionID = \'' . $cl->ID . '\'
+						er.CourseSessionID = \'' . $csId . '\'
 					';
 					
 					if( isset( $args->args->sectionId ) )
@@ -916,7 +917,7 @@ switch( $args->args->command )
 								e.PageID = p.ID AND
 								p.SectionID = s.ID AND
 								s.ID = \'' . intval( $args->args->sectionId, 10 ) . '\' AND
-								r.CourseSessionID = \'' . $cl->ID . '\' AND
+								r.CourseSessionID = \'' . $csId . '\' AND
 								cs.UserID = \'' . $userId . '\' AND
 								cs.ID = r.CourseSessionID
 						';
