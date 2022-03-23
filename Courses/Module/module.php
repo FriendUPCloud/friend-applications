@@ -673,23 +673,49 @@ switch( $args->args->command )
 			$format = $args->args->format;
 		$sum = null;
 		
+		$userId = intval( $User->ID, 10 );
+		// Only admins can do this
+		if( $level == 'Admin' && isset( $args->args ) && isset( $args->args->userId ) )
+		{
+			$userId = intval( $args->args->userId, 10 );
+		}
+		
 		// Get only one item based on course session id
+		$csIds = [];
+		$classrooms = false;
 		if( isset( $args->args ) && isset( $args->args->courseSessionId ) )
 		{
-			$csid = array( intval( $args->args->courseSessionId, 10 ) );
+			$csIds[] = intval( $args->args->courseSessionId, 10 );
 		}
 		// Get active sessions frmo classroom ids
 		else if( isset( $args->args ) && isset( $args->args->classrooms ) )
 		{
-			$usrChk = ' AND s.UserID=\'' . $User->ID . '\'';
-			if ( 'classrooms' == $context )
-				$usrChk = '';
-			
 			$classrooms = $args->args->classrooms;
-			$csid = array();
 			foreach( $classrooms as $k=>$v )
 			{
 				$classrooms[ $k ] = intval( $v, 10 );
+			}
+			
+			$usrChk = ' AND s.UserID=\'' . $userId . '\'';
+			if ( 'classrooms' == $context )
+			{
+				$uq = '
+					SELECT uc.UserID
+					FROM CC_UserClassroom uc
+					WHERE uc.ClassroomID IN ('. implode( ',', $classrooms ) .')
+					GROUP BY uc.UserID
+				';
+				$ur = $db->database->fetchObjects( $uq );
+				$uList = [];
+				if ( $ur )
+				{
+					foreach( $ur AS $u )
+					{
+						$uList[] = intval( $u->UserID, 10 );
+					}
+				}
+				
+				$usrChk = 'AND s.UserID IN (' . implode( ',', $uList ) . ')';
 			}
 
 			$cq = '
@@ -699,42 +725,38 @@ switch( $args->args->command )
 					CC_CourseSession s, 
 					CC_Classroom c 
 				WHERE c.ID IN ( ' . implode( ',', $classrooms ) . ' ) 
-				AND s.CourseID = c.CourseID
 				'.$usrChk.' 
+				AND s.CourseID = c.CourseID
+				GROUP BY s.ID
 			';
 			if( $sessions = $db->database->fetchObjects( $cq ) )
-/*
-			if( $sessions = $db->database->fetchObjects( '
-				SELECT 
-					s.* 
-				FROM 
-					CC_CourseSession s, 
-					CC_Classroom c 
-				WHERE 
-					s.UserID=\'' . $User->ID . '\' AND c.ID IN ( ' . implode( ',', $classrooms ) . ' ) AND s.CourseID = c.CourseID
-			' ) )
->>>>>>> badd0049eaa3899d69b49df4b122f9a7e824c1a8
-*/
 			{
-				foreach( $sessions as $sess )
+				foreach( $sessions as $s )
 				{
-					$csid[] = $sess->CourseID;
+					$csIds[] = $s->ID;
 				}
-			}
-			else
-			{
-				die( 'fail<!--separate-->'.json_encode([
-					'endpoint'   => 'getclassroomprogress',
-					'error'      => 'query failed',
-					'query'      => $cq,
-					'args'       => $args,
-					'classrooms' => $classrooms,
-					'usrChk'     => $usrChk,
-				]) );
 			}
 		}
 		else if ( 'sum' == $format )
 		{
+			$usrChk = ' WHERE s.UserID=\'' . $userId . '\'';
+			if ( 'classrooms' == $context )
+				$usrChk = '';
+			
+			$sq = '
+				SELECT s.*
+				FROM CC_CourseSession s
+				'.$usrChk.'
+			';
+			$sr = $db->database->fetchObjects( $sq );
+			if ( $sr )
+			{
+				foreach( $sr AS $s )
+				{
+					$csIds[] = $s->ID;
+				}
+			}
+			
 			die('fail<!--separate-->'.json_encode([
 				'error' => 'sum not yet implemented',
 			]));
@@ -744,44 +766,52 @@ switch( $args->args->command )
 			die( 'fail<!--separate-->{"message":"Could not find course session or course ids.","response":-1}' );
 		}
 		
-		$userId = $User->ID;
-		
-		// Only admins can do this
-		if( $level == 'Admin' && isset( $args->args ) && isset( $args->args->userId ) )
-		{
-			$userId = intval( $args->args->userId, 10 );
-		}
 		
 		// Pass through all sessions
-		if( count( $csid ) )
+		$loops = []; // debug
+		$crsProg = []; // store progress by course id
+		if( count( $csIds ) )
 		{
 			// Output progress based on course
 			$out = new stdClass();
-			$prog = [];
-			$ins = [];
-			$loops = [];
-			foreach( $csid as $csi )
+			foreach( $csIds as $csId )
 			{
 				$iter = [];
 				$loops[] = &$iter;
-				$iter[ 'csi' ] = $csi;
+				$iter[ 'csId' ] = $csId;
 				$regQ = '';
 				$regR = null;
 				$elC = null;
 				
-				// Get classroom
-				$cl = new dbIO( 'CC_CourseSession', $db->database );
-				$cl->UserID = $userId;
-				$cl->CourseID = $csi;
-				$cl->Status = 1;
-				if( !$cl->Load() )
+				$session = $db->database->fetchObject('
+					SELECT
+						s.*, cl.ID AS ClassID 
+					FROM
+						CC_CourseSession s
+					LEFT JOIN CC_Classroom cl
+						ON s.CourseID = cl.CourseID
+				');
+				
+				$prog = [];
+				if ( !isset( $crsProg[ $session->CourseID ]))
+					$crsProg[ $session->CourseID ] = &$prog;
+				else
+					$prog = &$crsProg[ $session->CourseID ];
+					
+			
+				if ( '1' == $session->Status )
 				{
-					$cl->Status = 9;
-					if( !$cl->Load() )
-					{
-						continue;
-					}
+					$prog[] = 0;
+					continue;
 				}
+				
+				if ( '9' == $session->Status )
+				{
+					$prog = 100;
+					continue;
+				}
+				
+				// Get classroom
 				
 				$iter[ 'thingloaded' ] = true;
 				$out->{$cl->CourseID} = new stdClass();
@@ -880,28 +910,48 @@ switch( $args->args->command )
 							'registered' => $reg,
 							'total'      => $tot,
 						];
-						$ins[ $csi ] = $in;
+						$iter[ 'in' ] = $in;
 						if ( 0 == $reg || 0 == $tot )
-							$prog[ $csi ] = 0;
+							$prog[] = 0;
 						else
-							$prog[ $csi ] = ( $reg / $tot ) * 100;
+							$prog[] = ( $reg / $tot ) * 100;
 						
+					}
+					else
+					{
+						$prog[] = 0;
 					}
 				}
 			}
-			die( 'ok<!--separate-->' . json_encode( [
-					'csid'      => $csid,
-					//'progress'=> $out,
-					'progress'  => $prog,
-					'ins'       => $ins,
+		}
+		
+		$pre = $crsProg;
+		foreach( $crsProg as $cid=>$cps )
+		{
+			$l = count( $cps );
+			if ( 0 == $l )
+			{
+				$crsProg[ $cid ] = 0;
+			}
+			else
+			{
+				$s = 0;
+				foreach( $cps as $n )
+					$s = $s + $n;
+				$crsProg[ $cid ] = ( $s / $l );
+			}
+		}
+		
+		
+		die( 'ok<!--separate-->' . json_encode( [
+					'csIds'     => $csIds,
+					'pre'       => $pre,
+					'progress'  => $crsProg,
 					'completed' => $sum,
 					'args'      => $args,
 					'loops'     => $loops,
 				] ) );
-			
-		}
-		// Zero progress
-		die( 'fail<!--separate-->{"message":"Could not parse any classroom ids or course session id."}' );
+		
 		break;
 	// Just complete the course
 	case 'complete':

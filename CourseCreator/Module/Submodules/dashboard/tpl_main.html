@@ -73,6 +73,7 @@ Application.submodules.dashboard = {
                     console.log( 'classroom progress', [ s, d ] );
                     if ( 'fail' == s || !d )
                     {
+                        console.log( JSON.parse( d ));
                         return;
                     }
                     else
