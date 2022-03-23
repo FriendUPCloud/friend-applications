@@ -781,7 +781,6 @@ switch( $args->args->command )
 		
 		// Pass through all sessions
 		
-		$lop = []; // dbg
 		$loops = []; // debug
 		$crsProg = []; // store progress by course id
 		
@@ -831,14 +830,12 @@ switch( $args->args->command )
 			
 				
 				// Started session
-				/*
-				if( $session->Status == '1' )
+				if( $session->Status == '0' )
 				{
 					$prog[] = 0;
 					unset( $csId );
 					continue;
 				}
-				*/
 				
 				// Completed session
 				if( $session->Status == '9' )
@@ -997,6 +994,7 @@ switch( $args->args->command )
 					'progress'  => $progress,
 					'completed' => $sum,
 					'args'      => $args,
+					'loops'     => $loops,
 				] ) );
 		
 		break;
