@@ -381,7 +381,7 @@ function getProgress( $flags )
 					se.ID = \'' . intval( $flags->session->ID, 10 ) . '\' AND
 					se.CourseID = sc.CourseID AND
 					c.CourseID = se.CourseID AND
-					c.ID = \'' . intval( $flags->classroomId, 10 ) . '
+					c.ID = \'' . intval( $flags->classroomId, 10 ) . '\'
 				ORDER BY sc.DisplayID
 			' ) )
 			{
@@ -406,7 +406,7 @@ function getProgress( $flags )
 			}
 			else
 			{
-				$Logger->log( 'Failed' );
+				$Logger->log( 'Failed ' . mysqli_error( $db->database->_link ) );
 			}
 		}
 	}

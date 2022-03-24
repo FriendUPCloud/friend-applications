@@ -45,7 +45,7 @@ if( isset( $args->method ) )
             	
             	// Get session list and connect it by userid
             	if( $sessionList = $courseDb->fetchObjects( '
-            		SELECT se.* FROM 
+            		SELECT se.*, cl.ID AS ClassroomID FROM 
             			CC_CourseSession se, CC_Classroom cl 
             		WHERE 
             			cl.ID = \'' . intval( $args->classroomId, 10 ) . '\' AND 
@@ -53,7 +53,11 @@ if( isset( $args->method ) )
             	' ) )
             	{
 		        	$sessions = new stdClass();
-		        	foreach( $sessionList as $s ) $sessions->{$s->UserID} = $s;
+		        	foreach( $sessionList as $s )
+		        	{
+		        		$key = $s->UserID . '_' . $s->ClassroomID;
+		        		$sessions->{$key} = $s;
+		        	}
 		        }
             	
             	if( $users = $SqlDatabase->fetchObjects( '
@@ -77,13 +81,15 @@ if( isset( $args->method ) )
             					// Get statistics for each user
             					$rows[$k]->Progress = fetchUserClassroomProgress( $u->ID, intval( $args->classroomId, 10 ) );
             					
+            					$key = $u->ID . '_' . $args->classroomId;
+            					
 								// Setup flags so we can get page progress on top of element progress
-								if( isset( $sessions->{$u->ID} ) && $sessions->{$u->ID}->ID > 0 )
+								if( isset( $sessions->{$key} ) && $sessions->{$key}->ID > 0 )
 								{
 									$flags = new stdClass();
 									$flags->classroomId = $args->classroomId;
-									$flags->session = $sessions->{$u->ID}; // Session object
-									$Logger->log( 'What was the session: ' . $sessions->{$u->ID}->ID );
+									$flags->session = $sessions->{$key}; // Session object
+									$Logger->log( 'What was the session and classroom: ' . $sessions->{$key}->ID . ' ' . $args->classroomId );
 									$flags->elementProgress = $rows[$k]->Progress;
 									$flags->countPageProgress = true;
 									$Logger->log( 'What page progress do we have: ' . getProgress( $flags ) );
