@@ -44,15 +44,17 @@ if( isset( $args->method ) )
             	}
             	
             	// Get session list and connect it by userid
-            	$sessionList = $courseDb->fetchObjects( '
+            	if( $sessionList = $courseDb->fetchObjects( '
             		SELECT se.* FROM 
             			CC_CourseSession se, CC_Classroom cl 
             		WHERE 
             			cl.ID = \'' . intval( $args->classroomId, 10 ) . '\' AND 
             			cl.CourseID = se.CourseID
-            	' );
-            	$sessions = new stdClass();
-            	foreach( $sessionList as $s ) $sessions->{$s->UserID} = $s;
+            	' ) )
+            	{
+		        	$sessions = new stdClass();
+		        	foreach( $sessionList as $s ) $sessions->{$s->UserID} = $s;
+		        }
             	
             	if( $users = $SqlDatabase->fetchObjects( '
             		SELECT 
@@ -76,11 +78,12 @@ if( isset( $args->method ) )
             					$rows[$k]->Progress = fetchUserClassroomProgress( $u->ID, intval( $args->classroomId, 10 ) );
             					
 								// Setup flags so we can get page progress on top of element progress
-								if( isset( $sessions->{$u->ID} ) )
+								if( isset( $sessions->{$u->ID} ) && $sessions->{$u->ID}->ID > 0 )
 								{
 									$flags = new stdClass();
 									$flags->classroomId = $args->classroomId;
 									$flags->session = $sessions->{$u->ID}; // Session object
+									$Logger->log( 'What was the session: ' . $sessions->{$u->ID}->ID );
 									$flags->elementProgress = $rows[$k]->Progress;
 									$flags->countPageProgress = true;
 									$Logger->log( 'What page progress do we have: ' . getProgress( $flags ) );

@@ -311,7 +311,7 @@ function getProgress( $flags )
 	if( isset( $flags->elementProgress ) )
 	{
 		$progressGroups++;
-		$progress += $flags->elementProgress;
+		$progress += intval( $flags->elementProgress, 10 );
 	}
 	
 	// Count page progress
@@ -373,15 +373,16 @@ function getProgress( $flags )
 		// By entire classroom
 		else if( isset( $flags->classroomId ) && isset( $flags->session ) )
 		{
+			$Logger->log( 'Checking sections of classrooms' );
 			// Fetch all classroom sections
 			if( $sections = $db->database->fetchObjects( '
-				SELECT sc.ID FROM CC_Section sc, CC_Classroom c, CC_CourseSession se
+				SELECT sc.ID, sc.Name FROM CC_Section sc, CC_Classroom c, CC_CourseSession se
 				WHERE
 					se.ID = \'' . intval( $flags->session->ID, 10 ) . '\' AND
 					se.CourseID = sc.CourseID AND
 					c.CourseID = se.CourseID AND
 					c.ID = \'' . intval( $flags->classroomId, 10 ) . '
-				ORDER BY s.DisplayID
+				ORDER BY sc.DisplayID
 			' ) )
 			{
 				$sectionProgress = 0;
@@ -402,6 +403,10 @@ function getProgress( $flags )
 					$progressGroups++;
 					$progress += floor( $sectionProgress / $secTotal );
 				}
+			}
+			else
+			{
+				$Logger->log( 'Failed' );
 			}
 		}
 	}

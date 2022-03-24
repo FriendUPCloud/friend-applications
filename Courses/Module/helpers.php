@@ -101,7 +101,7 @@ function getProgress( $flags )
 					se.CourseID = sc.CourseID AND
 					c.CourseID = se.CourseID AND
 					c.ID = \'' . intval( $flags->classroomId, 10 ) . '
-				ORDER BY s.DisplayID
+				ORDER BY sc.DisplayID
 			' ) )
 			{
 				$sectionProgress = 0;
