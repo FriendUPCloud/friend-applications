@@ -823,7 +823,6 @@ switch( $args->args->command )
 				
 				$iter[ 'session' ] = $session;
 				
-				/*
 				// Not Started session
 				if( $session->Status == '0' )
 				{
@@ -839,10 +838,8 @@ switch( $args->args->command )
 					unset( $csId );
 					continue;
 				}
-				*/
 				
-				// Get classroom
-				$iter[ 'thingloaded' ] = true;
+				$iter[ 'countthetings' ] = true;
 				
 				/*
 				$out->{$cl->CourseID} = new stdClass();
@@ -985,10 +982,20 @@ switch( $args->args->command )
 		}
 		
 		$progress = [];
+		$classCount = [];
 		foreach( $crsProg as $cid=>$cps )
 		{
-			$l = count( $cps );
-			if ( 0 == $l )
+			$countUsers = '
+				SELECT count( uc.ID ) AS users
+				FROM CC_Classroom AS cl
+				LEFT JOIN CC_UserClassroom AS uc
+					ON cl.ID = uc.ClassroomID
+				WHERE cl.CourseID = '.$cid.'
+			';
+			$usersInClass = $db->database->fetchObject( $countUsers );
+			$classCount[ $cid ] = $usersInClass;
+			$u = $usersInClass->users;
+			if ( 0 == $u )
 			{
 				$progress[ $cid ] = 0;
 			}
@@ -997,20 +1004,25 @@ switch( $args->args->command )
 				$s = 0;
 				foreach( $cps as $n )
 					$s = $s + $n;
-				$progress[ $cid ] = ( $s / $l );
+				$progress[ $cid ] = ( $s / $u );
 			}
+			
 			unset( $cid );
 			unset( $cps );
+			unset( $u );
+			unset( $s );
+			unset( $usersInClass );
+			unset( $countUsers );
 		}
 		
 		die( 'ok<!--separate-->' . json_encode( [
-					'csIds'     => $csIds,
-					'pre'       => $pre,
-					'crsProg'   => $crsProg,
-					'progress'  => $progress,
-					'completed' => $sum,
-					'args'      => $args,
-					'loops'     => $loops,
+					'csIds'      => $csIds,
+					'crsProg'    => $crsProg,
+					'progress'   => $progress,
+					'completed'  => $sum,
+					'args'       => $args,
+					'loops'      => $loops,
+					'classcount' => $classCount,
 				] ) );
 		
 		break;
