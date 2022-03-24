@@ -103,10 +103,11 @@ Application.submodules.dashboard = {
             
                 }
                 cl.execute( 'appmodule', {
-                    appName    : 'Courses',
-                    command    : 'getclassroomprogress',
-                    classrooms : cIds,
-                    context    : 'classrooms',
+                    appName           : 'Courses',
+                    command           : 'getclassroomprogress',
+                    classrooms        : cIds,
+                    context           : 'classrooms',
+                    countPageProgress : true,
                 } );
                 
             }
