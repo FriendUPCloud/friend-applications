@@ -1022,7 +1022,7 @@ switch( $args->args->command )
 					
 					$iter[ 'reggedQ' ] = $registeredQuery;
 					
-					$regR = $db->database->fetchObjects( $regQ );
+					$regR = $db->database->fetchObjects( $registeredQuery );
 					$iter[ 'regR' ] = $regR;
 					if( $regR )
 					{
