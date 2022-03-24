@@ -695,8 +695,11 @@ switch( $args->args->command )
 		if ( isset( $args->args ) && isset( $args->args->context ) )
 			$context = $args->args->context;
 		
-		if( isset( $args->args ) && isset( $args->args->format ) )
+		if ( isset( $args->args ) && isset( $args->args->format ) )
 			$format = $args->args->format;
+		
+		if ( isset( $args->args ) && isset( $args->args->countPageProgress ))
+			$countPageProgress = $args->args->countPageProgress;
 		
 		$userId = intval( $User->ID, 10 );
 		
@@ -875,24 +878,50 @@ switch( $args->args->command )
 				
 				$iter[ 'sectionSpecific' ] = $sectionSpecific;
 				
+				// Get total page count based on course session
+				$maxQuery = '';
+				if ( $countPageProgress )
+				{
+					$maxQuery = '
+						SELECT COUNT( p.ID ) AS CNT
+						FROM
+							CC_CourseSession AS cs
+							CC_PageResult AS pr
+							CC_Page AS p
+							CC_Section AS s
+						WHERE
+							s.CourseID = cs.CourseID
+						AND
+							p.SectionID = s.ID
+						AND
+							pr.PageID = p.ID
+						AND
+							cs.ID = ' . $csId . '
+					';
+					
+				}
+				else
+				{
+					$maxQuery = '
+						SELECT COUNT(e.ID) CNT
+						FROM 
+							CC_CourseSession s, 
+							CC_Element e, 
+							CC_Page p, 
+							CC_Section se 
+						WHERE 
+							s.CourseID = se.CourseID AND 
+							p.SectionID = se.ID AND 
+							p.ID = e.PageID AND 
+							e.ElementTypeID IN ( ' . implode( ',', $types ) . ' ) AND 
+							' . $sectionSpecific . '
+							s.ID = \'' . $csId . '\'
+					';
+					
+				}
 				// Get total element count based on course session
-				$elementCountQuery = '
-					SELECT COUNT(e.ID) CNT
-					FROM 
-						CC_CourseSession s, 
-						CC_Element e, 
-						CC_Page p, 
-						CC_Section se 
-					WHERE 
-						s.CourseID = se.CourseID AND 
-						p.SectionID = se.ID AND 
-						p.ID = e.PageID AND 
-						e.ElementTypeID IN ( ' . implode( ',', $types ) . ' ) AND 
-						' . $sectionSpecific . '
-						s.ID = \'' . $csId . '\'
-				';
-				$iter[ 'elCQ' ] = $elementCountQuery;
-				if( $elC = $db->database->fetchObject( $elementCountQuery ) )
+				$iter[ 'maxQuery' ] = $maxQuery;
+				if( $elC = $db->database->fetchObject( $maxQuery ) )
 				{
 					/*
 						s.CourseID = s.CourseID AND 
@@ -907,18 +936,37 @@ switch( $args->args->command )
 					$iter[ 'elC' ] = $elC;
 					$elementCount = $elC->CNT;
 					
+					$registeredQuery = '';
+					// Get pages that were interacted with
+					if ( $countPageProgress )
+					{
+						$registeredQuery = '
+							SELECT
+								pr.*
+							FROM
+								CC_PageResult pr
+							WHERE
+								er.Data
+							AND
+								er.CourseSessionID = ' . $csId . '
+						';
+					}
+					else
+					{
+						$registeredQuery = '
+							SELECT 
+								er.*
+							FROM 
+								CC_ElementResult er, 
+								CC_CourseSession cs 
+							WHERE 
+								cs.ID = er.CourseSessionID AND 
+								er.Data AND 
+								er.CourseSessionID = \'' . $csId . '\'
+						';
+					}
+					
 					// Get elements that were interacted with
-					$regQ = '
-					SELECT 
-						er.*
-					FROM 
-						CC_ElementResult er, 
-						CC_CourseSession cs 
-					WHERE 
-						cs.ID = er.CourseSessionID AND 
-						er.Data AND 
-						er.CourseSessionID = \'' . $csId . '\'
-					';
 					
 					/*
 					cs.UserID = \'' . $userId . '\' AND 
@@ -972,7 +1020,7 @@ switch( $args->args->command )
 						*/
 					}
 					
-					$iter[ 'regQ' ] = $regQ;
+					$iter[ 'reggedQ' ] = $registeredQuery;
 					
 					$regR = $db->database->fetchObjects( $regQ );
 					$iter[ 'regR' ] = $regR;
