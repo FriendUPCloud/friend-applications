@@ -15,6 +15,7 @@
 // Flags: 
 // {
 //    sectionId: integer row ID specific section
+//    classroomId: integer row ID specific classroom (all sections)
 //    elementProgress: integer 0-100 of page element progress
 //    session: object CC_CourseSession with valid value session->ID
 //    countPageProgress: true|false to count page progress
@@ -33,58 +34,92 @@ function getProgress( $flags )
 		$progress += $flags->elementProgress;
 	}
 	
-	// Count page progress, only by section
-	if( 
-		isset( $flags->countPageProgress ) && $flags->countPageProgress == true && 
-		isset( $flags->sectionId ) && isset( $flags->session ) 
-	)
+	// Count page progress
+	if( isset( $flags->countPageProgress ) && $flags->countPageProgress == true )
 	{
-		// See if we have a page result on this section
-		if( $pResults = $db->database->fetchObjects( '
-			SELECT pr.* FROM CC_PageResult pr, CC_Page p
-			WHERE
-				p.SectionID = \'' . intval( $flags->sectionId, 10 ) . '\' AND
-				pr.PageID = p.ID AND
-				pr.CourseSessionID = \'' . intval( $flags->session->ID, 10 ) . '\'
-		' ) )
+		// Only by section
+		if( isset( $flags->sectionId ) && isset( $flags->session ) )
 		{
-			// Ok, we have a page result on this session, check progress
-			// Check page progress and combine it
-			if( $allPages = $db->database->fetchObjects( '
-				SELECT 
-					ID, DisplayID, `Name` 
-				FROM
-					CC_Page 
-				WHERE 
-					SectionID = \'' . intval( $flags->sectionId, 10 ) . '\'
-				ORDER BY
-					DisplayID ASC
+			// See if we have a page result on this section
+			if( $pResults = $db->database->fetchObjects( '
+				SELECT pr.* FROM CC_PageResult pr, CC_Page p
+				WHERE
+					p.SectionID = \'' . intval( $flags->sectionId, 10 ) . '\' AND
+					pr.PageID = p.ID AND
+					pr.CourseSessionID = \'' . intval( $flags->session->ID, 10 ) . '\'
 			' ) )
 			{
-				$pageTotal = count( $allPages );
-				$pageProgress = 1;
-				$mostProgress = 1;
-				$highestDisplayID = -1;
-				foreach( $allPages as $page )
+				// Ok, we have a page result on this session, check progress
+				// Check page progress and combine it
+				if( $allPages = $db->database->fetchObjects( '
+					SELECT 
+						ID, DisplayID, `Name` 
+					FROM
+						CC_Page 
+					WHERE 
+						SectionID = \'' . intval( $flags->sectionId, 10 ) . '\'
+					ORDER BY
+						DisplayID ASC
+				' ) )
 				{
-					foreach( $pResults as $p )
+					$pageTotal = count( $allPages );
+					$pageProgress = 1;
+					$mostProgress = 1;
+					$highestDisplayID = -1;
+					foreach( $allPages as $page )
 					{
-						if( $p->PageID == $page->ID )
+						foreach( $pResults as $p )
 						{
-							if( intval( $page->DisplayID, 10 ) > $highestDisplayID )
+							if( $p->PageID == $page->ID )
 							{
-								$highestDisplayID = intval( $page->DisplayID, 10 );
-								$mostProgress = $pageProgress;
+								if( intval( $page->DisplayID, 10 ) > $highestDisplayID )
+								{
+									$highestDisplayID = intval( $page->DisplayID, 10 );
+									$mostProgress = $pageProgress;
+								}
 							}
 						}
+						$pageProgress++;
 					}
-					$pageProgress++;
+					// Add page progress
+					if( $highestDisplayID > 0 )
+					{
+						$progressGroups++;
+						$progress += floor( $mostProgress / $pageTotal * 100 );
+					}
 				}
-				// Add page progress
-				if( $highestDisplayID > 0 )
+			}
+		}
+		// By entire classroom
+		else if( isset( $flags->classroomId ) && isset( $flags->session ) )
+		{
+			// Fetch all classroom sections
+			if( $sections = $db->database->fetchObjects( '
+				SELECT sc.ID FROM CC_Section sc, CC_Classroom c, CC_CourseSession se
+				WHERE
+					se.ID = \'' . intval( $flags->session->ID, 10 ) . '\' AND
+					se.CourseID = sc.CourseID AND
+					c.CourseID = se.CourseID AND
+					c.ID = \'' . intval( $flags->classroomId, 10 ) . '\'
+				ORDER BY sc.DisplayID
+			' ) )
+			{
+				$sectionProgress = 0;
+				$secTotal = 0;
+				foreach( $sections as $sec )
+				{
+					// Use section flag for this function to extract per section
+					$fl = new stdClass();
+					$fl->sectionId = $sec->ID;
+					$fl->session = $flags->session;
+					$fl->countPageProgress = true;
+					$sectionProgress += getProgress( $fl );
+					$secTotal++;
+				}
+				if( $sectionProgress > 0 )
 				{
 					$progressGroups++;
-					$progress += floor( $mostProgress / $pageTotal * 100 );
+					$progress += floor( $sectionProgress / $secTotal );
 				}
 			}
 		}

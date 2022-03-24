@@ -827,7 +827,7 @@ switch( $args->args->command )
 					LEFT JOIN CC_Classroom cl
 						ON s.CourseID = cl.CourseID
 					WHERE
-						s.ID='.$csId.'
+						s.ID='.$csId.' 
 				';
 				
 				$iter[ 'sq' ] = $sq;

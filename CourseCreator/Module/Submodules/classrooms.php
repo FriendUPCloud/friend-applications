@@ -10,7 +10,7 @@
 *                                                                              *
 *****************************************************************************©*/
 
-global $User, $SqlDatabase, $level;
+global $User, $SqlDatabase, $level, $Logger;
 
 $GLOBALS[ 'courseDb' ] =& $courseDb;
 
@@ -43,6 +43,23 @@ if( isset( $args->method ) )
             	    $keysS = 'AND ( u.FullName LIKE "%' . $args->keys . '%" )';
             	}
             	
+            	// Get session list and connect it by userid
+            	if( $sessionList = $courseDb->fetchObjects( '
+            		SELECT se.*, cl.ID AS ClassroomID FROM 
+            			CC_CourseSession se, CC_Classroom cl 
+            		WHERE 
+            			cl.ID = \'' . intval( $args->classroomId, 10 ) . '\' AND 
+            			cl.CourseID = se.CourseID
+            	' ) )
+            	{
+		        	$sessions = new stdClass();
+		        	foreach( $sessionList as $s )
+		        	{
+		        		$key = $s->UserID . '_' . $s->ClassroomID;
+		        		$sessions->{$key} = $s;
+		        	}
+		        }
+            	
             	if( $users = $SqlDatabase->fetchObjects( '
             		SELECT 
             		    u.*, fu.LoginTime AS LT 
@@ -63,6 +80,22 @@ if( isset( $args->method ) )
             				{
             					// Get statistics for each user
             					$rows[$k]->Progress = fetchUserClassroomProgress( $u->ID, intval( $args->classroomId, 10 ) );
+            					
+            					$key = $u->ID . '_' . $args->classroomId;
+            					
+								// Setup flags so we can get page progress on top of element progress
+								if( isset( $sessions->{$key} ) && $sessions->{$key}->ID > 0 )
+								{
+									$flags = new stdClass();
+									$flags->classroomId = $args->classroomId;
+									$flags->session = $sessions->{$key}; // Session object
+									$Logger->log( 'What was the session and classroom: ' . $sessions->{$key}->ID . ' ' . $args->classroomId );
+									$flags->elementProgress = $rows[$k]->Progress;
+									$flags->countPageProgress = true;
+									$Logger->log( 'What page progress do we have: ' . getProgress( $flags ) );
+		        					$rows[$k]->Progress = getProgress( $flags );
+		        					$Logger->log( 'We got progress: ' . $rows[$k]->Progress );
+		        				}
             					
             					// Add the user to the row in the correct format
             					$rows[$k]->FullName = $u->FullName;
