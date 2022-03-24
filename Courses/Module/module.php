@@ -16,6 +16,7 @@ if( !isset( $args->args->command ) ) die( 'fail' );
 
 // Import database class from Course Creator
 require( __DIR__ . '/../../CourseCreator/Module/classes/database.php' );
+require_once( 'helpers.php' );
 
 // Instance our class!
 $db = new CourseDatabase();
@@ -498,7 +499,7 @@ switch( $args->args->command )
 							$response->{$secId} = new stdClass();
 							if( $elementC > 0 && $elementFilled > 0 )
 							{
-								$response->{$secId}->progress = floor( $elementFilled / $elementC * 100 ) . '%';
+								$response->{$secId}->progress = floor( $elementFilled / $elementC * 100 );
 							}
 							else
 							{
@@ -518,18 +519,18 @@ switch( $args->args->command )
 									if( $elementC == 0 )
 									{
 										// Check if the page is complete
-										$response->{$secId}->progress = ( $d && $d->Status == 1 ) ? '100%' : '0%';
+										$response->{$secId}->progress = ( $d && $d->Status == 1 ) ? 100 : 0;
 									}
 									// No interactive element is completed
 									else
 									{
-										$response->{$secId}->progress = '0%';
+										$response->{$secId}->progress = 0;
 									}
 								}
 								// The page of the element is not complete
 								else
 								{
-									$response->{$secId}->progress = '0%';
+									$response->{$secId}->progress = 0;
 								}
 							}
 							$found++;
@@ -554,21 +555,35 @@ switch( $args->args->command )
 								if( $elementC == 0 )
 								{
 									// Check if the page is complete
-									$response->{$secId}->progress = ( $d && $d->Status == 1 ) ? '100%' : '0%';
+									$response->{$secId}->progress = ( $d && $d->Status == 1 ) ? 100 : 0;
 								}
 								// No interactive element is completed
 								else
 								{
-									$response->{$secId}->progress = '0%';
+									$response->{$secId}->progress = 0;
 								}
 							}
 							// The page of the element is not complete
 							else
 							{
-								$response->{$secId}->progress = '0%';
+								$response->{$secId}->progress = 0;
 							}
 						}
 					}
+					
+					// Setup flags so we can get page progress on top of element progress
+					$flags = new stdClass();
+					$flags->sectionId = $secId;
+					$flags->session = $sess; // Session object
+					$flags->elementProgress = $response->{$secId}->progress;
+					$flags->countPageProgress = true;
+					
+					// Add page progress specified on section id
+					$response->{$secId}->progress = getProgress( $flags );
+					$found = 1;
+					
+					// Convert to percentage string
+					$response->{$secId}->progress .= '%';
 				}
 				if( $found > 0 )
 				{
