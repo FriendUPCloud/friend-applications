@@ -726,6 +726,7 @@ switch( $args->args->command )
 			
 			if ( 'classrooms' == $context )
 			{
+				/*
 				$uq = '
 					SELECT uc.UserID
 					FROM CC_UserClassroom uc
@@ -741,8 +742,9 @@ switch( $args->args->command )
 						$uList[] = intval( $u->UserID, 10 );
 					}
 				}
-				
 				$userCheck = 'AND s.UserID IN (' . implode( ',', $uList ) . ')';
+				*/
+				$userCheck = '';
 			}
 
 			$cq = '
@@ -752,7 +754,7 @@ switch( $args->args->command )
 					CC_CourseSession s, 
 					CC_Classroom c 
 				WHERE c.ID IN ( ' . implode( ',', $classrooms ) . ' ) 
-				' . $userCheckusrChk . ' 
+				' . $userCheck . ' 
 				AND s.CourseID = c.CourseID
 				GROUP BY s.ID
 			';
@@ -766,13 +768,14 @@ switch( $args->args->command )
 		}
 		else if ( 'sum' == $format )
 		{
-			$usrChk = ' WHERE s.UserID=\'' . $userId . '\'';
+			$usrChk = ' AND s.UserID=\'' . $userId . '\'';
 			if ( 'classrooms' == $context )
 				$usrChk = '';
 			
 			$sq = '
 				SELECT s.*
 				FROM CC_CourseSession s
+				WHERE s.Status = 9
 				'.$usrChk.'
 			';
 			$sr = $db->database->fetchObjects( $sq );
@@ -784,8 +787,10 @@ switch( $args->args->command )
 				}
 			}
 			
-			die('fail<!--separate-->'.json_encode([
-				'error' => 'sum not yet implemented',
+			die('ok<!--separate-->'.json_encode([
+				'sq'  => $sq,
+				'sr'  => $sr,
+				'sum' => count( $sr ),
 			]));
 		}
 		else
@@ -806,8 +811,6 @@ switch( $args->args->command )
 			foreach( $csIds as $csId )
 			{
 				unset( $iter );
-				
-				$lop[] = $csId;
 				$iter = [];
 				$loops[] = &$iter;
 				$iter[ 'csId' ] = $csId;
@@ -831,20 +834,16 @@ switch( $args->args->command )
 				
 				$session = $db->database->fetchObject( $sq );
 				
-				$prog = [];
+				unset( $prog );
 				if ( !isset( $crsProg[ $session->CourseID ]) )
 				{
-					$crsProg[ $session->CourseID ] = &$prog;
+					$crsProg[ $session->CourseID ] = [];
 				}
-				else
-				{
-					$prog = &$crsProg[ $session->CourseID ];
-				}
-					
-				$iter[ 'session' ] = $session;
-			
+				$prog = &$crsProg[ $session->CourseID ];
 				
-				// Started session
+				$iter[ 'session' ] = $session;
+				
+				// Not Started session
 				if( $session->Status == '0' )
 				{
 					$prog[] = 0;
@@ -860,8 +859,7 @@ switch( $args->args->command )
 					continue;
 				}
 				
-				// Get classroom
-				$iter[ 'thingloaded' ] = true;
+				$iter[ 'countthetings' ] = true;
 				
 				/*
 				$out->{$cl->CourseID} = new stdClass();
@@ -891,7 +889,7 @@ switch( $args->args->command )
 						p.ID = e.PageID AND 
 						e.ElementTypeID IN ( ' . implode( ',', $types ) . ' ) AND 
 						' . $sectionSpecific . '
-						s.ID = \'' . $csId . '
+						s.ID = \'' . $csId . '\'
 				';
 				$iter[ 'elCQ' ] = $elementCountQuery;
 				if( $elC = $db->database->fetchObject( $elementCountQuery ) )
@@ -919,7 +917,6 @@ switch( $args->args->command )
 					WHERE 
 						cs.ID = er.CourseSessionID AND 
 						er.Data AND 
-						er.UserID = cs.UserID AND
 						er.CourseSessionID = \'' . $csId . '\'
 					';
 					
@@ -931,6 +928,7 @@ switch( $args->args->command )
 						er.CourseSessionID = \'' . $csId . '\'
 					*/
 					
+					/* RE ENABLE WHEN ELEMENT COUNT WORKS
 					if( isset( $args->args->sectionId ) )
 					{
 						$regQ = '
@@ -954,6 +952,7 @@ switch( $args->args->command )
 								cs.ID = r.CourseSessionID
 						';
 					}
+					*/
 					
 					$iter[ 'regQ' ] = $regQ;
 					
@@ -993,7 +992,6 @@ switch( $args->args->command )
 				}
 				else
 				{
-					// THING HERE!!!?
 					$prog[] = 0;
 				}
 				
@@ -1002,10 +1000,25 @@ switch( $args->args->command )
 		}
 		
 		$progress = [];
+		$classCount = [];
 		foreach( $crsProg as $cid=>$cps )
 		{
-			$l = count( $cps );
-			if ( 0 == $l )
+			$u = count( $cps );
+			if ( 'classrooms' == $context )
+			{
+				$countUsers = '
+					SELECT count( uc.ID ) AS users
+					FROM CC_Classroom AS cl
+					LEFT JOIN CC_UserClassroom AS uc
+						ON cl.ID = uc.ClassroomID
+					WHERE cl.CourseID = '.$cid.'
+				';
+				$usersInClass = $db->database->fetchObject( $countUsers );
+				$classCount[ $cid ] = $usersInClass;
+				$u = $usersInClass->users;
+			}
+			
+			if ( 0 == $u )
 			{
 				$progress[ $cid ] = 0;
 			}
@@ -1014,20 +1027,25 @@ switch( $args->args->command )
 				$s = 0;
 				foreach( $cps as $n )
 					$s = $s + $n;
-				$progress[ $cid ] = ( $s / $l );
+				$progress[ $cid ] = ( $s / $u );
 			}
+			
 			unset( $cid );
 			unset( $cps );
+			unset( $u );
+			unset( $s );
+			unset( $usersInClass );
+			unset( $countUsers );
 		}
 		
 		die( 'ok<!--separate-->' . json_encode( [
-					'csIds'     => $csIds,
-					'pre'       => $pre,
-					'crsProg'   => $crsProg,
-					'progress'  => $progress,
-					'completed' => $sum,
-					'args'      => $args,
-					'loops'     => $loops,
+					'csIds'      => $csIds,
+					'crsProg'    => $crsProg,
+					'progress'   => $progress,
+					'completed'  => $sum,
+					'args'       => $args,
+					'loops'      => $loops,
+					'classcount' => $classCount,
 				] ) );
 		
 		break;
