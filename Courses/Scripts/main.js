@@ -152,12 +152,12 @@ moduleObject.dashboard = {
                 self.addStudentStat( open, '#9b59b6' );
                 
 				const clIds = [];
-				let l = rs.length;
 				// loop
+				let l = rs.length;
 				for ( ;l; )
 				{
 					l--;
-					clIds[l] = rs[l].ID; // get classroom ID
+					clIds[l] = rs[l].ID; // read classroom ID into array
 				}
 				
 				console.log( 'class ids', clIds );
@@ -322,7 +322,9 @@ moduleObject.dashboard = {
 		};
 		const c = new FUIChartbox( cOpts );
 		if ( null == klass.Progress )
-            klass.Progress = Math.floor( Math.random() * 100 );
+            klass.Progress = 0;
+		
+		klass.Progress = Math.floor( klass.Progress );
 		
 		let pColor = '#27bcaf';
 		
