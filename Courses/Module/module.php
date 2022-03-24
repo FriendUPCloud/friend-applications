@@ -928,9 +928,26 @@ switch( $args->args->command )
 						er.CourseSessionID = \'' . $csId . '\'
 					*/
 					
-					/* RE ENABLE WHEN ELEMENT COUNT WORKS
+					
 					if( isset( $args->args->sectionId ) )
 					{
+						$regQ = '
+							SELECT 
+								er.*
+							FROM 
+								CC_ElementResult er
+							LEFT JOIN CC_Element e
+								ON er.ElmentID = e.ID
+							LEFT JOIN CC_Page p
+								ON e.PageID = p.ID
+							WHERE
+								er.CourseSessionID = ' . csId . '
+							AND
+								p.SectionID = ' . intval( $args->args->sectionId, 10 ) . '
+						';
+						
+						/*
+						
 						$regQ = '
 							SELECT 
 								r.*
@@ -951,8 +968,9 @@ switch( $args->args->command )
 								cs.UserID = \'' . $userId . '\' AND
 								cs.ID = r.CourseSessionID
 						';
+						
+						*/
 					}
-					*/
 					
 					$iter[ 'regQ' ] = $regQ;
 					
@@ -1039,14 +1057,15 @@ switch( $args->args->command )
 		}
 		
 		die( 'ok<!--separate-->' . json_encode( [
-					'csIds'      => $csIds,
-					'crsProg'    => $crsProg,
-					'progress'   => $progress,
-					'completed'  => $sum,
-					'args'       => $args,
-					'loops'      => $loops,
-					'classcount' => $classCount,
-				] ) );
+			'args'       => $args,
+			'csIds'      => $csIds,
+			'crsProg'    => $crsProg,
+			'progress'   => $progress,
+			'completed'  => $sum,
+			'args'       => $args,
+			'loops'      => $loops,
+			'classcount' => $classCount,
+		] ) );
 		
 		break;
 	// Just complete the course
