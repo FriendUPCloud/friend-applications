@@ -239,7 +239,7 @@ moduleObject.dashboard = {
 						
 						console.log( 'all completed res', res );
 						const compl = {
-		                    mainNum  : 'NYI',
+		                    mainNum  : res.sum,
 		                    mainIcon : 'fa-book',
 		                    mainText : 'Completed courses',
 		                    subStat  : undefined,

@@ -711,6 +711,7 @@ switch( $args->args->command )
 			
 			if ( 'classrooms' == $context )
 			{
+				/*
 				$uq = '
 					SELECT uc.UserID
 					FROM CC_UserClassroom uc
@@ -726,8 +727,9 @@ switch( $args->args->command )
 						$uList[] = intval( $u->UserID, 10 );
 					}
 				}
-				
 				$userCheck = 'AND s.UserID IN (' . implode( ',', $uList ) . ')';
+				*/
+				$userCheck = '';
 			}
 
 			$cq = '
@@ -737,7 +739,7 @@ switch( $args->args->command )
 					CC_CourseSession s, 
 					CC_Classroom c 
 				WHERE c.ID IN ( ' . implode( ',', $classrooms ) . ' ) 
-				' . $userCheckusrChk . ' 
+				' . $userCheck . ' 
 				AND s.CourseID = c.CourseID
 				GROUP BY s.ID
 			';
@@ -751,13 +753,14 @@ switch( $args->args->command )
 		}
 		else if ( 'sum' == $format )
 		{
-			$usrChk = ' WHERE s.UserID=\'' . $userId . '\'';
+			$usrChk = ' AND s.UserID=\'' . $userId . '\'';
 			if ( 'classrooms' == $context )
 				$usrChk = '';
 			
 			$sq = '
 				SELECT s.*
 				FROM CC_CourseSession s
+				WHERE s.Status = 9
 				'.$usrChk.'
 			';
 			$sr = $db->database->fetchObjects( $sq );
@@ -769,8 +772,10 @@ switch( $args->args->command )
 				}
 			}
 			
-			die('fail<!--separate-->'.json_encode([
-				'error' => 'sum not yet implemented',
+			die('ok<!--separate-->'.json_encode([
+				'sq'  => $sq,
+				'sr'  => $sr,
+				'sum' => count( $sr ),
 			]));
 		}
 		else
@@ -957,7 +962,6 @@ switch( $args->args->command )
 						$in = [
 							'registered' => $reg,
 							'total'      => $tot,
-							'res'        => ( $reg / $tot ) * 100,
 						];
 						$iter[ 'in' ] = $in;
 						if ( 0 == $reg || 0 == $tot )
@@ -973,7 +977,6 @@ switch( $args->args->command )
 				}
 				else
 				{
-					// THING HERE!!!?
 					$prog[] = 0;
 				}
 				
@@ -985,16 +988,21 @@ switch( $args->args->command )
 		$classCount = [];
 		foreach( $crsProg as $cid=>$cps )
 		{
-			$countUsers = '
-				SELECT count( uc.ID ) AS users
-				FROM CC_Classroom AS cl
-				LEFT JOIN CC_UserClassroom AS uc
-					ON cl.ID = uc.ClassroomID
-				WHERE cl.CourseID = '.$cid.'
-			';
-			$usersInClass = $db->database->fetchObject( $countUsers );
-			$classCount[ $cid ] = $usersInClass;
-			$u = $usersInClass->users;
+			$u = count( $cps );
+			if ( 'classrooms' == $context )
+			{
+				$countUsers = '
+					SELECT count( uc.ID ) AS users
+					FROM CC_Classroom AS cl
+					LEFT JOIN CC_UserClassroom AS uc
+						ON cl.ID = uc.ClassroomID
+					WHERE cl.CourseID = '.$cid.'
+				';
+				$usersInClass = $db->database->fetchObject( $countUsers );
+				$classCount[ $cid ] = $usersInClass;
+				$u = $usersInClass->users;
+			}
+			
 			if ( 0 == $u )
 			{
 				$progress[ $cid ] = 0;

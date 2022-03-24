@@ -138,7 +138,7 @@ Application.submodules.dashboard = {
                     {
                         const tot = JSON.parse( d );
                         console.log( 'tot', tot );
-                        dstat.totalComplete = tot.total || 'NYI';
+                        dstat.totalComplete = tot.sum || '~';
                     }
                     else
                     {
