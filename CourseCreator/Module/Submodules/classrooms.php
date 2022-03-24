@@ -89,12 +89,10 @@ if( isset( $args->method ) )
 									$flags = new stdClass();
 									$flags->classroomId = $args->classroomId;
 									$flags->session = $sessions->{$key}; // Session object
-									$Logger->log( 'What was the session and classroom: ' . $sessions->{$key}->ID . ' ' . $args->classroomId );
 									$flags->elementProgress = $rows[$k]->Progress;
 									$flags->countPageProgress = true;
-									$Logger->log( 'What page progress do we have: ' . getProgress( $flags ) );
-		        					$rows[$k]->Progress = getProgress( $flags );
-		        					$Logger->log( 'We got progress: ' . $rows[$k]->Progress );
+									$Logger->log( 'We got progress on classroom pages: ' . getProgress( $flags )  );
+		        					$rows[$k]->Progress = getProgress( $flags ) . '%';
 		        				}
             					
             					// Add the user to the row in the correct format

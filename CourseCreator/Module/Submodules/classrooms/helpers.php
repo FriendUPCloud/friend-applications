@@ -306,12 +306,15 @@ function getProgress( $flags )
 	
 	$progress = 0;
 	$progressGroups = 0; // How many groups of numbers to divide on
+	$progressOnElements = false;
 	
 	// Add a progress group with total amount of elements progressed 0-100%
-	if( isset( $flags->elementProgress ) )
+	// Only when in section mode
+	if( isset( $flags->elementProgress ) && isset( $flags->sectionId ) )
 	{
 		$progressGroups++;
 		$progress += intval( $flags->elementProgress, 10 );
+		$progressOnElements = true;
 	}
 	
 	// Count page progress
@@ -367,13 +370,33 @@ function getProgress( $flags )
 						$progressGroups++;
 						$progress += floor( $mostProgress / $pageTotal * 100 );
 					}
+					
+					// Check if there are any interactive elements on proposed page
+					// If not, remove that progressgroup
+					if( $progressOnElements )
+					{
+						$Logger->log( 'Group progress: ' . $progressGroups );
+						if( $interactive = $db->database->fetchObject( '
+							SELECT COUNT(el.ID) CNT FROM
+								CC_Element el, CC_ElementType et, CC_Page p
+							WHERE
+								el.ElementTypeID = et.ID AND et.IsQuestion AND 
+								el.PageID = p.ID AND p.SectionID = \'' . intval( $flags->sectionId, 10 ) . '\'
+						' ) )
+						{
+							if( $interactive->CNT <= 0 )
+							{
+								$progressGroups--;
+							}
+						}
+						$Logger->log( 'Now Group progress: ' . $progressGroups );
+					}
 				}
 			}
 		}
 		// By entire classroom
 		else if( isset( $flags->classroomId ) && isset( $flags->session ) )
 		{
-			$Logger->log( 'Checking sections of classrooms' );
 			// Fetch all classroom sections
 			if( $sections = $db->database->fetchObjects( '
 				SELECT sc.ID, sc.Name FROM CC_Section sc, CC_Classroom c, CC_CourseSession se
@@ -389,7 +412,6 @@ function getProgress( $flags )
 				$secTotal = 0;
 				foreach( $sections as $sec )
 				{
-					$Logger->log( 'What section: ' . $sec->Name );
 					// Use section flag for this function to extract per section
 					$fl = new stdClass();
 					$fl->sectionId = $sec->ID;
@@ -403,10 +425,6 @@ function getProgress( $flags )
 					$progressGroups++;
 					$progress += floor( $sectionProgress / $secTotal );
 				}
-			}
-			else
-			{
-				$Logger->log( 'Failed ' . mysqli_error( $db->database->_link ) );
 			}
 		}
 	}
