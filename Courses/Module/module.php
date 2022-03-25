@@ -1088,6 +1088,7 @@ switch( $args->args->command )
 		$progTemps = [];
 		$getProgReturn = [];
 		$userCounts = [];
+		$allFlags = [];
 		foreach( $crsProg as $cid=>$cps )
 		{
 			$userCount = count( $cps );
@@ -1125,6 +1126,7 @@ switch( $args->args->command )
 			$flags->session = $sessionStore[ $cid ];
 			$flags->elementProgress = $progressTemp;
 			$flags->countPageProgress = true;
+			$allFlags[ $csi ] = $flags;
 			
 			$progRet = getProgress( $flags );
 			$getProgReturn[ $cid ] = $progRet;
