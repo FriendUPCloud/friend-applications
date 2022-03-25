@@ -883,7 +883,7 @@ switch( $args->args->command )
 				if ( $countPageProgress )
 				{
 					$maxQuery = '
-						SELECT COUNT( p.ID ) AS CNT
+						SELECT COUNT( DISTINCT p.ID ) AS CNT
 						FROM
 							CC_CourseSession AS cs,
 							CC_PageResult AS pr,
@@ -903,7 +903,7 @@ switch( $args->args->command )
 				else
 				{
 					$maxQuery = '
-						SELECT COUNT(e.ID) CNT
+						SELECT COUNT( DISTINCT e.ID) CNT
 						FROM 
 							CC_CourseSession s, 
 							CC_Element e, 
@@ -946,9 +946,7 @@ switch( $args->args->command )
 							FROM
 								CC_PageResult pr
 							WHERE
-								er.Data
-							AND
-								er.CourseSessionID = ' . $csId . '
+								pr.CourseSessionID = ' . $csId . '
 						';
 					}
 					else
@@ -957,11 +955,8 @@ switch( $args->args->command )
 							SELECT 
 								er.*
 							FROM 
-								CC_ElementResult er, 
-								CC_CourseSession cs 
+								CC_ElementResult er
 							WHERE 
-								cs.ID = er.CourseSessionID AND 
-								er.Data AND 
 								er.CourseSessionID = \'' . $csId . '\'
 						';
 					}
@@ -975,7 +970,6 @@ switch( $args->args->command )
 						er.UserID = cs.UserID AND
 						er.CourseSessionID = \'' . $csId . '\'
 					*/
-					
 					
 					if( isset( $args->args->sectionId ) )
 					{
