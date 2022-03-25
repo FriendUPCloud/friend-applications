@@ -95,3 +95,5 @@ CREATE TABLE IF NOT EXISTS `CC_NewsBulletin` (
 /* Active courses are children of template courses */
 ALTER TABLE `CC_Course` ADD `ParentID` bigint DEFAULT 0 AFTER `ID`;
 ALTER TABLE `CC_Course` ADD `Description` TEXT AFTER `Name`;
+
+ALTER TABLE `CC_Element` ADD SortOrder int(11) AFTER DisplayID;

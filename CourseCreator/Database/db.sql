@@ -116,6 +116,7 @@ CREATE TABLE IF NOT EXISTS CC_Element(
     ID BIGINT(20) auto_increment NOT NULL,
     Name VARCHAR(60),
     DisplayID BIGINT(20) NOT NULL,
+    SortOrder INT(11) NOT NULL,
     PageID BIGINT(20),
     ElementTypeID BIGINT(20),
     DateCreated DATETIME DEFAULT CURRENT_TIMESTAMP,

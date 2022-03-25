@@ -519,7 +519,7 @@ switch( $args->args->command )
 									if( $elementC == 0 )
 									{
 										// Check if the page is complete
-										$response->{$secId}->progress = ( $d && $d->Status == 1 ) ? 100 : 0;
+										$response->{$secId}->progress = 0;
 									}
 									// No interactive element is completed
 									else
@@ -555,7 +555,7 @@ switch( $args->args->command )
 								if( $elementC == 0 )
 								{
 									// Check if the page is complete
-									$response->{$secId}->progress = ( $d && $d->Status == 1 ) ? 100 : 0;
+									$response->{$secId}->progress = 0;
 								}
 								// No interactive element is completed
 								else
