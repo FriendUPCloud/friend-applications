@@ -911,7 +911,7 @@ switch( $args->args->command )
 					$maxQuery = '
 						SELECT COUNT( e.ID ) CNT
 						FROM 
-							CC_CourseSession s, 
+							CC_CourseSession cs, 
 							CC_Element e, 
 							CC_Page p, 
 							CC_Section s 
@@ -921,7 +921,7 @@ switch( $args->args->command )
 							p.ID = e.PageID AND 
 							e.ElementTypeID IN ( ' . implode( ',', $types ) . ' ) AND 
 							' . $sectionSpecific . '
-							s.ID = \'' . $csId . '\'
+							cs.ID = \'' . $csId . '\'
 					';
 					
 				}
