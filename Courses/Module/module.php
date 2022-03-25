@@ -885,9 +885,9 @@ switch( $args->args->command )
 					$maxQuery = '
 						SELECT COUNT( p.ID ) AS CNT
 						FROM
-							CC_CourseSession AS cs
-							CC_PageResult AS pr
-							CC_Page AS p
+							CC_CourseSession AS cs,
+							CC_PageResult AS pr,
+							CC_Page AS p,
 							CC_Section AS s
 						WHERE
 							s.CourseID = cs.CourseID
