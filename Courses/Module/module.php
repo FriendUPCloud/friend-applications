@@ -840,13 +840,14 @@ switch( $args->args->command )
 				$iter[ 'sq' ] = $sq;
 				
 				$session = $db->database->fetchObject( $sq );
-				$sessionStore[ $csId ] = $session;
+				$sessionStore[ $session->CourseID ] = $session;
 				
 				unset( $prog );
 				if ( !isset( $crsProg[ $session->CourseID ]) )
 				{
 					$crsProg[ $session->CourseID ] = [];
 				}
+				
 				$prog = &$crsProg[ $session->CourseID ];
 				
 				$iter[ 'session' ] = $session;
@@ -1088,6 +1089,7 @@ switch( $args->args->command )
 		$progTemps = [];
 		$getProgReturn = [];
 		$userCounts = [];
+		$allFlags = [];
 		foreach( $crsProg as $cid=>$cps )
 		{
 			$userCount = count( $cps );
@@ -1125,6 +1127,7 @@ switch( $args->args->command )
 			$flags->session = $sessionStore[ $cid ];
 			$flags->elementProgress = $progressTemp;
 			$flags->countPageProgress = true;
+			$allFlags[ $cid ] = $flags;
 			
 			$progRet = getProgress( $flags );
 			$getProgReturn[ $cid ] = $progRet;
@@ -1153,6 +1156,7 @@ switch( $args->args->command )
 			'getProgReturn' => $getProgReturn,
 			'userCounts'    => $userCounts,
 			'progTemps'     => $progTemps,
+			'flags'         => $allFlags,
 		] ) );
 		
 		break;
