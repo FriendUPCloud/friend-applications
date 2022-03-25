@@ -702,6 +702,8 @@ switch( $args->args->command )
 		if ( isset( $args->args ) && isset( $args->args->countPageProgress ))
 			$countPageProgress = $args->args->countPageProgress;
 		*/
+		$countPageProgress = false;
+		
 		$userId = intval( $User->ID, 10 );
 		
 		// Only admins can do this
