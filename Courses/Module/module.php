@@ -873,7 +873,7 @@ switch( $args->args->command )
 				$sectionSpecific = '';
 				if( isset( $args->args->sectionId ) )
 				{
-					$sectionSpecific = 'se.ID = \'' . intval( $args->args->sectionId, 10 ) . '\' AND ';
+					$sectionSpecific = 's.ID = \'' . intval( $args->args->sectionId, 10 ) . '\' AND ';
 				}
 				
 				$iter[ 'sectionSpecific' ] = $sectionSpecific;
@@ -883,7 +883,7 @@ switch( $args->args->command )
 				if ( $countPageProgress )
 				{
 					$maxQuery = '
-						SELECT COUNT( DISTINCT p.ID ) AS CNT
+						SELECT COUNT( p.ID ) AS CNT
 						FROM
 							CC_CourseSession AS cs,
 							CC_PageResult AS pr,
@@ -896,6 +896,7 @@ switch( $args->args->command )
 						AND
 							pr.PageID = p.ID
 						AND
+							'.$sectionSpecific.'
 							cs.ID = ' . $csId . '
 					';
 					
@@ -903,15 +904,15 @@ switch( $args->args->command )
 				else
 				{
 					$maxQuery = '
-						SELECT COUNT( DISTINCT e.ID) CNT
+						SELECT COUNT( e.ID ) CNT
 						FROM 
 							CC_CourseSession s, 
 							CC_Element e, 
 							CC_Page p, 
-							CC_Section se 
+							CC_Section s 
 						WHERE 
-							s.CourseID = se.CourseID AND 
-							p.SectionID = se.ID AND 
+							cs.CourseID = s.CourseID AND 
+							p.SectionID = s.ID AND 
 							p.ID = e.PageID AND 
 							e.ElementTypeID IN ( ' . implode( ',', $types ) . ' ) AND 
 							' . $sectionSpecific . '
@@ -949,6 +950,7 @@ switch( $args->args->command )
 								pr.CourseSessionID = ' . $csId . '
 						';
 					}
+					// Get elements that were interacted with
 					else
 					{
 						$registeredQuery = '
@@ -961,8 +963,6 @@ switch( $args->args->command )
 						';
 					}
 					
-					// Get elements that were interacted with
-					
 					/*
 					cs.UserID = \'' . $userId . '\' AND 
 						cs.ID = er.CourseSessionID AND 
@@ -973,20 +973,39 @@ switch( $args->args->command )
 					
 					if( isset( $args->args->sectionId ) )
 					{
-						$regQ = '
-							SELECT 
-								er.*
-							FROM 
-								CC_ElementResult er
-							LEFT JOIN CC_Element e
-								ON er.ElmentID = e.ID
-							LEFT JOIN CC_Page p
-								ON e.PageID = p.ID
-							WHERE
-								er.CourseSessionID = ' . csId . '
-							AND
-								p.SectionID = ' . intval( $args->args->sectionId, 10 ) . '
-						';
+						$iter[ 'sectionId '] = intval( $args->args->sectionId );
+						if ( $countPageProgress )
+						{
+							$registeredQuery = '
+								SELECT
+									pr.*
+								FROM
+									CC_PageResult AS pr
+								LEFT JOIN CC_Page AS p
+									ON pr.PageID = p.ID
+								WHERE
+									pr.CourseSessionID = ' . $csId .  '
+								AND
+									p.SectionID = ' intval( $args->args->sectionId, 10 ) . '
+							';
+						}
+						else
+						{
+							$registeredQuery = '
+								SELECT 
+									er.*
+								FROM 
+									CC_ElementResult er
+								LEFT JOIN CC_Element e
+									ON er.ElmentID = e.ID
+								LEFT JOIN CC_Page p
+									ON e.PageID = p.ID
+								WHERE
+									er.CourseSessionID = ' . csId . '
+								AND
+									p.SectionID = ' . intval( $args->args->sectionId, 10 ) . '
+							';
+						}
 						
 						/*
 						
