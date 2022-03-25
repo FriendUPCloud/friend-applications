@@ -986,7 +986,7 @@ switch( $args->args->command )
 								WHERE
 									pr.CourseSessionID = ' . $csId .  '
 								AND
-									p.SectionID = ' intval( $args->args->sectionId, 10 ) . '
+									p.SectionID = ' . intval( $args->args->sectionId, 10 ) . '
 							';
 						}
 						else
