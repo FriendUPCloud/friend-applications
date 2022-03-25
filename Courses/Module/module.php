@@ -698,8 +698,11 @@ switch( $args->args->command )
 		if ( isset( $args->args ) && isset( $args->args->format ) )
 			$format = $args->args->format;
 		
+		/*
 		if ( isset( $args->args ) && isset( $args->args->countPageProgress ))
 			$countPageProgress = $args->args->countPageProgress;
+		*/
+		$countPageProgress = false;
 		
 		$userId = intval( $User->ID, 10 );
 		
@@ -806,6 +809,7 @@ switch( $args->args->command )
 		
 		$loops = []; // debug
 		$crsProg = []; // store progress by course id
+		$sessionStore = [];
 		
 		if( count( $csIds ) )
 		{
@@ -836,6 +840,7 @@ switch( $args->args->command )
 				$iter[ 'sq' ] = $sq;
 				
 				$session = $db->database->fetchObject( $sq );
+				$sessionStore[ $csId ] = $session;
 				
 				unset( $prog );
 				if ( !isset( $crsProg[ $session->CourseID ]) )
@@ -906,7 +911,7 @@ switch( $args->args->command )
 					$maxQuery = '
 						SELECT COUNT( e.ID ) CNT
 						FROM 
-							CC_CourseSession s, 
+							CC_CourseSession cs, 
 							CC_Element e, 
 							CC_Page p, 
 							CC_Section s 
@@ -916,7 +921,7 @@ switch( $args->args->command )
 							p.ID = e.PageID AND 
 							e.ElementTypeID IN ( ' . implode( ',', $types ) . ' ) AND 
 							' . $sectionSpecific . '
-							s.ID = \'' . $csId . '\'
+							cs.ID = \'' . $csId . '\'
 					';
 					
 				}
@@ -1082,7 +1087,7 @@ switch( $args->args->command )
 		$classCount = [];
 		foreach( $crsProg as $cid=>$cps )
 		{
-			$u = count( $cps );
+			$userCount = count( $cps );
 			if ( 'classrooms' == $context )
 			{
 				$countUsers = '
@@ -1094,38 +1099,48 @@ switch( $args->args->command )
 				';
 				$usersInClass = $db->database->fetchObject( $countUsers );
 				$classCount[ $cid ] = $usersInClass;
-				$u = $usersInClass->users;
+				$userCount = $usersInClass->users;
 			}
 			
-			if ( 0 == $u )
-			{
-				$progress[ $cid ] = 0;
-			}
-			else
+			$progressTemp = 0;
+			if ( 0 != $userCount )
 			{
 				$s = 0;
 				foreach( $cps as $n )
 					$s = $s + $n;
-				$progress[ $cid ] = ( $s / $u );
+				 $progressTemp = ( $s / $userCount );
 			}
+			
+			$flags = new stdClass();
+			if ( isset( $args->args->sectionId ) )
+				$flags->sectionId = $args->args->sectionId;
+			else
+				$flags->classroomId = $sessionStore[ $cid ]->ClassID;
+			
+			$flags->session = $sessionStore[ $cid ];
+			$flags->elementProgress = $progressTemp;
+			$flags->countPageProgress = true;
+			
+			$progressTemp = getProgress( $flags );
+			
+			$progress[ $cid ] = $progressTemp;
 			
 			unset( $cid );
 			unset( $cps );
-			unset( $u );
-			unset( $s );
 			unset( $usersInClass );
 			unset( $countUsers );
 		}
 		
 		die( 'ok<!--separate-->' . json_encode( [
-			'args'       => $args,
-			'csIds'      => $csIds,
-			'crsProg'    => $crsProg,
-			'progress'   => $progress,
-			'completed'  => $sum,
-			'args'       => $args,
-			'loops'      => $loops,
-			'classcount' => $classCount,
+			'args'         => $args,
+			'csIds'        => $csIds,
+			'crsProg'      => $crsProg,
+			'progress'     => $progress,
+			'completed'    => $sum,
+			'args'         => $args,
+			'loops'        => $loops,
+			'classcount'   => $classCount,
+			'sessionStore' => $sessionStore,
 		] ) );
 		
 		break;
