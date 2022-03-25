@@ -840,13 +840,14 @@ switch( $args->args->command )
 				$iter[ 'sq' ] = $sq;
 				
 				$session = $db->database->fetchObject( $sq );
-				$sessionStore[ $csId ] = $session;
+				$sessionStore[ $session->CourseID ] = $session;
 				
 				unset( $prog );
 				if ( !isset( $crsProg[ $session->CourseID ]) )
 				{
 					$crsProg[ $session->CourseID ] = [];
 				}
+				
 				$prog = &$crsProg[ $session->CourseID ];
 				
 				$iter[ 'session' ] = $session;
