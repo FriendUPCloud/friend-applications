@@ -1155,6 +1155,7 @@ switch( $args->args->command )
 			'getProgReturn' => $getProgReturn,
 			'userCounts'    => $userCounts,
 			'progTemps'     => $progTemps,
+			'flags'         => $allFlags,
 		] ) );
 		
 		break;
