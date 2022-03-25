@@ -128,6 +128,7 @@ function getProgress( $flags )
 				ORDER BY sc.DisplayID
 			' ) )
 			{
+				$Logger->log( 'Classroom ID: ' . $flags->classroomId );
 				$sectionProgress = 0;
 				$secTotal = 0;
 				foreach( $sections as $sec )
@@ -140,12 +141,14 @@ function getProgress( $flags )
 					$fl->elementProgress = $flags->elementProgress;
 					$sectionProgress += getProgress( $fl );
 					$secTotal++;
+					$Logger->log( 'Sections in classroom progress: ' . $sectionProgress );
 				}
 				if( $sectionProgress > 0 )
 				{
 					$progressGroups++;
 					$progress += floor( $sectionProgress / $secTotal );
 				}
+				$Logger->log( 'Total progress: ' . $sectionProgress );
 			}
 		}
 	}
