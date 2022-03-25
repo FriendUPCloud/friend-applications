@@ -150,6 +150,16 @@ function getProgress( $flags )
 				}
 				$Logger->log( 'Total progress: ' . $sectionProgress );
 			}
+			else
+			{
+				$Logger->log( 'Query failed: SELECT sc.ID, sc.Name FROM CC_Section sc, CC_Classroom c, CC_CourseSession se
+				WHERE
+					se.ID = \'' . intval( $flags->session->ID, 10 ) . '\' AND
+					se.CourseID = sc.CourseID AND
+					c.CourseID = se.CourseID AND
+					c.ID = \'' . intval( $flags->classroomId, 10 ) . '\'
+				ORDER BY sc.DisplayID' );
+			}
 		}
 	}
 	
