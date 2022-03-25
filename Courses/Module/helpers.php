@@ -128,7 +128,7 @@ function getProgress( $flags )
 				ORDER BY sc.DisplayID
 			' ) )
 			{
-				$Logger->log( 'Classroom ID: ' . $flags->classroomId );
+				//$Logger->log( 'Classroom ID: ' . $flags->classroomId );
 				$sectionProgress = 0;
 				$secTotal = 0;
 				foreach( $sections as $sec )
@@ -141,24 +141,24 @@ function getProgress( $flags )
 					$fl->elementProgress = $flags->elementProgress;
 					$sectionProgress += getProgress( $fl );
 					$secTotal++;
-					$Logger->log( 'Sections in classroom progress: ' . $sectionProgress );
+					//$Logger->log( 'Sections in classroom progress: ' . $sectionProgress );
 				}
 				if( $sectionProgress > 0 )
 				{
 					$progressGroups++;
 					$progress += floor( $sectionProgress / $secTotal );
 				}
-				$Logger->log( 'Total progress: ' . $sectionProgress );
+				//$Logger->log( 'Total progress: ' . $sectionProgress );
 			}
 			else
 			{
-				$Logger->log( 'Query failed: SELECT sc.ID, sc.Name FROM CC_Section sc, CC_Classroom c, CC_CourseSession se
+				/*$Logger->log( 'Query failed: SELECT sc.ID, sc.Name FROM CC_Section sc, CC_Classroom c, CC_CourseSession se
 				WHERE
 					se.ID = \'' . intval( $flags->session->ID, 10 ) . '\' AND
 					se.CourseID = sc.CourseID AND
 					c.CourseID = se.CourseID AND
 					c.ID = \'' . intval( $flags->classroomId, 10 ) . '\'
-				ORDER BY sc.DisplayID' );
+				ORDER BY sc.DisplayID' );*/
 			}
 		}
 	}

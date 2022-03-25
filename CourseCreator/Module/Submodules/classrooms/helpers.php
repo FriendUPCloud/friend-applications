@@ -375,7 +375,7 @@ function getProgress( $flags )
 					// If not, remove that progressgroup
 					if( $progressOnElements )
 					{
-						$Logger->log( 'Group progress: ' . $progressGroups );
+						//$Logger->log( 'Group progress: ' . $progressGroups );
 						if( $interactive = $db->database->fetchObject( '
 							SELECT COUNT(el.ID) CNT FROM
 								CC_Element el, CC_ElementType et, CC_Page p
@@ -389,7 +389,7 @@ function getProgress( $flags )
 								$progressGroups--;
 							}
 						}
-						$Logger->log( 'Now Group progress: ' . $progressGroups );
+						//$Logger->log( 'Now Group progress: ' . $progressGroups );
 					}
 				}
 			}
