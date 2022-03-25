@@ -1085,6 +1085,9 @@ switch( $args->args->command )
 		
 		$progress = [];
 		$classCount = [];
+		$progTemps = [];
+		$getProgReturn = [];
+		$userCounts = [];
 		foreach( $crsProg as $cid=>$cps )
 		{
 			$userCount = count( $cps );
@@ -1102,15 +1105,17 @@ switch( $args->args->command )
 				$userCount = $usersInClass->users;
 			}
 			
+			$userCounts[ $cid ] = $userCount;
 			$progressTemp = 0;
 			if ( 0 != $userCount )
 			{
 				$s = 0;
 				foreach( $cps as $n )
 					$s = $s + $n;
-				 $progressTemp = ( $s / $userCount );
+				$progressTemp = ( $s / $userCount );
 			}
 			
+			$progTemps[ $cid ] = $progressTemp;
 			$flags = new stdClass();
 			if ( isset( $args->args->sectionId ) )
 				$flags->sectionId = $args->args->sectionId;
@@ -1121,26 +1126,33 @@ switch( $args->args->command )
 			$flags->elementProgress = $progressTemp;
 			$flags->countPageProgress = true;
 			
-			$progressTemp = getProgress( $flags );
+			$progRet = getProgress( $flags );
+			$getProgReturn[ $cid ] = $progRet;
 			
-			$progress[ $cid ] = $progressTemp;
+			$progress[ $cid ] = $progRet;
 			
 			unset( $cid );
 			unset( $cps );
 			unset( $usersInClass );
 			unset( $countUsers );
+			unset( $userCount );
+			unset( $progressTemp );
+			unset( $progRet );
 		}
 		
 		die( 'ok<!--separate-->' . json_encode( [
-			'args'         => $args,
-			'csIds'        => $csIds,
-			'crsProg'      => $crsProg,
-			'progress'     => $progress,
-			'completed'    => $sum,
-			'args'         => $args,
-			'loops'        => $loops,
-			'classcount'   => $classCount,
-			'sessionStore' => $sessionStore,
+			'args'          => $args,
+			'csIds'         => $csIds,
+			'crsProg'       => $crsProg,
+			'progress'      => $progress,
+			'completed'     => $sum,
+			'args'          => $args,
+			'loops'         => $loops,
+			'classcount'    => $classCount,
+			'sessionStore'  => $sessionStore,
+			'getProgReturn' => $getProgReturn,
+			'userCounts'    => $userCounts,
+			'progTemps'     => $progTemps,
 		] ) );
 		
 		break;
