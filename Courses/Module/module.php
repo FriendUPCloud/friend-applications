@@ -1126,7 +1126,7 @@ switch( $args->args->command )
 			$flags->session = $sessionStore[ $cid ];
 			$flags->elementProgress = $progressTemp;
 			$flags->countPageProgress = true;
-			$allFlags[ $csi ] = $flags;
+			$allFlags[ $cid ] = $flags;
 			
 			$progRet = getProgress( $flags );
 			$getProgReturn[ $cid ] = $progRet;
