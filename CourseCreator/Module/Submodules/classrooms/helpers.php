@@ -417,6 +417,7 @@ function getProgress( $flags )
 					$fl->sectionId = $sec->ID;
 					$fl->session = $flags->session;
 					$fl->countPageProgress = true;
+					$fl->elementProgress = $flags->elementProgress;
 					$sectionProgress += getProgress( $fl );
 					$secTotal++;
 				}
