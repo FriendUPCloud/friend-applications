@@ -95,7 +95,7 @@ function getProgress( $flags )
 					// If not, remove that progressgroup
 					if( $progressOnElements )
 					{
-						$Logger->log( 'Group progress: ' . $progressGroups );
+						$Logger->log( 'Section: Element progress: ' . $progressGroups );
 						if( $interactive = $db->database->fetchObject( '
 							SELECT COUNT(el.ID) CNT FROM
 								CC_Element el, CC_ElementType et, CC_Page p
@@ -109,7 +109,7 @@ function getProgress( $flags )
 								$progressGroups--;
 							}
 						}
-						$Logger->log( 'Now Group progress: ' . $progressGroups );
+						$Logger->log( 'Section: Element progress: ' . $progressGroups );
 					}
 				}
 			}
@@ -128,7 +128,7 @@ function getProgress( $flags )
 				ORDER BY sc.DisplayID
 			' ) )
 			{
-				//$Logger->log( 'Classroom ID: ' . $flags->classroomId );
+				$Logger->log( 'Classroom ID: ' . $flags->classroomId );
 				$sectionProgress = 0;
 				$secTotal = 0;
 				foreach( $sections as $sec )
@@ -141,14 +141,14 @@ function getProgress( $flags )
 					//$fl->elementProgress = $flags->elementProgress;
 					$sectionProgress += getProgress( $fl );
 					$secTotal++;
-					//$Logger->log( 'Sections in classroom progress: ' . $sectionProgress );
+					$Logger->log( 'Classroom: Section ' . $secTotal . '. progress: ' . $sectionProgress );
 				}
 				if( $sectionProgress > 0 )
 				{
 					$progressGroups++;
 					$progress += floor( $sectionProgress / $secTotal );
 				}
-				//$Logger->log( 'Total progress: ' . $sectionProgress );
+				$Logger->log( 'Classroom: Total section progress: ' . $sectionProgress );
 			}
 			else
 			{
@@ -168,6 +168,8 @@ function getProgress( $flags )
 	{
 		$progress = floor( $progress / $progressGroups );
 	}
+	
+	$Logger->log( 'Resulting progress: ' . $progress . '%' );
 	
 	return $progress;
 }
