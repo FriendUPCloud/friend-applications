@@ -103,34 +103,27 @@ switch( $args->args->command )
 		}
 	
 		$q = '
-			SELECT 
-				cr.*,
-				cs.Status AS SessionStatus
-			FROM 
-				CC_UserClassroom uc, 
-				CC_Classroom cr,
-				CC_CourseSession cs
-			WHERE 
-			    cs.CourseID = cr.CourseID AND
-			    cs.UserID = uc.UserID AND
-				uc.ClassroomID = cr.ID AND 
-	    			uc.UserID=\'' . intval( $User->ID, 10 ) . '\' AND cr.Status > 0
+		    SELECT
+		        cr.*,
+		        uc.UserID AS UCID
+		    FROM
+		        CC_UserClassroom uc,
+		        CC_Classroom cr
+		    WHERE
+		        uc.ClassroomID = cr.ID AND 
+			    uc.UserID = \'' . intval( $User->ID, 10 ) . '\'
 	    		' . $status . '
 	    		' . $active . '
-			ORDER BY 
+		    ORDER BY
 				cr.StartDate DESC, ID DESC
 		';
+		
+		//, cs.Status AS SessionStatus,
+		$Logger->log( $q );
 			
 		if( $rows = $db->database->fetchObjects( $q ) )
 		{
-			/*
-			die( 'ok<!--separate-->' . json_encode( [
-				'rows' => $rows,
-				'aargs' => $args->args,
-				'q' => $q,
-			] ) );
-			*/
-			die( 'ok<!--separate-->' . json_encode( $rows ) );
+		    die( 'ok<!--separate-->' . json_encode( $rows ) );
 		}
 		die( 'fail<!--separate-->{"message":"Could not find any classrooms for this user.","response":-1}' );
 	// List sections in course
