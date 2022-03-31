@@ -630,7 +630,8 @@ moduleObject.classrooms = {
 			}
 			m.execute( 'appmodule', {
 				appName: 'Courses',
-				command: 'listclassrooms'
+				command: 'listclassrooms',
+				active: 'active'
 			} );
 		} );
 	},

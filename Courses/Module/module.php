@@ -88,7 +88,7 @@ switch( $args->args->command )
 			if ( !$args->args->status )
 				$status = '';
 			else
-				$status = 'AND cr.Status ='.$args->args->status;
+				$status = 'AND cr.Status = \''.$args->args->status . '\'';
 		}
 		
 		$active = '';
