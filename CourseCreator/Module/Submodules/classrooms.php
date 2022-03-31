@@ -81,20 +81,6 @@ if( isset( $args->method ) )
             					// Get statistics for each user
             					$rows[$k]->Progress = fetchUserClassroomProgress( $u->ID, intval( $args->classroomId, 10 ) );
             					
-            					$key = $u->ID . '_' . $args->classroomId;
-            					
-								// Setup flags so we can get page progress on top of element progress
-								if( isset( $sessions->{$key} ) && $sessions->{$key}->ID > 0 )
-								{
-									$flags = new stdClass();
-									$flags->classroomId = $args->classroomId;
-									$flags->session = $sessions->{$key}; // Session object
-									$flags->elementProgress = $rows[$k]->Progress;
-									$flags->countPageProgress = true;
-									$Logger->log( 'We got progress on classroom pages: ' . getProgress( $flags )  );
-		        					$rows[$k]->Progress = getProgress( $flags ) . '%';
-		        				}
-            					
             					// Add the user to the row in the correct format
             					$rows[$k]->FullName = $u->FullName;
             					$lt = isset( $u->LT ) ? date( 'Y-m-d', $u->LT ) : '-';
