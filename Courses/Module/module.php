@@ -685,7 +685,7 @@ switch( $args->args->command )
 		// Section hasn't even been started on
 		die( 'fail<!--separate->{"message":"This section is not complete.","response":-1}' );
 		break;
-	// Get progress for you (your user) in a selected class
+	// Get progress for you (your user) in a selected classroom
 	case 'getclassroomprogress':
 		$types = getInteractiveElementTypes( $db );
 		$context = 'user';
@@ -697,8 +697,6 @@ switch( $args->args->command )
 		
 		if ( isset( $args->args ) && isset( $args->args->format ) )
 			$format = $args->args->format;
-		
-		$countPageProgress = false;
 		
 		$userId = intval( $User->ID, 10 );
 		
@@ -760,7 +758,7 @@ switch( $args->args->command )
 				SELECT s.*
 				FROM CC_CourseSession s
 				WHERE s.Status = 9
-				'.$usrChk.'
+				' . $usrChk . '
 			';
 			$sr = $db->database->fetchObjects( $sq );
 			if ( $sr )
@@ -771,11 +769,11 @@ switch( $args->args->command )
 				}
 			}
 			
-			die('ok<!--separate-->'.json_encode([
+			die( 'ok<!--separate-->' . json_encode( [
 				'sq'  => $sq,
 				'sr'  => $sr,
 				'sum' => count( $sr ),
-			]));
+			] ) );
 		}
 		else
 		{
@@ -789,19 +787,22 @@ switch( $args->args->command )
 		$crsProg = []; // store progress by course id
 		$sessionStore = [];
 		
-		if( count( $csIds ) )
+		// If we have more than one classroom ID
+		if( count( $csIds ) > 0 )
 		{
 			// Output progress based on course
 			$out = new stdClass();
 			foreach( $csIds as $csId )
 			{
-				unset( $iter );
-				$iter = [];
+			    // $iter contains information about classrooms and sessions
+			    // Used for debug
+				unset( $iter ); $iter = []; $iter[ 'csId' ] = $csId;
+				
+				// Just add debug information
 				$loops[] = &$iter;
-				$iter[ 'csId' ] = $csId;
-				$regQ = '';
-				$regR = null;
-				$elC = null;
+				
+				$regR = null; // Amount of registered elements (from db)
+				$elC = null; // Element count var (from db)
 				
 				// Request course session with classroom ID
 				$sq = '
@@ -812,20 +813,20 @@ switch( $args->args->command )
 					LEFT JOIN CC_Classroom cl
 						ON s.CourseID = cl.CourseID
 					WHERE
-						s.ID='.$csId.' 
+						s.ID=\'' . $csId . '\'
 				';
-				
 				$iter[ 'sq' ] = $sq;
-				
 				$session = $db->database->fetchObject( $sq );
 				$sessionStore[ $session->CourseID ] = $session;
 				
 				unset( $prog );
+				
 				if ( !isset( $crsProg[ $session->CourseID ]) )
 				{
 					$crsProg[ $session->CourseID ] = [];
 				}
 				
+				// Grab the progress based on course id
 				$prog = &$crsProg[ $session->CourseID ];
 				
 				$iter[ 'session' ] = $session;
@@ -848,12 +849,6 @@ switch( $args->args->command )
 				
 				$iter[ 'countthetings' ] = true;
 				
-				/*
-				$out->{$cl->CourseID} = new stdClass();
-				$entry =& $out->{$cl->CourseID};
-				$entry->status = $cl->Status;
-				*/
-				
 				$sectionSpecific = '';
 				if( isset( $args->args->sectionId ) )
 				{
@@ -864,157 +859,59 @@ switch( $args->args->command )
 				
 				// Get total page count based on course session
 				$maxQuery = '';
-				if ( $countPageProgress )
-				{
-					$maxQuery = '
-						SELECT COUNT( p.ID ) AS CNT
-						FROM
-							CC_CourseSession AS cs,
-							CC_PageResult AS pr,
-							CC_Page AS p,
-							CC_Section AS s
-						WHERE
-							s.CourseID = cs.CourseID
-						AND
-							p.SectionID = s.ID
-						AND
-							pr.PageID = p.ID
-						AND
-							'.$sectionSpecific.'
-							cs.ID = ' . $csId . '
-					';
-					
-				}
-				else
-				{
-					$maxQuery = '
-						SELECT COUNT( e.ID ) CNT
-						FROM 
-							CC_CourseSession cs, 
-							CC_Element e, 
-							CC_Page p, 
-							CC_Section s 
-						WHERE 
-							cs.CourseID = s.CourseID AND 
-							p.SectionID = s.ID AND 
-							p.ID = e.PageID AND 
-							e.ElementTypeID IN ( ' . implode( ',', $types ) . ' ) AND 
-							' . $sectionSpecific . '
-							cs.ID = \'' . $csId . '\'
-					';
-					
-				}
+				
+				// Count interactive elements on this page
+				$maxQuery = '
+					SELECT COUNT( e.ID ) CNT
+					FROM 
+						CC_CourseSession cs, 
+						CC_Element e,
+						CC_Page p,
+						CC_Section s
+					WHERE 
+						cs.CourseID = s.CourseID AND 
+						p.SectionID = s.ID AND 
+						p.ID = e.PageID AND
+						e.ElementTypeID IN ( ' . implode( ',', $types ) . ' ) AND 
+						' . $sectionSpecific . '
+						cs.ID = \'' . $csId . '\'
+				';
+				
 				// Get total element count based on course session
 				$iter[ 'maxQuery' ] = $maxQuery;
 				if( $elC = $db->database->fetchObject( $maxQuery ) )
 				{
-					/*
-						s.CourseID = s.CourseID AND 
-						s.UserID = \'' . $userId . '\' AND 
-						p.SectionID = se.ID AND 
-						s.CourseID = se.CourseID AND ' . $sectionSpecific . '
-						p.ID = e.PageID AND 
-						e.ElementTypeID IN ( ' . implode( ',', $types ) . ' ) AND 
-						s.ID = \'' . $csId . '\' AND
-						s.UserID = \'' . $userId . '\'
-					*/
 					$iter[ 'elC' ] = $elC;
 					$elementCount = $elC->CNT;
 					
-					$registeredQuery = '';
-					// Get pages that were interacted with
-					if ( $countPageProgress )
-					{
-						$registeredQuery = '
-							SELECT
-								pr.*
-							FROM
-								CC_PageResult pr
-							WHERE
-								pr.CourseSessionID = ' . $csId . '
-						';
-					}
 					// Get elements that were interacted with
-					else
+					$registeredQuery = '
+						SELECT 
+							er.*
+						FROM 
+							CC_ElementResult er
+						WHERE 
+							er.CourseSessionID = \'' . $csId . '\'
+					';
+					
+					if( isset( $args->args->sectionId ) )
 					{
+						$iter[ 'sectionId '] = intval( $args->args->sectionId );
+						
 						$registeredQuery = '
 							SELECT 
 								er.*
 							FROM 
 								CC_ElementResult er
-							WHERE 
-								er.CourseSessionID = \'' . $csId . '\'
+							LEFT JOIN CC_Element e
+								ON er.ElmentID = e.ID
+							LEFT JOIN CC_Page p
+								ON e.PageID = p.ID
+							WHERE
+								er.CourseSessionID = \'' . csId . '\'
+							AND
+								p.SectionID = \'' . intval( $args->args->sectionId, 10 ) . '\'
 						';
-					}
-					
-					/*
-					cs.UserID = \'' . $userId . '\' AND 
-						cs.ID = er.CourseSessionID AND 
-						er.Data AND 
-						er.UserID = cs.UserID AND
-						er.CourseSessionID = \'' . $csId . '\'
-					*/
-					
-					if( isset( $args->args->sectionId ) )
-					{
-						$iter[ 'sectionId '] = intval( $args->args->sectionId );
-						if ( $countPageProgress )
-						{
-							$registeredQuery = '
-								SELECT
-									pr.*
-								FROM
-									CC_PageResult AS pr
-								LEFT JOIN CC_Page AS p
-									ON pr.PageID = p.ID
-								WHERE
-									pr.CourseSessionID = ' . $csId .  '
-								AND
-									p.SectionID = ' . intval( $args->args->sectionId, 10 ) . '
-							';
-						}
-						else
-						{
-							$registeredQuery = '
-								SELECT 
-									er.*
-								FROM 
-									CC_ElementResult er
-								LEFT JOIN CC_Element e
-									ON er.ElmentID = e.ID
-								LEFT JOIN CC_Page p
-									ON e.PageID = p.ID
-								WHERE
-									er.CourseSessionID = ' . csId . '
-								AND
-									p.SectionID = ' . intval( $args->args->sectionId, 10 ) . '
-							';
-						}
-						
-						/*
-						
-						$regQ = '
-							SELECT 
-								r.*
-							FROM 
-								CC_ElementResult r, 
-								CC_Element e, 
-								CC_Page p, 
-								CC_Section s, 
-								CC_CourseSession cs
-							WHERE 
-								r.Data AND 
-								r.UserID = cs.UserID AND
-								r.OriginalElementId = e.ID AND
-								e.PageID = p.ID AND
-								p.SectionID = s.ID AND
-								s.ID = \'' . intval( $args->args->sectionId, 10 ) . '\' AND
-								r.CourseSessionID = \'' . $csId . '\' AND
-								cs.UserID = \'' . $userId . '\' AND
-								cs.ID = r.CourseSessionID
-						';
-						
-						*/
 					}
 					
 					$iter[ 'reggedQ' ] = $registeredQuery;
@@ -1043,9 +940,13 @@ switch( $args->args->command )
 						];
 						$iter[ 'in' ] = $in;
 						if ( 0 == $reg || 0 == $tot )
+						{
 							$prog[] = 0;
+						}
 						else
-							$prog[] = ( $reg / $tot ) * 100;
+						{
+							$prog[] = floor( ( $reg / $tot ) * 100 );
+						}
 						
 					}
 					else
@@ -1068,6 +969,7 @@ switch( $args->args->command )
 		$getProgReturn = [];
 		$userCounts = [];
 		$allFlags = [];
+		
 		foreach( $crsProg as $cid=>$cps )
 		{
 			$userCount = count( $cps );

@@ -110,7 +110,7 @@ moduleObject.dashboard = {
 	initialize( moduleView )
 	{
 		const self = this;
-		console.log( 'dash init', moduleView, self );
+		//console.log( 'dash init', moduleView, self );
 		self.welc = moduleView.moduleContainer.domNode.children[0].children[0];
 		self.prog = moduleView.moduleContainer.domNode.children[0].children[1];
 		self.stat = moduleView.moduleContainer.domNode.children[0].children[2];
@@ -128,14 +128,14 @@ moduleObject.dashboard = {
 		self.stat = self.stat.querySelector( '.FUISectionContent' );
 		self.stat.classList.add( 'dashDisplayWrap' );
 		
+		/*
+		// DEBUG
 		console.log( 'sects', {
 			welc : self.welc,
 			prog : self.prog,
 			stat : self.stat,
 		});
-		
-		//self.prog = ge( 'dashProgress' );
-		//self.stat = ge( 'dashStatus' );
+		*/
 		
 		const cl = new Module( 'system' );
 		cl.onExecuted = ( s , d ) => {
@@ -162,7 +162,8 @@ moduleObject.dashboard = {
 				
 				console.log( 'class ids', clIds );
 				const p = new Module( 'system' );
-				p.onExecuted = ( s, d ) => {
+				p.onExecuted = function( s, d )
+				{
 					console.log( 'classroom progress back', [ s, d ]);
 					if ( 'ok' == s )
 					{
@@ -196,15 +197,6 @@ moduleObject.dashboard = {
 						}
 						
 						return;
-						/*
-						let l = rs.length;
-						for( ;l; )
-						{
-							l--;
-							rs[l].Progress = -( Math.floor( Math.random() * 100 ));
-							self.addClassProgress( rs[l] );
-						}
-						*/
 					}
 				}
 				p.execute( 'appmodule', {
@@ -214,7 +206,7 @@ moduleObject.dashboard = {
 				});
 				
 				const cp = new Module( 'system' );
-				cp.onExecuted = ( s, d ) =>
+				cp.onExecuted = function( s, d )
 				{
 					console.log( 'all completed back', [ s, d ]);
 					if ( 'ok' == s )

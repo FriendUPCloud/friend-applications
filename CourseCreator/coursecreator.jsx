@@ -43,7 +43,6 @@ Application.run = function ( msg ) {
         adm.setContent( data );
     }
     af.load();
-    
 }
 
 Application.receiveMessage = function( msg )
