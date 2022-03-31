@@ -197,15 +197,50 @@ class Element
             PageID: this.parent.dbId == null ? 0 : this.parent.dbId,
             ElementTypeID: this.classInfo.elementTypeId == null ? 0 : this.classInfo.elementTypeId
         };
-        console.log( 'Saving course with these params: ', params );
-        courseCreator.dbio.call(
-            'updateTable',
-            params,
-            function ( code, data ) {
-                if (callBack)
-                    callBack( data );
+        
+        function caller()
+        {
+            courseCreator.dbio.call(
+                'updateTable',
+                params,
+                function ( code, data ) {
+                    if (callBack)
+                        callBack( data );
+                }
+            );
+        }
+        
+        if( !this.dbId )
+        {
+            this.displayId = 0;
+        }
+    
+        if( !this.displayId || this.displayId == 0 )
+        {
+            // Get highest display ID
+            let m = new Module( 'system' );
+            m.onExecuted = function( me, md )
+            {
+                if( me == 'ok' )
+                {
+                    md = JSON.parse( md );
+                    params.DisplayID = md.displayId;
+                    caller();
+                }
             }
-        );
+            m.execute( 'appmodule', {
+                appName: 'CourseCreator',
+				command: 'getnextdisplayid',
+				vars: {
+					pageId: params.PageID,
+					type: 'element'
+				}   
+            } );
+        }
+        else
+        {
+            caller();
+        }
     }
 
     /*
