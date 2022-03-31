@@ -104,16 +104,19 @@ switch( $args->args->command )
 	
 		$q = '
 			SELECT 
-				cr.* 
+				cr.*,
+				cs.Status AS SessionStatus
 			FROM 
 				CC_UserClassroom uc, 
-				CC_Classroom cr 
+				CC_Classroom cr,
+				CC_CourseSession cs
 			WHERE 
-				uc.ClassroomID = cr.ID
-			AND 
-				uc.UserID=\'' . intval( $User->ID, 10 ) . '\' AND cr.Status > 0
-			' . $status . '
-			' . $active . '
+			    cs.CourseID = cr.CourseID AND
+			    cs.UserID = uc.UserID AND
+				uc.ClassroomID = cr.ID AND 
+	    			uc.UserID=\'' . intval( $User->ID, 10 ) . '\' AND cr.Status > 0
+	    		' . $status . '
+	    		' . $active . '
 			ORDER BY 
 				cr.StartDate DESC, ID DESC
 		';

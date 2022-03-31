@@ -508,7 +508,7 @@ moduleObject.classrooms = {
 				let cl = new Module( 'system' );
 				cl.onExecuted = function( ce, cd )
 				{
-					console.log( 'getclassroomprogress classrooms', [ ce, cd ]);
+					//console.log( 'getclassroomprogress classrooms', [ ce, cd ]);
 					let progress = {};
 					if( ce == 'ok' )
 					{
@@ -516,7 +516,7 @@ moduleObject.classrooms = {
 						{
 							const res = JSON.parse( cd ); 
 							progress = res.progress;
-							console.log( 'w_reload_classrooms res', progress );
+							//console.log( 'w_reload_classrooms res', progress );
 						}
 						catch( e )
 						{
@@ -537,7 +537,7 @@ moduleObject.classrooms = {
 						if( list[ a ] && progress[ list[a].CourseID ] )
 						{
 							prog = progress[ list[a].CourseID ];
-							console.log( 'prog', prog );
+							
 							if( now >= endTime )
 							{
 								exStatus = 'Expired';
@@ -550,6 +550,17 @@ moduleObject.classrooms = {
 						else
 						{
 							exStatus = 'New';
+						}
+						
+						
+						if( list[a].SessionStatus == 9 )
+						{
+						    exStatus = 'Completed';
+						}
+						else if( list[a].SessionStatus == 0 )
+						{
+						    if( exStatus != 'Expired' )
+    						    exStatus = 'Pending';
 						}
 						
 						out.push( [
