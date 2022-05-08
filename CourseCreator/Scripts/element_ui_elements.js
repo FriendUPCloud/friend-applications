@@ -47,32 +47,46 @@ class CheckBoxQuestionElement extends Element
         this.resetDomContainer();
        
         // DOM Elements:
-        
+        // Base 64 encoding
+	    let tx = this.properties.question;
+	    if( this.properties.question.substr( 0, 13 ) == '<!--BASE64-->' )
+	    {
+	    	tx = tx.substr( 13, tx.length - 13 );
+	    	tx = Base64.decode( tx );
+	    }
+	    
         // Question:
         let question = ce(
             'span',
             { 
                 'ckEditor': true,
-                'text': this.properties.question,
+                'text': tx,
                 'classes': [ 'checkBoxQuestion' ],
                 'listeners': [
                     {
                         event: 'blur',
                         callBack: function( event ) {
-                            self.properties.question = event.target.innerHTML;
+                            self.properties.question = '<!--BASE64-->' + Base64.encode( event.target.innerHTML );
                             courseCreator.manager.saveActivePage();
                         }
                     },
                     {
                         event: 'change',
                         callBack: function( event ) {
-                            self.properties.question = event.target.innerHTML;
+                            self.properties.question = '<!--BASE64-->' + Base64.encode( event.target.innerHTML );
                             courseCreator.manager.saveActivePage();
                         }
                     }
                 ]
             }
         );
+        
+        question.addEventListener( 'keyup', function()
+        {
+        	self.properties.question = '<!--BASE64-->' + Base64.encode( question.innerHTML );
+            courseCreator.manager.saveActivePage();
+        } );
+        
         this.domContainer.appendChild(question);
         
         // Checkboxes
@@ -111,6 +125,7 @@ class CheckBoxQuestionElement extends Element
                 cbxInput.checked = true;
 
             // Checkbox label
+            
             let cbxLabel = ce(
                 "span",
                 { 
@@ -247,31 +262,46 @@ class RadioBoxQuestionElement extends Element
        
         // DOM Elements:
         
+        // Base 64 encoding
+        let tx = this.properties.question;
+        if( this.properties.question.substr( 0, 13 ) == '<!--BASE64-->' )
+        {
+        	tx = tx.substr( 13, tx.length - 13 );
+        	tx = Base64.decode( tx );
+        }
+        
         // Question:
         let question = ce(
             'span',
             { 
                 'ckEditor': true,
-                'text': this.properties.question,
+                'text': tx,
                 'classes': [ 'radioBoxQuestion' ],
                 'listeners': [
                     {
                         event: 'blur',
                         callBack: function( event ) {
-                            self.properties.question = event.target.innerHTML;
+                            self.properties.question = '<!--BASE64-->' + Base64.encode( event.target.innerHTML );
                             courseCreator.manager.saveActivePage();
                         } 
                     },
                     {
                     	event: 'change',
                         callBack: function( event ) {
-                            self.properties.question = event.target.innerHTML;
+                            self.properties.question = '<!--BASE64-->' + Base64.encode( event.target.innerHTML );
                             courseCreator.manager.saveActivePage();
                         } 
                     }
                 ]
             }
         );
+        
+        question.addEventListener( 'keyup', function()
+        {
+        	self.properties.question = '<!--BASE64-->' + Base64.encode( question.innerHTML );
+            courseCreator.manager.saveActivePage();
+        } );
+        
         this.domContainer.appendChild(question);
         
         // Radioboxes
@@ -471,24 +501,29 @@ class TextBoxElement extends Element
                 	toolbar: [ 'heading', 'bold', 'italic', 'bulletedList', 'numberedList', 'outdent', 'indent', 'blockQuote' , 'insertTable', 'link', 'mediaEmbed', 'undo', 'redo' ]
                 } )
                 .catch( error => {
-                    console.error( error );
+                    console.error( 'We had an error, ', error );
                 } )
                 .then( ed => {
-                	ed.on( 'keyup', function( event )
+                	div.addEventListener( 'keyup', function( event )
                 	{
-                		self.properties.textBox.content = event.target.innerHTML;
-	                    courseCreator.manager.saveActivePage();
-                	} );
-                	ed.on( 'change', function( event )
-                	{
-                		self.properties.textBox.content = event.target.innerHTML;
+                		console.log( 'Key was up!', div.innerHTML );
+                		self.properties.textBox.content = '<!--BASE64-->' + Base64.encode( div.innerHTML + "" );
 	                    courseCreator.manager.saveActivePage();
                 	} );
                 } )
             ;
-            div.innerHTML = this.properties.textBox.content;
+            // Decode Base64 is possible
+            if( this.properties.textBox.content.substr( 0, 13 ) == '<!--BASE64-->' )
+            {
+            	let block = this.properties.textBox.content;
+            	block = block.substr( 13, block.length - 13 );
+            	div.innerHTML = Base64.decode( block );
+            }
+            else
+            {
+            	div.innerHTML = this.properties.textBox.content;
+            }
             self.domContainer.appendChild(div);
-            console.log(" domcontainer ", self.domContainer);
             self.domContainer.addEventListener(
                 'blur' , 
                 function ( event ){
@@ -498,7 +533,6 @@ class TextBoxElement extends Element
                     courseCreator.manager.saveActivePage();
             }, true);
         }
-        
     }
 
     renderEdit = function() 

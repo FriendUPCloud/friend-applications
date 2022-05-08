@@ -192,7 +192,7 @@ class Element
             ID: this.dbId == null ? 0 : this.dbId,
             DisplayID: this.displayId == null ? 0 : this.displayId,
             Name: this.name == null ? '' : this.name,
-            Properties: JSON.stringify(this.properties),
+            Properties: JSON.stringify( this.properties ),
             SortOrder: JSON.stringify( this.sortOrder ),
             PageID: this.parent.dbId == null ? 0 : this.parent.dbId,
             ElementTypeID: this.classInfo.elementTypeId == null ? 0 : this.classInfo.elementTypeId
@@ -252,7 +252,6 @@ class Element
             
 
             // Delete from the database table
-            console.log( 'About to delete element: ' + self.classInfo.dbTable + ' with id ' + self.dbId );
             courseCreator.dbio.call(
                 'deleteRow',
                 {

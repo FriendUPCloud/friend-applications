@@ -698,10 +698,6 @@ switch( $args->args->command )
 		if ( isset( $args->args ) && isset( $args->args->format ) )
 			$format = $args->args->format;
 		
-		/*
-		if ( isset( $args->args ) && isset( $args->args->countPageProgress ))
-			$countPageProgress = $args->args->countPageProgress;
-		*/
 		$countPageProgress = false;
 		
 		$userId = intval( $User->ID, 10 );
@@ -730,26 +726,8 @@ switch( $args->args->command )
 			
 			$userCheck = ' AND s.UserID=\'' . $userId . '\'';
 			
-			if ( 'classrooms' == $context )
+			if( 'classrooms' == $context )
 			{
-				/*
-				$uq = '
-					SELECT uc.UserID
-					FROM CC_UserClassroom uc
-					WHERE uc.ClassroomID IN ('. implode( ',', $classrooms ) .')
-					GROUP BY uc.UserID
-				';
-				$ur = $db->database->fetchObjects( $uq );
-				$uList = [];
-				if ( $ur )
-				{
-					foreach( $ur AS $u )
-					{
-						$uList[] = intval( $u->UserID, 10 );
-					}
-				}
-				$userCheck = 'AND s.UserID IN (' . implode( ',', $uList ) . ')';
-				*/
 				$userCheck = '';
 			}
 

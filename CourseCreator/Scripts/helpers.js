@@ -206,7 +206,7 @@ function showEditProperties( element, domNode, ctx )
 		
 		FUI.initialize();
 		
-		console.log( 'Lets look at element: ', element );
+		//console.log( 'Lets look at element: ', element );
 		
 		if( element.type == 'project' )
 		{

@@ -11,22 +11,30 @@
 // general EventListeners
 document.addEventListener('dragover', allowDrop);
 document.addEventListener('drop', drop );
-
-var isCtrl = false;
-
-document.onkeyup=function( e )
+/*
+// THIS IS COMMENTED OUT BECAUSE IT MAY NOT BE NEEDED TO SAVE PAGE!
+let usingCTRL = false;
+document.addEventListener('keydown', function( e )
 {
-    if( e.keyCode == 17 ) isCtrl = false;
-}
-document.onkeydown=function(e)
+	if( ( e.code && e.code == 'ControlLeft' ) || e.keyCode == 17 )
+		usingCTRL = true;
+} );
+document.addEventListener('keyup', function( e )
 {
-    if( e.keyCode == 17 ) isCtrl = true;
-    if( e.keyCode == 83 && isCtrl == true ) 
-    {
-        courseCreator.manager.saveActivePage();
-        return false;
-    }
-}
+	if( e.code == 'ControlLeft' || e.keyCode == 17 )
+		usingCTRL = false;
+	else if( e.code == 'KeyV' )
+	{
+		if( usingCTRL )
+		{
+			// Doing a save on elements
+			setTimeout( function()
+			{
+				courseCreator.manager.saveActivePage();
+			}, 100 );
+		}
+	}
+} );*/
 
 Application.receiveMessage = function( msg )
 {
@@ -303,7 +311,7 @@ class PageElement extends Element
         Save the elements on the page to database
 
     */
-    saveElements = function ( callBack ) 
+    saveElements = function ( callBack )
     {
         let self = this;
 
@@ -730,8 +738,15 @@ class RootElement extends Element
 				break;
 			}
 		}
-		if( activeLi )
+		if( activeLi && activeLi.elementReference )
 		{
+		    // Reference the current section to the db id
+		    if( courseCreator.currentSectionId != activeLi.elementReference.dbId ) 
+		    {
+		        console.log( 'Wrong section' );
+		        return;
+		    }
+
 			let ul = activeLi;
 			while( !ul.classList.contains( 'SectionIndex' ) )
 			{
@@ -762,10 +777,11 @@ class RootElement extends Element
         }
 
         // make Li Element
-        let makeLiElement = function( ele, type, number )
+        let makeLiElement = function( ele, type, number, section = false )
         {
         	if( !type ) type = '';
-            let li = ce( 'li' );           
+            let li = ce( 'li' );    
+            li.elementReference = ele;       
             // element index text
             let div = ce( 'div' );
             let icon = type == 'page' ? 'fa-file-text-o' : ( type == 'section' ? 'fa-bookmark-o' : '' );
@@ -787,7 +803,14 @@ class RootElement extends Element
                                 event.stopPropagation();
                                 ele.setActive();
                                 ele.renderMain();
-                                courseCreator.currentPageId = ele.dbId;
+                                if( type == 'page' )
+                                {
+                                    courseCreator.currentPageId = ele.dbId;
+                                }
+                                else if( type == 'section' )
+                                {
+                                    courseCreator.currentSectionId = ele.dbId;
+                                }
                                 courseCreator.setActivePanel( 'SectionsPanel' );
                                 setActiveClass(
                                     event
@@ -804,9 +827,16 @@ class RootElement extends Element
             div.appendChild( text );
             li.appendChild( div );
             
-            if( ele.dbId == courseCreator.currentPageId )
+            if( type == 'page' && ele.dbId == courseCreator.currentPageId )
             {
-            	li.classList.add( 'Active' );
+                if( section && section.dbId == courseCreator.currentSectionId )
+                {
+            	    li.classList.add( 'Active' );
+            	}
+            }
+            else if( type == 'section' && ele.dbId == courseCreator.currentSectionId )
+            {
+                li.classList.add( 'Active', 'ActiveBlock' );
             }
             
             // Remove page button
@@ -884,7 +914,7 @@ class RootElement extends Element
                 for( let k in s.children )
                 {
                 	let p = s.children[k];
-                    let pLi = makeLiElement( p, 'page', n );
+                    let pLi = makeLiElement( p, 'page', n, s );
                     if( pLi )
                     {
                         pLi.classList.add( 'PageIndex' );
@@ -1162,48 +1192,28 @@ class CourseCreator
 		    self.render();
 
 		    // Set active to first child
-		    let firstPage = self.indexView.querySelector( '.PageIndex' );
-		    if( firstPage )
+		    if( !ge( 'index' ).querySelector( '.ActiveBlock' ) )
 		    {
-		        // Activate first index
-		        let sec = null;
-		        if( sec = ge( 'index' ).querySelector( '.SectionIndex' ) )
+		        console.log( 'Setting ACTIVE BLOCK' );
+		        let firstPage = self.indexView.querySelector( '.PageIndex' );
+		        if( firstPage )
 		        {
-		        	sec.classList.add( 'ActiveBlock' );
-		        }
-		        
-		        // Activate this firstpage!
-		        let spa = firstPage.querySelector( '.PageClicker' );
-		        if( spa )
-		        {
-		        	spa.click();
-		        	firstPage.classList.add( 'Active' );
-		        }
-		    }
-
-		    /*// set view button event handler
-		    ge('viewButton').addEventListener(
-		        'click',
-		        function( event ){
-		            let v = new View({
-		                title: 'Courseviewer',
-		                width: 1000,
-		                height: 700
-		            });
-		            let f = new File( 'Progdir:Templates/viewer.html' );
-		            f.onLoad = function( data ){
-		                v.setContent( data, function(){         
-		                    v.sendMessage(
-		                        { 
-		                            command: 'loadCourse',
-		                            courseId: courseCreator.manager.activeChild.dbId
-		                        }
-		                    );
-		                });
+		            // Activate first index
+		            let sec = null;
+		            if( sec = ge( 'index' ).querySelector( '.SectionIndex' ) )
+		            {
+		            	sec.classList.add( 'ActiveBlock' );
 		            }
-		            f.load();
+		            
+		            // Activate this firstpage!
+		            let spa = firstPage.querySelector( '.PageClicker' );
+		            if( spa )
+		            {
+		            	spa.click();
+		            	firstPage.classList.add( 'Active' );
+		            }
 		        }
-		    );*/
+		    }  
 		    
 		    // Set up properties functionality
 		    FUI.addCallback( 'project_publish_change', function( ch )
