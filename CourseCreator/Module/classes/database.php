@@ -663,6 +663,24 @@ class CourseDatabase
     	die( 'fail<!--separate-->{"message":"Failed to create new course."}' );
     }
     
+    // Get the next display ID
+    public function getnextdisplayid( $args )
+    {
+        if( $args->type == 'element' )
+        {
+            if( $row = $this->database->fetchObject( '
+                SELECT MAX(e.DisplayID) mm FROM CC_Element e, CC_Page p
+                WHERE
+                    p.ID = \'' . intval( $args->pageId, 10 ) . '\' AND e.PageID = p.ID
+            ' ) )
+            {
+                die( 'ok<!--separate-->{"displayId":' . ( intval( $row->mm, 10 ) + 1 ) . '}' );
+            }
+            die( 'ok<!--separate-->{"displayId":1}' );
+        }
+        die( 'fail' );
+    }
+    
     // Fetch all pages from section
     public function fetchpagesfromsection( $args )
     {

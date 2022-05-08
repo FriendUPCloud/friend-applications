@@ -10,7 +10,7 @@
 *                                                                              *
 *****************************************************************************©*/
 
-global $Config, $User;
+global $Config, $User, $Logger;
 
 if( !isset( $args->args->command ) ) die( 'fail' );
 
@@ -88,7 +88,7 @@ switch( $args->args->command )
 			if ( !$args->args->status )
 				$status = '';
 			else
-				$status = 'AND cr.Status ='.$args->args->status;
+				$status = 'AND cr.Status = \''.$args->args->status . '\'';
 		}
 		
 		$active = '';
@@ -103,31 +103,27 @@ switch( $args->args->command )
 		}
 	
 		$q = '
-			SELECT 
-				cr.* 
-			FROM 
-				CC_UserClassroom uc, 
-				CC_Classroom cr 
-			WHERE 
-				uc.ClassroomID = cr.ID
-			AND 
-				uc.UserID=\'' . intval( $User->ID, 10 ) . '\' AND cr.Status > 0
-			' . $status . '
-			' . $active . '
-			ORDER BY 
+		    SELECT
+		        cr.*,
+		        uc.UserID AS UCID
+		    FROM
+		        CC_UserClassroom uc,
+		        CC_Classroom cr
+		    WHERE
+		        uc.ClassroomID = cr.ID AND 
+			    uc.UserID = \'' . intval( $User->ID, 10 ) . '\'
+	    		' . $status . '
+	    		' . $active . '
+		    ORDER BY
 				cr.StartDate DESC, ID DESC
 		';
+		
+		//, cs.Status AS SessionStatus,
+		$Logger->log( $q );
 			
 		if( $rows = $db->database->fetchObjects( $q ) )
 		{
-			/*
-			die( 'ok<!--separate-->' . json_encode( [
-				'rows' => $rows,
-				'aargs' => $args->args,
-				'q' => $q,
-			] ) );
-			*/
-			die( 'ok<!--separate-->' . json_encode( $rows ) );
+		    die( 'ok<!--separate-->' . json_encode( $rows ) );
 		}
 		die( 'fail<!--separate-->{"message":"Could not find any classrooms for this user.","response":-1}' );
 	// List sections in course
@@ -420,179 +416,18 @@ switch( $args->args->command )
 	/* ---------------------------------------------------------------------- */
 	// Get the progress status on sections
 	case 'getsectionprogress':
-	
-		// Get types
-		$types = $db->database->fetchObjects( 'SELECT * FROM CC_ElementType WHERE IsQuestion' );
-		$typeOut = [];
-		$response = new stdClass();
-		if( $types )
+		$res = getSectionProgress( $args );
+		switch( $res->message )
 		{
-			foreach( $types as $ty )
-			{
-				$typeOut[] = intval( $ty->ID, 10 );
-			}
+		    case 'notfound':
+		        die( 'fail<!--separate-->{"message":"Could not find progress.","response":-1}' );
+		    case 'noelements':
+		        die( 'fail<!--separate-->{"message":"Could not find progress on elements or results.","response":-1}' );
+		    case 'found':
+		        die( 'ok<!--separate-->' . json_encode( $res->response ) );
+		    default:
+		        die( 'fail<!--separate-->{"message":"Unknown response."}' );
 		}
-		
-		// Get session
-		$sess = $db->database->fetchObject( '
-			SELECT * FROM 
-			CC_CourseSession s 
-			WHERE 
-				( s.Status = 9 OR s.Status = 1 ) AND 
-				s.CourseID = \'' . intval( $args->args->courseId, 10 ) . '\' AND
-				s.UserID=\'' . $User->ID . '\'
-			ORDER BY ID DESC LIMIT 1
-		' );
-		
-		// Validate that we have our information
-		if( count( $typeOut ) > 0 && $sess->ID )
-		{
-			if( isset( $args->args ) && isset( $args->args->sections ) )
-			{
-				$found = 0;
-				foreach( $args->args->sections as $secId )
-				{
-					// Get all elements on this section
-					if( $elementC = $db->database->fetchObject( $q = ( '
-						SELECT COUNT(e.ID) AS CNT FROM CC_Element e, CC_Section s, CC_Page p
-						WHERE
-							p.SectionID = s.ID AND
-							e.PageID = p.ID AND 
-							s.ID = \'' . intval( $secId, 10 ) . '\' AND
-							e.ElementTypeID IN ( ' . implode( ', ', $typeOut ) . ' )
-					' ) ) )
-					{
-						$elementC = $elementC->CNT;
-						
-						if( $rows = $db->database->fetchObjects( '
-							SELECT e.* 
-							FROM 
-								CC_ElementResult e, 
-								CC_Element el,
-								CC_CourseSession s,
-								CC_Section se,
-								CC_Page p
-							WHERE
-								s.ID = \'' . $sess->ID . '\' AND 
-								s.UserID=\'' . $User->ID . '\' AND 
-								se.CourseID = s.CourseID AND
-								se.ID = \'' . $secId . '\' AND
-								p.SectionID = se.ID AND
-								el.ID = e.OriginalElementID AND
-								el.PageID = p.ID AND
-								e.CourseSessionID = s.ID AND 
-								e.Data AND 
-								e.UserID = s.UserID
-						' ) )
-						{
-							$uniques = new stdClass();
-							$elementFilled = 0;
-							foreach( $rows as $row )
-							{
-								if( !isset( $uniques->{$row->OriginalElementID} ) )
-								{
-									$elementFilled++;
-									$uniques->{$row->OriginalElementID} = true;
-								}
-							}
-							
-							$response->{$secId} = new stdClass();
-							if( $elementC > 0 && $elementFilled > 0 )
-							{
-								$response->{$secId}->progress = floor( $elementFilled / $elementC * 100 );
-							}
-							else
-							{
-								// Check if page is complete
-								if( $d = $db->database->fetchObject( ( $q = '
-									SELECT pr.Status FROM CC_PageResult pr, CC_Section s, CC_Page p
-									WHERE
-										s.ID=\'' . intval( $secId, 10 ) . '\' AND 
-										pr.PageID = p.ID AND
-										p.SectionID = s.ID AND
-										pr.CourseSessionID = \'' . $sess->ID . '\'
-									ORDER BY pr.ID DESC
-									LIMIT 1
-								' ) ) )
-								{
-									// Non-interactive (no interactive elements)
-									if( $elementC == 0 )
-									{
-										// Check if the page is complete
-										$response->{$secId}->progress = 0;
-									}
-									// No interactive element is completed
-									else
-									{
-										$response->{$secId}->progress = 0;
-									}
-								}
-								// The page of the element is not complete
-								else
-								{
-									$response->{$secId}->progress = 0;
-								}
-							}
-							$found++;
-						}
-						// No section data on elements, what if there's elements that we didn't count? (e.g. non-interactive)
-						else if( 1 == 1 )
-						{
-							$response->{$secId} = new stdClass();
-							// Check if page is complete
-							if( $d = $db->database->fetchObject( ( $q = '
-								SELECT pr.Status FROM CC_PageResult pr, CC_Section s, CC_Page p
-								WHERE
-									s.ID=\'' . intval( $secId, 10 ) . '\' AND 
-									pr.PageID = p.ID AND
-									p.SectionID = s.ID AND
-									pr.CourseSessionID = \'' . $sess->ID . '\'
-								ORDER BY pr.ID DESC
-								LIMIT 1
-							' ) ) )
-							{
-								// Non-interactive (no interactive elements)
-								if( $elementC == 0 )
-								{
-									// Check if the page is complete
-									$response->{$secId}->progress = 0;
-								}
-								// No interactive element is completed
-								else
-								{
-									$response->{$secId}->progress = 0;
-								}
-							}
-							// The page of the element is not complete
-							else
-							{
-								$response->{$secId}->progress = 0;
-							}
-						}
-					}
-					
-					// Setup flags so we can get page progress on top of element progress
-					$flags = new stdClass();
-					$flags->sectionId = $secId;
-					$flags->session = $sess; // Session object
-					$flags->elementProgress = $response->{$secId}->progress;
-					$flags->countPageProgress = true;
-					
-					// Add page progress specified on section id
-					$response->{$secId}->progress = getProgress( $flags );
-					$found = 1;
-					
-					// Convert to percentage string
-					$response->{$secId}->progress .= '%';
-				}
-				if( $found > 0 )
-				{
-					die( 'ok<!--separate-->' . json_encode( $response ) );
-				}
-				die( 'fail<!--separate-->{"message":"Could not find progress on elements or results.","response":-1}<!--separate-->' . $q );
-			}
-		}
-		die( 'fail<!--separate-->{"message":"Could not find progress.","response":-1}' );
 		break;
 	// Tell the system that a page has been read
 	case 'setpagestatus':
@@ -685,20 +520,21 @@ switch( $args->args->command )
 		// Section hasn't even been started on
 		die( 'fail<!--separate->{"message":"This section is not complete.","response":-1}' );
 		break;
-	// Get progress for you (your user) in a selected class
+	// Get progress for you (your user) in a selected classroom
 	case 'getclassroomprogress':
+		
 		$types = getInteractiveElementTypes( $db );
 		$context = 'user';
 		$format = 'course';
 		$sum = null;
+		
+		// Collect all args from front-end -------------------------------------
 		
 		if ( isset( $args->args ) && isset( $args->args->context ) )
 			$context = $args->args->context;
 		
 		if ( isset( $args->args ) && isset( $args->args->format ) )
 			$format = $args->args->format;
-		
-		$countPageProgress = false;
 		
 		$userId = intval( $User->ID, 10 );
 		
@@ -709,13 +545,13 @@ switch( $args->args->command )
 		}
 		
 		// Get only one item based on course session id
-		$csIds = [];
+		$courseSessionIds = [];
 		$classrooms = false;
 		if( isset( $args->args ) && isset( $args->args->courseSessionId ) )
 		{
-			$csIds[] = intval( $args->args->courseSessionId, 10 );
+			$courseSessionIds[] = intval( $args->args->courseSessionId, 10 );
 		}
-		// Get active sessions frmo classroom ids
+		// Get active sessions from classroom ids
 		else if( isset( $args->args ) && isset( $args->args->classrooms ) )
 		{
 			$classrooms = $args->args->classrooms;
@@ -731,6 +567,7 @@ switch( $args->args->command )
 				$userCheck = '';
 			}
 
+            // Fetch all sessions (on the current user)
 			$cq = '
 				SELECT
 					s.* 
@@ -746,7 +583,7 @@ switch( $args->args->command )
 			{
 				foreach( $sessions as $s )
 				{
-					$csIds[] = $s->ID;
+					$courseSessionIds[] = $s->ID;
 				}
 			}
 		}
@@ -760,73 +597,79 @@ switch( $args->args->command )
 				SELECT s.*
 				FROM CC_CourseSession s
 				WHERE s.Status = 9
-				'.$usrChk.'
+				' . $usrChk . '
 			';
 			$sr = $db->database->fetchObjects( $sq );
 			if ( $sr )
 			{
 				foreach( $sr AS $s )
 				{
-					$csIds[] = $s->ID;
+					$courseSessionIds[] = $s->ID;
 				}
 			}
 			
-			die('ok<!--separate-->'.json_encode([
+			die( 'ok<!--separate-->' . json_encode( [
 				'sq'  => $sq,
 				'sr'  => $sr,
 				'sum' => count( $sr ),
-			]));
+			] ) );
 		}
 		else
 		{
 			die( 'fail<!--separate-->{"message":"Could not find course session or course ids.","response":-1}' );
 		}
 		
-		
 		// Pass through all sessions
-		
 		$loops = []; // debug
-		$crsProg = []; // store progress by course id
+		$courseProgressArr = []; // store progress by course id
 		$sessionStore = [];
 		
-		if( count( $csIds ) )
+		// If we have more than one course session ID
+		if( count( $courseSessionIds ) > 0 )
 		{
 			// Output progress based on course
 			$out = new stdClass();
-			foreach( $csIds as $csId )
+			foreach( $courseSessionIds as $csId )
 			{
-				unset( $iter );
-				$iter = [];
+			    // $iter contains information about classrooms and sessions
+			    // Used for debug
+				unset( $iter ); $iter = []; $iter[ 'csId' ] = $csId;
+				
+				// Just add debug information
 				$loops[] = &$iter;
-				$iter[ 'csId' ] = $csId;
-				$regQ = '';
-				$regR = null;
-				$elC = null;
+				
+				$regR = null; // Amount of registered elements (from db)
+				$elC = null; // Element count var (from db)
 				
 				// Request course session with classroom ID
 				$sq = '
 					SELECT
-						s.*, cl.ID AS ClassID 
+						s.*, cl.ID AS ClassID, cl.Name AS ClassroomName
 					FROM
-						CC_CourseSession s
-					LEFT JOIN CC_Classroom cl
-						ON s.CourseID = cl.CourseID
+						CC_CourseSession s,
+						CC_Classroom cl
 					WHERE
-						s.ID='.$csId.' 
+						s.CourseID = cl.CourseID AND
+						s.ID=\'' . $csId . '\'
 				';
-				
 				$iter[ 'sq' ] = $sq;
 				
+				// Fetch course session object
 				$session = $db->database->fetchObject( $sq );
+				
+				// Add session object to session store on course id
 				$sessionStore[ $session->CourseID ] = $session;
 				
 				unset( $prog );
-				if ( !isset( $crsProg[ $session->CourseID ]) )
+				
+				// Prepare course progress array (of progress numbers 0-100)
+				if ( !isset( $courseProgressArr[ $session->CourseID ]) )
 				{
-					$crsProg[ $session->CourseID ] = [];
+					$courseProgressArr[ $session->CourseID ] = [];
 				}
 				
-				$prog = &$crsProg[ $session->CourseID ];
+				// Grab the progress based on course id
+				$prog = &$courseProgressArr[ $session->CourseID ];
 				
 				$iter[ 'session' ] = $session;
 				
@@ -848,12 +691,6 @@ switch( $args->args->command )
 				
 				$iter[ 'countthetings' ] = true;
 				
-				/*
-				$out->{$cl->CourseID} = new stdClass();
-				$entry =& $out->{$cl->CourseID};
-				$entry->status = $cl->Status;
-				*/
-				
 				$sectionSpecific = '';
 				if( isset( $args->args->sectionId ) )
 				{
@@ -864,195 +701,87 @@ switch( $args->args->command )
 				
 				// Get total page count based on course session
 				$maxQuery = '';
-				if ( $countPageProgress )
-				{
-					$maxQuery = '
-						SELECT COUNT( p.ID ) AS CNT
-						FROM
-							CC_CourseSession AS cs,
-							CC_PageResult AS pr,
-							CC_Page AS p,
-							CC_Section AS s
-						WHERE
-							s.CourseID = cs.CourseID
-						AND
-							p.SectionID = s.ID
-						AND
-							pr.PageID = p.ID
-						AND
-							'.$sectionSpecific.'
-							cs.ID = ' . $csId . '
-					';
-					
-				}
-				else
-				{
-					$maxQuery = '
-						SELECT COUNT( e.ID ) CNT
-						FROM 
-							CC_CourseSession cs, 
-							CC_Element e, 
-							CC_Page p, 
-							CC_Section s 
-						WHERE 
-							cs.CourseID = s.CourseID AND 
-							p.SectionID = s.ID AND 
-							p.ID = e.PageID AND 
-							e.ElementTypeID IN ( ' . implode( ',', $types ) . ' ) AND 
-							' . $sectionSpecific . '
-							cs.ID = \'' . $csId . '\'
-					';
-					
-				}
+				
+				// Count interactive elements on this page
+				$maxQuery = '
+					SELECT COUNT(e.ID) CNT
+					FROM 
+						CC_CourseSession cs, 
+						CC_Element e,
+						CC_Page p,
+						CC_Section s
+					WHERE 
+						cs.CourseID = s.CourseID AND 
+						p.SectionID = s.ID AND 
+						p.ID = e.PageID AND
+						e.ElementTypeID IN ( ' . implode( ',', $types ) . ' ) AND 
+						' . $sectionSpecific . '
+						cs.ID = \'' . $csId . '\'
+				';
+				
 				// Get total element count based on course session
 				$iter[ 'maxQuery' ] = $maxQuery;
 				if( $elC = $db->database->fetchObject( $maxQuery ) )
 				{
-					/*
-						s.CourseID = s.CourseID AND 
-						s.UserID = \'' . $userId . '\' AND 
-						p.SectionID = se.ID AND 
-						s.CourseID = se.CourseID AND ' . $sectionSpecific . '
-						p.ID = e.PageID AND 
-						e.ElementTypeID IN ( ' . implode( ',', $types ) . ' ) AND 
-						s.ID = \'' . $csId . '\' AND
-						s.UserID = \'' . $userId . '\'
-					*/
 					$iter[ 'elC' ] = $elC;
 					$elementCount = $elC->CNT;
 					
-					$registeredQuery = '';
-					// Get pages that were interacted with
-					if ( $countPageProgress )
-					{
-						$registeredQuery = '
-							SELECT
-								pr.*
-							FROM
-								CC_PageResult pr
-							WHERE
-								pr.CourseSessionID = ' . $csId . '
-						';
-					}
-					// Get elements that were interacted with
-					else
-					{
-						$registeredQuery = '
-							SELECT 
-								er.*
-							FROM 
-								CC_ElementResult er
-							WHERE 
-								er.CourseSessionID = \'' . $csId . '\'
-						';
-					}
-					
-					/*
-					cs.UserID = \'' . $userId . '\' AND 
-						cs.ID = er.CourseSessionID AND 
-						er.Data AND 
-						er.UserID = cs.UserID AND
-						er.CourseSessionID = \'' . $csId . '\'
-					*/
-					
+					// Get specific section
 					if( isset( $args->args->sectionId ) )
 					{
+					    $newArgs = new stdClass();
+					    $newArgs->args = new stdClass();
+					    $newArgs->args->courseId = $session->CourseID;
+					    $newArgs->args->sections = array( $args->args->sectionId );
+					    $newArgs->args->userId = $userId;
+					    $newArgs->args->skipPercent = true;
+					    
+					    $res = getSectionProgress( $newArgs );
+					    if( $res->message == 'found' )
+					    {
+					        $prog[] = $res->totalProgress;
+					    }
 						$iter[ 'sectionId '] = intval( $args->args->sectionId );
-						if ( $countPageProgress )
-						{
-							$registeredQuery = '
-								SELECT
-									pr.*
-								FROM
-									CC_PageResult AS pr
-								LEFT JOIN CC_Page AS p
-									ON pr.PageID = p.ID
-								WHERE
-									pr.CourseSessionID = ' . $csId .  '
-								AND
-									p.SectionID = ' . intval( $args->args->sectionId, 10 ) . '
-							';
-						}
-						else
-						{
-							$registeredQuery = '
-								SELECT 
-									er.*
-								FROM 
-									CC_ElementResult er
-								LEFT JOIN CC_Element e
-									ON er.ElmentID = e.ID
-								LEFT JOIN CC_Page p
-									ON e.PageID = p.ID
-								WHERE
-									er.CourseSessionID = ' . csId . '
-								AND
-									p.SectionID = ' . intval( $args->args->sectionId, 10 ) . '
-							';
-						}
-						
-						/*
-						
-						$regQ = '
-							SELECT 
-								r.*
-							FROM 
-								CC_ElementResult r, 
-								CC_Element e, 
-								CC_Page p, 
-								CC_Section s, 
-								CC_CourseSession cs
-							WHERE 
-								r.Data AND 
-								r.UserID = cs.UserID AND
-								r.OriginalElementId = e.ID AND
-								e.PageID = p.ID AND
-								p.SectionID = s.ID AND
-								s.ID = \'' . intval( $args->args->sectionId, 10 ) . '\' AND
-								r.CourseSessionID = \'' . $csId . '\' AND
-								cs.UserID = \'' . $userId . '\' AND
-								cs.ID = r.CourseSessionID
-						';
-						
-						*/
 					}
-					
-					$iter[ 'reggedQ' ] = $registeredQuery;
-					
-					$regR = $db->database->fetchObjects( $registeredQuery );
-					$iter[ 'regR' ] = $regR;
-					if( $regR )
-					{
-						$uniques = new stdClass();
-						$registered = 0;
-						foreach( $regR as $row )
-						{
-							if( !isset( $uniques->{$row->OriginalElementID} ) )
-							{
-								$registered++;
-								$uniques->{$row->OriginalElementID} = true;
-							}
-						}
-						
-						$iter[ 'uniques' ] = $uniques;
-						$reg = $registered; //intval( $registered->CNT, 10 );
-						$tot = intval( $elementCount, 10 );
-						$in = [
-							'registered' => $reg,
-							'total'      => $tot,
-						];
-						$iter[ 'in' ] = $in;
-						if ( 0 == $reg || 0 == $tot )
-							$prog[] = 0;
-						else
-							$prog[] = ( $reg / $tot ) * 100;
-						
-					}
+					// Get all sections combined
 					else
 					{
-						$prog[] = 0;
+					    if( $sects = $db->database->fetchObjects( '
+					        SELECT s.* FROM 
+					            CC_Section s,
+					            CC_CourseSession cs
+					        WHERE
+					            cs.CourseID = s.CourseID AND
+					            cs.ID = \'' . $csId . '\'
+					        ORDER BY s.DisplayID ASC
+					    ' ) )
+					    {
+					        $sections = array();
+					        foreach( $sects as $sect )
+					        {
+					            $sections[] = $sect->ID;
+					        }
+					        $newArgs = new stdClass();
+					        $newArgs->args = new stdClass();
+					        $newArgs->args->courseId = $session->CourseID;
+					        $newArgs->args->sections = $sections;
+					        $newArgs->args->userId = $userId;
+					        $newArgs->args->skipPercent = true;
+					        
+					        $res = getSectionProgress( $newArgs );
+					        if( $res->message == 'found' )
+					        {
+					            $prog[] = intval( $res->totalProgress, 10 );
+					        }
+					    }
+					    // No progress
+					    else
+					    {
+					        $prog[] = 0;
+					    }
 					}
 				}
+				// No progress
 				else
 				{
 					$prog[] = 0;
@@ -1062,23 +791,29 @@ switch( $args->args->command )
 			}
 		}
 		
+		
+		// Now move through all 
 		$progress = [];
 		$classCount = [];
 		$progTemps = [];
 		$getProgReturn = [];
 		$userCounts = [];
 		$allFlags = [];
-		foreach( $crsProg as $cid=>$cps )
+		
+		foreach( $courseProgressArr as $cid=>$cps )
 		{
 			$userCount = count( $cps );
 			if ( 'classrooms' == $context )
 			{
 				$countUsers = '
-					SELECT count( uc.ID ) AS users
-					FROM CC_Classroom AS cl
-					LEFT JOIN CC_UserClassroom AS uc
-						ON cl.ID = uc.ClassroomID
-					WHERE cl.CourseID = '.$cid.'
+					SELECT 
+					    COUNT( uc.ID ) AS users
+					FROM 
+					    CC_Classroom AS cl
+    					LEFT JOIN CC_UserClassroom AS uc
+						    ON cl.ID = uc.ClassroomID
+					WHERE 
+					    cl.CourseID = \'' . $cid . '\'
 				';
 				$usersInClass = $db->database->fetchObject( $countUsers );
 				$classCount[ $cid ] = $usersInClass;
@@ -1086,28 +821,19 @@ switch( $args->args->command )
 			}
 			
 			$userCounts[ $cid ] = $userCount;
-			$progressTemp = 0;
-			if ( 0 != $userCount )
+			$progRet = 0;
+			
+			if ( $userCount != 0 )
 			{
 				$s = 0;
 				foreach( $cps as $n )
+				{
 					$s = $s + $n;
-				$progressTemp = ( $s / $userCount );
+				}
+				$progRet = ( $s / $userCount );
 			}
 			
-			$progTemps[ $cid ] = $progressTemp;
-			$flags = new stdClass();
-			if ( isset( $args->args->sectionId ) )
-				$flags->sectionId = $args->args->sectionId;
-			else
-				$flags->classroomId = $sessionStore[ $cid ]->ClassID;
-			
-			$flags->session = $sessionStore[ $cid ];
-			$flags->elementProgress = $progressTemp;
-			$flags->countPageProgress = true;
-			$allFlags[ $cid ] = $flags;
-			
-			$progRet = getProgress( $flags );
+			$progTemps[ $cid ] = $progRet;
 			$getProgReturn[ $cid ] = $progRet;
 			
 			$progress[ $cid ] = $progRet;
@@ -1123,8 +849,8 @@ switch( $args->args->command )
 		
 		die( 'ok<!--separate-->' . json_encode( [
 			'args'          => $args,
-			'csIds'         => $csIds,
-			'crsProg'       => $crsProg,
+			'csIds'         => $courseSessionIds,
+			'crsProg'       => $courseProgressArr,
 			'progress'      => $progress,
 			'completed'     => $sum,
 			'args'          => $args,
