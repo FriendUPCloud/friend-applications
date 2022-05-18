@@ -277,6 +277,12 @@ class PageElement extends Element
     */
     save = function(callBack)
     {
+        // Make sure we have the correct display id
+        if( this.displayId == 0 )
+        {
+            this.displayId = this.parent.getNextDisplayId();
+        }
+        
         // save page page to database
         let params = {
             table: this.classInfo.dbTable,
@@ -665,9 +671,14 @@ class RootElement extends Element
     }
 
 	// Loads index anew!
-	fetchIndex = function( cbk )
+	fetchIndex = function( cbk, flags )
 	{
 		let self = this;
+		
+		if( !flags || !flags.force )
+		{
+		    if( propsCont ) return;
+		}
 		
 		// Courses
 		if( !this.children.length )
@@ -691,10 +702,10 @@ class RootElement extends Element
 					let m = new Module( 'system' );
 					m.onExecuted = function( ee, d )
 					{
+						sect.children = {};
 						if( ee == 'ok' )
 						{
 							let pags = JSON.parse( d );
-							sect.children = {};
 							for( let a2 = 0; a2 < pags.length; a2++ )
 							{
 								sect.children[ pags[a2].DisplayID ] = new PageElement(
@@ -743,8 +754,14 @@ class RootElement extends Element
 		    // Reference the current section to the db id
 		    if( courseCreator.currentSectionId != activeLi.elementReference.dbId ) 
 		    {
-		        console.log( 'Wrong section' );
-		        return;
+		        // If the active li is a page, check its section
+		        if( activeLi.classList.contains( 'PageIndex' ) )
+		        {
+		            if( courseCreator.currentSectionId != activeLi.elementReference.parent.displayId )
+		            {
+        		        return;
+		            }
+		        }
 		    }
 
 			let ul = activeLi;
@@ -867,9 +884,10 @@ class RootElement extends Element
                         	{
 			                    self.fetchIndex( function()
 			                    {
+					                console.log( 'Got this index..');
 					                self.renderIndex();
 					                self.renderMain();
-					            } );
+					            }, { flags: 'force' } );
 	                        }
                         );
                     }
@@ -899,6 +917,7 @@ class RootElement extends Element
         self.children.forEach( c => {
             // Sections
             let o = 1;
+            
             c.children.forEach( s => 
             {
             	// Section list
@@ -918,7 +937,7 @@ class RootElement extends Element
                     if( pLi )
                     {
                         pLi.classList.add( 'PageIndex' );
-                        pLi.element = p;
+                         pLi.element = p;
                         pUl.appendChild( pLi );
                     }
                     n++;
@@ -944,6 +963,8 @@ class RootElement extends Element
                                         null,
                                         function( newPage )
                                         {
+                                            // Sets the new page active
+                                            console.log( newPage );
                                             newPage.setActive();
                                             let sLie = event
                                                         .target
@@ -990,6 +1011,7 @@ class RootElement extends Element
                         "callBack": function ( event ) {
                             self.children[0].createNewElement(null, function ( newEle )
                             {
+                                // Sets active the section
                                 newEle.setActive();
                                 self.renderIndex();
                                 let ss = courseCreator.indexView.querySelectorAll(

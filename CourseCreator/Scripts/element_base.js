@@ -17,13 +17,6 @@ class Element
 {
     constructor( parent, elementType, displayId=0, dbId=0, name='') 
     {
-        /*console.log(
-            "in element construct", 
-            "elementType", elementType, 
-            "displayId", displayId, 
-            "dbId", dbId, 
-            "name", name
-        );*/
         this.parent = parent;
         this.elementType = elementType;
         this.displayId = displayId;
