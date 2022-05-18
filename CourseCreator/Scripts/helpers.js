@@ -94,7 +94,6 @@ function dragToolbox(ev)
 function drop(ev)
 {
     ev.preventDefault();
-    console.log();
 
     if ( ev.dataTransfer.getData("isNew") ) {
         let elementType = ev.dataTransfer.getData("text");
@@ -226,7 +225,7 @@ function showEditProperties( element, domNode, ctx )
 		d.appendChild( flick );
 		
 		let inp = d.getElementsByTagName( 'input' )[0];
-		inp.value = element.name;
+		inp.value = element.name ? element.name : 'No name';
 		
 		d.classList.add( 'Showing' );
 		
@@ -242,7 +241,7 @@ function showEditProperties( element, domNode, ctx )
 		let b = d.getElementsByTagName( 'button' );
 		b[0].onclick = function( e )
 		{
-            element.name = inp.value;
+            element.name = inp.value ? inp.value : 'No name';
             element.save( inp.value );
             if( ctx )
 	            ctx.renderIndex();

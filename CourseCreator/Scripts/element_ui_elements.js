@@ -49,7 +49,7 @@ class CheckBoxQuestionElement extends Element
         // DOM Elements:
         // Base 64 encoding
 	    let tx = this.properties.question;
-	    if( this.properties.question.substr( 0, 13 ) == '<!--BASE64-->' )
+	    if( tx && this.properties.question.substr( 0, 13 ) == '<!--BASE64-->' )
 	    {
 	    	tx = tx.substr( 13, tx.length - 13 );
 	    	tx = Base64.decode( tx );
@@ -264,7 +264,7 @@ class RadioBoxQuestionElement extends Element
         
         // Base 64 encoding
         let tx = this.properties.question;
-        if( this.properties.question.substr( 0, 13 ) == '<!--BASE64-->' )
+        if( tx && this.properties.question.substr( 0, 13 ) == '<!--BASE64-->' )
         {
         	tx = tx.substr( 13, tx.length - 13 );
         	tx = Base64.decode( tx );
@@ -513,7 +513,8 @@ class TextBoxElement extends Element
                 } )
             ;
             // Decode Base64 is possible
-            if( this.properties.textBox.content.substr( 0, 13 ) == '<!--BASE64-->' )
+            let tx = this.properties.textBox.content;
+            if( tx && this.properties.textBox.content.substr( 0, 13 ) == '<!--BASE64-->' )
             {
             	let block = this.properties.textBox.content;
             	block = block.substr( 13, block.length - 13 );
@@ -521,8 +522,9 @@ class TextBoxElement extends Element
             }
             else
             {
-            	div.innerHTML = this.properties.textBox.content;
+            	div.innerHTML = tx;
             }
+            
             self.domContainer.appendChild(div);
             self.domContainer.addEventListener(
                 'blur' , 

@@ -163,7 +163,8 @@ class Element
         let ele = new cls(self, displayID);
 
         // Call save on the child element
-        ele.save(function( data ){
+        ele.save( function( data )
+        {
             console.log('element save: why are we saving?', data )
             ele.dbId = data;
             ele.domContainer.dataset.dbId = ele.dbId;
@@ -172,7 +173,7 @@ class Element
                 callBack(ele);
             }
             return ele;
-        });
+        } );
     }
 
     // creates id on ID is given
@@ -205,11 +206,14 @@ class Element
         
         if( !this.dbId )
         {
-            this.displayId = 0;
+            this.dbId = 0;
         }
     
-        if( !this.displayId || this.displayId == 0 )
+        if( !this.displayId || this.displayId <= 0 )
         {
+            //console.log( 'Saving new element' );
+            let ref = this;
+            
             // Get highest display ID
             let m = new Module( 'system' );
             m.onExecuted = function( me, md )
@@ -218,6 +222,11 @@ class Element
                 {
                     md = JSON.parse( md );
                     params.DisplayID = md.displayId;
+                    caller();
+                }
+                else
+                {
+                    params.DisplayID = 0;
                     caller();
                 }
             }
