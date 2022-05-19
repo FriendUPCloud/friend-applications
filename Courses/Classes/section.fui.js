@@ -8,11 +8,6 @@
 *                                                                              *
 *****************************************************************************©*/
 
-if( !FUI.classExists )
-{
-    FUI.classExists = function(){ return false; }
-}
-
 if( !FUI.classExists( 'section' ) )
 {
 	// Checkbox element

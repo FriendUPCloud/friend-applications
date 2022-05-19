@@ -8,15 +8,10 @@
 *                                                                              *
 *****************************************************************************©*/
 
-if( !FUI.classExists )
-{
-    FUI.classExists = function(){ return false; }
-}
-
 // Check if it does not already exist
-if( !FUI.classExists( 'moduleview_old' ) )
+if( !FUI.classExists( 'moduleview' ) )
 {
-	class FUIModuleview_old extends FUIElement
+	class FUIModuleview extends FUIElement
 	{
 		constructor( options )
 		{
@@ -260,6 +255,6 @@ if( !FUI.classExists( 'moduleview_old' ) )
 		}
 	}
 
-	FUI.registerClass( 'moduleview_old', FUIModuleview_old );
+	FUI.registerClass( 'moduleview', FUIModuleview );
 }
 
