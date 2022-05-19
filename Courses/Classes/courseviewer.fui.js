@@ -1065,5 +1065,5 @@ class FUICourseviewer extends FUIElement
     	} );
     }
 }
-FUI.registerClass( 'courseviewer' );
+FUI.registerClass( 'courseviewer', FUICourseviewer );
 

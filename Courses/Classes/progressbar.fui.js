@@ -8,6 +8,11 @@
 *                                                                              *
 *****************************************************************************©*/
 
+if( !FUI.classExists )
+{
+    FUI.classExists = function(){ return false; }
+}
+
 if( !FUI.classExists( 'progressbar' ) )
 {
 
@@ -87,7 +92,7 @@ if( !FUI.classExists( 'progressbar' ) )
 			return '<progressbar progress="' + ( this.options.progress ? this.options.progress : '0%' ) + '"/>';
 		}
 	}
-	FUI.registerClass( 'progressbar' );
+	FUI.registerClass( 'progressbar', FUIProgressbar );
 }
 
 

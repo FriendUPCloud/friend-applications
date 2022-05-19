@@ -8,6 +8,11 @@
 *                                                                              *
 *****************************************************************************©*/
 
+if( !FUI.classExists )
+{
+    FUI.classExists = function(){ return false; }
+}
+
 if( !FUI.classExists( 'section' ) )
 {
 	// Checkbox element
@@ -93,7 +98,7 @@ if( !FUI.classExists( 'section' ) )
 		}
 	}
 
-	FUI.registerClass( 'section' );
+	FUI.registerClass( 'section', FUISection );
 
 }
 
