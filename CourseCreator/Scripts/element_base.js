@@ -192,6 +192,8 @@ class Element
             ElementTypeID: this.classInfo.elementTypeId == null ? 0 : this.classInfo.elementTypeId
         };
         
+        console.log( 'Tried these properties: ', params.Properties );
+        
         function caller()
         {
             courseCreator.dbio.call(

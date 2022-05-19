@@ -341,10 +341,10 @@ class PageElement extends Element
 		    	if( !cont.childNodes[b].getAttribute( 'data-element-type' ) )
 		    		continue;
 		    	// Find elements and save them by sort order
-		    	for( let a = 0; a < self.children.length; a++ )
+		    	for( let a in self.children )
 		    	{
 		    		let e = self.children[ a ];
-					if( e.domContainer != cont.childNodes[b] )
+					if( e && e.domContainer != cont.childNodes[b] )
 						continue;
 					e.sortOrder = sortOrder++;
 				    e.save();
