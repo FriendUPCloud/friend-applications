@@ -498,6 +498,18 @@ class FUICourseviewer extends FUIElement
 		}
     }
     
+    // Extract encoded field data
+    extractFieldData( string )
+    {
+        let tx = string;
+	    if( tx && string.substr( 0, 13 ) == '<!--BASE64-->' )
+	    {
+	    	tx = tx.substr( 13, tx.length - 13 );
+	    	tx = Base64.decode( tx );
+	    }
+	    return tx;
+    }
+    
     // Render page and elements for that page
     renderElements()
     {
@@ -741,7 +753,7 @@ class FUICourseviewer extends FUIElement
     			
     			let txt = document.createElement( 'div' );
     			txt.className = 'FUICTextContent';
-    			txt.innerHTML = props.textBox.content;
+    			txt.innerHTML = self.extractFieldData( props.textBox.content );
     			d.appendChild( txt );
     			
     			return d;
@@ -755,7 +767,7 @@ class FUICourseviewer extends FUIElement
     			
     			let bx = document.createElement( 'div' );
     			bx.className = 'FUIRADContent';
-    			bx.innerHTML = '<strong>' + props.question + '</strong>';
+    			bx.innerHTML = '<strong>' + self.extractFieldData( props.question ) + '</strong>';
     			
     			let ul = document.createElement( 'div' );
     			ul.className = 'FUIRADUL';
@@ -860,7 +872,7 @@ class FUICourseviewer extends FUIElement
     			
     			let bx = document.createElement( 'div' );
     			bx.className = 'FUICCBXContent';
-    			bx.innerHTML = '<strong>' + props.question + '</strong>';
+    			bx.innerHTML = '<strong>' + self.extractFieldData( props.question ) + '</strong>';
     			
     			let ul = document.createElement( 'div' );
     			ul.className = 'FUICBXUL';
