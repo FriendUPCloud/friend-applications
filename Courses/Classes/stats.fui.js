@@ -86,7 +86,7 @@ class FUIStatsbox extends FUIElement
         
     }
 }
-FUI.registerClass( 'statsbox' );
+FUI.registerClass( 'statsbox', FUIStatsbox );
 
 
 /* chart.js UI element
@@ -145,4 +145,4 @@ class FUIChartbox extends FUIElement
     }
     
 }
-FUI.registerClass( 'chartbox' );
+FUI.registerClass( 'chartbox', FUIChartbox );

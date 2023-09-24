@@ -255,6 +255,6 @@ if( !FUI.classExists( 'moduleview' ) )
 		}
 	}
 
-	FUI.registerClass( 'moduleview' );
+	FUI.registerClass( 'moduleview', FUIModuleview );
 }
 
