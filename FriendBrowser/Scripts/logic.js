@@ -13,6 +13,7 @@
 // Handling navigation
 var historyLog = []; // Our history log
 var index = 0; // Where we are now in history
+var proxy = 'https://repo.friendsky.cloud/network.php?url='; // TODO: Make customizable
 
 Application.run = function( msg )
 {
@@ -20,7 +21,7 @@ Application.run = function( msg )
 	document.getElementsByTagName( 'input' )[0].select();
 
 	ge( 'BrowserBox' ).src = getImageUrl( 'Progdir:Templates/about.html' );
-	this.registerUrl( ge( 'BrowserBox' ).src );
+	this.registerUrl( getImageUrl( 'Progdir:Templates/about.html' ) );
 
 	this.hostName = false;
 	this.appName = false;
@@ -50,7 +51,7 @@ Application.receiveMessage = function( msg )
 			{
 				// TODO: Support dropping many files
 				/*var items = [];
-				for( var a in msg.data )
+				for( let a in msg.data )
 				{
 					items.push( {
 						Path: msg.data[a].Path,
@@ -76,7 +77,7 @@ Application.receiveMessage = function( msg )
 			Application.doorName = false;
 			break;
 		case 'redirectLink':
-			var path = msg.link;
+			let path = msg.link;
 			if ( msg.link.indexOf( ':' ) >= 0 )
 				path = msg.link.split( ':' )[ 1 ];
 			displayFNetPage( Application.doorName, Application.hostName, Application.appName, Application.community, path );
@@ -86,26 +87,24 @@ Application.receiveMessage = function( msg )
 
 function back()
 {
-	var pindex = index;
+	let pindex = index;
 	if( --index < 0 ) 
 		index = 0;
 	// We actually moved
 	if( index != pindex )
 	{
-		console.log( 'Index is now: ' + index + ' (was ' + pindex + ' )' );
 		setUrl( index, 1 );
 	}
 }
 
 function forward()
 {
-	var pindex = index; 
+	let pindex = index; 
 	if( ++index >= historyLog.length )
 		index = historyLog.length - 1;
 	// We actually moved
 	if( pindex != index )
 	{
-		console.log( 'Going back: ' + historyLog[ index ] );
 		setUrl( index, 1 );
 	}
 }
@@ -128,7 +127,7 @@ function setFriendSession( sessionid )
 
 function replaceFriendUrls( data, url )
 {
-	var baseUrl = '';
+	let baseUrl = '';
 	if( url.indexOf( '/' ) > 0 )
 	{
 		baseUrl = url.split( '/' );
@@ -138,7 +137,7 @@ function replaceFriendUrls( data, url )
 	else baseUrl = url.split( ':' )[0] + ':';
 	baseUrl = baseUrl.split( ':/' ).join( ':' );
 
-	var r;
+	let r;
 	// Replace relative sources
 	while( r = data.match( /src\=['"]([^:"']*?)['"]/i ) )
 	{
@@ -170,9 +169,9 @@ function replaceFriendUrls( data, url )
 }
 
 function setUrl( uri, move )
-{
+{	
 	if( !move ) move = false;
-	var wantedIndex = null;
+	let wantedIndex = null;
 	if( !isNaN( uri ) && ( uri === 0 || uri > 0 ) )
 	{
 		if( uri < historyLog.length )
@@ -190,27 +189,27 @@ function setUrl( uri, move )
 	}
 
 	//uri = uri.split( 'http://' ).join( '' ).split( 'https://' ).join( '' );
-	var urldata = '';
-	var skiploading = false;
+	let urldata = '';
+	let skiploading = false;
 
 	if( uri.indexOf( ':' ) > 0 && uri.indexOf( ':/' ) < 0 )
 	{
 		skiploading = true;
 		if( uri.toLowerCase().substr( 0, 7 ) == 'system:' )
-		{
-			var m = new Module( 'system' );
+		{	
+			let m = new Module( 'system' );
 			m.onExecuted = function( e, data )
 			{
 				if( e != 'ok' )
 				{
 					data = '<h1>No documentation on subject</h1><p>Could not find documentation on subject: ' + uri + '</p>';
 				}
-				var fr = document.createElement( 'iframe' );
+				let fr = document.createElement( 'iframe' );
 				fr.className = 'Browser';
 				fr.id = 'BrowserBox';
 				fr.onLoad = ge( 'BrowserBox' ).onload;
 				ge( 'BrowserBox' ).parentNode.replaceChild( fr, ge( 'BrowserBox' ) );
-				var doc = ge( 'BrowserBox' ).contentDocument || ge( 'BrowserBox' ).contentWindow.document;
+				let doc = ge( 'BrowserBox' ).contentDocument || ge( 'BrowserBox' ).contentWindow.document;
 
 				data = replaceFriendUrls( data, uri );
 
@@ -225,23 +224,23 @@ function setUrl( uri, move )
 		else
 		{
 			// Look for drives with the same name
-			var split = uri.split( ':' );
-			var hostName = split[ 0 ];
+			let split = uri.split( ':' );
+			let hostName = split[ 0 ];
 			Friend.DOS.getDriveInfo( hostName, function( response, message, extra )
 			{
 				// Drive found! File on the current machine!
 				if ( response )
 				{
 					// File on current machine
-					var f = new File( uri );
+					let f = new File( uri );
 					f.onLoad = function( data )
 					{
-						var fr = document.createElement( 'iframe' );
+						let fr = document.createElement( 'iframe' );
 						fr.className = 'Browser';
 						fr.id = 'BrowserBox';
 						fr.onLoad = ge( 'BrowserBox' ).onload;
 						ge( 'BrowserBox' ).parentNode.replaceChild( fr, ge( 'BrowserBox' ) );
-						var doc = ge( 'BrowserBox' ).contentDocument || ge( 'BrowserBox' ).contentWindow.document;
+						let doc = ge( 'BrowserBox' ).contentDocument || ge( 'BrowserBox' ).contentWindow.document;
 
 						data = replaceFriendUrls( data, uri );
 
@@ -259,14 +258,13 @@ function setUrl( uri, move )
 					Application.sendMessage( { command: 'fnet_connect', url: uri } );
 				}
 			} );
-			for( var a = 0; a < Workspace.icons.length; a++ )
+			for( let a = 0; a < Workspace.icons.length; a++ )
 			{
 				if( Workspace.icons[a].Volume == hostName )
 				{
 					return;
 				}
 			}
-
 			return;
 		}
 	}
@@ -275,7 +273,7 @@ function setUrl( uri, move )
 		if( uri.substr( 0, 9 ) != 'friend://' )
 			uri = 'friend://' + uri;
 		urldata = uri.split( 'friend://' )[1];
-		var si = urldata.indexOf( '/' );
+		let si = urldata.indexOf( '/' );
 		if( si < 0 ) si = 0;
 		if( si > 0 )
 			urldata = urldata.substr( si, urldata.length - si );
@@ -285,7 +283,7 @@ function setUrl( uri, move )
 	else
 	{
 		skiploading = true;
-		ge( 'BrowserBox' ).src = uri;
+		ge( 'BrowserBox' ).src = proxy + encodeURIComponent( uri );
 	}
 	
 	ge( 'uri' ).value = uri;
@@ -295,8 +293,8 @@ function setUrl( uri, move )
 	{
 		if( wantedIndex != null && wantedIndex < historyLog.length )
 		{
-			var newHistoryLog = [];
-			for( var a = 0; a < wantedIndex; a++ )
+			let newHistoryLog = [];
+			for( let a = 0; a < wantedIndex; a++ )
 			{
 				newHistoryLog.push( historyLog[a] );
 			}
@@ -316,7 +314,8 @@ function setUrl( uri, move )
 	{
 		if ( uri.substring( 0, 9 ) == 'friend://' )
 		{
-			Application.sendMessage( { command: 'fnet_connect', url: uri.substring( 9 ) } );
+			// TODO: Friend Network 
+			// Application.sendMessage( { command: 'fnet_connect', url: uri.substring( 9 ) } );
 		}
 	}
 	else
@@ -328,10 +327,10 @@ function getFileName( path )
 {
 	if ( path.charAt( path.length - 1 ) == '/' )
 		path = path.substring( 0, path.length - 1 );
-	var slash = path.lastIndexOf( '/' );
+	let slash = path.lastIndexOf( '/' );
 	if ( slash >= 0 )
 		return path.substring( slash + 1 );
-	var doubleDot = path.indexOf( ':' );
+	let doubleDot = path.indexOf( ':' );
 	if ( doubleDot >= 0 )
 		return path.substring( doubleDot + 1 );
 	return path;
@@ -339,16 +338,16 @@ function getFileName( path )
 
 function displayFNetPage( doorName, hostName, appName, community, path )
 {
-	var self = this;
+	let self = this;
 
 	// Check the content of the directory
-	var filename;
-	var parentPath = path;
+	let filename;
+	let parentPath = path;
 	if ( path != '' )
 	{
 		if ( path.substring( path.length - 1 ) != '/' )
 		{
-			var pos = path.lastIndexOf( '/' );
+			let pos = path.lastIndexOf( '/' );
 			if ( pos >= 0 )
 			{
 				filename = path.substring( pos + 1 );
@@ -363,7 +362,7 @@ function displayFNetPage( doorName, hostName, appName, community, path )
 	}
 	Friend.DOS.getDirectory( doorName + ':' + parentPath, {}, function( response, message )	
 	{
-		var OK = false;
+		let OK = false;
 		if ( !response )
 			return;
 
@@ -372,7 +371,7 @@ function displayFNetPage( doorName, hostName, appName, community, path )
 			// No filename, look for index.jsx
 			for ( var l = 0; l < message.list.length; l++ )
 			{
-				var icon = message.list[ l ];
+				let icon = message.list[ l ];
 				if ( icon.Filename == 'index.jsx' )
 				{
 					OK = 'jsx';
@@ -385,7 +384,7 @@ function displayFNetPage( doorName, hostName, appName, community, path )
 				// Look for index.html
 				for ( var l = 0; l < message.list.length; l++ )
 				{
-					var icon = message.list[ l ];
+					let icon = message.list[ l ];
 					if ( icon.Filename == 'index.html' )
 					{
 						OK = 'html';
@@ -400,12 +399,12 @@ function displayFNetPage( doorName, hostName, appName, community, path )
 			// Check that the file is present
 			for ( var l = 0; l < message.list.length; l++ )
 			{
-				var icon = message.list[ l ];
+				let icon = message.list[ l ];
 				if ( icon.Filename == filename )
 				{			
 					// HTML or jsx?		
-					var ext;
-					var dot = filename.lastIndexOf( '.' );
+					let ext;
+					let dot = filename.lastIndexOf( '.' );
 					if ( dot >= 0 )
 						ext = filename.substring( dot + 1 );
 					if ( ext == 'html' )	
@@ -422,7 +421,7 @@ function displayFNetPage( doorName, hostName, appName, community, path )
 		if ( OK == 'html' )
 		{
 			// Set the title
-			var uri = 'friend://' + hostName + '@' + community + '/' + parentPath + filename;
+			let uri = 'friend://' + hostName + '@' + community + '/' + parentPath + filename;
 			ge( 'uri' ).value = uri;
 			Application.sendMessage( { command: 'setcontent', url: uri } );
 
@@ -430,14 +429,14 @@ function displayFNetPage( doorName, hostName, appName, community, path )
 			historyLog.push( uri );
 			index = historyLog.length - 1;
 				
-			var f = new File( doorName + ':' + parentPath + filename );
+			let f = new File( doorName + ':' + parentPath + filename );
 			f.onLoad = function( html )
 			{
-				var iFrame = ge( 'BrowserBox' );
-				var doc = ge( 'BrowserBox' ).contentDocument || ge( 'BrowserBox' ).contentWindow.document;
+				let iFrame = ge( 'BrowserBox' );
+				let doc = ge( 'BrowserBox' ).contentDocument || ge( 'BrowserBox' ).contentWindow.document;
 				
-				var linkReplacement = 'javascript:redirectLinks';
-				var linkFunction = 'function redirectLinks( link ){ parent.postMessage( { command: "redirectLink", link: link }, "*" ) };';
+				let linkReplacement = 'javascript:redirectLinks';
+				let linkFunction = 'function redirectLinks( link ){ parent.postMessage( { command: "redirectLink", link: link }, "*" ) };';
 				
 				FriendNetworkShare.relocateHTML( html, doorName, linkReplacement, linkFunction, function( message )
 				{
@@ -461,21 +460,23 @@ function displayFNetPage( doorName, hostName, appName, community, path )
 		else if ( OK == 'jsx' )
 		{
 			// Get the iframe
-			var frm = document.getElementsByTagName( 'iframe' );
+			let frm = document.getElementsByTagName( 'iframe' );
 			if( !frm || !frm.length )
 			{
 				return;
 			}
 			frm = frm[0];
 
+			// Deprecated
+			return;
 			// Get the user information
-			FriendNetwork.getUserInformation( function( message )
+			/*FriendNetwork.getUserInformation( function( message )
 			{
 				// Open an empty Workspace in the iframe
 				frm.src = '/webclient/app.html?authid=' + Application.authId;
 				frm.onload = function()
 				{
-					var msg =
+					let msg =
 					{
 						type: 'friendNetworkRun',
 						method: 'start',
@@ -487,7 +488,7 @@ function displayFNetPage( doorName, hostName, appName, community, path )
 					};
 					frm.contentWindow.postMessage( JSON.stringify( msg ), '*' );
 				};
-			} );
+			} );*/
 		}
 	} );
 
@@ -495,26 +496,30 @@ function displayFNetPage( doorName, hostName, appName, community, path )
 
 Application.registerUrl = function( uri )
 {
+	if( uri.substr( 0, proxy.length ) == proxy )
+	{
+		uri = decodeURIComponent( uri.substr( proxy.length, uri.length - proxy.length ) );
+	}
 	Application.sendMessage( { command: 'seturl', url: uri } );
 }
 
 function displayCommunities( url, communities, users )
 {
 	// Only one user? change the format of the display
-	var userName;
-	var community, user;
+	let userName;
+	let community, user;
 
 	// Load the community default image
-	var self = this;
+	let self = this;
 	if ( !this.communityImage )
 	{
-		var image = new Image();
+		let image = new Image();
 		image.onload = function()
 		{
-			var canvas = document.createElement( 'canvas' );
+			let canvas = document.createElement( 'canvas' );
 			canvas.width = 32;
 			canvas.height = 32;
-			var context = canvas.getContext( '2d' );
+			let context = canvas.getContext( '2d' );
 			context.drawImage( this, 0, 0, 32, 32 );				
 			self.communityImage = canvas.toDataURL();				
 			setHTML();
@@ -527,8 +532,8 @@ function displayCommunities( url, communities, users )
 	}
 	function setHTML()
 	{
-		var tab = '&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp';
-		var html = '';
+		let tab = '&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp';
+		let html = '';
 		if ( users.length > 1 )
 		{
 			// List the communities
@@ -575,7 +580,7 @@ function displayCommunities( url, communities, users )
 									</div>';
 					for ( var s = 0; s < user.sharing.length; s++ )
 					{
-						var sharing = user.sharing[ s ];
+						let sharing = user.sharing[ s ];
 						html +=	   '<div class="HRow">\
 										<div class="FloatLeft">' + tab + '</div>\
 										<div class="FloatLeft">' + tab + '</div>\
@@ -634,7 +639,7 @@ function displayCommunities( url, communities, users )
 										</div>';
 					for ( var s = 0; s < user.sharing.length; s++ )
 					{
-						var sharing = user.sharing[ s ];
+						let sharing = user.sharing[ s ];
 						html +=		   '<div class="HRow">\
 											<div class="FloatLeft">' + tab + '</div>\
 											<div class="FloatLeft">' + tab + '</div>\
@@ -669,12 +674,12 @@ function displayCommunities( url, communities, users )
 		}
 		
 		// Changes the iFrame
-		var fr = document.createElement( 'iframe' );
+		let fr = document.createElement( 'iframe' );
 		fr.className = 'Browser';
 		fr.id = 'BrowserBox';
 		fr.src = '/webclient/sandboxed.html';
 		ge( 'BrowserBox' ).parentNode.replaceChild( fr, ge( 'BrowserBox' ) );
-		var doc = ge( 'BrowserBox' ).contentDocument || ge( 'BrowserBox' ).contentWindow.document;		
+		let doc = ge( 'BrowserBox' ).contentDocument || ge( 'BrowserBox' ).contentWindow.document;		
 		fr.addEventListener( 'load', function()
 		{
 			fr.contentWindow.postMessage( JSON.stringify( { command: 'setbodycontent', data: html } ), '*' );

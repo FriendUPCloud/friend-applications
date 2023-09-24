@@ -3,7 +3,7 @@
 * Friend Unifying Platform                                                     *
 * ------------------------                                                     *
 *                                                                              *
-* Copyright 2014-2017 Friend Software Labs AS, all rights reserved.            *
+* Copyright 2014-2023 Friend Software Labs AS, all rights reserved.            *
 * Hillevaagsveien 14, 4016 Stavanger, Norway                                   *
 * Tel.: (+47) 40 72 96 56                                                      *
 * Mail: info@friendos.com                                                      *
@@ -13,6 +13,14 @@
 Application.proxy = '';
 Application.friendsession = '';
 Application.run = function( msg )
+{
+    this.setApplicationName( 'WideWeb' );
+    Application.loadTranslations( 'Progdir:Locale/', function()
+    {
+        Application.init( msg );
+    });
+}
+Application.init = function( msg )
 {
 	var v = new View( {
 		title:  i18n( 'i18n_wideweb' ),
@@ -123,12 +131,14 @@ Application.receiveMessage = function( msg )
 			this.currentUrl = msg.url;
 			break;
 		case 'seturl':
-			if ( msg.url.indexOf( 'WideWeb/Templates/about.html' ) < 0 && msg.url != this.currentUrl )
+			if( msg.url.indexOf( 'WideWeb/Templates/about.html' ) < 0 && msg.url != this.currentUrl )
 			{
 				this.currentUrl = msg.url;
 				Application.mainView.setFlag( 'title', i18n( 'i18n_wideweb' ) + ' - ' + msg.url );
 				if( !msg.logic )
+				{
 					this.mainView.sendMessage( { command: 'loadfile', filename: this.currentUrl } );
+				}
 			}
 			break;
 		case 'updateproxy':
