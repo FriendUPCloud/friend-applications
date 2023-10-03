@@ -49,6 +49,7 @@ window.addEventListener( 'message', function( msg )
                 {
                     Application.queuedFunc();
                 }
+                Application.sendMessage( { command: 'loadsuccessful' } );
                 Application.blocked = false; // unblock
                 ge( 'mainframe' ).classList.add( 'Showing' );
                 ge( 'mainframe' ).contentWindow.postMessage( { 

@@ -15,9 +15,21 @@ Application.run = function( msg )
     	
     	if( msg.args )
     	{
-    	    let arg = msg.args.split( ' ' );
-    	    cfg.serverUrl = arg[1];
-    	    Application.isReceiver = true;
+    	    let arg = msg.args;
+    	    if( arg.indexOf( ' ' ) > 0 )
+    	    {
+    	        arg = msg.args.split( ' ' );
+    	        arg = arg[1];
+    	    }
+    	    if( arg.substr( 0, 4 ) == 'http' )
+    	    {
+        	    cfg.serverUrl = arg;
+        	    Application.isReceiver = true;
+    	    }
+    	    else
+    	    {
+    	        Application.startLoad = arg;
+    	    }
     	}
     	
     	// Create a new view window
@@ -194,7 +206,23 @@ Application.receiveMessage = function( msg )
 	switch( msg.command )
 	{
         case 'loadsuccessful':
-            // Cool..
+            if( Application.startLoad )
+            {
+                let ext = Application.startLoad.split( '.' ).pop();
+                ext = ext.toLowerCase();
+                if( ext == 'htm' || ext == 'html' || ext == 'memo' )
+                {
+                    Application.currentFile = { Path: Application.startLoad };
+        			Application.mainView.sendMessage( {
+        				command: 'loadfiles',
+        				files: [ Application.currentFile ]
+        			} );
+                    self.refreshMenu();
+        			let nam = Application.currentFile.Path;
+        			Application.mainView.setFlag( 'title', 'Etherpad - ' + sanitizeFilename( nam ) );
+                }
+                Application.startLoad = false;
+            }
             break;
         // From menu ----------------
 	    case 'load':
