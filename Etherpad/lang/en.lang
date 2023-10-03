@@ -1,0 +1,13 @@
+i18n_file               : File
+i18n_new                : New
+i18n_load               : Load
+i18n_save               : Save
+i18n_save_as            : Save as
+i18n_quit               : Quit
+
+i18n_collaboration      : Collaboration
+i18n_sharing_embed      : Sharing & embedding
+i18n_show_users         : Show users
+i18n_hide_users         : Hide users
+i18n_show_chat          : Show chat
+i18n_hide_chat          : Hide chat
