@@ -40,3 +40,6 @@ Make sure you only have three components of your domain name.
 etherpad.test.example.com will fail, and will cause the Friend OS app not to
 work properly.
 
+Copy the friend-script.js to the document root directory in a friend/ folder. 
+This way it will be included in Etherpad to set up the bi-directional 
+postMessage API between Etherpad and the Friend OS app.
