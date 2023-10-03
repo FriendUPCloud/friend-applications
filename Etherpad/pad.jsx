@@ -13,6 +13,13 @@ Application.run = function( msg )
     	
     	cfg.serverUrl = cfg.serverUrl.split( 'me.friendsky.' ).join( 'friendsky.' );
     	
+    	if( msg.args )
+    	{
+    	    let arg = msg.args.split( ' ' );
+    	    cfg.serverUrl = arg[1];
+    	    Application.isReceiver = true;
+    	}
+    	
     	// Create a new view window
     	self.mainView = new View( {
     		title: 'Etherpad',
@@ -40,6 +47,29 @@ Application.run = function( msg )
 Application.refreshMenu = function()
 {
     let self = this;
+    
+    if( this.isReceiver )
+    {
+       this.mainView.setMenuItems( [ {
+            name: i18n( 'i18n_file' ),
+            items: [ {
+                name: i18n( 'i18n_quit' ),
+                command: 'quit'
+            } ]
+        }, {
+            name: i18n( 'i18n_collaboration' ),
+            items: [ {
+                name: i18n( 'i18n_show_chat' ),
+                command: 'show_chat',
+                disabled: self.menuConfig.chat
+            }, {
+                name: i18n( 'i18n_hide_chat' ),
+                command: 'hide_chat',
+                disabled: !self.menuConfig.chat
+            } ]
+        } ] );
+        return;
+    }
     this.mainView.setMenuItems( [ {
         name: i18n( 'i18n_file' ),
         items: [ {
@@ -77,6 +107,8 @@ Application.refreshMenu = function()
 
 Application.fileLoad = function()
 {
+    if( this.isReceiver ) return;
+    let self = this;
     let flags = {
 		multiSelect: false,
 		triggerFunction: function( arr )
@@ -88,6 +120,7 @@ Application.fileLoad = function()
 					command: 'loadfiles',
 					files: arr
 				} );
+                self.refreshMenu();
 				let nam = Application.currentFile.Path;
 				Application.mainView.setFlag( 'title', 'Etherpad - ' + sanitizeFilename( nam ) );
 			}
@@ -121,6 +154,8 @@ function sanitizeFilename( data )
 // Saves current file
 Application.fileSaveAs = function()
 {
+    if( this.isReceiver ) return;
+    
     let self = this;
 	let flags = {
 		type: 'save',
@@ -135,6 +170,8 @@ Application.fileSaveAs = function()
 			self.currentFile = {
 				Path: fname
 			};
+			
+            self.refreshMenu();
 			
 			self.mainView.sendMessage( {
 	            command: 'save',
@@ -164,6 +201,11 @@ Application.receiveMessage = function( msg )
 	        this.fileLoad();
 	        break;
 	    case 'save':
+	        // Can't save in this mode
+	        if( self.simpleMenu )
+	        {
+	            return;
+	        }
 	        if( !self.currentFile || !self.currentFile.Path )
 	            this.fileSaveAs();
 	        self.mainView.sendMessage( {
@@ -181,6 +223,8 @@ Application.receiveMessage = function( msg )
                 {
                     if( d.data )
                     {
+                        self.simpleMenu = false;
+                        self.refreshMenu();
                         self.currentFile = {};
                         self.mainView.sendMessage( {
                             command: 'new'

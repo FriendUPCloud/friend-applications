@@ -4,6 +4,10 @@ FriendApplication = {
 		shift: false,
 		ctrl: false
 	},
+	setuser( msg )
+	{
+	    // who knows how this is done..
+	},
 	new( msg )
 	{
 		window.parent.postMessage( { command: 'unload' }, '*' );

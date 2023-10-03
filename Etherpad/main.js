@@ -1,7 +1,6 @@
 // Start logic for this application scope
 Application.run = function( msg )
 {
-	
 }
 
 // From ether
@@ -21,7 +20,6 @@ window.addEventListener( 'message', function( msg )
                 }
                 let f = new File( Application.currentPath );
                 f.save( msg.data.content );
-                console.log( 'Sac')
                 break;
             // Results
             case 'show_users':
@@ -53,6 +51,10 @@ window.addEventListener( 'message', function( msg )
                 }
                 Application.blocked = false; // unblock
                 ge( 'mainframe' ).classList.add( 'Showing' );
+                ge( 'mainframe' ).contentWindow.postMessage( { 
+                    command: 'setuser',
+                    username: Application.fullName
+                }, '*' );
                 break;
         }
     }
@@ -92,6 +94,7 @@ Application.receiveMessage = function( msg )
         case 'show_chat':
         case 'hide_chat':
         case 'new':
+            msg.username = Application.fullName;
             ge( 'mainframe' ).contentWindow.postMessage( msg, '*' );
             break;
         case 'loadfiles':
