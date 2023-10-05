@@ -12,7 +12,6 @@ Application.run = function( msg )
     	};
     	
     	cfg.serverUrl = cfg.serverUrl.split( 'me.friendsky.' ).join( 'friendsky.' );
-    	
     	if( msg.args )
     	{
     	    let arg = msg.args;
