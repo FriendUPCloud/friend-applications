@@ -89,6 +89,8 @@ FriendApplication = {
 	}
 };
 
+
+// Incoming event listener
 window.addEventListener( 'message', function( msg )
 {
 	if( msg.data && msg.data.command )
@@ -98,6 +100,7 @@ window.addEventListener( 'message', function( msg )
 	}
 } );
 
+// Things to do when we load
 window.addEventListener( 'load', function()
 {
     if( document.querySelector( '#button' ))
